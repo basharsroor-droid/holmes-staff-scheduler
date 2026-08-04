@@ -35,6 +35,8 @@ export async function POST(request: Request) {
       nationalId: user.nationalId,
       email: user.email,
       role: user.role,
+      organizationId: user.organizationId,
+      branchId: user.branchId,
       emailVerified: true,
       mustChangePassword: user.mustChangePassword
     }

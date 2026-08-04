@@ -165,6 +165,25 @@ button {
   padding: 28px 0 56px;
 }
 
+.workspace-strip {
+  width: min(calc(100% - 28px), var(--max));
+  margin: 12px auto 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border: 1px solid rgba(19, 111, 99, 0.18);
+  border-radius: var(--radius);
+  background: var(--primary-soft);
+  color: var(--primary-dark);
+  padding: 10px 12px;
+  font-size: 14px;
+}
+
+.workspace-strip span {
+  color: #2f6f66;
+}
+
 .auth-page {
   min-height: 100vh;
   display: grid;
@@ -1304,6 +1323,7 @@ h3 {
   }
 
   .topbar-inner,
+  .workspace-strip,
   .user-switcher,
   .large-shift-header,
   .mini-row {

@@ -15,7 +15,12 @@ import {
   Wand2
 } from "lucide-react";
 
-import { demoOrganization, productConfig } from "@/lib/app-config";
+import {
+  defaultBranchId,
+  defaultOrganizationId,
+  getOrganizationById,
+  productConfig
+} from "@/lib/app-config";
 import { employees, managerEmployeeId } from "@/lib/mock-data";
 import type { AuthUser } from "@/lib/auth-config";
 import { AUTH_USER_KEY, DEMO_USER_KEY } from "@/lib/local-storage-keys";
@@ -50,6 +55,14 @@ function getNavForEmployee(employee: Employee) {
   return managerNav;
 }
 
+function normalizeAuthUser(user: AuthUser): AuthUser {
+  return {
+    ...user,
+    organizationId: user.organizationId ?? defaultOrganizationId,
+    branchId: user.branchId ?? defaultBranchId
+  };
+}
+
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const [authUser, setAuthUser] = useState<AuthUser | null>(null);
@@ -67,7 +80,7 @@ export function AppShell({ children }: { children: ReactNode }) {
       window.localStorage.getItem(AUTH_USER_KEY) ??
       window.sessionStorage.getItem(AUTH_USER_KEY);
     if (storedAuth) {
-      const parsedUser = JSON.parse(storedAuth) as AuthUser;
+      const parsedUser = normalizeAuthUser(JSON.parse(storedAuth) as AuthUser);
       setAuthUser(parsedUser);
       setSelectedEmployeeId(parsedUser.id);
     } else if (pathname !== "/") {
@@ -94,6 +107,7 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   const displayName = `${authUser.firstName} ${authUser.lastName}`.trim();
   const roleLabel = roleLabels[authUser.role];
+  const organization = getOrganizationById(authUser.organizationId);
   const navUser = {
     ...selectedEmployee,
     role: authUser.role,
@@ -110,7 +124,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             <div>
               <div className="brand-title">{productConfig.name}</div>
               <div className="brand-subtitle">
-                {demoOrganization.branchName} · {productConfig.tagline}
+                {organization.businessName} · {organization.branchName}
               </div>
             </div>
           </Link>
@@ -130,7 +144,8 @@ export function AppShell({ children }: { children: ReactNode }) {
           <div className="user-switcher" aria-label="כניסה עם משתמש דמו">
             <div className="role-pill">
               <span className="dot" style={{ background: selectedEmployee.color }} />
-              {displayName || selectedEmployee.fullName} · {roleLabel}
+              {displayName || selectedEmployee.fullName} · {roleLabel} ·{" "}
+              {organization.businessName}
             </div>
             <button className="button" onClick={logout}>
               יציאה
@@ -138,6 +153,13 @@ export function AppShell({ children }: { children: ReactNode }) {
           </div>
         </div>
       </header>
+      <div className="workspace-strip">
+        <div>
+          <strong>סביבת עבודה:</strong> {organization.businessName} ·{" "}
+          {organization.branchName}
+        </div>
+        <span>{organization.industryLabel}</span>
+      </div>
       <main className="page">{children}</main>
     </div>
   );

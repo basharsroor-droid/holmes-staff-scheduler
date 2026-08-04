@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { defaultBranchId, defaultOrganizationId } from "@/lib/app-config";
 
 export const GOOGLE_USERS_SHEET_URL =
   "https://docs.google.com/spreadsheets/d/1rM2bKzVngtF4Ymo1WVKH1J07cNNPbgDxY7wmqBIYp5k/edit";
@@ -14,6 +15,8 @@ export const demoLoginUsers = [
     email: "bashar@example.com",
     password: "123456",
     role: "employee" as const,
+    organizationId: defaultOrganizationId,
+    branchId: defaultBranchId,
     mustChangePassword: true
   },
   {
@@ -24,6 +27,20 @@ export const demoLoginUsers = [
     email: "valeria@example.com",
     password: "123456",
     role: "manager" as const,
+    organizationId: defaultOrganizationId,
+    branchId: defaultBranchId,
+    mustChangePassword: true
+  },
+  {
+    id: "emp-demo-cafe-manager",
+    firstName: "דנה",
+    lastName: "",
+    nationalId: "333333333",
+    email: "cafe-manager@example.com",
+    password: "123456",
+    role: "manager" as const,
+    organizationId: "demo-cafe",
+    branchId: "demo-cafe-main",
     mustChangePassword: true
   }
 ];
@@ -50,6 +67,8 @@ export type AuthUser = {
   nationalId: string;
   email: string;
   role: "employee" | "manager" | "admin";
+  organizationId: string;
+  branchId: string;
   emailVerified: boolean;
   mustChangePassword?: boolean;
 };

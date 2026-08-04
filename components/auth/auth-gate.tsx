@@ -4,19 +4,34 @@ import { useState } from "react";
 import { KeyRound, LockKeyhole, ShieldCheck } from "lucide-react";
 
 import type { AuthUser } from "@/lib/auth-config";
-import { demoOrganization, productConfig } from "@/lib/app-config";
+import {
+  defaultBranchId,
+  defaultOrganizationId,
+  demoOrganization,
+  organizationDisplayName,
+  productConfig
+} from "@/lib/app-config";
 import { AUTH_USER_KEY, DEMO_USER_KEY, LOCAL_USERS_KEY } from "@/lib/local-storage-keys";
 
 type StoredUser = AuthUser & { password: string };
 
 function saveAuthUser(user: AuthUser, persist: boolean) {
+  const normalizedUser = normalizeAuthUser(user);
   const storage = persist ? window.localStorage : window.sessionStorage;
-  storage.setItem(AUTH_USER_KEY, JSON.stringify(user));
-  storage.setItem(DEMO_USER_KEY, user.id);
+  storage.setItem(AUTH_USER_KEY, JSON.stringify(normalizedUser));
+  storage.setItem(DEMO_USER_KEY, normalizedUser.id);
 }
 
 function getLocalUsers() {
   return JSON.parse(window.localStorage.getItem(LOCAL_USERS_KEY) ?? "[]") as StoredUser[];
+}
+
+function normalizeAuthUser<T extends AuthUser>(user: T): T {
+  return {
+    ...user,
+    organizationId: user.organizationId ?? defaultOrganizationId,
+    branchId: user.branchId ?? defaultBranchId
+  };
 }
 
 function saveLocalUser(user: StoredUser) {
@@ -55,12 +70,13 @@ export function AuthGate() {
 
     if (localUser) {
       setIsLoading(false);
-      if (localUser.mustChangePassword) {
-        setPasswordChangeUser(localUser);
+      const normalizedLocalUser = normalizeAuthUser(localUser);
+      if (normalizedLocalUser.mustChangePassword) {
+        setPasswordChangeUser(normalizedLocalUser);
         setMessage("זו כניסה ראשונה. צריך להחליף סיסמה לפני שממשיכים.");
         return;
       }
-      enterSystem(localUser);
+      enterSystem(normalizedLocalUser);
       return;
     }
 
@@ -78,7 +94,7 @@ export function AuthGate() {
         return;
       }
 
-      const apiUser = data.user as AuthUser;
+      const apiUser = normalizeAuthUser(data.user as AuthUser);
       if (apiUser.mustChangePassword) {
         setPasswordChangeUser({ ...apiUser, password: loginPassword });
         setMessage("זו כניסה ראשונה. צריך להחליף סיסמה לפני שממשיכים.");
@@ -138,7 +154,8 @@ export function AuthGate() {
               <h2>החלפת סיסמה ראשונית</h2>
               <p className="lead">
                 {passwordChangeUser.firstName}, לפני הכניסה למערכת צריך לבחור סיסמה
-                אישית חדשה.
+                אישית חדשה. סביבת העבודה שלך:{" "}
+                <strong>{organizationDisplayName(passwordChangeUser.organizationId)}</strong>.
               </p>
             </div>
             <div className="field">
@@ -204,7 +221,8 @@ export function AuthGate() {
               כניסה
             </button>
             <div className="card-muted">
-              דמו: בשאר `111111111` / `123456`, ולריה `222222222` / `123456`.
+              דמו Holmes: בשאר `111111111` / `123456`, ולריה `222222222` / `123456`.
+              דמו עסק נוסף: דנה `333333333` / `123456`.
               אחרי הכניסה הראשונה תתבקשו להחליף סיסמה.
             </div>
           </div>

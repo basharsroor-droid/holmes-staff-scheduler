@@ -5,6 +5,12 @@ import { KeyRound, Mail, UserPlus } from "lucide-react";
 
 import { SeniorityBadge } from "@/components/schedule/badges";
 import type { AuthUser } from "@/lib/auth-config";
+import {
+  defaultBranchId,
+  defaultOrganizationId,
+  organizationDisplayName,
+  organizations
+} from "@/lib/app-config";
 import { LOCAL_USERS_KEY } from "@/lib/local-storage-keys";
 import { seniorityLabels } from "@/lib/scheduler-labels";
 import type { Employee, SeniorityLevel } from "@/types/scheduler";
@@ -18,6 +24,8 @@ type NewUserForm = {
   email: string;
   password: string;
   role: "employee" | "manager";
+  organizationId: string;
+  branchId: string;
 };
 
 const emptyUserForm: NewUserForm = {
@@ -26,7 +34,9 @@ const emptyUserForm: NewUserForm = {
   nationalId: "",
   email: "",
   password: "",
-  role: "employee"
+  role: "employee",
+  organizationId: defaultOrganizationId,
+  branchId: defaultBranchId
 };
 
 export function AdminEmployeesClient({ initialEmployees }: { initialEmployees: Employee[] }) {
@@ -72,6 +82,8 @@ export function AdminEmployeesClient({ initialEmployees }: { initialEmployees: E
       email: newUser.email.trim(),
       password: newUser.password,
       role: newUser.role,
+      organizationId: newUser.organizationId,
+      branchId: newUser.branchId,
       emailVerified: true,
       mustChangePassword: true
     };
@@ -136,6 +148,30 @@ export function AdminEmployeesClient({ initialEmployees }: { initialEmployees: E
             </select>
           </div>
           <div className="field">
+            <label>עסק / סניף</label>
+            <select
+              className="select"
+              value={`${newUser.organizationId}:${newUser.branchId}`}
+              onChange={(event) => {
+                const [organizationId, branchId] = event.target.value.split(":");
+                setNewUser((current) => ({
+                  ...current,
+                  organizationId,
+                  branchId
+                }));
+              }}
+            >
+              {organizations.map((organization) => (
+                <option
+                  key={`${organization.id}:${organization.branchId}`}
+                  value={`${organization.id}:${organization.branchId}`}
+                >
+                  {organization.businessName} · {organization.branchName}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="field">
             <label>ת.ז / שם משתמש</label>
             <input
               className="input"
@@ -185,6 +221,7 @@ export function AdminEmployeesClient({ initialEmployees }: { initialEmployees: E
                 <th>שם</th>
                 <th>ת.ז</th>
                 <th>מייל</th>
+                <th>עסק</th>
                 <th>תפקיד</th>
                 <th>סטטוס סיסמה</th>
               </tr>
@@ -196,6 +233,7 @@ export function AdminEmployeesClient({ initialEmployees }: { initialEmployees: E
                     <td>{`${user.firstName} ${user.lastName}`.trim()}</td>
                     <td>{user.nationalId}</td>
                     <td>{user.email}</td>
+                    <td>{organizationDisplayName(user.organizationId)}</td>
                     <td>{user.role === "manager" ? "מנהל/ת" : "עובד"}</td>
                     <td>
                       <span className={user.mustChangePassword ? "badge warning" : "badge success"}>
@@ -206,7 +244,7 @@ export function AdminEmployeesClient({ initialEmployees }: { initialEmployees: E
                 ))
               ) : (
                 <tr>
-                  <td colSpan={5}>עדיין לא נוצרו משתמשים מקומיים.</td>
+                  <td colSpan={6}>עדיין לא נוצרו משתמשים מקומיים.</td>
                 </tr>
               )}
             </tbody>
