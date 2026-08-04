@@ -634,6 +634,42 @@ h3 {
   align-items: start;
 }
 
+.manager-focus-grid {
+  display: grid;
+  grid-template-columns: 0.95fr 1fr 1fr;
+  gap: 16px;
+  margin-top: 16px;
+  align-items: start;
+}
+
+.manager-command-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 260px auto;
+  gap: 18px;
+  align-items: center;
+  margin-top: 16px;
+}
+
+.progress-block {
+  display: grid;
+  gap: 8px;
+}
+
+.progress-track {
+  height: 12px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--surface-muted);
+  border: 1px solid var(--line);
+}
+
+.progress-track span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--primary);
+}
+
 .big-action-list {
   display: grid;
   gap: 12px;
@@ -647,6 +683,11 @@ h3 {
   border-radius: var(--radius);
   background: #fbfdff;
   padding: 14px;
+}
+
+.big-action.priority {
+  border-color: rgba(19, 111, 99, 0.35);
+  background: var(--primary-soft);
 }
 
 .big-action svg {
@@ -669,6 +710,21 @@ h3 {
   border-radius: var(--radius);
   background: white;
   padding: 10px 12px;
+}
+
+.mini-row strong,
+.mini-row span {
+  display: block;
+}
+
+.mini-row span {
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.alert-row {
+  border-color: rgba(220, 38, 38, 0.22);
+  background: #fff7f7;
 }
 
 .manager-workbench {
@@ -1161,6 +1217,8 @@ h3 {
   .page-header,
   .pilot-hero,
   .pilot-grid,
+  .manager-command-card,
+  .manager-focus-grid,
   .split,
   .manager-workbench,
   .employee-workspace,
