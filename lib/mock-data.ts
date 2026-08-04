@@ -13,7 +13,7 @@ export const currentEmployeeId = "emp-bashar";
 export const managerEmployeeId = "emp-valeria";
 
 export const demoMonth = {
-  month: 7,
+  month: 8,
   year: 2026
 };
 
@@ -72,16 +72,6 @@ export const employees: Employee[] = [
     id: "emp-ariel",
     fullName: "אריאל",
     color: "#b08900",
-    role: "employee",
-    seniorityLevel: "regular",
-    canOpen: true,
-    canClose: true,
-    active: true
-  },
-  {
-    id: "emp-eden",
-    fullName: "עדן",
-    color: "#7c3aed",
     role: "employee",
     seniorityLevel: "regular",
     canOpen: true,
@@ -155,7 +145,7 @@ export const shiftTemplates: ShiftTemplate[] = [
   {
     id: "closing",
     name: "סגירה",
-    startTime: "17:00",
+    startTime: "15:00",
     endTime: "22:30",
     type: "closing",
     requiredEmployees: 1,
@@ -177,79 +167,43 @@ export const monthlyShiftConfig: MonthlyShiftConfig = {
   )
 };
 
-const realJulyAssignments: Record<string, Partial<Record<string, string>>> = {
-  "2026-07-01": { opening: "emp-maayan" },
-  "2026-07-02": { opening: "emp-ariel", closing: "emp-keren" },
-  "2026-07-03": {
-    opening: "emp-bashar",
-    middle: "emp-gili",
-    closing: "emp-keren"
-  },
-  "2026-07-04": {
-    opening: "emp-bashar",
-    middle: "emp-eden",
-    closing: "emp-maayan"
-  },
-  "2026-07-05": { closing: "emp-maayan" },
-  "2026-07-06": {
-    opening: "emp-nagia",
-    middle: "emp-lama",
-    middle_2: "emp-gili",
-    closing: "emp-keren"
-  },
-  "2026-07-07": {
-    opening: "emp-ariel",
-    middle: "emp-lama",
-    middle_2: "emp-gili",
-    closing: "emp-keren"
-  },
-  "2026-07-08": { opening: "emp-bashar", closing: "emp-gili" },
-  "2026-07-09": {
-    opening: "emp-nagia",
-    middle: "emp-maayan",
-    middle_2: "emp-gili",
-    closing: "emp-keren"
-  },
-  "2026-07-10": {
-    opening: "emp-ariel",
-    middle: "emp-nagia",
-    closing: "emp-gili"
-  },
-  "2026-07-11": {
-    opening: "emp-bashar",
-    middle: "emp-maayan",
-    closing: "emp-gili"
-  },
-  "2026-07-12": { closing: "emp-gili" },
-  "2026-07-13": {
-    opening: "emp-bashar",
-    middle: "emp-gili",
-    middle_2: "emp-nagia",
-    closing: "emp-keren"
-  },
-  "2026-07-14": { opening: "emp-maayan", closing: "emp-keren" },
-  "2026-07-15": { opening: "emp-maayan" },
-  "2026-07-16": {
-    opening: "emp-ariel",
-    middle: "emp-lama",
-    middle_2: "emp-keren",
-    closing: "emp-maayan"
-  },
-  "2026-07-17": {
-    opening: "emp-bashar",
-    middle: "emp-nagia",
-    closing: "emp-keren"
-  },
-  "2026-07-18": {
-    opening: "emp-lior",
-    middle: "emp-gili",
-    closing: "emp-keren"
-  }
+const realAugustAssignments: Record<string, Partial<Record<string, string>>> = {
+  "2026-08-01": { opening: "emp-maayan", middle: "emp-ariel", closing: "emp-gili" },
+  "2026-08-02": { closing: "emp-nagia" },
+  "2026-08-03": { opening: "emp-gili", middle: "emp-bashar", closing: "emp-lior" },
+  "2026-08-04": { opening: "emp-bashar", middle: "emp-nagia", closing: "emp-gili" },
+  "2026-08-05": { opening: "emp-ariel", middle: "emp-gili", closing: "emp-lama" },
+  "2026-08-06": { opening: "emp-bashar", middle: "emp-lama", closing: "emp-lior" },
+  "2026-08-07": { opening: "emp-lama", middle: "emp-ariel", closing: "emp-gili" },
+  "2026-08-08": { opening: "emp-bashar", middle: "emp-ariel", closing: "emp-maayan" },
+  "2026-08-09": { closing: "emp-gili" },
+  "2026-08-10": { opening: "emp-bashar", middle: "emp-nagia", closing: "emp-lior" },
+  "2026-08-11": { opening: "emp-bashar", middle: "emp-ariel", closing: "emp-gili" },
+  "2026-08-12": { opening: "emp-ariel", middle: "emp-gili", closing: "emp-bashar" },
+  "2026-08-13": { opening: "emp-nagia", middle: "emp-bashar", closing: "emp-gili" },
+  "2026-08-14": { opening: "emp-bashar", middle: "emp-gili", closing: "emp-maayan" },
+  "2026-08-15": { opening: "emp-lior", middle: "emp-bashar", closing: "emp-maayan" },
+  "2026-08-16": { closing: "emp-nagia" },
+  "2026-08-17": { opening: "emp-ariel", middle: "emp-gili", closing: "emp-bashar" },
+  "2026-08-18": { opening: "emp-ariel", middle: "emp-gili", closing: "emp-maayan" },
+  "2026-08-19": { opening: "emp-ariel", middle: "emp-gili", closing: "emp-nagia" },
+  "2026-08-20": { opening: "emp-ariel", middle: "emp-gili", closing: "emp-lior" },
+  "2026-08-21": { opening: "emp-gili", closing: "emp-maayan" },
+  "2026-08-22": { opening: "emp-gili", middle: "emp-keren", closing: "emp-ariel" },
+  "2026-08-23": { closing: "emp-keren" },
+  "2026-08-24": { opening: "emp-ariel", middle: "emp-maayan", closing: "emp-keren" },
+  "2026-08-25": { opening: "emp-bashar", middle: "emp-maayan", closing: "emp-keren" },
+  "2026-08-26": { opening: "emp-gili", middle: "emp-bashar", closing: "emp-keren" },
+  "2026-08-27": { opening: "emp-lama", middle: "emp-gili", closing: "emp-bashar" },
+  "2026-08-28": { opening: "emp-bashar", middle: "emp-keren", closing: "emp-gili" },
+  "2026-08-29": { opening: "emp-bashar", middle: "emp-maayan", closing: "emp-keren" },
+  "2026-08-30": { closing: "emp-lama" },
+  "2026-08-31": { opening: "emp-keren", middle: "emp-maayan", closing: "emp-lama" }
 };
 
 function assignmentFor(date: string, templateId: string) {
   const normalizedTemplateId = templateId === "middle-2" ? "middle_2" : templateId;
-  const employeeId = realJulyAssignments[date]?.[normalizedTemplateId];
+  const employeeId = realAugustAssignments[date]?.[normalizedTemplateId];
   return employeeId ? [employeeId] : [];
 }
 
@@ -257,12 +211,19 @@ export const scheduledShifts: ScheduledShift[] = monthDays.flatMap((day) => {
   const date = format(day, "yyyy-MM-dd");
 
   return allTemplateIds.map((templateId) => {
+    const dayOfWeek = day.getDay();
     const customTime =
-      date === "2026-07-03" && templateId === "closing"
-        ? { startTime: "16:00", endTime: "22:30" }
-        : date === "2026-07-04" && templateId === "opening"
-          ? { startTime: "05:45", endTime: "12:30" }
-          : {};
+      dayOfWeek === 5 && templateId === "middle"
+        ? { startTime: "09:00", endTime: "15:00" }
+        : dayOfWeek === 6 && templateId === "opening"
+          ? { startTime: "07:45", endTime: "13:00" }
+          : dayOfWeek === 6 && templateId === "middle"
+            ? { startTime: "09:00", endTime: "16:00" }
+            : dayOfWeek === 5 && templateId === "closing"
+              ? { startTime: "12:00", endTime: "18:30" }
+              : dayOfWeek === 6 && templateId === "closing"
+                ? { startTime: "13:00", endTime: "18:30" }
+                : {};
 
     return {
       id: `shift-${date}-${templateId}`,
@@ -310,7 +271,7 @@ export const swapRequests: SwapRequest[] = [
   {
     id: "swap-1",
     requestedByEmployeeId: "emp-bashar",
-    originalShiftId: "shift-2026-07-03-opening",
+    originalShiftId: "shift-2026-08-04-opening",
     targetEmployeeId: "emp-lior",
     status: "pending_manager",
     reason: "מבקש החלפה למשמרת פתיחה",
@@ -319,7 +280,7 @@ export const swapRequests: SwapRequest[] = [
   {
     id: "swap-2",
     requestedByEmployeeId: "emp-lama",
-    originalShiftId: "shift-2026-07-16-middle",
+    originalShiftId: "shift-2026-08-27-opening",
     targetEmployeeId: "emp-maayan",
     status: "pending_employee",
     reason: "בקשת החלפה חד פעמית"

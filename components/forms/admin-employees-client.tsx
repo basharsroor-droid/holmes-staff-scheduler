@@ -21,6 +21,7 @@ type NewUserForm = {
   firstName: string;
   lastName: string;
   nationalId: string;
+  username: string;
   email: string;
   password: string;
   role: "employee" | "manager";
@@ -32,6 +33,7 @@ const emptyUserForm: NewUserForm = {
   firstName: "",
   lastName: "",
   nationalId: "",
+  username: "",
   email: "",
   password: "",
   role: "employee",
@@ -79,6 +81,7 @@ export function AdminEmployeesClient({ initialEmployees }: { initialEmployees: E
       firstName: newUser.firstName.trim(),
       lastName: newUser.lastName.trim(),
       nationalId: newUser.nationalId.trim(),
+      username: newUser.username.trim() || newUser.firstName.trim(),
       email: newUser.email.trim(),
       password: newUser.password,
       role: newUser.role,
@@ -183,6 +186,16 @@ export function AdminEmployeesClient({ initialEmployees }: { initialEmployees: E
             />
           </div>
           <div className="field">
+            <label>שם משתמש לכניסה</label>
+            <input
+              className="input"
+              value={newUser.username}
+              onChange={(event) =>
+                setNewUser((current) => ({ ...current, username: event.target.value }))
+              }
+            />
+          </div>
+          <div className="field">
             <label>מייל</label>
             <input
               className="input"
@@ -220,6 +233,7 @@ export function AdminEmployeesClient({ initialEmployees }: { initialEmployees: E
               <tr>
                 <th>שם</th>
                 <th>ת.ז</th>
+                <th>שם משתמש</th>
                 <th>מייל</th>
                 <th>עסק</th>
                 <th>תפקיד</th>
@@ -232,6 +246,7 @@ export function AdminEmployeesClient({ initialEmployees }: { initialEmployees: E
                   <tr key={user.nationalId}>
                     <td>{`${user.firstName} ${user.lastName}`.trim()}</td>
                     <td>{user.nationalId}</td>
+                    <td>{user.username ?? user.firstName}</td>
                     <td>{user.email}</td>
                     <td>{organizationDisplayName(user.organizationId)}</td>
                     <td>{user.role === "manager" ? "מנהל/ת" : "עובד"}</td>
@@ -244,7 +259,7 @@ export function AdminEmployeesClient({ initialEmployees }: { initialEmployees: E
                 ))
               ) : (
                 <tr>
-                  <td colSpan={6}>עדיין לא נוצרו משתמשים מקומיים.</td>
+                  <td colSpan={7}>עדיין לא נוצרו משתמשים מקומיים.</td>
                 </tr>
               )}
             </tbody>

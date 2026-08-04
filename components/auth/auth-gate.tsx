@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { KeyRound, LockKeyhole, ShieldCheck } from "lucide-react";
 
-import type { AuthUser } from "@/lib/auth-config";
+import { demoLoginUsers, type AuthUser } from "@/lib/auth-config";
 import {
   defaultBranchId,
   defaultOrganizationId,
@@ -65,7 +65,9 @@ export function AuthGate() {
     setMessage("");
     const localUsers = getLocalUsers();
     const localUser = localUsers.find(
-      (user) => user.nationalId === loginId && user.password === loginPassword
+      (user) =>
+        (user.nationalId === loginId || user.username === loginId) &&
+        user.password === loginPassword
     );
 
     if (localUser) {
@@ -194,7 +196,7 @@ export function AuthGate() {
               <label>ת.ז / שם משתמש</label>
               <input
                 className="input"
-                inputMode="numeric"
+                autoComplete="username"
                 value={loginId}
                 onChange={(event) => setLoginId(event.target.value)}
               />
@@ -204,6 +206,7 @@ export function AuthGate() {
               <input
                 className="input"
                 type="password"
+                autoComplete="current-password"
                 value={loginPassword}
                 onChange={(event) => setLoginPassword(event.target.value)}
               />
@@ -221,9 +224,17 @@ export function AuthGate() {
               כניסה
             </button>
             <div className="card-muted">
-              דמו Holmes: בשאר `111111111` / `123456`, ולריה `222222222` / `123456`.
-              דמו עסק נוסף: דנה `333333333` / `123456`.
-              אחרי הכניסה הראשונה תתבקשו להחליף סיסמה.
+              <strong>יוזרים ראשוניים Holmes Place:</strong>
+              <div className="demo-credentials">
+                {demoLoginUsers
+                  .filter((user) => user.organizationId === demoOrganization.id)
+                  .map((user) => (
+                    <span key={user.id}>
+                      {user.username ?? user.firstName} / {user.password}
+                    </span>
+                  ))}
+              </div>
+              אחרי הכניסה הראשונה כל עובד יתבקש להחליף סיסמה.
             </div>
           </div>
         )}

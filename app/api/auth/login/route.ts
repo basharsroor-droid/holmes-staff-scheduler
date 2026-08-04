@@ -12,7 +12,8 @@ export async function POST(request: Request) {
 
   const user = demoLoginUsers.find(
     (item) =>
-      item.nationalId === parsed.data.nationalId &&
+      (item.nationalId === parsed.data.nationalId ||
+        item.username === parsed.data.nationalId) &&
       item.password === parsed.data.password
   );
 
@@ -33,6 +34,7 @@ export async function POST(request: Request) {
       firstName: user.firstName,
       lastName: user.lastName,
       nationalId: user.nationalId,
+      username: user.username,
       email: user.email,
       role: user.role,
       organizationId: user.organizationId,

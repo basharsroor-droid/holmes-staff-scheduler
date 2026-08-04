@@ -27,7 +27,7 @@ export const organizations: Organization[] = [
     branchName: "סניף פיילוט",
     industryLabel: "מועדון כושר עם עובדים במשמרות",
     locationLabel: "Holmes Place",
-    scheduleMonthLabel: "יולי 2026",
+    scheduleMonthLabel: "אוגוסט 2026",
     pilotName: "פיילוט Holmes Place לניהול סידור עבודה"
   },
   {
@@ -37,7 +37,7 @@ export const organizations: Organization[] = [
     branchName: "סניף מרכזי",
     industryLabel: "בית קפה עם עובדים במשמרות",
     locationLabel: "Cafe Demo",
-    scheduleMonthLabel: "יולי 2026",
+    scheduleMonthLabel: "אוגוסט 2026",
     pilotName: "פיילוט בית קפה לניהול סידור עבודה"
   }
 ];

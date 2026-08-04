@@ -1,0 +1,10 @@
+business,branch,role,employee_id,first_name,last_name,username,national_id,initial_password,email,must_change_password
+Holmes Place,סניף פיילוט,employee,emp-bashar,בשאר,,בשאר,111111111,Bsh-4821,bashar@example.com,true
+Holmes Place,סניף פיילוט,employee,emp-maayan,מעיין,,מעיין,111111112,Myn-9134,maayan@example.com,true
+Holmes Place,סניף פיילוט,employee,emp-ariel,אריאל,,אריאל,111111113,Arl-6725,ariel@example.com,true
+Holmes Place,סניף פיילוט,employee,emp-gili,גילי,,גילי,111111114,Gil-2486,gili@example.com,true
+Holmes Place,סניף פיילוט,employee,emp-lama,למא,,למא,111111115,Lma-8053,lama@example.com,true
+Holmes Place,סניף פיילוט,employee,emp-nagia,נגיה,,נגיה,111111116,Ngy-3917,nagia@example.com,true
+Holmes Place,סניף פיילוט,employee,emp-lior,ליאור,,ליאור,111111117,Lio-7642,lior@example.com,true
+Holmes Place,סניף פיילוט,employee,emp-keren,קרן,,קרן,111111118,Krn-5298,keren@example.com,true
+Holmes Place,סניף פיילוט,manager,emp-valeria,ולריה,,ולריה,222222222,Val-2026,valeria@example.com,true
