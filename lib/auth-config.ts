@@ -2,123 +2,32 @@ import { z } from "zod";
 import { defaultBranchId, defaultOrganizationId } from "@/lib/app-config";
 
 export const GOOGLE_USERS_SHEET_URL =
-  "https://docs.google.com/spreadsheets/d/1rM2bKzVngtF4Ymo1WVKH1J07cNNPbgDxY7wmqBIYp5k/edit";
+  process.env.GOOGLE_USERS_SHEET_URL ?? "";
 
 export const DEMO_VERIFICATION_CODE = "123456";
 
 export const demoLoginUsers = [
   {
-    id: "emp-bashar",
-    firstName: "בשאר",
+    id: "emp-demo-worker",
+    firstName: "עובד דמו",
     lastName: "",
-    username: "בשאר",
+    username: "employee",
     nationalId: "111111111",
-    email: "bashar@example.com",
-    password: "Bsh-4821",
+    email: "employee@example.com",
+    password: "Demo-1234",
     role: "employee" as const,
     organizationId: defaultOrganizationId,
     branchId: defaultBranchId,
     mustChangePassword: true
   },
   {
-    id: "emp-maayan",
-    firstName: "מעיין",
+    id: "emp-demo-manager",
+    firstName: "מנהלת דמו",
     lastName: "",
-    username: "מעיין",
-    nationalId: "111111112",
-    email: "maayan@example.com",
-    password: "Myn-9134",
-    role: "employee" as const,
-    organizationId: defaultOrganizationId,
-    branchId: defaultBranchId,
-    mustChangePassword: true
-  },
-  {
-    id: "emp-ariel",
-    firstName: "אריאל",
-    lastName: "",
-    username: "אריאל",
-    nationalId: "111111113",
-    email: "ariel@example.com",
-    password: "Arl-6725",
-    role: "employee" as const,
-    organizationId: defaultOrganizationId,
-    branchId: defaultBranchId,
-    mustChangePassword: true
-  },
-  {
-    id: "emp-gili",
-    firstName: "גילי",
-    lastName: "",
-    username: "גילי",
-    nationalId: "111111114",
-    email: "gili@example.com",
-    password: "Gil-2486",
-    role: "employee" as const,
-    organizationId: defaultOrganizationId,
-    branchId: defaultBranchId,
-    mustChangePassword: true
-  },
-  {
-    id: "emp-lama",
-    firstName: "למא",
-    lastName: "",
-    username: "למא",
-    nationalId: "111111115",
-    email: "lama@example.com",
-    password: "Lma-8053",
-    role: "employee" as const,
-    organizationId: defaultOrganizationId,
-    branchId: defaultBranchId,
-    mustChangePassword: true
-  },
-  {
-    id: "emp-nagia",
-    firstName: "נגיה",
-    lastName: "",
-    username: "נגיה",
-    nationalId: "111111116",
-    email: "nagia@example.com",
-    password: "Ngy-3917",
-    role: "employee" as const,
-    organizationId: defaultOrganizationId,
-    branchId: defaultBranchId,
-    mustChangePassword: true
-  },
-  {
-    id: "emp-lior",
-    firstName: "ליאור",
-    lastName: "",
-    username: "ליאור",
-    nationalId: "111111117",
-    email: "lior@example.com",
-    password: "Lio-7642",
-    role: "employee" as const,
-    organizationId: defaultOrganizationId,
-    branchId: defaultBranchId,
-    mustChangePassword: true
-  },
-  {
-    id: "emp-keren",
-    firstName: "קרן",
-    lastName: "",
-    username: "קרן",
-    nationalId: "111111118",
-    email: "keren@example.com",
-    password: "Krn-5298",
-    role: "employee" as const,
-    organizationId: defaultOrganizationId,
-    branchId: defaultBranchId,
-    mustChangePassword: true
-  },
-  {
-    id: "emp-valeria",
-    firstName: "ולריה",
-    lastName: "",
-    username: "ולריה",
+    username: "manager",
     nationalId: "222222222",
-    email: "valeria@example.com",
-    password: "Val-2026",
+    email: "manager@example.com",
+    password: "Admin-1234",
     role: "manager" as const,
     organizationId: defaultOrganizationId,
     branchId: defaultBranchId,

@@ -9,8 +9,8 @@ import type {
   SwapRequest
 } from "@/types/scheduler";
 
-export const currentEmployeeId = "emp-bashar";
-export const managerEmployeeId = "emp-valeria";
+export const currentEmployeeId = "emp-demo-worker";
+export const managerEmployeeId = "emp-demo-manager";
 
 export const demoMonth = {
   month: 8,
@@ -19,8 +19,8 @@ export const demoMonth = {
 
 export const employees: Employee[] = [
   {
-    id: "emp-bashar",
-    fullName: "בשאר",
+    id: "emp-demo-worker",
+    fullName: "עובד דמו",
     color: "#0ea5e9",
     role: "employee",
     seniorityLevel: "regular",
@@ -29,8 +29,8 @@ export const employees: Employee[] = [
     active: true
   },
   {
-    id: "emp-lama",
-    fullName: "למא",
+    id: "emp-1",
+    fullName: "עובדת 1",
     color: "#8a6f12",
     role: "employee",
     seniorityLevel: "regular",
@@ -39,8 +39,8 @@ export const employees: Employee[] = [
     active: true
   },
   {
-    id: "emp-lior",
-    fullName: "ליאור",
+    id: "emp-2",
+    fullName: "עובד 2",
     color: "#ec4899",
     role: "employee",
     seniorityLevel: "regular",
@@ -49,8 +49,8 @@ export const employees: Employee[] = [
     active: true
   },
   {
-    id: "emp-nagia",
-    fullName: "נגיה",
+    id: "emp-3",
+    fullName: "עובדת 3",
     color: "#a78bfa",
     role: "employee",
     seniorityLevel: "regular",
@@ -59,8 +59,8 @@ export const employees: Employee[] = [
     active: true
   },
   {
-    id: "emp-gili",
-    fullName: "גילי",
+    id: "emp-4",
+    fullName: "עובד 4",
     color: "#dc2626",
     role: "employee",
     seniorityLevel: "regular",
@@ -69,8 +69,8 @@ export const employees: Employee[] = [
     active: true
   },
   {
-    id: "emp-ariel",
-    fullName: "אריאל",
+    id: "emp-5",
+    fullName: "עובדת 5",
     color: "#b08900",
     role: "employee",
     seniorityLevel: "regular",
@@ -79,8 +79,8 @@ export const employees: Employee[] = [
     active: true
   },
   {
-    id: "emp-maayan",
-    fullName: "מעיין",
+    id: "emp-6",
+    fullName: "עובד 6",
     color: "#1d4ed8",
     role: "employee",
     seniorityLevel: "senior",
@@ -89,8 +89,8 @@ export const employees: Employee[] = [
     active: true
   },
   {
-    id: "emp-keren",
-    fullName: "קרן",
+    id: "emp-7",
+    fullName: "עובדת 7",
     color: "#ef4444",
     role: "employee",
     seniorityLevel: "senior",
@@ -100,7 +100,7 @@ export const employees: Employee[] = [
   },
   {
     id: managerEmployeeId,
-    fullName: "ולריה",
+    fullName: "מנהלת דמו",
     color: "#059669",
     role: "manager",
     seniorityLevel: "shift_lead",
@@ -167,43 +167,43 @@ export const monthlyShiftConfig: MonthlyShiftConfig = {
   )
 };
 
-const realAugustAssignments: Record<string, Partial<Record<string, string>>> = {
-  "2026-08-01": { opening: "emp-maayan", middle: "emp-ariel", closing: "emp-gili" },
-  "2026-08-02": { closing: "emp-nagia" },
-  "2026-08-03": { opening: "emp-gili", middle: "emp-bashar", closing: "emp-lior" },
-  "2026-08-04": { opening: "emp-bashar", middle: "emp-nagia", closing: "emp-gili" },
-  "2026-08-05": { opening: "emp-ariel", middle: "emp-gili", closing: "emp-lama" },
-  "2026-08-06": { opening: "emp-bashar", middle: "emp-lama", closing: "emp-lior" },
-  "2026-08-07": { opening: "emp-lama", middle: "emp-ariel", closing: "emp-gili" },
-  "2026-08-08": { opening: "emp-bashar", middle: "emp-ariel", closing: "emp-maayan" },
-  "2026-08-09": { closing: "emp-gili" },
-  "2026-08-10": { opening: "emp-bashar", middle: "emp-nagia", closing: "emp-lior" },
-  "2026-08-11": { opening: "emp-bashar", middle: "emp-ariel", closing: "emp-gili" },
-  "2026-08-12": { opening: "emp-ariel", middle: "emp-gili", closing: "emp-bashar" },
-  "2026-08-13": { opening: "emp-nagia", middle: "emp-bashar", closing: "emp-gili" },
-  "2026-08-14": { opening: "emp-bashar", middle: "emp-gili", closing: "emp-maayan" },
-  "2026-08-15": { opening: "emp-lior", middle: "emp-bashar", closing: "emp-maayan" },
-  "2026-08-16": { closing: "emp-nagia" },
-  "2026-08-17": { opening: "emp-ariel", middle: "emp-gili", closing: "emp-bashar" },
-  "2026-08-18": { opening: "emp-ariel", middle: "emp-gili", closing: "emp-maayan" },
-  "2026-08-19": { opening: "emp-ariel", middle: "emp-gili", closing: "emp-nagia" },
-  "2026-08-20": { opening: "emp-ariel", middle: "emp-gili", closing: "emp-lior" },
-  "2026-08-21": { opening: "emp-gili", closing: "emp-maayan" },
-  "2026-08-22": { opening: "emp-gili", middle: "emp-keren", closing: "emp-ariel" },
-  "2026-08-23": { closing: "emp-keren" },
-  "2026-08-24": { opening: "emp-ariel", middle: "emp-maayan", closing: "emp-keren" },
-  "2026-08-25": { opening: "emp-bashar", middle: "emp-maayan", closing: "emp-keren" },
-  "2026-08-26": { opening: "emp-gili", middle: "emp-bashar", closing: "emp-keren" },
-  "2026-08-27": { opening: "emp-lama", middle: "emp-gili", closing: "emp-bashar" },
-  "2026-08-28": { opening: "emp-bashar", middle: "emp-keren", closing: "emp-gili" },
-  "2026-08-29": { opening: "emp-bashar", middle: "emp-maayan", closing: "emp-keren" },
-  "2026-08-30": { closing: "emp-lama" },
-  "2026-08-31": { opening: "emp-keren", middle: "emp-maayan", closing: "emp-lama" }
+const demoAugustAssignments: Record<string, Partial<Record<string, string>>> = {
+  "2026-08-01": { opening: "emp-6", middle: "emp-5", closing: "emp-4" },
+  "2026-08-02": { closing: "emp-3" },
+  "2026-08-03": { opening: "emp-4", middle: "emp-demo-worker", closing: "emp-2" },
+  "2026-08-04": { opening: "emp-demo-worker", middle: "emp-3", closing: "emp-4" },
+  "2026-08-05": { opening: "emp-5", middle: "emp-4", closing: "emp-1" },
+  "2026-08-06": { opening: "emp-demo-worker", middle: "emp-1", closing: "emp-2" },
+  "2026-08-07": { opening: "emp-1", middle: "emp-5", closing: "emp-4" },
+  "2026-08-08": { opening: "emp-demo-worker", middle: "emp-5", closing: "emp-6" },
+  "2026-08-09": { closing: "emp-4" },
+  "2026-08-10": { opening: "emp-demo-worker", middle: "emp-3", closing: "emp-2" },
+  "2026-08-11": { opening: "emp-demo-worker", middle: "emp-5", closing: "emp-4" },
+  "2026-08-12": { opening: "emp-5", middle: "emp-4", closing: "emp-demo-worker" },
+  "2026-08-13": { opening: "emp-3", middle: "emp-demo-worker", closing: "emp-4" },
+  "2026-08-14": { opening: "emp-demo-worker", middle: "emp-4", closing: "emp-6" },
+  "2026-08-15": { opening: "emp-2", middle: "emp-demo-worker", closing: "emp-6" },
+  "2026-08-16": { closing: "emp-3" },
+  "2026-08-17": { opening: "emp-5", middle: "emp-4", closing: "emp-demo-worker" },
+  "2026-08-18": { opening: "emp-5", middle: "emp-4", closing: "emp-6" },
+  "2026-08-19": { opening: "emp-5", middle: "emp-4", closing: "emp-3" },
+  "2026-08-20": { opening: "emp-5", middle: "emp-4", closing: "emp-2" },
+  "2026-08-21": { opening: "emp-4", closing: "emp-6" },
+  "2026-08-22": { opening: "emp-4", middle: "emp-7", closing: "emp-5" },
+  "2026-08-23": { closing: "emp-7" },
+  "2026-08-24": { opening: "emp-5", middle: "emp-6", closing: "emp-7" },
+  "2026-08-25": { opening: "emp-demo-worker", middle: "emp-6", closing: "emp-7" },
+  "2026-08-26": { opening: "emp-4", middle: "emp-demo-worker", closing: "emp-7" },
+  "2026-08-27": { opening: "emp-1", middle: "emp-4", closing: "emp-demo-worker" },
+  "2026-08-28": { opening: "emp-demo-worker", middle: "emp-7", closing: "emp-4" },
+  "2026-08-29": { opening: "emp-demo-worker", middle: "emp-6", closing: "emp-7" },
+  "2026-08-30": { closing: "emp-1" },
+  "2026-08-31": { opening: "emp-7", middle: "emp-6", closing: "emp-1" }
 };
 
 function assignmentFor(date: string, templateId: string) {
   const normalizedTemplateId = templateId === "middle-2" ? "middle_2" : templateId;
-  const employeeId = realAugustAssignments[date]?.[normalizedTemplateId];
+  const employeeId = demoAugustAssignments[date]?.[normalizedTemplateId];
   return employeeId ? [employeeId] : [];
 }
 
@@ -270,18 +270,18 @@ export const availability: Availability[] = monthDays.flatMap((day, dayIndex) =>
 export const swapRequests: SwapRequest[] = [
   {
     id: "swap-1",
-    requestedByEmployeeId: "emp-bashar",
+    requestedByEmployeeId: "emp-demo-worker",
     originalShiftId: "shift-2026-08-04-opening",
-    targetEmployeeId: "emp-lior",
+    targetEmployeeId: "emp-2",
     status: "pending_manager",
     reason: "מבקש החלפה למשמרת פתיחה",
     managerNote: ""
   },
   {
     id: "swap-2",
-    requestedByEmployeeId: "emp-lama",
+    requestedByEmployeeId: "emp-1",
     originalShiftId: "shift-2026-08-27-opening",
-    targetEmployeeId: "emp-maayan",
+    targetEmployeeId: "emp-6",
     status: "pending_employee",
     reason: "בקשת החלפה חד פעמית"
   }
