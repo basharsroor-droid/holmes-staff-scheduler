@@ -1,0 +1,36 @@
+.next
+node_modules
+coverage
+.DS_Store
+*.log
+.env
+.env.local
+dist
+
+# Local legacy exports and heavy one-off assets that are not part of the scheduler app
+UniGuide*
+uniguide-*
+github-uniguide/
+campus-reference.webp
+uniguide-campus.webp
+
+# Old financial-dashboard demo files kept locally only
+app/history/
+app/market/
+app/news/
+app/signals/
+app/shader-demo/
+app/api/dashboard/
+app/api/history/
+app/api/market/
+app/api/news/
+app/api/signals/
+components/news-intelligence-client.tsx
+components/ui/
+data/
+lib/analysis/
+lib/constants.ts
+lib/server/
+providers/
+types/market.ts
+db/schema.sql

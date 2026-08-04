@@ -1,0 +1,138 @@
+"use client";
+
+import Link from "next/link";
+import type { ReactNode } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { usePathname } from "next/navigation";
+import {
+  CalendarCheck,
+  Clock3,
+  MessageSquareText,
+  Repeat2,
+  Settings,
+  Users,
+  Wand2
+} from "lucide-react";
+
+import { employees, managerEmployeeId } from "@/lib/mock-data";
+import type { AuthUser } from "@/lib/auth-config";
+import { AUTH_USER_KEY, DEMO_USER_KEY } from "@/lib/local-storage-keys";
+import type { Employee, UserRole } from "@/types/scheduler";
+
+const employeeNav = [
+  { href: "/availability", label: "הגשת סידור", icon: CalendarCheck },
+  { href: "/my-shifts", label: "המשמרות שלי", icon: Clock3 },
+  { href: "/schedule", label: "לוח עבודה סופי", icon: CalendarCheck },
+  { href: "/swap-requests", label: "החלפות", icon: Repeat2 },
+  { href: "/manager-requests", label: "בקשות למנהלת", icon: MessageSquareText }
+];
+
+const managerNav = [
+  { href: "/manager/schedule", label: "סידור עבודה", icon: Wand2 },
+  { href: "/schedule", label: "לוח עבודה סופי", icon: CalendarCheck },
+  { href: "/swap-requests", label: "החלפות", icon: Repeat2 },
+  { href: "/admin/employees", label: "עובדים", icon: Users },
+  { href: "/admin/shift-templates", label: "תבניות", icon: Settings }
+];
+
+const roleLabels: Record<UserRole, string> = {
+  employee: "עובד",
+  manager: "מנהלת",
+  admin: "אדמין"
+};
+
+function getNavForEmployee(employee: Employee) {
+  if (employee.role === "employee") return employeeNav;
+  return managerNav;
+}
+
+export function AppShell({ children }: { children: ReactNode }) {
+  const pathname = usePathname();
+  const [authUser, setAuthUser] = useState<AuthUser | null>(null);
+  const [authChecked, setAuthChecked] = useState(false);
+  const [selectedEmployeeId, setSelectedEmployeeId] = useState(managerEmployeeId);
+  const selectedEmployee = useMemo(
+    () =>
+      employees.find((employee) => employee.id === selectedEmployeeId) ??
+      employees.find((employee) => employee.id === managerEmployeeId) ??
+      employees[0],
+    [selectedEmployeeId]
+  );
+  useEffect(() => {
+    const storedAuth =
+      window.localStorage.getItem(AUTH_USER_KEY) ??
+      window.sessionStorage.getItem(AUTH_USER_KEY);
+    if (storedAuth) {
+      const parsedUser = JSON.parse(storedAuth) as AuthUser;
+      setAuthUser(parsedUser);
+      setSelectedEmployeeId(parsedUser.id);
+    } else if (pathname !== "/") {
+      window.location.href = "/";
+    }
+    setAuthChecked(true);
+  }, [pathname]);
+
+  function logout() {
+    window.localStorage.removeItem(AUTH_USER_KEY);
+    window.localStorage.removeItem(DEMO_USER_KEY);
+    window.sessionStorage.removeItem(AUTH_USER_KEY);
+    window.sessionStorage.removeItem(DEMO_USER_KEY);
+    window.location.href = "/";
+  }
+
+  if (pathname === "/") {
+    return <main>{children}</main>;
+  }
+
+  if (!authChecked || !authUser) {
+    return <main className="page">מעביר למסך כניסה...</main>;
+  }
+
+  const displayName = `${authUser.firstName} ${authUser.lastName}`.trim();
+  const roleLabel = roleLabels[authUser.role];
+  const navUser = {
+    ...selectedEmployee,
+    role: authUser.role,
+    fullName: displayName || selectedEmployee.fullName
+  };
+  const privateNavItems = getNavForEmployee(navUser);
+
+  return (
+    <div className="app-shell">
+      <header className="topbar">
+        <div className="topbar-inner">
+          <Link href="/" className="brand" aria-label="Holmes Staff Scheduler">
+            <div className="brand-mark">HS</div>
+            <div>
+              <div className="brand-title">Holmes Staff Scheduler</div>
+              <div className="brand-subtitle">ניהול משמרות וזמינות</div>
+            </div>
+          </Link>
+
+          <nav className="nav" aria-label="ניווט ראשי">
+            {privateNavItems.map((item) => {
+              const Icon = item.icon;
+              return (
+                <Link className="nav-link" href={item.href} key={item.href}>
+                  <Icon size={16} />
+                  {item.label}
+                </Link>
+              );
+            })}
+          </nav>
+
+          <div className="user-switcher" aria-label="כניסה עם משתמש דמו">
+            <div className="role-pill">
+              <span className="dot" style={{ background: selectedEmployee.color }} />
+              {displayName || selectedEmployee.fullName} · {roleLabel}
+            </div>
+            <button className="button" onClick={logout}>
+              יציאה
+            </button>
+          </div>
+        </div>
+      </header>
+      <main className="page">{children}</main>
+    </div>
+  );
+}
