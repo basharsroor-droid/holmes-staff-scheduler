@@ -4,10 +4,11 @@ import type { ReactNode } from "react";
 import "@/app/globals.css";
 
 import { AppShell } from "@/components/layout/app-shell";
+import { productConfig } from "@/lib/app-config";
 
 export const metadata: Metadata = {
-  title: "Holmes Staff Scheduler Pilot",
-  description: "פיילוט לניהול זמינות, שיבוצים, החלפות וסידור עבודה לעובדים."
+  title: productConfig.name,
+  description: productConfig.description
 };
 
 export default function RootLayout({

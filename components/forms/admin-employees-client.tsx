@@ -91,7 +91,7 @@ export function AdminEmployeesClient({ initialEmployees }: { initialEmployees: E
           <div>
             <h2>יצירת משתמש כניסה</h2>
             <p className="lead">
-              המנהלת יוצרת לעובד ת.ז/שם משתמש וסיסמה ראשונית. העובד יחליף אותה
+              מנהל/ת יוצרים לעובד ת.ז/שם משתמש וסיסמה ראשונית. העובד יחליף אותה
               בכניסה הראשונה.
             </p>
           </div>
@@ -132,7 +132,7 @@ export function AdminEmployeesClient({ initialEmployees }: { initialEmployees: E
               }
             >
               <option value="employee">עובד</option>
-              <option value="manager">מנהלת</option>
+              <option value="manager">מנהל/ת</option>
             </select>
           </div>
           <div className="field">
@@ -196,7 +196,7 @@ export function AdminEmployeesClient({ initialEmployees }: { initialEmployees: E
                     <td>{`${user.firstName} ${user.lastName}`.trim()}</td>
                     <td>{user.nationalId}</td>
                     <td>{user.email}</td>
-                    <td>{user.role === "manager" ? "מנהלת" : "עובד"}</td>
+                    <td>{user.role === "manager" ? "מנהל/ת" : "עובד"}</td>
                     <td>
                       <span className={user.mustChangePassword ? "badge warning" : "badge success"}>
                         {user.mustChangePassword ? "חייב החלפה" : "סיסמה אישית"}

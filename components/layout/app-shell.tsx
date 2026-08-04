@@ -15,6 +15,7 @@ import {
   Wand2
 } from "lucide-react";
 
+import { demoOrganization, productConfig } from "@/lib/app-config";
 import { employees, managerEmployeeId } from "@/lib/mock-data";
 import type { AuthUser } from "@/lib/auth-config";
 import { AUTH_USER_KEY, DEMO_USER_KEY } from "@/lib/local-storage-keys";
@@ -25,12 +26,12 @@ const employeeNav = [
   { href: "/my-shifts", label: "המשמרות שלי", icon: Clock3 },
   { href: "/schedule", label: "לוח עבודה סופי", icon: CalendarCheck },
   { href: "/swap-requests", label: "החלפות", icon: Repeat2 },
-  { href: "/manager-requests", label: "בקשות למנהלת", icon: MessageSquareText }
+  { href: "/manager-requests", label: "בקשות להנהלה", icon: MessageSquareText }
 ];
 
 const managerNav = [
-  { href: "/pilot", label: "פיילוט", icon: MonitorPlay },
-  { href: "/manager", label: "שולחן מנהלת", icon: CalendarCheck },
+  { href: "/pilot", label: "מצב הצגה", icon: MonitorPlay },
+  { href: "/manager", label: "שולחן ניהול", icon: CalendarCheck },
   { href: "/manager/schedule", label: "סידור עבודה", icon: Wand2 },
   { href: "/schedule", label: "לוח עבודה סופי", icon: CalendarCheck },
   { href: "/swap-requests", label: "החלפות", icon: Repeat2 },
@@ -40,7 +41,7 @@ const managerNav = [
 
 const roleLabels: Record<UserRole, string> = {
   employee: "עובד",
-  manager: "מנהלת",
+  manager: "מנהל/ת",
   admin: "אדמין"
 };
 
@@ -104,11 +105,13 @@ export function AppShell({ children }: { children: ReactNode }) {
     <div className="app-shell">
       <header className="topbar">
         <div className="topbar-inner">
-          <Link href="/" className="brand" aria-label="Holmes Staff Scheduler">
-            <div className="brand-mark">HS</div>
+          <Link href="/" className="brand" aria-label={productConfig.name}>
+            <div className="brand-mark">{productConfig.shortName}</div>
             <div>
-              <div className="brand-title">Holmes Staff Scheduler</div>
-              <div className="brand-subtitle">פיילוט לניהול סידור עבודה</div>
+              <div className="brand-title">{productConfig.name}</div>
+              <div className="brand-subtitle">
+                {demoOrganization.branchName} · {productConfig.tagline}
+              </div>
             </div>
           </Link>
 

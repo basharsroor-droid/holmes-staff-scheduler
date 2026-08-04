@@ -46,7 +46,7 @@ export function SubmissionAccessControl() {
         <h2>גישה להגשת סידור</h2>
         <p className="lead">
           ברירת המחדל: פתוח בכל חודש בין {getSubmissionWindowLabel()}, וסגור בשאר
-          הימים. המנהלת יכולה לפתוח או לסגור ידנית במקרה מיוחד.
+          הימים. מנהל/ת יכולים לפתוח או לסגור ידנית במקרה מיוחד.
         </p>
       </div>
 

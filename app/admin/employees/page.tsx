@@ -8,7 +8,7 @@ export default function AdminEmployeesPage() {
       <PageHeader
         eyebrow="אדמין"
         title="ניהול עובדים"
-        description="מסך ניהול בסיסי לעובדים, הרשאות פתיחה/סגירה ורמת ותק."
+        description="מסך ניהול בסיסי לעובדים, הרשאות פתיחה/סגירה, רמת ותק ופרטי כניסה."
       />
       <AdminEmployeesClient initialEmployees={employees} />
     </>

@@ -4,8 +4,8 @@ export default function ManagerRequestsPage() {
   return (
     <>
       <PageHeader
-        eyebrow="בקשות למנהלת"
-        title="פנייה לולריה"
+        eyebrow="בקשות להנהלה"
+        title="פנייה למנהל/ת"
         description="בשלב הדמו זה אזור לבקשות כלליות: הערות על זמינות, בקשות מיוחדות ושאלות לגבי הסידור."
       />
 
@@ -30,7 +30,7 @@ export default function ManagerRequestsPage() {
         </div>
         <div className="field" style={{ marginTop: 14 }}>
           <label>פירוט</label>
-          <textarea className="textarea" placeholder="כתבו כאן את הבקשה למנהלת" />
+          <textarea className="textarea" placeholder="כתבו כאן את הבקשה למנהל/ת" />
         </div>
         <button className="button primary" style={{ marginTop: 14 }}>
           שליחה במצב דמו

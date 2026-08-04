@@ -12,6 +12,7 @@ import {
 
 import { PageHeader } from "@/components/dashboard/page-header";
 import { StatCard } from "@/components/dashboard/stat-card";
+import { demoOrganization, productConfig } from "@/lib/app-config";
 import {
   availability,
   employees,
@@ -32,11 +33,11 @@ const pilotSteps = [
   },
   {
     title: "28 לחודש",
-    body: "ההגשה ננעלת אוטומטית, עם אפשרות פתיחה ידנית למנהלת."
+    body: "ההגשה ננעלת אוטומטית, עם אפשרות פתיחה ידנית למנהל/ת."
   },
   {
     title: "בניית סידור",
-    body: "המנהלת רואה רק עובדים זמינים לכל משמרת ומקבלת אזהרות בזמן השיבוץ."
+    body: "מנהל/ת רואים רק עובדים זמינים לכל משמרת ומקבלים אזהרות בזמן השיבוץ."
   },
   {
     title: "פרסום",
@@ -49,7 +50,7 @@ const demoChecklist = [
   "שיבוץ יום עבודה לפי עובדים זמינים בלבד",
   "אזהרות על משמרות פתוחות או שיבוץ בעייתי",
   "פרסום סידור סופי והורדה לאקסל",
-  "בקשות החלפה ובקשות למנהלת"
+  "בקשות החלפה ובקשות להנהלה"
 ];
 
 export default function PilotPage() {
@@ -70,12 +71,12 @@ export default function PilotPage() {
     <>
       <PageHeader
         eyebrow="מצב הצגה"
-        title="פיילוט Holmes Place לניהול סידור עבודה"
-        description="מסך אחד להצגה מול מנהלת: מה העובדים עושים, מה המנהלת מקבלת, ואיך נראה תהליך העבודה החודשי."
+        title={`${productConfig.name} לעסקים עם עובדים במשמרות`}
+        description={`מסך אחד להצגה מול מנהל/ת: מה העובדים עושים, מה ההנהלה מקבלת, ואיך נראה תהליך העבודה החודשי. הדמו כרגע מוצג על ${demoOrganization.branchName}.`}
         actions={
           <>
             <Link className="button primary" href="/manager">
-              שולחן מנהלת
+              שולחן ניהול
             </Link>
             <Link className="button" href="/employee">
               גרסת עובד
@@ -86,12 +87,12 @@ export default function PilotPage() {
 
       <div className="pilot-hero">
         <section className="pilot-main-card">
-          <div className="brand-mark">HS</div>
+          <div className="brand-mark">{productConfig.shortName}</div>
           <div>
-            <h2>מטרה לפיילוט</h2>
+            <h2>מטרה לגרסת ניסיון</h2>
             <p className="lead">
-              לבדוק חודש אחד האם המערכת חוסכת למנהלת זמן, מצמצמת טעויות בשיבוץ,
-              ומאפשרת לעובדים להגיש זמינות בצורה פשוטה מהטלפון.
+              לבדוק במשך חודש האם המערכת חוסכת זמן למנהלים, מצמצמת טעויות
+              בשיבוץ, ומאפשרת לעובדים להגיש זמינות בצורה פשוטה מהטלפון.
             </p>
           </div>
           <div className="actions">
@@ -122,7 +123,7 @@ export default function PilotPage() {
       <div className="grid grid-4">
         <StatCard icon={Users} label="עובדים בדמו" value={staffCount} />
         <StatCard icon={CalendarCheck} label="הגישו זמינות" value={availabilitySubmitters} />
-        <StatCard icon={ShieldCheck} label="אזהרות מנהלת" value={warnings.length} />
+        <StatCard icon={ShieldCheck} label="אזהרות ניהול" value={warnings.length} />
         <StatCard icon={Clock3} label="משמרות פתוחות" value={openShifts} />
       </div>
 
@@ -161,7 +162,7 @@ export default function PilotPage() {
         </section>
 
         <section className="card">
-          <h2>גרסת מנהלת</h2>
+          <h2>גרסת מנהל/ת</h2>
           <div className="feature-list">
             <div className="feature-row">
               <Wand2 size={20} />

@@ -139,7 +139,7 @@ export function AvailabilityForm({
           </strong>
           <span>
             חלון ההגשה הקבוע הוא {getSubmissionWindowLabel()}. מחוץ לחלון הזה רק
-            המנהלת יכולה לפתוח גישה ידנית.
+            מנהל/ת יכולים לפתוח גישה ידנית.
           </span>
         </div>
       </div>
@@ -219,7 +219,7 @@ export function AvailabilityForm({
               <textarea
                 className="textarea"
                 disabled={!isSubmissionOpen}
-                placeholder="הערות למנהלת"
+                placeholder="הערות למנהל/ת"
                 value={entry.note ?? ""}
                 onChange={(event) => updateEntry(date, { note: event.target.value })}
               />

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { KeyRound, LockKeyhole, ShieldCheck } from "lucide-react";
 
 import type { AuthUser } from "@/lib/auth-config";
+import { demoOrganization, productConfig } from "@/lib/app-config";
 import { AUTH_USER_KEY, DEMO_USER_KEY, LOCAL_USERS_KEY } from "@/lib/local-storage-keys";
 
 type StoredUser = AuthUser & { password: string };
@@ -118,12 +119,15 @@ export function AuthGate() {
   return (
     <div className="auth-page">
       <section className="auth-hero">
-        <div className="brand-mark">HS</div>
-        <h1>מערכת ניהול משמרות</h1>
+        <div className="brand-mark">{productConfig.shortName}</div>
+        <h1>{productConfig.name}</h1>
         <p>
-          זה אזור פרטי לעובדים ולמנהלת. המשתמשים נוצרים מראש על ידי המנהלת,
-          ובכניסה הראשונה חובה להחליף את הסיסמה הראשונית.
+          {productConfig.tagline}. זה אזור פרטי לעובדים ולמנהלים, עם משתמשים
+          שנוצרים מראש וכניסה ראשונה עם החלפת סיסמה חובה.
         </p>
+        <div className="card-muted">
+          דמו פעיל: {demoOrganization.businessName} · {demoOrganization.branchName}
+        </div>
       </section>
 
       <section className="auth-card">

@@ -13,9 +13,9 @@ export default function ManagerSchedulePage() {
   return (
     <>
       <PageHeader
-        eyebrow="מנהל"
+        eyebrow="מנהל/ת"
         title="בניית סידור חודשי"
-        description="סידור חצי ידני עם תבניות קיץ, שיבוץ עובדים, שמירת טיוטה, פרסום ואזהרות בזמן אמת."
+        description="שולחן שיבוץ חודשי עם תבניות משמרת, עובדים זמינים, שמירת טיוטה, פרסום ואזהרות בזמן אמת."
       />
       <SubmissionAccessControl />
       <ManagerScheduleBuilder

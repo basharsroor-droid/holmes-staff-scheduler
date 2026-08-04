@@ -15,6 +15,7 @@ import {
 import { PageHeader } from "@/components/dashboard/page-header";
 import { StatCard } from "@/components/dashboard/stat-card";
 import { WarningsPanel } from "@/components/schedule/warnings-panel";
+import { demoOrganization } from "@/lib/app-config";
 import {
   availability,
   employees,
@@ -76,8 +77,8 @@ export default function ManagerWorkspacePage() {
   return (
     <>
       <PageHeader
-        eyebrow="גרסת מנהלת"
-        title="שולחן מנהלת לפיילוט"
+        eyebrow="גרסת מנהל/ת"
+        title="שולחן ניהול לפיילוט"
         description="מסך החלטות אחד: איפה הסידור עומד, מה חסר לפני פרסום, ומה הפעולה הבאה שכדאי לעשות."
         actions={
           <>
@@ -112,7 +113,7 @@ export default function ManagerWorkspacePage() {
             <span className={completionPercent >= 90 ? "badge success" : "badge warning"}>
               {completionPercent >= 90 ? "מוכן כמעט לפרסום" : "דורש טיפול"}
             </span>
-            <span className="metric-label">יולי 2026</span>
+            <span className="metric-label">{demoOrganization.scheduleMonthLabel}</span>
           </div>
           <h2>מצב הסידור החודשי</h2>
           <p className="lead">
@@ -260,7 +261,7 @@ export default function ManagerWorkspacePage() {
         </section>
 
         <section className="card">
-          <h2>בקרות מנהלת</h2>
+          <h2>בקרות ניהול</h2>
           <div className="warning-list">
             <div className="mini-row">
               <div>

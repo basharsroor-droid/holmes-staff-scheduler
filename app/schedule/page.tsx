@@ -2,6 +2,7 @@ import { PageHeader } from "@/components/dashboard/page-header";
 import { ExportScheduleButton } from "@/components/schedule/export-schedule-button";
 import { FinalSchedule } from "@/components/schedule/final-schedule";
 import { WarningsPanel } from "@/components/schedule/warnings-panel";
+import { demoOrganization } from "@/lib/app-config";
 import {
   availability,
   employees,
@@ -24,7 +25,7 @@ export default function FullSchedulePage() {
     <>
       <PageHeader
         eyebrow="לוח עבודה סופי"
-        title="סידור יולי 2026"
+        title={`סידור ${demoOrganization.scheduleMonthLabel}`}
         description="תצוגה סופית וברורה: בכל משמרת מופיע רק העובד המשובץ. משמרות פתוחות מופיעות כפתוח."
         actions={
           <ExportScheduleButton

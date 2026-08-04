@@ -4,6 +4,7 @@ import { CalendarPlus, Repeat2 } from "lucide-react";
 import Link from "next/link";
 
 import { PageHeader } from "@/components/dashboard/page-header";
+import { demoOrganization, productConfig } from "@/lib/app-config";
 import {
   currentEmployeeId,
   employees,
@@ -34,8 +35,8 @@ function googleCalendarUrl({
     text: `משמרת ${shiftName}`,
     dates: `${toGoogleDate(date, startTime)}/${toGoogleDate(date, endTime)}`,
     ctz: "Asia/Jerusalem",
-    details: `משמרת של ${employeeName} במערכת Holmes Staff Scheduler`,
-    location: "מועדון כושר"
+    details: `משמרת של ${employeeName} במערכת ${productConfig.name}`,
+    location: demoOrganization.locationLabel
   });
 
   return `https://calendar.google.com/calendar/render?${params.toString()}`;

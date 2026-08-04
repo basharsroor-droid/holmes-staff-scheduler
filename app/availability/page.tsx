@@ -1,5 +1,6 @@
 import { PageHeader } from "@/components/dashboard/page-header";
 import { AvailabilityForm } from "@/components/forms/availability-form";
+import { demoOrganization } from "@/lib/app-config";
 import {
   availability,
   currentEmployeeId,
@@ -12,8 +13,8 @@ export default function AvailabilityPage() {
     <>
       <PageHeader
         eyebrow="הגשת זמינות"
-        title="זמינות לחודש יולי"
-        description="העובד מסמן זמינות, אי זמינות, העדפה או רק אם חייבים. המנהל יראה את הנתונים בזמן השיבוץ."
+        title={`זמינות לחודש ${demoOrganization.scheduleMonthLabel}`}
+        description="העובד מסמן זמינות, אי זמינות, העדפה או רק אם חייבים. המנהל/ת יראו את הנתונים בזמן השיבוץ."
       />
       <AvailabilityForm
         days={monthDays}
