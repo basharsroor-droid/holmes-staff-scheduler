@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { KeyRound, LockKeyhole, ShieldCheck } from "lucide-react";
 
-import { demoLoginUsers, type AuthUser } from "@/lib/auth-config";
+import { type AuthUser } from "@/lib/auth-config";
 import {
   defaultBranchId,
   defaultOrganizationId,
@@ -224,17 +224,8 @@ export function AuthGate() {
               כניסה
             </button>
             <div className="card-muted">
-              <strong>יוזרים ראשוניים Holmes Place:</strong>
-              <div className="demo-credentials">
-                {demoLoginUsers
-                  .filter((user) => user.organizationId === demoOrganization.id)
-                  .map((user) => (
-                    <span key={user.id}>
-                      {user.username ?? user.firstName} / {user.password}
-                    </span>
-                  ))}
-              </div>
-              אחרי הכניסה הראשונה כל עובד יתבקש להחליף סיסמה.
+              פרטי הכניסה הראשוניים ניתנים לעובדים על ידי מנהל/ת העסק בלבד.
+              אחרי הכניסה הראשונה כל עובד יתבקש להחליף סיסמה אישית.
             </div>
           </div>
         )}
