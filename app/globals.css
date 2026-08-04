@@ -918,6 +918,96 @@ h3 {
   line-height: 1.5;
 }
 
+.pilot-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(320px, 0.65fr);
+  gap: 16px;
+  align-items: stretch;
+  margin-bottom: 16px;
+}
+
+.pilot-main-card {
+  background:
+    linear-gradient(135deg, rgba(19, 111, 99, 0.12), transparent 36%),
+    var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  display: grid;
+  gap: 16px;
+  padding: 24px;
+}
+
+.pilot-main-card .brand-mark {
+  width: 54px;
+  height: 54px;
+  font-size: 19px;
+}
+
+.pilot-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.9fr) minmax(0, 0.9fr);
+  gap: 16px;
+  align-items: start;
+  margin-top: 16px;
+}
+
+.timeline-list,
+.feature-list {
+  display: grid;
+  gap: 12px;
+}
+
+.timeline-row {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: white;
+  padding: 12px;
+}
+
+.timeline-row > span {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: var(--radius);
+  background: var(--primary-soft);
+  color: var(--primary-dark);
+  font-weight: 850;
+}
+
+.timeline-row strong {
+  display: block;
+  margin-bottom: 4px;
+}
+
+.timeline-row p {
+  color: var(--muted);
+  line-height: 1.55;
+  margin: 0;
+}
+
+.feature-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: white;
+  line-height: 1.6;
+  padding: 12px;
+}
+
+.feature-row svg {
+  color: var(--primary);
+  flex: 0 0 auto;
+  margin-top: 2px;
+}
+
 .status-button {
   min-height: 38px;
   border: 1px solid var(--line);
@@ -1069,6 +1159,8 @@ h3 {
 @media (max-width: 1060px) {
   .topbar-inner,
   .page-header,
+  .pilot-hero,
+  .pilot-grid,
   .split,
   .manager-workbench,
   .employee-workspace,

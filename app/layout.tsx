@@ -6,8 +6,8 @@ import "@/app/globals.css";
 import { AppShell } from "@/components/layout/app-shell";
 
 export const metadata: Metadata = {
-  title: "Holmes Staff Scheduler",
-  description: "כלי פנימי לניהול זמינות, שיבוצים והחלפות משמרות במועדון כושר."
+  title: "Holmes Staff Scheduler Pilot",
+  description: "פיילוט לניהול זמינות, שיבוצים, החלפות וסידור עבודה לעובדים."
 };
 
 export default function RootLayout({

@@ -8,6 +8,7 @@ import {
   CalendarCheck,
   Clock3,
   MessageSquareText,
+  MonitorPlay,
   Repeat2,
   Settings,
   Users,
@@ -28,6 +29,8 @@ const employeeNav = [
 ];
 
 const managerNav = [
+  { href: "/pilot", label: "פיילוט", icon: MonitorPlay },
+  { href: "/manager", label: "שולחן מנהלת", icon: CalendarCheck },
   { href: "/manager/schedule", label: "סידור עבודה", icon: Wand2 },
   { href: "/schedule", label: "לוח עבודה סופי", icon: CalendarCheck },
   { href: "/swap-requests", label: "החלפות", icon: Repeat2 },
@@ -105,7 +108,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             <div className="brand-mark">HS</div>
             <div>
               <div className="brand-title">Holmes Staff Scheduler</div>
-              <div className="brand-subtitle">ניהול משמרות וזמינות</div>
+              <div className="brand-subtitle">פיילוט לניהול סידור עבודה</div>
             </div>
           </Link>
 

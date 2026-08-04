@@ -41,7 +41,7 @@ export function AuthGate() {
 
   function enterSystem(user: AuthUser) {
     saveAuthUser(user, rememberDevice);
-    window.location.href = user.role === "manager" ? "/manager/schedule" : "/availability";
+    window.location.href = user.role === "manager" ? "/pilot" : "/employee";
   }
 
   async function login() {
