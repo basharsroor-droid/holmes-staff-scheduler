@@ -34,3 +34,4 @@ lib/server/
 providers/
 types/market.ts
 db/schema.sql
+.vercel
