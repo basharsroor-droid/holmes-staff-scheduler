@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import { Building2, CheckCircle2, Loader2, ShieldCheck, Users } from "lucide-react";
 
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
@@ -86,6 +87,7 @@ export default function OnboardingPage() {
         <p className="eyebrow">SHIFT PILOT לעסקים</p>
         <h1>סביבת העבודה של העסק שלך, מוכנה תוך כמה דקות.</h1>
         <p className="lead">פותחים חשבון עסקי מאובטח, מגדירים את הסניף הראשון ואז מזמינים מנהלים ועובדים.</p>
+        <p className="auth-secondary">כבר פתחת חשבון? <Link href="/login">כניסה למערכת</Link></p>
         <div className="onboarding-benefits">
           <div><ShieldCheck /><span><strong>מידע פרטי לכל עסק</strong><small>הפרדה מלאה בין לקוחות והרשאות לפי תפקיד</small></span></div>
           <div><Users /><span><strong>צוות במקום אחד</strong><small>מנהלים, עובדים, זמינות ושיבוצים</small></span></div>
@@ -110,7 +112,7 @@ export default function OnboardingPage() {
         ) : null}
 
         {stage === "verify" ? (
-          <div className="onboarding-state"><CheckCircle2 size={46} /><h2>שלחנו לך מייל אימות</h2><p>יש לאשר את כתובת המייל. לאחר האישור תחזור לכאן כדי להגדיר את העסק.</p></div>
+          <div className="onboarding-state"><CheckCircle2 size={46} /><h2>שלחנו לך מייל אימות</h2><p>יש לאשר את כתובת המייל. לאחר האישור תחזור לכאן כדי להגדיר את העסק.</p><Link className="button" href="/login">כבר אישרתי — כניסה</Link></div>
         ) : null}
 
         {stage === "workspace" ? (
@@ -123,7 +125,7 @@ export default function OnboardingPage() {
         ) : null}
 
         {stage === "done" ? (
-          <div className="onboarding-state"><CheckCircle2 size={50} /><h2>סביבת העבודה מוכנה</h2><p>השלב הבא הוא להגדיר סוגי משמרות ולהזמין את הצוות.</p><a className="button primary" href="/manager">כניסה לשולחן הניהול</a></div>
+          <div className="onboarding-state"><CheckCircle2 size={50} /><h2>סביבת העבודה מוכנה</h2><p>השלב הבא הוא להגדיר סוגי משמרות ולהזמין את הצוות.</p><Link className="button primary" href="/workspace">כניסה לסביבת העסק</Link></div>
         ) : null}
 
         {message ? <p className="auth-message">{message}</p> : null}

@@ -353,6 +353,102 @@ button {
   font-weight: 800;
 }
 
+.auth-secondary {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.auth-secondary a {
+  color: var(--primary);
+  font-weight: 800;
+}
+
+.workspace-home {
+  min-height: 100vh;
+  padding: 28px clamp(20px, 5vw, 72px) 64px;
+  background: linear-gradient(145deg, #f7faff 0%, #eef5ff 58%, #f6fbff 100%);
+}
+
+.workspace-home-header,
+.workspace-welcome {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  max-width: 1180px;
+  margin: 0 auto;
+}
+
+.workspace-welcome {
+  margin-top: 64px;
+  padding: 34px;
+  border: 1px solid var(--border);
+  border-radius: 28px;
+  background: linear-gradient(135deg, #071a3c 0%, #0b2f68 100%);
+  color: white;
+  box-shadow: 0 24px 70px rgba(7, 26, 60, 0.18);
+}
+
+.workspace-welcome h1 {
+  margin: 5px 0 8px;
+  font-size: clamp(2rem, 5vw, 3.3rem);
+}
+
+.workspace-welcome p { margin: 0; color: #d5e4ff; }
+.workspace-welcome .eyebrow { color: #71a9ff; }
+.workspace-welcome .role-pill { background: rgba(255, 255, 255, 0.12); color: white; }
+
+.workspace-stats,
+.workspace-next {
+  max-width: 1180px;
+  margin: 24px auto 0;
+}
+
+.workspace-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.workspace-stats article,
+.workspace-actions > div {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 20px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: white;
+  box-shadow: 0 12px 34px rgba(20, 48, 85, 0.07);
+}
+
+.workspace-stats svg,
+.workspace-actions svg { color: var(--primary); flex: 0 0 auto; }
+.workspace-stats span,
+.workspace-actions span { display: grid; gap: 3px; }
+.workspace-stats strong { font-size: 1.35rem; }
+.workspace-stats small,
+.workspace-actions small { color: var(--muted); }
+
+.workspace-next {
+  padding: 28px;
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.76);
+}
+
+.workspace-next h2 { margin: 4px 0 20px; }
+.workspace-actions { display: grid; gap: 12px; }
+.workspace-actions > div > span:nth-child(2) { flex: 1; }
+.status-chip { padding: 6px 10px; border-radius: 999px; background: #edf4ff; color: var(--primary); font-size: 0.78rem; font-weight: 800; }
+
+@media (max-width: 760px) {
+  .workspace-welcome { align-items: flex-start; flex-direction: column; margin-top: 34px; padding: 24px; }
+  .workspace-stats { grid-template-columns: 1fr; }
+  .workspace-home-header .brand-subtitle { display: none; }
+}
+
 .demo-credentials {
   display: flex;
   flex-wrap: wrap;

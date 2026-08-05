@@ -65,6 +65,11 @@ function normalizeAuthUser(user: AuthUser): AuthUser {
 
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
+  const isSaasRoute =
+    pathname === "/onboarding" ||
+    pathname === "/login" ||
+    pathname === "/workspace" ||
+    pathname.startsWith("/auth/");
   const [authUser, setAuthUser] = useState<AuthUser | null>(null);
   const [authChecked, setAuthChecked] = useState(false);
   const [selectedEmployeeId, setSelectedEmployeeId] = useState(managerEmployeeId);
@@ -83,11 +88,11 @@ export function AppShell({ children }: { children: ReactNode }) {
       const parsedUser = normalizeAuthUser(JSON.parse(storedAuth) as AuthUser);
       setAuthUser(parsedUser);
       setSelectedEmployeeId(parsedUser.id);
-    } else if (pathname !== "/") {
+    } else if (pathname !== "/" && !isSaasRoute) {
       window.location.href = "/";
     }
     setAuthChecked(true);
-  }, [pathname]);
+  }, [isSaasRoute, pathname]);
 
   function logout() {
     window.localStorage.removeItem(AUTH_USER_KEY);
@@ -97,7 +102,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     window.location.href = "/";
   }
 
-  if (pathname === "/") {
+  if (pathname === "/" || isSaasRoute) {
     return <main>{children}</main>;
   }
 
