@@ -37,3 +37,4 @@ providers/
 types/market.ts
 db/schema.sql
 .vercel
+.env*

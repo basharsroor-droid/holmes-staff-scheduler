@@ -55,7 +55,7 @@ export default async function WorkspacePage() {
         <div><p className="eyebrow">השלבים הבאים</p><h2>השלמת הגדרת העסק</h2></div>
         <div className="workspace-actions">
           <div><Users /><span><strong>הזמנת עובדים</strong><small>נוסיף הזמנות מאובטחות במייל בשלב הבא.</small></span><span className="status-chip">בקרוב</span></div>
-          <div><Settings /><span><strong>הגדרת סוגי משמרות</strong><small>פתיחה, אמצע, סגירה או כל מבנה שהעסק צריך.</small></span><span className="status-chip">בקרוב</span></div>
+          <Link href="/workspace/shift-templates"><Settings /><span><strong>הגדרת סוגי משמרות</strong><small>פתיחה, אמצע, סגירה או כל מבנה שהעסק צריך.</small></span><span className="status-chip active">פתיחה</span></Link>
           <div><CalendarDays /><span><strong>יצירת חודש עבודה ראשון</strong><small>פתיחת חלון זמינות ובניית הסידור.</small></span><span className="status-chip">בקרוב</span></div>
         </div>
       </section>

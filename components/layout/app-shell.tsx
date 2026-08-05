@@ -68,7 +68,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const isSaasRoute =
     pathname === "/onboarding" ||
     pathname === "/login" ||
-    pathname === "/workspace" ||
+    pathname.startsWith("/workspace") ||
     pathname.startsWith("/auth/");
   const [authUser, setAuthUser] = useState<AuthUser | null>(null);
   const [authChecked, setAuthChecked] = useState(false);
