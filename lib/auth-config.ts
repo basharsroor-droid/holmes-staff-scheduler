@@ -18,7 +18,7 @@ export const demoLoginUsers = [
     role: "employee" as const,
     organizationId: defaultOrganizationId,
     branchId: defaultBranchId,
-    mustChangePassword: true
+    mustChangePassword: false
   },
   {
     id: "emp-demo-manager",
@@ -31,7 +31,7 @@ export const demoLoginUsers = [
     role: "manager" as const,
     organizationId: defaultOrganizationId,
     branchId: defaultBranchId,
-    mustChangePassword: true
+    mustChangePassword: false
   },
   {
     id: "emp-demo-cafe-manager",
