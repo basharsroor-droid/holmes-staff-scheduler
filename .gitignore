@@ -5,7 +5,9 @@ coverage
 *.log
 .env
 .env.local
+.env.*.local
 dist
+.supabase/
 
 # Local legacy exports and heavy one-off assets that are not part of the scheduler app
 UniGuide*

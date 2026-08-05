@@ -1,0 +1,62 @@
+"use client";
+
+import Link from "next/link";
+import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { Loader2, LogIn, ShieldCheck } from "lucide-react";
+
+import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
+
+export default function LoginPage() {
+  const router = useRouter();
+  const supabase = useMemo(() => createSupabaseBrowserClient(), []);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [message, setMessage] = useState("");
+
+  async function login() {
+    setMessage("");
+    if (!email || !password) {
+      setMessage("יש להזין כתובת מייל וסיסמה.");
+      return;
+    }
+
+    setBusy(true);
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    setBusy(false);
+
+    if (error) {
+      setMessage("פרטי הכניסה אינם נכונים או שהמייל עדיין לא אומת.");
+      return;
+    }
+
+    router.replace("/workspace");
+    router.refresh();
+  }
+
+  return (
+    <main className="onboarding-page" dir="rtl">
+      <section className="onboarding-intro">
+        <div className="brand-mark">SP</div>
+        <p className="eyebrow">SHIFT PILOT לעסקים</p>
+        <h1>טוב לראות אותך שוב.</h1>
+        <p className="lead">כניסה מאובטחת לסביבת העסק, הצוות וסידורי העבודה.</p>
+        <div className="onboarding-benefits">
+          <div><ShieldCheck /><span><strong>המידע של העסק נשאר פרטי</strong><small>הרשאות וגישה נפרדות לכל ארגון</small></span></div>
+        </div>
+      </section>
+
+      <section className="auth-card onboarding-card">
+        <div className="grid">
+          <div><p className="eyebrow">כניסת בעלי עסק ומנהלים</p><h2>כניסה למערכת</h2></div>
+          <label className="field"><span>כתובת מייל</span><input className="input" type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} /></label>
+          <label className="field"><span>סיסמה</span><input className="input" type="password" autoComplete="current-password" value={password} onChange={(event) => setPassword(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter") void login(); }} /></label>
+          <button className="button primary" disabled={busy} onClick={login}>{busy ? <Loader2 className="spin" size={17} /> : <LogIn size={17} />} כניסה מאובטחת</button>
+          {message ? <p className="auth-message" role="alert">{message}</p> : null}
+          <p className="auth-secondary">עדיין אין לך חשבון? <Link href="/onboarding">פתיחת עסק חדש</Link></p>
+        </div>
+      </section>
+    </main>
+  );
+}
