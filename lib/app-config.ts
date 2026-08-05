@@ -16,19 +16,19 @@ export type Organization = {
   pilotName: string;
 };
 
-export const defaultOrganizationId = "holmes-place";
-export const defaultBranchId = "holmes-branch";
+export const defaultOrganizationId = "nova-studio";
+export const defaultBranchId = "nova-carmel";
 
 export const organizations: Organization[] = [
   {
     id: defaultOrganizationId,
-    businessName: "Holmes Place",
+    businessName: "Nova Studio",
     branchId: defaultBranchId,
-    branchName: "סניף פיילוט",
+    branchName: "סניף הכרמל",
     industryLabel: "מועדון כושר עם עובדים במשמרות",
-    locationLabel: "Holmes Place",
+    locationLabel: "Nova Studio",
     scheduleMonthLabel: "אוגוסט 2026",
-    pilotName: "פיילוט Holmes Place לניהול סידור עבודה"
+    pilotName: "פיילוט Nova Studio לניהול סידור עבודה"
   },
   {
     id: "demo-cafe",
