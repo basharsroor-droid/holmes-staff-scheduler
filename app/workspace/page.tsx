@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { Building2, CalendarCheck, CalendarDays, CalendarRange, ClipboardCheck, Clock3, Repeat2, Settings, Users } from "lucide-react";
 
 import { LogoutButton } from "@/app/workspace/logout-button";
+import { BrandLogo } from "@/components/brand/brand-logo";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
@@ -28,7 +29,7 @@ export default async function WorkspacePage() {
   const isEmployee = membership.role === "employee";
 
   return <main className="workspace-home" dir="rtl">
-    <header className="workspace-home-header"><Link href="/" className="brand"><div className="brand-mark">SP</div><div><div className="brand-title">ShiftPilot</div><div className="brand-subtitle">סביבת העסק</div></div></Link><LogoutButton /></header>
+    <header className="workspace-home-header"><BrandLogo href="/" /><LogoutButton /></header>
     <section className="workspace-welcome"><div><p className="eyebrow">סביבת עבודה מאובטחת</p><h1>שלום, {organization.name}</h1><p>{isEmployee ? "מכאן מגישים זמינות, רואים משמרות ומנהלים החלפות." : "מכאן מנהלים את הצוות, הזמינות והסידור."}</p></div><div className="role-pill">{isEmployee ? "עובד/ת" : membership.role === "owner" ? "בעל/ת העסק" : "מנהל/ת"}</div></section>
     {isEmployee ? <>
       <section className="workspace-stats"><article><Building2 /><span><strong>{branchResult.data?.name ?? "הסניף"}</strong><small>סביבת העבודה שלך</small></span></article><article><CalendarCheck /><span><strong>{openPeriodsResult.count ?? 0}</strong><small>חודשים פתוחים להגשה</small></span></article><article><Clock3 /><span><strong>{templatesResult.count ?? 0}</strong><small>סוגי משמרות פעילים</small></span></article></section>

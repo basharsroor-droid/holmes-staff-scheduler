@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { BrandLogo } from "@/components/brand/brand-logo";
 import { ArrowLeft, CalendarCheck, CalendarRange, CheckCircle2, Clock3, Repeat2, ShieldCheck, Sparkles, Users } from "lucide-react";
 
 const features = [
@@ -10,13 +11,13 @@ const features = [
 export default function HomePage() {
   return <main className="landing-page" dir="rtl">
     <nav className="landing-nav">
-      <Link href="/" className="brand"><div className="brand-mark">SP</div><div><div className="brand-title">ShiftPilot</div><div className="brand-subtitle">ניהול משמרות חכם</div></div></Link>
+      <BrandLogo href="/" />
       <div className="landing-nav-actions"><Link className="button" href="/demo">צפייה בדמו</Link><Link className="button" href="/login">כניסה</Link><Link className="button primary" href="/onboarding">פתיחת עסק</Link></div>
     </nav>
 
-    <section className="landing-hero">
+    <section className="landing-hero landing-hero-premium">
       <div>
-        <p className="eyebrow"><Sparkles size={16} /> פחות הודעות. פחות טעויות. יותר סדר.</p>
+        <p className="eyebrow landing-eyebrow"><Sparkles size={16} /> מערכת המשמרות החדשה של הצוות שלכם</p>
         <h1>סידור העבודה שמסתדר עם כולם.</h1>
         <p className="landing-lead">ShiftPilot מרכזת הגשת זמינות, בניית סידור, פרסום משמרות והחלפות — במערכת אחת פשוטה לעובדים ולמנהלים.</p>
         <div className="landing-cta"><Link className="button primary" href="/onboarding">התחלה ללא עלות <ArrowLeft size={17} /></Link><Link className="button" href="/demo">פתיחת הדמו</Link></div>
@@ -38,6 +39,6 @@ export default function HomePage() {
 
     <section className="landing-final"><div><p className="eyebrow">מוכנים להתחיל?</p><h2>הקימו סביבת עבודה לצוות שלכם</h2><p>פתחו עסק, הגדירו סניף וסוגי משמרות והזמינו את העובדים.</p></div><Link className="button primary" href="/onboarding">פתיחת חשבון <ArrowLeft size={17} /></Link></section>
 
-    <footer className="landing-footer"><span>© 2026 ShiftPilot</span><div><Link href="/login">כניסה</Link><Link href="/demo">דמו Holmes Place</Link></div></footer>
+    <footer className="landing-footer"><BrandLogo compact href="/" /><span>© 2026 ShiftPilot</span><div><Link href="/login">כניסה</Link><Link href="/demo">דמו Holmes Place</Link></div></footer>
   </main>;
 }

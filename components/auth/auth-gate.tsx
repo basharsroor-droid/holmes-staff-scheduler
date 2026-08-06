@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { KeyRound, LockKeyhole, ShieldCheck } from "lucide-react";
 
+import { BrandLogo } from "@/components/brand/brand-logo";
 import { type AuthUser } from "@/lib/auth-config";
 import {
   defaultBranchId,
@@ -137,8 +138,7 @@ export function AuthGate() {
   return (
     <div className="auth-page">
       <section className="auth-hero">
-        <div className="brand-mark">{productConfig.shortName}</div>
-        <h1>{productConfig.name}</h1>
+        <BrandLogo />
         <p>
           {productConfig.tagline}. זה אזור פרטי לעובדים ולמנהלים, עם משתמשים
           שנוצרים מראש וכניסה ראשונה עם החלפת סיסמה חובה.

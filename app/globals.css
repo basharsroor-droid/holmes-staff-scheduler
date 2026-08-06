@@ -1665,3 +1665,53 @@ h3 {
   .landing-preview-grid { grid-template-columns: 1fr; }
   .landing-trust { align-items: flex-start; flex-direction: column; }
 }
+
+
+/* ShiftPilot brand system */
+.shiftpilot-logo-link { color: inherit; text-decoration: none; display: inline-flex; }
+.shiftpilot-logo { display: inline-flex; align-items: center; gap: 11px; direction: ltr; }
+.shiftpilot-logo svg { width: 56px; height: 44px; flex: 0 0 auto; filter: drop-shadow(0 8px 14px rgba(38,105,255,.22)); }
+.shiftpilot-wordmark { display: grid; grid-template-columns: auto auto; align-items: baseline; line-height: .9; letter-spacing: -.04em; font-size: 27px; }
+.shiftpilot-wordmark strong { color: #0b1f47; font-weight: 850; }
+.shiftpilot-wordmark b { color: #1987ff; font-weight: 850; }
+.shiftpilot-wordmark small { grid-column: 1 / -1; margin-top: 8px; font-size: 7px; letter-spacing: .16em; color: #65728c; font-weight: 700; }
+.shiftpilot-logo.light .shiftpilot-wordmark strong { color: white; }
+.shiftpilot-logo.light .shiftpilot-wordmark b { background: linear-gradient(90deg,#23b5ff,#7651ff); -webkit-background-clip: text; color: transparent; }
+.shiftpilot-logo.light .shiftpilot-wordmark small { color: #b8c6e5; }
+.shiftpilot-logo.compact svg { width: 42px; height: 34px; }
+.demo-brand { display: grid; gap: 3px; }
+.demo-brand small { color: var(--muted); }
+
+/* Branded opening animation */
+.site-intro { position: fixed; inset: 0; z-index: 9999; display: grid; place-items: center; overflow: hidden; color: white; background: radial-gradient(circle at 50% 38%,#142b5a 0,#071329 48%,#030817 100%); animation: intro-in .35s ease both; }
+.site-intro.leaving { animation: intro-out .6s cubic-bezier(.7,0,1,1) forwards; }
+.site-intro button { position: absolute; top: 26px; left: 28px; border: 1px solid rgba(255,255,255,.28); border-radius: 999px; padding: 8px 15px; color: white; background: rgba(255,255,255,.08); cursor: pointer; }
+.intro-logo { position: relative; z-index: 2; display: grid; justify-items: center; gap: 20px; opacity: 0; transform: scale(.84); animation: intro-logo 1.6s .35s cubic-bezier(.2,.8,.2,1) forwards; }
+.intro-logo .shiftpilot-logo { transform: scale(1.65); }
+.intro-logo p { margin: 25px 0 0; color: #c7d5ef; font-size: 13px; letter-spacing: .22em; }
+.intro-flight { position: absolute; width: min(720px,90vw); height: 260px; transform: rotate(-8deg); }
+.intro-flight i { position: absolute; right: -20%; width: 68%; height: 2px; border-radius: 50%; background: linear-gradient(90deg,transparent,#27b5ff,#7651ff,transparent); filter: blur(.3px); animation: intro-flight 1.2s ease-out both; }
+.intro-flight i:nth-child(2) { top: 48%; animation-delay: .14s; }
+.intro-flight i:nth-child(3) { top: 62%; width: 48%; animation-delay: .26s; }
+.intro-stars { position: absolute; inset: 0; opacity: .35; background-image: radial-gradient(#fff 1px,transparent 1px); background-size: 74px 74px; animation: stars 8s linear infinite; }
+@keyframes intro-in { from { opacity: 0 } }
+@keyframes intro-out { to { opacity: 0; transform: scale(1.04); visibility: hidden } }
+@keyframes intro-logo { 35% { opacity: 1; transform: scale(1.05) } 100% { opacity: 1; transform: scale(1) } }
+@keyframes intro-flight { from { transform: translateX(0); opacity: 0 } 20% { opacity: 1 } to { transform: translateX(-125%); opacity: 0 } }
+@keyframes stars { to { background-position: 74px 74px } }
+
+/* Premium marketing surface */
+.landing-page { background: #f7f9fd; }
+.landing-nav { min-height: 92px; }
+.landing-hero-premium { width: min(calc(100% - 32px),1240px); padding: 74px 50px 84px; border-radius: 0 0 34px 34px; color: white; background: radial-gradient(circle at 15% 10%,rgba(43,173,255,.25),transparent 35%),radial-gradient(circle at 90% 80%,rgba(111,65,255,.28),transparent 32%),linear-gradient(135deg,#061126,#0a1d3f 58%,#10183e); box-shadow: 0 35px 85px rgba(4,15,40,.22); }
+.landing-hero-premium h1 { color: white; }
+.landing-hero-premium .landing-lead { color: #c7d4ea; }
+.landing-hero-premium .landing-eyebrow { color: #7ed4ff; }
+.landing-hero-premium .landing-trust { color: #b8c6de; }
+.landing-hero-premium .landing-trust svg { color: #35b8ff; }
+.landing-hero-premium .button:not(.primary) { color: white; border-color: rgba(255,255,255,.28); background: rgba(255,255,255,.07); }
+.landing-hero-premium .landing-preview { color: var(--ink); background: rgba(255,255,255,.96); box-shadow: 0 32px 80px rgba(0,0,0,.32); }
+.landing-feature-grid article { transition: transform .25s ease,box-shadow .25s ease,border-color .25s ease; }
+.landing-feature-grid article:hover { transform: translateY(-7px); border-color: #a7caff; box-shadow: 0 22px 45px rgba(18,67,135,.12); }
+@media (prefers-reduced-motion: reduce) { .site-intro { display: none } .landing-feature-grid article { transition: none } }
+@media (max-width: 820px) { .landing-hero-premium { padding: 48px 24px 58px; border-radius: 0 0 24px 24px; } .intro-logo .shiftpilot-logo { transform: scale(1.25); } }
