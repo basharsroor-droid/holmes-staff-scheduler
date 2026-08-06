@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Building2, CalendarCheck, CalendarDays, Clock3, Settings, Users } from "lucide-react";
+import { Building2, CalendarCheck, CalendarDays, ClipboardCheck, Clock3, Settings, Users } from "lucide-react";
 
 import { LogoutButton } from "@/app/workspace/logout-button";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -35,7 +35,7 @@ export default async function WorkspacePage() {
       <section className="workspace-next"><div><p className="eyebrow">פעולות עובד</p><h2>המשימות שלך</h2></div><div className="workspace-actions"><Link href="/workspace/availability"><CalendarCheck /><span><strong>הגשת זמינות</strong><small>סימון משמרות ושליחה למנהל.</small></span><span className="status-chip active">פתיחה</span></Link><div><CalendarDays /><span><strong>המשמרות שלי</strong><small>יופעל לאחר פרסום הסידור הראשון.</small></span><span className="status-chip">בקרוב</span></div></div></section>
     </> : <>
       <section className="workspace-stats"><article><Building2 /><span><strong>{branchResult.data?.name ?? "הסניף הראשי"}</strong><small>סניף פעיל</small></span></article><article><Users /><span><strong>{membersResult.count ?? 0}</strong><small>חברי צוות פעילים</small></span></article><article><Clock3 /><span><strong>{templatesResult.count ?? 0}</strong><small>סוגי משמרות</small></span></article></section>
-      <section className="workspace-next"><div><p className="eyebrow">הגדרת העסק</p><h2>כלי הניהול</h2></div><div className="workspace-actions"><Link href="/workspace/employees"><Users /><span><strong>ניהול עובדים</strong><small>הזמנות, תפקידים והרשאות.</small></span><span className="status-chip active">פתיחה</span></Link><Link href="/workspace/shift-templates"><Settings /><span><strong>סוגי משמרות</strong><small>שעות, כמות עובדים ודרישות.</small></span><span className="status-chip active">פתיחה</span></Link><Link href="/workspace/work-months"><CalendarDays /><span><strong>חודשי עבודה</strong><small>פתיחת הגשת זמינות וקביעת דדליין.</small></span><span className="status-chip active">פתיחה</span></Link></div></section>
+      <section className="workspace-next"><div><p className="eyebrow">הגדרת העסק</p><h2>כלי הניהול</h2></div><div className="workspace-actions"><Link href="/workspace/employees"><Users /><span><strong>ניהול עובדים</strong><small>הזמנות, תפקידים והרשאות.</small></span><span className="status-chip active">פתיחה</span></Link><Link href="/workspace/shift-templates"><Settings /><span><strong>סוגי משמרות</strong><small>שעות, כמות עובדים ודרישות.</small></span><span className="status-chip active">פתיחה</span></Link><Link href="/workspace/work-months"><CalendarDays /><span><strong>חודשי עבודה</strong><small>פתיחת הגשת זמינות וקביעת דדליין.</small></span><span className="status-chip active">פתיחה</span></Link><Link href="/workspace/submissions"><ClipboardCheck /><span><strong>מעקב הגשות</strong><small>מי הגיש, מי חסר ופירוט הזמינות.</small></span><span className="status-chip active">פתיחה</span></Link></div></section>
     </>}
   </main>;
 }
