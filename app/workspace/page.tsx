@@ -10,17 +10,9 @@ export const dynamic = "force-dynamic";
 export default async function WorkspacePage() {
   const supabase = createSupabaseServerClient();
   const { data: { user } } = await supabase.auth.getUser();
-
   if (!user) redirect("/login");
 
-  const { data: membership } = await supabase
-    .from("organization_memberships")
-    .select("organization_id, branch_id, role")
-    .eq("user_id", user.id)
-    .eq("status", "active")
-    .limit(1)
-    .maybeSingle();
-
+  const { data: membership } = await supabase.from("organization_memberships").select("organization_id, branch_id, role").eq("user_id", user.id).eq("status", "active").limit(1).maybeSingle();
   if (!membership) redirect("/onboarding");
 
   const [organizationResult, branchResult, membersResult, templatesResult] = await Promise.all([
@@ -39,22 +31,19 @@ export default async function WorkspacePage() {
         <Link href="/" className="brand"><div className="brand-mark">SP</div><div><div className="brand-title">ShiftPilot</div><div className="brand-subtitle">סביבת העסק</div></div></Link>
         <LogoutButton />
       </header>
-
       <section className="workspace-welcome">
         <div><p className="eyebrow">סביבת עבודה מאובטחת</p><h1>שלום, {organization.name}</h1><p>החשבון מחובר בהצלחה. מכאן נגדיר את הצוות, סוגי המשמרות והסידור הראשון.</p></div>
         <div className="role-pill">{membership.role === "owner" ? "בעל/ת העסק" : "מנהל/ת"}</div>
       </section>
-
       <section className="workspace-stats">
         <article><Building2 /><span><strong>{branchResult.data?.name ?? "הסניף הראשי"}</strong><small>סניף פעיל</small></span></article>
         <article><Users /><span><strong>{membersResult.count ?? 0}</strong><small>חברי צוות פעילים</small></span></article>
         <article><Clock3 /><span><strong>{templatesResult.count ?? 0}</strong><small>סוגי משמרות</small></span></article>
       </section>
-
       <section className="workspace-next">
         <div><p className="eyebrow">השלבים הבאים</p><h2>השלמת הגדרת העסק</h2></div>
         <div className="workspace-actions">
-          <div><Users /><span><strong>הזמנת עובדים</strong><small>נוסיף הזמנות מאובטחות במייל בשלב הבא.</small></span><span className="status-chip">בקרוב</span></div>
+          <Link href="/workspace/employees"><Users /><span><strong>ניהול עובדים</strong><small>תפקידים, הרשאות פתיחה וסגירה והפעלה או השבתה.</small></span><span className="status-chip active">פתיחה</span></Link>
           <Link href="/workspace/shift-templates"><Settings /><span><strong>הגדרת סוגי משמרות</strong><small>פתיחה, אמצע, סגירה או כל מבנה שהעסק צריך.</small></span><span className="status-chip active">פתיחה</span></Link>
           <div><CalendarDays /><span><strong>יצירת חודש עבודה ראשון</strong><small>פתיחת חלון זמינות ובניית הסידור.</small></span><span className="status-chip">בקרוב</span></div>
         </div>
