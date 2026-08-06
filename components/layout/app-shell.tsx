@@ -18,8 +18,7 @@ import {
 import {
   defaultBranchId,
   defaultOrganizationId,
-  getOrganizationById,
-  productConfig
+  getOrganizationById
 } from "@/lib/app-config";
 import { BrandLogo } from "@/components/brand/brand-logo";
 import { employees, managerEmployeeId } from "@/lib/mock-data";
