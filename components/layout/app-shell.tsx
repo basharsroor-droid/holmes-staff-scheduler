@@ -21,6 +21,7 @@ import {
   getOrganizationById,
   productConfig
 } from "@/lib/app-config";
+import { BrandLogo } from "@/components/brand/brand-logo";
 import { employees, managerEmployeeId } from "@/lib/mock-data";
 import type { AuthUser } from "@/lib/auth-config";
 import { AUTH_USER_KEY, DEMO_USER_KEY } from "@/lib/local-storage-keys";
@@ -125,15 +126,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     <div className="app-shell">
       <header className="topbar">
         <div className="topbar-inner">
-          <Link href="/" className="brand" aria-label={productConfig.name}>
-            <div className="brand-mark">{productConfig.shortName}</div>
-            <div>
-              <div className="brand-title">{productConfig.name}</div>
-              <div className="brand-subtitle">
-                {organization.businessName} · {organization.branchName}
-              </div>
-            </div>
-          </Link>
+          <div className="demo-brand"><BrandLogo href="/demo" /><small>{organization.businessName} · {organization.branchName}</small></div>
 
           <nav className="nav" aria-label="ניווט ראשי">
             {privateNavItems.map((item) => {
