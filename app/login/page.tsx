@@ -5,6 +5,7 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2, LogIn, ShieldCheck } from "lucide-react";
 
+import { BrandLogo } from "@/components/brand/brand-logo";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 
 export default function LoginPage() {
@@ -38,7 +39,7 @@ export default function LoginPage() {
   return (
     <main className="onboarding-page" dir="rtl">
       <section className="onboarding-intro">
-        <div className="brand-mark">SP</div>
+        <BrandLogo href="/" />
         <p className="eyebrow">SHIFT PILOT לעסקים</p>
         <h1>טוב לראות אותך שוב.</h1>
         <p className="lead">כניסה מאובטחת לסביבת העסק, הצוות וסידורי העבודה.</p>
