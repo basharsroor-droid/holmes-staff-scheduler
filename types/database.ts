@@ -249,6 +249,75 @@ export type Database = {
           },
         ]
       }
+      organization_invitations: {
+        Row: {
+          accepted_at: string | null
+          accepted_by: string | null
+          branch_id: string
+          created_at: string
+          email: string
+          expires_at: string
+          first_name: string
+          id: string
+          invited_by: string
+          last_name: string
+          organization_id: string
+          role: Database["public"]["Enums"]["member_role"]
+          status: string
+          token: string
+          updated_at: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          accepted_by?: string | null
+          branch_id: string
+          created_at?: string
+          email: string
+          expires_at?: string
+          first_name: string
+          id?: string
+          invited_by: string
+          last_name?: string
+          organization_id: string
+          role?: Database["public"]["Enums"]["member_role"]
+          status?: string
+          token?: string
+          updated_at?: string
+        }
+        Update: {
+          accepted_at?: string | null
+          accepted_by?: string | null
+          branch_id?: string
+          created_at?: string
+          email?: string
+          expires_at?: string
+          first_name?: string
+          id?: string
+          invited_by?: string
+          last_name?: string
+          organization_id?: string
+          role?: Database["public"]["Enums"]["member_role"]
+          status?: string
+          token?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "organization_invitations_branch_id_organization_id_fkey"
+            columns: ["branch_id", "organization_id"]
+            isOneToOne: false
+            referencedRelation: "branches"
+            referencedColumns: ["id", "organization_id"]
+          },
+          {
+            foreignKeyName: "organization_invitations_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       organization_memberships: {
         Row: {
           branch_id: string | null
@@ -724,6 +793,21 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      accept_organization_invitation: {
+        Args: { invitation_token: string }
+        Returns: string
+      }
+      create_organization_invitation: {
+        Args: {
+          target_branch_id: string
+          target_email: string
+          target_first_name: string
+          target_last_name?: string
+          target_organization_id: string
+          target_role?: Database["public"]["Enums"]["member_role"]
+        }
+        Returns: string
+      }
       create_organization_workspace: {
         Args: {
           business_name: string
@@ -900,4 +984,3 @@ export const Constants = {
     },
   },
 } as const
-
