@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { CalendarPlus, CheckCircle2, Clock3, Loader2, Lock, RotateCcw } from "lucide-react";
+import { CalendarDays, CalendarPlus, CheckCircle2, Clock3, Loader2, Lock, RotateCcw } from "lucide-react";
 
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import type { Database } from "@/types/database";
