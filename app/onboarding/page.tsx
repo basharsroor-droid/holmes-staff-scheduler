@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { Building2, CheckCircle2, Loader2, ShieldCheck, Users } from "lucide-react";
 
+import { BrandLogo } from "@/components/brand/brand-logo";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 
 type Stage = "loading" | "account" | "verify" | "workspace" | "done";
@@ -83,7 +84,7 @@ export default function OnboardingPage() {
   return (
     <main className="onboarding-page" dir="rtl">
       <section className="onboarding-intro">
-        <div className="brand-mark">SP</div>
+        <BrandLogo href="/" />
         <p className="eyebrow">SHIFT PILOT לעסקים</p>
         <h1>סביבת העבודה של העסק שלך, מוכנה תוך כמה דקות.</h1>
         <p className="lead">פותחים חשבון עסקי מאובטח, מגדירים את הסניף הראשון ואז מזמינים מנהלים ועובדים.</p>
