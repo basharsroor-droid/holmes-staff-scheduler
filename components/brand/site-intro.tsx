@@ -2,9 +2,7 @@
 
 import { useEffect, useState } from "react";
 
-import { BrandLogo } from "@/components/brand/brand-logo";
-
-const INTRO_KEY = "shiftpilot_intro_seen";
+const INTRO_KEY = "shiftpilot_intro_seen_v2";
 
 export function SiteIntro() {
   const [visible, setVisible] = useState(false);
@@ -14,22 +12,21 @@ export function SiteIntro() {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches || window.sessionStorage.getItem(INTRO_KEY)) return;
     setVisible(true);
     window.sessionStorage.setItem(INTRO_KEY, "1");
-    const leaveTimer = window.setTimeout(() => setLeaving(true), 2100);
-    const hideTimer = window.setTimeout(() => setVisible(false), 2700);
-    return () => { window.clearTimeout(leaveTimer); window.clearTimeout(hideTimer); };
+    const fallback = window.setTimeout(() => close(), 4600);
+    return () => window.clearTimeout(fallback);
   }, []);
 
   function close() {
     setLeaving(true);
-    window.setTimeout(() => setVisible(false), 450);
+    window.setTimeout(() => setVisible(false), 550);
   }
 
   if (!visible) return null;
 
-  return <div className={`site-intro ${leaving ? "leaving" : ""}`} role="dialog" aria-label="ShiftPilot">
-    <div className="intro-stars" />
-    <div className="intro-flight"><i /><i /><i /></div>
-    <div className="intro-logo"><BrandLogo light /><p>הדרך הקלה למשמרת הבאה שלך</p></div>
-    <button type="button" onClick={close}>דילוג</button>
+  return <div className={`site-intro video-intro ${leaving ? "leaving" : ""}`} role="dialog" aria-label="פתיח ShiftPilot">
+    <video autoPlay muted playsInline preload="auto" onEnded={close}>
+      <source src="/shiftpilot-intro.mp4" type="video/mp4" />
+    </video>
+    <button type="button" onClick={close}>דילוג על הפתיח</button>
   </div>;
 }
