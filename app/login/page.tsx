@@ -52,6 +52,7 @@ export default function LoginPage() {
           <div><p className="eyebrow">כניסת בעלי עסק ומנהלים</p><h2>כניסה למערכת</h2></div>
           <label className="field"><span>כתובת מייל</span><input className="input" type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} /></label>
           <label className="field"><span>סיסמה</span><input className="input" type="password" autoComplete="current-password" value={password} onChange={(event) => setPassword(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter") void login(); }} /></label>
+          <div style={{ display: "flex", justifyContent: "flex-end" }}><Link className="auth-secondary" href="/auth/forgot-password">שכחתי סיסמה</Link></div>
           <button className="button primary" disabled={busy} onClick={login}>{busy ? <Loader2 className="spin" size={17} /> : <LogIn size={17} />} כניסה מאובטחת</button>
           {message ? <p className="auth-message" role="alert">{message}</p> : null}
           <p className="auth-secondary">עדיין אין לך חשבון? <Link href="/onboarding">פתיחת עסק חדש</Link></p>
