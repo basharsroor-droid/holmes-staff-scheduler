@@ -29,6 +29,10 @@ const atomicSwapApprovalMigrationUrl = new URL(
   "../supabase/migrations/20260807195000_atomic_shift_swap_approval.sql",
   import.meta.url
 );
+const managementAuditMigrationUrl = new URL(
+  "../supabase/migrations/20260807202000_management_audit_log.sql",
+  import.meta.url
+);
 
 const tenantTables = [
   "organizations",
@@ -206,11 +210,30 @@ if (!existsSync(atomicSwapApprovalMigrationUrl)) {
   }
 }
 
+if (!existsSync(managementAuditMigrationUrl)) {
+  failures.push("management audit log migration is missing");
+} else {
+  const auditMigration = readFileSync(managementAuditMigrationUrl, "utf8");
+  for (const requiredRule of [
+    "write_management_audit_log",
+    "audit_organizations_update",
+    "audit_branches_write",
+    "audit_memberships_write",
+    "audit_shift_templates_write",
+    "audit_schedule_periods_write",
+    "excludes emails, tokens, notes, and credentials"
+  ]) {
+    if (!auditMigration.includes(requiredRule)) {
+      failures.push(`management audit rule is missing: ${requiredRule}`);
+    }
+  }
+}
+
 if (failures.length) {
   console.error(failures.join("\n"));
   process.exit(1);
 }
 
 console.log(
-  `Validated ${tenantTables.length} RLS-protected ShiftPilot tables with privileged auth, shift-swap, availability-window, audit-event, draft-schedule, atomic-publication, and atomic-swap protection.`
+  `Validated ${tenantTables.length} RLS-protected ShiftPilot tables with authorization, workflow integrity, privacy, atomic operations, and management audit protection.`
 );
