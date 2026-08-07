@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowLeft, BarChart3, Building2, CalendarCheck, CalendarDays, CalendarRange, Check, CheckCircle2, Clock3, LockKeyhole, Mail, Repeat2, ShieldCheck, Sparkles, UserPlus, Users, Wand2 } from "lucide-react";
+import { ArrowLeft, BarChart3, Building2, CalendarCheck, CalendarDays, CalendarRange, Check, CheckCircle2, Clock3, LockKeyhole, Mail, Menu, Repeat2, ShieldCheck, Sparkles, UserPlus, Users, Wand2 } from "lucide-react";
 
 import { BrandLogo } from "@/components/brand/brand-logo";
 import { ScrollReveal } from "@/components/marketing/scroll-reveal";
@@ -25,7 +25,7 @@ export default function HomePage() {
   return <main className="marketing-site" dir="rtl">
     <nav className="pro-nav">
       <BrandLogo href="/" />
-      <div className="pro-nav-links"><a href="#how">איך זה עובד</a><a href="#roles">למי זה מתאים</a><a href="#example">דוגמה</a><a href="#security">אבטחה</a></div>
+      <div className="pro-nav-links"><a href="#how">איך זה עובד</a><a href="#roles">למי זה מתאים</a><a href="#example">דוגמה</a><a href="#security">אבטחה</a></div><details className="mobile-menu"><summary><Menu size={20} /> תפריט</summary><div><a href="#how">איך זה עובד</a><a href="#roles">לעובדים ולמנהלים</a><a href="#example">דוגמת משמרות</a><a href="#security">אבטחה</a><Link href="/login">כניסה למערכת</Link><Link href="/demo">פתיחת הדמו</Link></div></details>
       <div className="pro-nav-actions"><Link className="button ghost-light" href="/demo">דמו</Link><Link className="button ghost-light" href="/login">כניסה</Link><Link className="button brand-button" href="/onboarding">פתיחת עסק</Link></div>
     </nav>
 
@@ -92,6 +92,6 @@ export default function HomePage() {
 
     <section className="final-cta"><ScrollReveal><BrandLogo light /><h2>הגיע הזמן להפסיק לרדוף אחרי המשמרות.</h2><p>פתחו סביבת עבודה, הגדירו את הסניף הראשון והכינו את הסידור הבא בצורה מסודרת.</p><div><Link className="button brand-button large" href="/onboarding">פתיחת עסק חדש <ArrowLeft size={18} /></Link><Link className="button glass-button large" href="/demo">כניסה לדמו</Link></div></ScrollReveal></section>
 
-    <footer className="pro-footer"><BrandLogo href="/" /><p>ShiftPilot — הדרך הקלה למשמרת הבאה שלך.</p><div><Link href="/login">כניסה</Link><Link href="/onboarding">הרשמה</Link><Link href="/demo">דמו Holmes Place</Link></div><small>© 2026 ShiftPilot. כל הזכויות שמורות.</small></footer>
+    <div className="mobile-sticky-actions"><Link href="/demo">דמו</Link><Link href="/onboarding">פתיחת עסק <ArrowLeft size={16} /></Link></div>\n\n    <footer className="pro-footer"><BrandLogo href="/" /><p>ShiftPilot — הדרך הקלה למשמרת הבאה שלך.</p><div><Link href="/login">כניסה</Link><Link href="/onboarding">הרשמה</Link><Link href="/demo">דמו Holmes Place</Link></div><small>© 2026 ShiftPilot. כל הזכויות שמורות.</small></footer>
   </main>;
 }
