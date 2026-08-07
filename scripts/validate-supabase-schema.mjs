@@ -9,6 +9,10 @@ const swapHardeningMigrationUrl = new URL(
   "../supabase/migrations/20260807175000_harden_shift_swap_transitions.sql",
   import.meta.url
 );
+const availabilityHardeningMigrationUrl = new URL(
+  "../supabase/migrations/20260807181000_harden_availability_windows.sql",
+  import.meta.url
+);
 
 const tenantTables = [
   "organizations",
@@ -91,11 +95,36 @@ if (!existsSync(swapHardeningMigrationUrl)) {
   }
 }
 
+if (!existsSync(availabilityHardeningMigrationUrl)) {
+  failures.push("availability window hardening migration is missing");
+} else {
+  const availabilityMigration = readFileSync(availabilityHardeningMigrationUrl, "utf8");
+  for (const requiredRule of [
+    "Availability submission window is closed",
+    "Employees may write their own availability only",
+    "Manager may update the internal note only",
+    "Availability entry identity fields are immutable",
+    "Availability date is outside the schedule period"
+  ]) {
+    if (!availabilityMigration.includes(requiredRule)) {
+      failures.push(`availability hardening rule is missing: ${requiredRule}`);
+    }
+  }
+  for (const triggerTarget of [
+    "before insert or update or delete on public.availability_submissions",
+    "before insert or update or delete on public.availability_entries"
+  ]) {
+    if (!availabilityMigration.includes(triggerTarget)) {
+      failures.push(`availability trigger is missing: ${triggerTarget}`);
+    }
+  }
+}
+
 if (failures.length) {
   console.error(failures.join("\n"));
   process.exit(1);
 }
 
 console.log(
-  `Validated ${tenantTables.length} RLS-protected ShiftPilot tables with privileged auth and shift-swap hardening.`
+  `Validated ${tenantTables.length} RLS-protected ShiftPilot tables with privileged auth, shift-swap, and availability-window hardening.`
 );
