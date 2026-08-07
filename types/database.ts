@@ -818,6 +818,10 @@ export type Database = {
         }
         Returns: string
       }
+      publish_schedule_period: {
+        Args: { target_period_id: string }
+        Returns: number
+      }
     }
     Enums: {
       availability_status:
