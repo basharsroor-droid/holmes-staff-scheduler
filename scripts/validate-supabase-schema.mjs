@@ -13,6 +13,10 @@ const availabilityHardeningMigrationUrl = new URL(
   "../supabase/migrations/20260807181000_harden_availability_windows.sql",
   import.meta.url
 );
+const swapEventHardeningMigrationUrl = new URL(
+  "../supabase/migrations/20260807183000_harden_swap_audit_events.sql",
+  import.meta.url
+);
 
 const tenantTables = [
   "organizations",
@@ -120,11 +124,27 @@ if (!existsSync(availabilityHardeningMigrationUrl)) {
   }
 }
 
+if (!existsSync(swapEventHardeningMigrationUrl)) {
+  failures.push("swap audit event hardening migration is missing");
+} else {
+  const eventMigration = readFileSync(swapEventHardeningMigrationUrl, "utf8");
+  for (const requiredRule of [
+    "Invalid swap event actor",
+    "Swap event does not match the current request state",
+    "swap_request_events_action_once_idx",
+    "before insert on public.swap_request_events"
+  ]) {
+    if (!eventMigration.includes(requiredRule)) {
+      failures.push(`swap event hardening rule is missing: ${requiredRule}`);
+    }
+  }
+}
+
 if (failures.length) {
   console.error(failures.join("\n"));
   process.exit(1);
 }
 
 console.log(
-  `Validated ${tenantTables.length} RLS-protected ShiftPilot tables with privileged auth, shift-swap, and availability-window hardening.`
+  `Validated ${tenantTables.length} RLS-protected ShiftPilot tables with privileged auth, shift-swap, availability-window, and audit-event hardening.`
 );
