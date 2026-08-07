@@ -793,6 +793,13 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      approve_shift_swap: {
+        Args: {
+          decision_note?: string | null
+          target_request_id: string
+        }
+        Returns: boolean
+      }
       accept_organization_invitation: {
         Args: { invitation_token: string }
         Returns: string

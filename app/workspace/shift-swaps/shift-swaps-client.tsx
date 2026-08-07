@@ -92,19 +92,39 @@ export function ShiftSwapsClient({ organizationId, currentUserId, isManager, shi
   async function approve(request: Request) {
     const original = assignments.find((item) => item.id === request.original_assignment_id);
     const target = assignments.find((item) => item.shift_id === request.target_shift_id && item.user_id === request.target_user_id);
-    if (!original || !target || !request.target_user_id) { setMessage("השיבוצים השתנו מאז פתיחת הבקשה. לא ניתן לאשר אותה."); return; }
-    setBusy(request.id); setMessage("");
-    const { error: firstError } = await supabase.from("shift_assignments").update({ user_id: request.target_user_id, assigned_by: currentUserId }).eq("id", original.id);
-    if (firstError) { setBusy(""); setMessage("החלפת השיבוץ הראשון נכשלה."); return; }
-    const { error: secondError } = await supabase.from("shift_assignments").update({ user_id: request.requested_by, assigned_by: currentUserId }).eq("id", target.id);
-    if (secondError) {
-      await supabase.from("shift_assignments").update({ user_id: request.requested_by, assigned_by: currentUserId }).eq("id", original.id);
-      setBusy(""); setMessage("ההחלפה בוטלה כי עדכון השיבוץ השני נכשל."); return;
+    if (!original || !target || !request.target_user_id) {
+      setMessage("השיבוצים השתנו מאז פתיחת הבקשה. לא ניתן לאשר אותה.");
+      return;
     }
-    setAssignments((current) => current.map((item) => item.id === original.id ? { ...item, user_id: request.target_user_id! } : item.id === target.id ? { ...item, user_id: request.requested_by } : item));
+
+    setBusy(request.id);
+    setMessage("");
+    const note = managerNotes[request.id]?.trim() || null;
+    const { error } = await supabase.rpc("approve_shift_swap", {
+      target_request_id: request.id,
+      decision_note: note
+    });
     setBusy("");
-    const ok = await updateStatus(request, "approved", managerNotes[request.id]?.trim() || null);
-    if (ok) setMessage("ההחלפה אושרה והסידור עודכן.");
+
+    if (error) {
+      setMessage("אישור ההחלפה נכשל. לא בוצע שינוי חלקי.");
+      return;
+    }
+
+    const decidedAt = new Date().toISOString();
+    setAssignments((current) => current.map((item) =>
+      item.id === original.id
+        ? { ...item, user_id: request.target_user_id! }
+        : item.id === target.id
+          ? { ...item, user_id: request.requested_by }
+          : item
+    ));
+    setRequests((current) => current.map((item) =>
+      item.id === request.id
+        ? { ...item, status: "approved", manager_note: note, decided_at: decidedAt }
+        : item
+    ));
+    setMessage("ההחלפה אושרה והסידור עודכן.");
   }
 
   return <div className="grid">
