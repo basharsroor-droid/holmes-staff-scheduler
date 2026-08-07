@@ -17,6 +17,10 @@ const swapEventHardeningMigrationUrl = new URL(
   "../supabase/migrations/20260807183000_harden_swap_audit_events.sql",
   import.meta.url
 );
+const draftScheduleProtectionMigrationUrl = new URL(
+  "../supabase/migrations/20260807190000_protect_draft_schedules.sql",
+  import.meta.url
+);
 
 const tenantTables = [
   "organizations",
@@ -140,11 +144,28 @@ if (!existsSync(swapEventHardeningMigrationUrl)) {
   }
 }
 
+if (!existsSync(draftScheduleProtectionMigrationUrl)) {
+  failures.push("draft schedule protection migration is missing");
+} else {
+  const draftMigration = readFileSync(draftScheduleProtectionMigrationUrl, "utf8");
+  for (const requiredRule of [
+    "status = 'published'",
+    "shifts_select_allowed",
+    "assignments_select_allowed",
+    "employees see published shifts",
+    "employees see assignments for published shifts only"
+  ]) {
+    if (!draftMigration.includes(requiredRule)) {
+      failures.push(`draft schedule protection is missing: ${requiredRule}`);
+    }
+  }
+}
+
 if (failures.length) {
   console.error(failures.join("\n"));
   process.exit(1);
 }
 
 console.log(
-  `Validated ${tenantTables.length} RLS-protected ShiftPilot tables with privileged auth, shift-swap, availability-window, and audit-event hardening.`
+  `Validated ${tenantTables.length} RLS-protected ShiftPilot tables with privileged auth, shift-swap, availability-window, audit-event, and draft-schedule protection.`
 );
