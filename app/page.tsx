@@ -39,7 +39,7 @@ export default function HomePage() {
         <div className="hero-assurances"><span><Check /> ללא התקנה</span><span><Check /> עובד בטלפון ובמחשב</span><span><Check /> הקמה תוך דקות</span></div>
       </ScrollReveal>
       <ScrollReveal className="product-window" delay={150}>
-        <div className="window-bar"><i /><i /><i /><span>ShiftPilot · סידור אוגוסט</span><b>פורסם</b></div>
+        <div className="window-bar"><i /><i /><i /><span className="window-product-title"><bdi dir="ltr">ShiftPilot</bdi><i>·</i> סידור אוגוסט</span><b>פורסם</b></div>
         <div className="window-body">
           <aside><BrandLogo compact /><span className="active"><CalendarRange /> סידור עבודה</span><span><Users /> עובדים</span><span><CalendarCheck /> הגשות</span><span><Repeat2 /> החלפות</span></aside>
           <div className="window-content"><div className="window-heading"><div><small>סניף הכרמל</small><strong>אוגוסט 2026</strong></div><button>פרסום הסידור</button></div>
