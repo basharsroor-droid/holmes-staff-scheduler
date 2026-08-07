@@ -21,6 +21,10 @@ const draftScheduleProtectionMigrationUrl = new URL(
   "../supabase/migrations/20260807190000_protect_draft_schedules.sql",
   import.meta.url
 );
+const atomicPublishingMigrationUrl = new URL(
+  "../supabase/migrations/20260807193000_atomic_schedule_publishing.sql",
+  import.meta.url
+);
 
 const tenantTables = [
   "organizations",
@@ -161,11 +165,29 @@ if (!existsSync(draftScheduleProtectionMigrationUrl)) {
   }
 }
 
+if (!existsSync(atomicPublishingMigrationUrl)) {
+  failures.push("atomic schedule publishing migration is missing");
+} else {
+  const publishingMigration = readFileSync(atomicPublishingMigrationUrl, "utf8");
+  for (const requiredRule of [
+    "publish_schedule_period",
+    "Manager permission required",
+    "Cannot publish an empty schedule",
+    "for update",
+    "status = 'published'",
+    "from public, anon"
+  ]) {
+    if (!publishingMigration.includes(requiredRule)) {
+      failures.push(`atomic publishing rule is missing: ${requiredRule}`);
+    }
+  }
+}
+
 if (failures.length) {
   console.error(failures.join("\n"));
   process.exit(1);
 }
 
 console.log(
-  `Validated ${tenantTables.length} RLS-protected ShiftPilot tables with privileged auth, shift-swap, availability-window, audit-event, and draft-schedule protection.`
+  `Validated ${tenantTables.length} RLS-protected ShiftPilot tables with privileged auth, shift-swap, availability-window, audit-event, draft-schedule, and atomic-publication protection.`
 );
