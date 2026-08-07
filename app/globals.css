@@ -2282,3 +2282,119 @@ html.si-lock, html.si-lock body {
   .pro-hero h1 { font-size: 40px; }
   .section-heading h2 { font-size: 31px; }
 }
+
+
+/* Pilot readiness checklist */
+.pilot-readiness {
+  width: min(1120px, calc(100% - 40px));
+  margin: 22px auto 8px;
+  padding: 30px;
+  border: 1px solid rgba(31, 91, 180, .15);
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at 100% 0, rgba(47, 144, 255, .12), transparent 34%),
+    linear-gradient(145deg, #ffffff, #f7faff);
+  box-shadow: 0 18px 55px rgba(24, 57, 105, .09);
+}
+.pilot-readiness-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 28px;
+}
+.pilot-readiness-head h2,
+.pilot-ready h2 {
+  margin: 4px 0 7px;
+  color: #10213c;
+  font-size: clamp(24px, 3vw, 34px);
+}
+.pilot-readiness-head p:not(.eyebrow),
+.pilot-ready p:not(.eyebrow) { margin: 0; color: #63718a; }
+.pilot-progress {
+  width: 100px;
+  height: 100px;
+  flex: 0 0 100px;
+  display: grid;
+  place-content: center;
+  text-align: center;
+  border: 8px solid #dcecff;
+  border-radius: 50%;
+  color: #176dcc;
+  background: #fff;
+}
+.pilot-progress strong { font-size: 23px; line-height: 1; }
+.pilot-progress small { margin-top: 5px; color: #71809a; font-size: 11px; }
+.pilot-progress-track {
+  height: 8px;
+  margin: 24px 0;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #e6eef8;
+}
+.pilot-progress-track span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #1594f6, #6a52f5);
+  transition: width .55s ease;
+}
+.pilot-checklist { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.pilot-checklist > a {
+  min-height: 154px;
+  padding: 19px;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: 1fr auto;
+  gap: 12px;
+  border: 1px solid #dfe7f2;
+  border-radius: 17px;
+  color: #152640;
+  background: rgba(255,255,255,.85);
+  text-decoration: none;
+  transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
+}
+.pilot-checklist > a:hover {
+  transform: translateY(-3px);
+  border-color: #84bdfa;
+  box-shadow: 0 13px 30px rgba(28, 86, 160, .12);
+}
+.pilot-checklist > a > svg { color: #9aa9bc; }
+.pilot-checklist > a.complete > svg { color: #18a76e; }
+.pilot-checklist span { display: flex; flex-direction: column; min-width: 0; }
+.pilot-checklist span small { color: #76869d; font-size: 11px; font-weight: 800; }
+.pilot-checklist span strong { margin-top: 3px; font-size: 17px; }
+.pilot-checklist span em { margin-top: 7px; color: #68778e; font-size: 13px; font-style: normal; line-height: 1.55; }
+.pilot-checklist > a > b {
+  grid-column: 1 / -1;
+  width: max-content;
+  padding: 6px 11px;
+  border-radius: 999px;
+  color: #176dcc;
+  background: #eaf4ff;
+  font-size: 11px;
+}
+.pilot-checklist > a.complete > b { color: #08784d; background: #e5f8ef; }
+.pilot-ready {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  border-color: rgba(19, 162, 104, .25);
+  background: linear-gradient(145deg, #fff, #f0fbf6);
+}
+.pilot-ready > div { display: flex; align-items: center; gap: 18px; }
+.pilot-ready > div > svg { width: 46px; height: 46px; flex: 0 0 46px; color: #16a46c; }
+
+@media (max-width: 760px) {
+  .pilot-readiness { width: calc(100% - 24px); padding: 22px 17px; border-radius: 19px; }
+  .pilot-readiness-head { align-items: flex-start; gap: 14px; }
+  .pilot-readiness-head h2, .pilot-ready h2 { font-size: 24px; line-height: 1.2; }
+  .pilot-progress { width: 72px; height: 72px; flex-basis: 72px; border-width: 6px; }
+  .pilot-progress strong { font-size: 17px; }
+  .pilot-progress small { font-size: 9px; }
+  .pilot-checklist { grid-template-columns: 1fr; }
+  .pilot-checklist > a { min-height: 0; grid-template-columns: auto 1fr auto; grid-template-rows: auto; align-items: center; }
+  .pilot-checklist > a > b { grid-column: auto; }
+  .pilot-ready { align-items: stretch; flex-direction: column; }
+  .pilot-ready .button { width: 100%; justify-content: center; }
+}
