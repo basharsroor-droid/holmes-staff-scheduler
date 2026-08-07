@@ -795,7 +795,7 @@ export type Database = {
     Functions: {
       approve_shift_swap: {
         Args: {
-          decision_note?: string
+          decision_note?: string | null
           target_request_id: string
         }
         Returns: boolean
