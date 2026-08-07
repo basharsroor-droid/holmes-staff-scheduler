@@ -2097,3 +2097,11 @@ html.si-lock, html.si-lock body {
   height: 100%;
 }
 
+
+
+/* Correct ShiftPilot word order inside RTL pages and final calendar logo */
+.si-logo, .si-tagline { direction: ltr; unicode-bidi: isolate; }
+.shiftpilot-logo.original img { width: 270px; max-width: min(270px, 65vw); height: auto; object-fit: contain; }
+.shiftpilot-logo.original.light img { padding: 7px 10px; border-radius: 12px; background: rgba(255,255,255,.96); }
+.shiftpilot-logo.original.compact { width: 58px; height: 50px; overflow: hidden; border-radius: 10px; }
+.shiftpilot-logo.original.compact img { width: 176px; max-width: none; height: 50px; object-fit: contain; object-position: left center; }
