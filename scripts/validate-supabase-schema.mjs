@@ -25,6 +25,10 @@ const atomicPublishingMigrationUrl = new URL(
   "../supabase/migrations/20260807193000_atomic_schedule_publishing.sql",
   import.meta.url
 );
+const atomicSwapApprovalMigrationUrl = new URL(
+  "../supabase/migrations/20260807195000_atomic_shift_swap_approval.sql",
+  import.meta.url
+);
 
 const tenantTables = [
   "organizations",
@@ -183,11 +187,30 @@ if (!existsSync(atomicPublishingMigrationUrl)) {
   }
 }
 
+if (!existsSync(atomicSwapApprovalMigrationUrl)) {
+  failures.push("atomic shift swap approval migration is missing");
+} else {
+  const approvalMigration = readFileSync(atomicSwapApprovalMigrationUrl, "utf8");
+  for (const requiredRule of [
+    "approve_shift_swap",
+    "Swap request is not awaiting manager approval",
+    "Manager permission required",
+    "Original assignment changed since the request was created",
+    "Target assignment changed since the request was created",
+    "insert into public.swap_request_events",
+    "from public, anon"
+  ]) {
+    if (!approvalMigration.includes(requiredRule)) {
+      failures.push(`atomic swap approval rule is missing: ${requiredRule}`);
+    }
+  }
+}
+
 if (failures.length) {
   console.error(failures.join("\n"));
   process.exit(1);
 }
 
 console.log(
-  `Validated ${tenantTables.length} RLS-protected ShiftPilot tables with privileged auth, shift-swap, availability-window, audit-event, draft-schedule, and atomic-publication protection.`
+  `Validated ${tenantTables.length} RLS-protected ShiftPilot tables with privileged auth, shift-swap, availability-window, audit-event, draft-schedule, atomic-publication, and atomic-swap protection.`
 );
