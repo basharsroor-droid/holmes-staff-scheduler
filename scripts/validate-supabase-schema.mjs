@@ -5,6 +5,10 @@ const hardeningMigrationUrl = new URL(
   "../supabase/migrations/20260807051000_harden_privileged_auth_rpcs.sql",
   import.meta.url
 );
+const swapHardeningMigrationUrl = new URL(
+  "../supabase/migrations/20260807175000_harden_shift_swap_transitions.sql",
+  import.meta.url
+);
 
 const tenantTables = [
   "organizations",
@@ -67,11 +71,31 @@ if (!existsSync(hardeningMigrationUrl)) {
   }
 }
 
+if (!existsSync(swapHardeningMigrationUrl)) {
+  failures.push("shift swap transition hardening migration is missing");
+} else {
+  const swapMigration = readFileSync(swapHardeningMigrationUrl, "utf8");
+  for (const requiredRule of [
+    "You may request a swap only for your own assignment",
+    "Swap request identity fields are immutable",
+    "Manager may approve or reject pending manager requests only",
+    "Target employee may accept or reject a pending request only",
+    "Requester may cancel pending requests only"
+  ]) {
+    if (!swapMigration.includes(requiredRule)) {
+      failures.push(`shift swap hardening rule is missing: ${requiredRule}`);
+    }
+  }
+  if (!swapMigration.includes("before insert or update on public.swap_requests")) {
+    failures.push("shift swap transition trigger is missing");
+  }
+}
+
 if (failures.length) {
   console.error(failures.join("\n"));
   process.exit(1);
 }
 
 console.log(
-  `Validated ${tenantTables.length} RLS-protected ShiftPilot tables and privileged auth RPC hardening.`
+  `Validated ${tenantTables.length} RLS-protected ShiftPilot tables with privileged auth and shift-swap hardening.`
 );
