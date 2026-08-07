@@ -2113,3 +2113,172 @@ html.si-lock, html.si-lock body {
 .window-product-title { direction: rtl; display: inline-flex; align-items: center; gap: 5px; }
 .window-product-title bdi { direction: ltr; unicode-bidi: isolate; font-weight: 700; }
 .window-product-title i { position: static; width: auto; height: auto; background: none; font-style: normal; }
+
+
+/* Mobile-first marketing navigation */
+.mobile-menu, .mobile-sticky-actions { display: none; }
+
+@media (max-width: 820px) {
+  .marketing-site { padding-bottom: 74px; }
+  .pro-nav {
+    position: sticky; top: 0; z-index: 100;
+    width: 100%; min-height: 74px; padding: 9px 14px;
+    grid-template-columns: 1fr auto auto; gap: 8px;
+    border-bottom: 1px solid rgba(15,39,78,.09);
+    background: rgba(248,251,255,.9);
+    backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+  }
+  .pro-nav .shiftpilot-logo.original img { width: 154px; max-width: 44vw; }
+  .pro-nav-links { display: none; }
+  .pro-nav-actions { gap: 0; }
+  .pro-nav-actions .ghost-light { display: none; }
+  .pro-nav-actions .brand-button { min-height: 42px; padding: 0 13px; font-size: 12px; white-space: nowrap; }
+  .mobile-menu { position: relative; display: block; }
+  .mobile-menu summary {
+    min-height: 42px; padding: 0 12px; display: flex; align-items: center; gap: 6px;
+    border: 1px solid #d8e0ec; border-radius: 10px; color: #253552;
+    background: #fff; font-size: 12px; font-weight: 800; cursor: pointer; list-style: none;
+  }
+  .mobile-menu summary::-webkit-details-marker { display: none; }
+  .mobile-menu[open] summary { color: #126ed4; border-color: #9bc6f7; background: #eef7ff; }
+  .mobile-menu>div {
+    position: absolute; top: 50px; left: 0; width: min(280px, calc(100vw - 28px));
+    padding: 10px; display: grid; gap: 4px; border: 1px solid #dbe3ef;
+    border-radius: 15px; background: rgba(255,255,255,.98);
+    box-shadow: 0 20px 55px rgba(5,24,55,.2);
+  }
+  .mobile-menu>div a { padding: 12px 13px; border-radius: 9px; font-size: 14px; }
+  .mobile-menu>div a:hover { color: #176fdc; background: #eef6ff; }
+
+  .pro-hero {
+    width: calc(100% - 20px); min-height: auto; margin: 10px auto 0; padding: 52px 22px 44px;
+    display: block; border-radius: 22px; text-align: right;
+    box-shadow: 0 20px 52px rgba(5,18,45,.22);
+  }
+  .pro-hero-copy { width: 100%; }
+  .pro-kicker { margin-bottom: 14px; font-size: 11px; line-height: 1.5; }
+  .pro-hero h1 { margin-bottom: 18px; font-size: clamp(39px, 11.5vw, 54px); line-height: 1.06; letter-spacing: -.052em; }
+  .pro-hero-copy>p:not(.pro-kicker) { font-size: 16px; line-height: 1.75; }
+  .pro-hero-actions { margin-top: 25px; display: grid; grid-template-columns: 1fr; gap: 9px; }
+  .pro-hero-actions .button { width: 100%; min-height: 52px; justify-content: center; }
+  .hero-assurances { margin-top: 23px; display: grid; grid-template-columns: 1fr; gap: 9px; font-size: 12px; }
+  .product-window { display: none; }
+  .hero-glow { width: 280px; height: 280px; filter: blur(75px); }
+
+  .proof-strip {
+    width: 100%; min-height: 66px; margin-top: 8px; padding: 0 18px;
+    justify-content: flex-start; gap: 10px; overflow-x: auto;
+    scroll-snap-type: x proximity; scrollbar-width: none;
+  }
+  .proof-strip::-webkit-scrollbar { display: none; }
+  .proof-strip span {
+    flex: 0 0 auto; padding: 8px 12px; border: 1px solid #e0e6ef;
+    border-radius: 999px; background: #fff; font-size: 11px; scroll-snap-align: start;
+  }
+  .proof-strip i { display: none; }
+
+  .pro-section { width: calc(100% - 28px); padding: 66px 0; }
+  .section-heading { margin-bottom: 28px; }
+  .section-heading.centered { text-align: right; }
+  .section-heading.centered .pro-kicker { justify-content: flex-start; }
+  .section-heading h2 { margin-bottom: 12px; font-size: 34px; line-height: 1.13; letter-spacing: -.04em; }
+  .section-heading>p:last-child { font-size: 15px; line-height: 1.7; }
+
+  .comparison-grid { grid-template-columns: 1fr; gap: 13px; }
+  .comparison-card { padding: 25px 21px; border-radius: 17px; }
+  .comparison-card h3 { margin: 8px 0 18px; font-size: 21px; }
+  .comparison-card ul { gap: 12px; font-size: 14px; line-height: 1.55; }
+
+  .process-section, .features-section {
+    width: 100%; padding: 66px 14px;
+  }
+  .process-timeline { grid-template-columns: 1fr; gap: 11px; }
+  .process-step {
+    padding: 17px; display: grid; grid-template-columns: 46px 1fr; gap: 13px;
+    align-items: start; text-align: right; border: 1px solid #e1e7ef;
+    border-radius: 14px; background: #fff;
+  }
+  .process-step>b { width: 46px; height: 46px; margin: 0; border-width: 4px; font-size: 12px; }
+  .process-step h3 { margin: 3px 0 6px; font-size: 17px; }
+  .process-step p { margin: 0; font-size: 13px; line-height: 1.6; }
+
+  .role-showcase { grid-template-columns: 1fr; gap: 14px; }
+  .role-panel { padding: 27px 21px; border-radius: 18px; }
+  .role-panel h3 { margin: 12px 0; font-size: 25px; }
+  .role-panel ul { gap: 11px; margin: 18px 0 24px; font-size: 14px; line-height: 1.5; }
+  .phone-mock { width: 100%; margin-bottom: -70px; }
+  .manager-mock { gap: 6px; }
+  .manager-mock span { padding: 13px 10px; }
+  .manager-mock b { font-size: 21px; }
+  .manager-mock small { font-size: 10px; }
+
+  .example-section { width: calc(100% - 28px); }
+  .example-table-wrap {
+    position: relative; margin-inline: -2px; border-radius: 16px;
+    overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch;
+  }
+  .example-table-wrap::before {
+    content: "← החליקו לצפייה בכל הפרטים"; position: sticky; right: 0;
+    display: block; width: max-content; padding: 9px 13px;
+    color: #176bcf; background: #edf6ff; font-size: 11px; font-weight: 800;
+  }
+  .example-table { min-width: 720px; }
+  .example-table th, .example-table td { padding: 15px 16px; font-size: 12px; }
+  .example-note { position: sticky; right: 0; width: calc(100vw - 32px); padding: 16px; align-items: flex-start; }
+
+  .capability-grid { grid-template-columns: 1fr; gap: 11px; }
+  .capability-card { padding: 23px 20px; border-radius: 15px; }
+  .capability-card>svg { width: 41px; height: 41px; }
+  .capability-card h3 { margin: 14px 0 7px; font-size: 18px; }
+  .capability-card p { margin: 0; font-size: 14px; }
+
+  .security-section {
+    width: 100%; margin: 20px 0 0; padding: 62px 20px;
+    grid-template-columns: 1fr; gap: 32px; border-radius: 0;
+  }
+  .security-copy h2 { font-size: 34px; line-height: 1.15; }
+  .security-copy>p:not(.pro-kicker) { font-size: 15px; }
+  .security-copy>div { font-size: 13px; }
+  .security-visual { padding: 21px; }
+
+  .faq-section { grid-template-columns: 1fr; gap: 8px; }
+  .faq-grid details { padding: 17px; border-radius: 12px; }
+  .faq-grid summary { font-size: 14px; line-height: 1.45; }
+  .faq-grid p { font-size: 13px; }
+
+  .final-cta { padding: 72px 19px 82px; }
+  .final-cta .shiftpilot-logo.original img { max-width: 76vw; }
+  .final-cta h2 { margin-top: 28px; font-size: 39px; line-height: 1.08; }
+  .final-cta p { font-size: 15px; line-height: 1.65; }
+  .final-cta>div>div:last-child { display: grid; grid-template-columns: 1fr; gap: 9px; }
+  .final-cta .button { width: 100%; justify-content: center; }
+
+  .pro-footer { width: calc(100% - 32px); padding: 38px 0 24px; grid-template-columns: 1fr; gap: 16px; text-align: center; justify-items: center; }
+  .pro-footer .shiftpilot-logo.original img { max-width: 70vw; }
+  .pro-footer>div { justify-content: center; gap: 16px; }
+  .pro-footer>small { width: 100%; }
+
+  .mobile-sticky-actions {
+    position: fixed; z-index: 90; right: 10px; left: 10px; bottom: 9px;
+    min-height: 56px; padding: 6px; display: grid; grid-template-columns: .72fr 1.28fr; gap: 7px;
+    border: 1px solid rgba(19,49,92,.13); border-radius: 16px;
+    background: rgba(255,255,255,.92); box-shadow: 0 14px 40px rgba(5,24,55,.23);
+    backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+  }
+  .mobile-sticky-actions a {
+    min-height: 44px; display: flex; align-items: center; justify-content: center; gap: 7px;
+    border-radius: 11px; color: #253653; background: #eef2f7;
+    text-decoration: none; font-size: 13px; font-weight: 850;
+  }
+  .mobile-sticky-actions a:last-child { color: #fff; background: linear-gradient(115deg,#128fff,#6748ff); }
+
+  .scroll-reveal { transform: translateY(20px); transition-duration: .58s; }
+}
+
+@media (max-width: 390px) {
+  .pro-nav .shiftpilot-logo.original img { width: 132px; }
+  .pro-nav-actions .brand-button { display: none; }
+  .pro-nav { grid-template-columns: 1fr auto; }
+  .pro-hero h1 { font-size: 40px; }
+  .section-heading h2 { font-size: 31px; }
+}
