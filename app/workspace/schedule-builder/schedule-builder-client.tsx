@@ -101,13 +101,9 @@ export function ScheduleBuilderClient({ organizationId, currentUserId, periods, 
     const missing = periodShifts.filter((shift) => assignments.filter((item) => item.shift_id === shift.id).length < shift.required_employees).length;
     if (missing && !window.confirm(`עדיין חסרים עובדים ב-${missing} משמרות. לפרסם בכל זאת?`)) return;
     setBusy("publish"); setMessage("");
-    const now = new Date().toISOString();
-    const [{ error: shiftsError }, { error: periodError }] = await Promise.all([
-      supabase.from("shifts").update({ status: "published" }).eq("schedule_period_id", period.id),
-      supabase.from("schedule_periods").update({ status: "published", published_at: now }).eq("id", period.id)
-    ]);
+    const { error } = await supabase.rpc("publish_schedule_period", { target_period_id: period.id });
     setBusy("");
-    if (shiftsError || periodError) { setMessage("פרסום הסידור נכשל."); return; }
+    if (error) { setMessage("פרסום הסידור נכשל. לא בוצע שינוי חלקי."); return; }
     setShifts((current) => current.map((item) => item.schedule_period_id === period.id ? { ...item, status: "published" } : item));
     setMessage("הסידור פורסם בהצלחה לצוות.");
   }
