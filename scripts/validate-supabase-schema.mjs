@@ -49,6 +49,10 @@ const lastOwnerProtectionMigrationUrl = new URL(
   "../supabase/migrations/20260808131500_protect_last_active_owner.sql",
   import.meta.url
 );
+const ownershipTransferMigrationUrl = new URL(
+  "../supabase/migrations/20260808133000_transfer_organization_ownership.sql",
+  import.meta.url
+);
 
 const tenantTables = [
   "organizations",
@@ -315,11 +319,27 @@ if (!existsSync(lastOwnerProtectionMigrationUrl)) {
   }
 }
 
+if (!existsSync(ownershipTransferMigrationUrl)) {
+  failures.push("ownership transfer migration is missing");
+} else {
+  const transferMigration = readFileSync(ownershipTransferMigrationUrl, "utf8");
+  for (const requiredRule of [
+    "transfer_organization_ownership",
+    "Only an active owner can transfer ownership",
+    "Target user is not an active member of this organization",
+    "from public, anon"
+  ]) {
+    if (!transferMigration.includes(requiredRule)) {
+      failures.push(`ownership transfer rule is missing: ${requiredRule}`);
+    }
+  }
+}
+
 if (failures.length) {
   console.error(failures.join("\n"));
   process.exit(1);
 }
 
 console.log(
-  `Validated ${tenantTables.length} RLS-protected ShiftPilot tables with authorization, workflow integrity, privacy, atomic operations, audit, deduplicated notification, scheduling-overlap, and last-owner protection.`
+  `Validated ${tenantTables.length} RLS-protected ShiftPilot tables with authorization, workflow integrity, privacy, atomic operations, audit, deduplicated notification, scheduling-overlap, last-owner protection, and ownership transfer.`
 );
