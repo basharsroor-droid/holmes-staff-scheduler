@@ -70,7 +70,12 @@ export function ScheduleBuilderClient({ organizationId, currentUserId, periods, 
       required_employees: template.required_employees,
       status: "draft" as const
     })));
-    const { data, error } = await supabase.from("shifts").upsert(rows, { onConflict: "schedule_period_id,shift_date,shift_template_id" }).select("id, schedule_period_id, shift_template_id, shift_date, name, start_time, end_time, required_employees, status");
+    // Matches the real DB constraint (shifts_schedule_period_id_shift_date_name_key):
+    // (schedule_period_id, shift_date, name) -- not shift_template_id, which has no
+    // unique/exclusion constraint backing it and made every upsert here fail with a
+    // PostgREST 400 ("no unique or exclusion constraint matching the ON CONFLICT
+    // specification").
+    const { data, error } = await supabase.from("shifts").upsert(rows, { onConflict: "schedule_period_id,shift_date,name" }).select("id, schedule_period_id, shift_template_id, shift_date, name, start_time, end_time, required_employees, status");
     setBusy("");
     if (error || !data) { setMessage("יצירת משמרות החודש נכשלה. נסה שוב."); return; }
     setShifts((current) => [...current.filter((item) => item.schedule_period_id !== period.id), ...data]);
