@@ -828,6 +828,14 @@ export type Database = {
         }
         Returns: string
       }
+      duplicate_schedule_period: {
+        Args: { source_period_id: string; target_period_id: string }
+        Returns: {
+          assignments_created: number
+          assignments_skipped_inactive: number
+          shifts_created: number
+        }[]
+      }
       mark_my_notifications_read: { Args: never; Returns: number }
       publish_schedule_period: {
         Args: { target_period_id: string }
