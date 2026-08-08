@@ -28,12 +28,21 @@ export default function AcceptInvitePage() {
     if (password.length < 8) { setMessage("הסיסמה חייבת להכיל לפחות 8 תווים."); return; }
     if (password !== confirmation) { setMessage("הסיסמאות אינן זהות."); return; }
     setBusy(true);
-    const { error: passwordError } = await supabase.auth.updateUser({ password });
-    if (passwordError) { setBusy(false); setMessage("לא הצלחנו לשמור את הסיסמה."); return; }
+    // Validate the invitation (including the email-match check) BEFORE
+    // touching the password. The account behind this browser session isn't
+    // guaranteed to be the invited user -- e.g. a shared browser where
+    // someone else is already logged in -- so updateUser() must never run
+    // until we know this really is the right account.
     const { error } = await supabase.rpc("accept_organization_invitation", { invitation_token: token });
-    setBusy(false);
     if (error) {
+      setBusy(false);
       setMessage(error.message.includes("email does not match") ? "ההזמנה שייכת לכתובת מייל אחרת." : "ההזמנה אינה תקפה, בוטלה או פגה.");
+      return;
+    }
+    const { error: passwordError } = await supabase.auth.updateUser({ password });
+    setBusy(false);
+    if (passwordError) {
+      setMessage("ההצטרפות הצליחה, אך לא הצלחנו לשמור את הסיסמה. אפשר להגדיר סיסמה דרך \"שכחתי סיסמה\" במסך הכניסה.");
       return;
     }
     setStage("done");
