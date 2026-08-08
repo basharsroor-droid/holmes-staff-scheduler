@@ -20,7 +20,29 @@ export default function AcceptInvitePage() {
   useEffect(() => {
     const invitationToken = new URLSearchParams(window.location.search).get("token") ?? "";
     setToken(invitationToken);
-    supabase.auth.getUser().then(({ data, error }) => setStage(invitationToken && !error && data.user ? "form" : "invalid"));
+
+    async function resolveSession() {
+      // Admin-generated invite links (auth.admin.inviteUserByEmail) redirect
+      // back with the session as access_token/refresh_token in the URL hash
+      // (the classic implicit-style /verify redirect). This client is
+      // hard-configured to flowType "pkce" (see lib/supabase/browser.ts),
+      // and its automatic detectSessionInUrl explicitly REJECTS hash-based
+      // callback URLs when flowType is pkce -- it throws "Not a valid PKCE
+      // flow url" rather than reading them. So getUser() alone would always
+      // report "not signed in" here. Parse the hash ourselves and hand the
+      // tokens to setSession(), which has no such flow-type gate.
+      const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ""));
+      const accessToken = hashParams.get("access_token");
+      const refreshToken = hashParams.get("refresh_token");
+      if (accessToken && refreshToken) {
+        await supabase.auth.setSession({ access_token: accessToken, refresh_token: refreshToken });
+        window.history.replaceState(null, "", window.location.pathname + window.location.search);
+      }
+      const { data, error } = await supabase.auth.getUser();
+      setStage(invitationToken && !error && data.user ? "form" : "invalid");
+    }
+
+    void resolveSession();
   }, [supabase]);
 
   async function acceptInvitation() {

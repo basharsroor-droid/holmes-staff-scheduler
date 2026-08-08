@@ -17,9 +17,22 @@ export default function ResetPasswordPage() {
   const [message, setMessage] = useState("");
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data, error }) => {
+    async function resolveSession() {
+      // Same issue as accept-invite: password-recovery links redirect back
+      // with the session in the URL hash, which this PKCE-flow client's
+      // automatic detectSessionInUrl rejects outright. Parse it manually.
+      const hashParams = new URLSearchParams(window.location.hash.replace(/^#/, ""));
+      const accessToken = hashParams.get("access_token");
+      const refreshToken = hashParams.get("refresh_token");
+      if (accessToken && refreshToken) {
+        await supabase.auth.setSession({ access_token: accessToken, refresh_token: refreshToken });
+        window.history.replaceState(null, "", window.location.pathname + window.location.search);
+      }
+      const { data, error } = await supabase.auth.getUser();
       setStage(!error && data.user ? "form" : "expired");
-    });
+    }
+
+    void resolveSession();
   }, [supabase]);
 
   async function savePassword() {
