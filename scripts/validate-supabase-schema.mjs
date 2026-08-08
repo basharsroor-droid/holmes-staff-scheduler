@@ -45,6 +45,10 @@ const overlapPreventionMigrationUrl = new URL(
   "../supabase/migrations/20260808124000_prevent_overlapping_shift_assignments.sql",
   import.meta.url
 );
+const lastOwnerProtectionMigrationUrl = new URL(
+  "../supabase/migrations/20260808131500_protect_last_active_owner.sql",
+  import.meta.url
+);
 
 const tenantTables = [
   "organizations",
@@ -295,11 +299,27 @@ if (!existsSync(overlapPreventionMigrationUrl)) {
   }
 }
 
+if (!existsSync(lastOwnerProtectionMigrationUrl)) {
+  failures.push("last active owner protection migration is missing");
+} else {
+  const lastOwnerMigration = readFileSync(lastOwnerProtectionMigrationUrl, "utf8");
+  for (const requiredRule of [
+    "check_last_active_owner",
+    "before update or delete on public.organization_memberships",
+    "Cannot remove the last active owner of an organization",
+    "from public, anon"
+  ]) {
+    if (!lastOwnerMigration.includes(requiredRule)) {
+      failures.push(`last owner protection rule is missing: ${requiredRule}`);
+    }
+  }
+}
+
 if (failures.length) {
   console.error(failures.join("\n"));
   process.exit(1);
 }
 
 console.log(
-  `Validated ${tenantTables.length} RLS-protected ShiftPilot tables with authorization, workflow integrity, privacy, atomic operations, audit, deduplicated notification, and scheduling-overlap protection.`
+  `Validated ${tenantTables.length} RLS-protected ShiftPilot tables with authorization, workflow integrity, privacy, atomic operations, audit, deduplicated notification, scheduling-overlap, and last-owner protection.`
 );
