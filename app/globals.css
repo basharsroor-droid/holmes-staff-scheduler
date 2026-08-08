@@ -2398,3 +2398,30 @@ html.si-lock, html.si-lock body {
   .pilot-ready { align-items: stretch; flex-direction: column; }
   .pilot-ready .button { width: 100%; justify-content: center; }
 }
+
+
+/* In-app notifications */
+.notification-card {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 14px;
+  border-right: 4px solid transparent;
+}
+.notification-card.unread {
+  border-right-color: #238af5;
+  background: linear-gradient(100deg, #f2f8ff, #ffffff);
+}
+.notification-card > span:not(.badge) {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.notification-card > span > strong { color: #142640; font-size: 16px; }
+.notification-card > span > small { color: #5f7088; font-size: 13px; }
+.notification-card > span > em { color: #8996a8; font-size: 11px; font-style: normal; }
+
+@media (max-width: 560px) {
+  .notification-card { grid-template-columns: auto 1fr; }
+  .notification-card > .badge { grid-column: 2; width: max-content; }
+}

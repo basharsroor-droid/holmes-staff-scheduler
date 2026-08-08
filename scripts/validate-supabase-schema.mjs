@@ -33,6 +33,10 @@ const managementAuditMigrationUrl = new URL(
   "../supabase/migrations/20260807202000_management_audit_log.sql",
   import.meta.url
 );
+const inAppNotificationsMigrationUrl = new URL(
+  "../supabase/migrations/20260808003000_in_app_schedule_notifications.sql",
+  import.meta.url
+);
 
 const tenantTables = [
   "organizations",
@@ -229,11 +233,29 @@ if (!existsSync(managementAuditMigrationUrl)) {
   }
 }
 
+if (!existsSync(inAppNotificationsMigrationUrl)) {
+  failures.push("in-app notifications migration is missing");
+} else {
+  const notificationMigration = readFileSync(inAppNotificationsMigrationUrl, "utf8");
+  for (const requiredRule of [
+    "read_at",
+    "notifications_schedule_published_once_idx",
+    "schedule_published",
+    "mark_my_notifications_read",
+    "where user_id = current_user_id",
+    "from public, anon"
+  ]) {
+    if (!notificationMigration.includes(requiredRule)) {
+      failures.push(`in-app notification rule is missing: ${requiredRule}`);
+    }
+  }
+}
+
 if (failures.length) {
   console.error(failures.join("\n"));
   process.exit(1);
 }
 
 console.log(
-  `Validated ${tenantTables.length} RLS-protected ShiftPilot tables with authorization, workflow integrity, privacy, atomic operations, and management audit protection.`
+  `Validated ${tenantTables.length} RLS-protected ShiftPilot tables with authorization, workflow integrity, privacy, atomic operations, audit, and notification protection.`
 );
