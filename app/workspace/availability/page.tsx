@@ -39,6 +39,11 @@ export default async function AvailabilityPage() {
   const { data: entries } = submissionIds.length
     ? await supabase.from("availability_entries").select("id, submission_id, shift_template_id, shift_date, status, note").in("submission_id", submissionIds)
     : { data: [] };
+  const { data: leaveRequests } = await supabase
+    .from("leave_requests")
+    .select("id, leave_type, start_date, end_date, note")
+    .eq("user_id", user.id)
+    .order("start_date", { ascending: false });
 
   return <main className="workspace-home" dir="rtl">
     <header className="workspace-subheader"><div>
@@ -49,6 +54,7 @@ export default async function AvailabilityPage() {
     </div></header>
     <AvailabilityClient
       entries={entries ?? []}
+      leaveRequests={leaveRequests ?? []}
       organizationId={membership.organization_id}
       periods={periodsResult.data ?? []}
       submissions={submissions ?? []}
