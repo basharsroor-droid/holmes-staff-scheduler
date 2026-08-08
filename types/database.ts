@@ -264,6 +264,7 @@ export type Database = {
           id: string
           invited_by: string
           last_name: string
+          last_notified_at: string | null
           organization_id: string
           role: Database["public"]["Enums"]["member_role"]
           status: string
@@ -281,6 +282,7 @@ export type Database = {
           id?: string
           invited_by: string
           last_name?: string
+          last_notified_at?: string | null
           organization_id: string
           role?: Database["public"]["Enums"]["member_role"]
           status?: string
@@ -298,6 +300,7 @@ export type Database = {
           id?: string
           invited_by?: string
           last_name?: string
+          last_notified_at?: string | null
           organization_id?: string
           role?: Database["public"]["Enums"]["member_role"]
           status?: string

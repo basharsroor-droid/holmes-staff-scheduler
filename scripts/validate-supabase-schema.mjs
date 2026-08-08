@@ -65,6 +65,10 @@ const releaseFutureShiftsMigrationUrl = new URL(
   "../supabase/migrations/20260808154500_release_future_shifts_on_suspension.sql",
   import.meta.url
 );
+const invitationResendCooldownMigrationUrl = new URL(
+  "../supabase/migrations/20260808160000_invitation_resend_cooldown.sql",
+  import.meta.url
+);
 
 const tenantTables = [
   "organizations",
@@ -395,11 +399,29 @@ if (!existsSync(releaseFutureShiftsMigrationUrl)) {
   }
 }
 
+if (!existsSync(invitationResendCooldownMigrationUrl)) {
+  failures.push("invitation resend cooldown migration is missing");
+} else {
+  const resendCooldownMigration = readFileSync(invitationResendCooldownMigrationUrl, "utf8");
+  for (const requiredRule of ["last_notified_at", "organization_invitations"]) {
+    if (!resendCooldownMigration.includes(requiredRule)) {
+      failures.push(`invitation resend cooldown rule is missing: ${requiredRule}`);
+    }
+  }
+}
+
+const notifyRouteSource = readFileSync(new URL("../app/api/invitations/notify/route.ts", import.meta.url), "utf8");
+for (const requiredRule of ["RESEND_COOLDOWN_MS", "last_notified_at"]) {
+  if (!notifyRouteSource.includes(requiredRule)) {
+    failures.push(`invitation notify route is missing resend-cooldown enforcement: ${requiredRule}`);
+  }
+}
+
 if (failures.length) {
   console.error(failures.join("\n"));
   process.exit(1);
 }
 
 console.log(
-  `Validated ${tenantTables.length} RLS-protected ShiftPilot tables with authorization, workflow integrity, privacy, atomic operations, audit, deduplicated notification, scheduling-overlap, last-owner protection, ownership transfer, manager/target swap-transition protection, schedule unpublishing, and automatic future-shift release on suspension.`
+  `Validated ${tenantTables.length} RLS-protected ShiftPilot tables with authorization, workflow integrity, privacy, atomic operations, audit, deduplicated notification, scheduling-overlap, last-owner protection, ownership transfer, manager/target swap-transition protection, schedule unpublishing, automatic future-shift release on suspension, and invitation resend rate-limiting.`
 );

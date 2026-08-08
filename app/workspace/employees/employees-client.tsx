@@ -99,7 +99,10 @@ export function EmployeesClient({
     setBusyId(invitation.id);
     const { error } = await sendMagicLink(invitation.token);
     setBusyId(null);
-    setMessage(error ? "לא הצלחנו לשלוח את ההזמנה מחדש." : "ההזמנה נשלחה מחדש.");
+    // The server enforces a cooldown between resends and returns a specific
+    // Hebrew message for it (e.g. "יש להמתין עוד X שניות") -- show that
+    // instead of a generic failure message when we have it.
+    setMessage(error ? (error.message || "לא הצלחנו לשלוח את ההזמנה מחדש.") : "ההזמנה נשלחה מחדש.");
   }
 
   async function revokeInvitation(invitation: Invitation) {
