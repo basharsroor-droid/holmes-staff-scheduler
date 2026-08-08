@@ -207,6 +207,7 @@ export type Database = {
           id: string
           organization_id: string
           payload: Json
+          read_at: string | null
           scheduled_for: string
           sent_at: string | null
           status: Database["public"]["Enums"]["notification_status"]
@@ -220,6 +221,7 @@ export type Database = {
           id?: string
           organization_id: string
           payload?: Json
+          read_at?: string | null
           scheduled_for?: string
           sent_at?: string | null
           status?: Database["public"]["Enums"]["notification_status"]
@@ -233,6 +235,7 @@ export type Database = {
           id?: string
           organization_id?: string
           payload?: Json
+          read_at?: string | null
           scheduled_for?: string
           sent_at?: string | null
           status?: Database["public"]["Enums"]["notification_status"]
@@ -824,6 +827,10 @@ export type Database = {
           owner_last_name?: string
         }
         Returns: string
+      }
+      mark_my_notifications_read: {
+        Args: Record<PropertyKey, never>
+        Returns: number
       }
       publish_schedule_period: {
         Args: { target_period_id: string }
