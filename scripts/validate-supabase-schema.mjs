@@ -53,6 +53,10 @@ const ownershipTransferMigrationUrl = new URL(
   "../supabase/migrations/20260808133000_transfer_organization_ownership.sql",
   import.meta.url
 );
+const swapManagerTargetOverlapMigrationUrl = new URL(
+  "../supabase/migrations/20260808141500_fix_swap_transition_manager_target_overlap.sql",
+  import.meta.url
+);
 
 const tenantTables = [
   "organizations",
@@ -335,11 +339,27 @@ if (!existsSync(ownershipTransferMigrationUrl)) {
   }
 }
 
+if (!existsSync(swapManagerTargetOverlapMigrationUrl)) {
+  failures.push("swap transition manager/target overlap fix migration is missing");
+} else {
+  const overlapFixMigration = readFileSync(swapManagerTargetOverlapMigrationUrl, "utf8");
+  for (const requiredRule of [
+    "old.status = 'pending_employee' and current_user_id = old.target_user_id",
+    "old.status = 'pending_manager' and caller_is_manager",
+    "Target employee may accept or reject a pending request only",
+    "Manager may approve or reject pending manager requests only"
+  ]) {
+    if (!overlapFixMigration.includes(requiredRule)) {
+      failures.push(`swap transition overlap fix rule is missing: ${requiredRule}`);
+    }
+  }
+}
+
 if (failures.length) {
   console.error(failures.join("\n"));
   process.exit(1);
 }
 
 console.log(
-  `Validated ${tenantTables.length} RLS-protected ShiftPilot tables with authorization, workflow integrity, privacy, atomic operations, audit, deduplicated notification, scheduling-overlap, last-owner protection, and ownership transfer.`
+  `Validated ${tenantTables.length} RLS-protected ShiftPilot tables with authorization, workflow integrity, privacy, atomic operations, audit, deduplicated notification, scheduling-overlap, last-owner protection, ownership transfer, and manager/target swap-transition protection.`
 );
