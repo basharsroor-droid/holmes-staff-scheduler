@@ -42,7 +42,10 @@ export function EmployeesClient({
     setBusyId(null);
     if (error) { setMessage("לא הצלחנו לעדכן את העובד. בדוק את ההרשאות ונסה שוב."); return; }
     setEmployees((current) => current.map((employee) => employee.id === id ? { ...employee, ...changes } : employee));
-    setMessage("פרטי העובד עודכנו בהצלחה.");
+    // Suspending triggers a server-side cleanup (organization_memberships_release_future_shifts)
+    // that removes the employee from every not-yet-past shift, so the schedule never keeps
+    // showing someone who can no longer work it.
+    setMessage(changes.status === "suspended" ? "העובד הושבת, וכל השיבוצים העתידיים שלו הוסרו אוטומטית מהסידור." : "פרטי העובד עודכנו בהצלחה.");
   }
 
   async function sendMagicLink(token: string) {
