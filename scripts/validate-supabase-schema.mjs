@@ -61,6 +61,10 @@ const unpublishScheduleMigrationUrl = new URL(
   "../supabase/migrations/20260808150000_unpublish_schedule_period.sql",
   import.meta.url
 );
+const releaseFutureShiftsMigrationUrl = new URL(
+  "../supabase/migrations/20260808154500_release_future_shifts_on_suspension.sql",
+  import.meta.url
+);
 
 const tenantTables = [
   "organizations",
@@ -375,11 +379,27 @@ if (!existsSync(unpublishScheduleMigrationUrl)) {
   }
 }
 
+if (!existsSync(releaseFutureShiftsMigrationUrl)) {
+  failures.push("release future shifts on suspension migration is missing");
+} else {
+  const releaseFutureShiftsMigration = readFileSync(releaseFutureShiftsMigrationUrl, "utf8");
+  for (const requiredRule of [
+    "release_future_shifts_on_suspension",
+    "new.status = 'suspended' and old.status is distinct from 'suspended'",
+    "s.shift_date >= current_date",
+    "from public, anon"
+  ]) {
+    if (!releaseFutureShiftsMigration.includes(requiredRule)) {
+      failures.push(`release future shifts on suspension rule is missing: ${requiredRule}`);
+    }
+  }
+}
+
 if (failures.length) {
   console.error(failures.join("\n"));
   process.exit(1);
 }
 
 console.log(
-  `Validated ${tenantTables.length} RLS-protected ShiftPilot tables with authorization, workflow integrity, privacy, atomic operations, audit, deduplicated notification, scheduling-overlap, last-owner protection, ownership transfer, manager/target swap-transition protection, and schedule unpublishing.`
+  `Validated ${tenantTables.length} RLS-protected ShiftPilot tables with authorization, workflow integrity, privacy, atomic operations, audit, deduplicated notification, scheduling-overlap, last-owner protection, ownership transfer, manager/target swap-transition protection, schedule unpublishing, and automatic future-shift release on suspension.`
 );
