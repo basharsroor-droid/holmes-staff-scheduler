@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Loader2, MailPlus, Power, RotateCw, ShieldCheck, UserRound, UserX, Users } from "lucide-react";
+import { Crown, Loader2, MailPlus, Power, RotateCw, ShieldCheck, UserRound, UserX, Users } from "lucide-react";
 
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import type { Database } from "@/types/database";
@@ -108,6 +108,21 @@ export function EmployeesClient({
     setMessage("ההזמנה בוטלה.");
   }
 
+  async function transferOwnership(employee: Employee) {
+    const name = employee.profile ? `${employee.profile.first_name} ${employee.profile.last_name}`.trim() : "המשתמש הנבחר";
+    if (!window.confirm(`להעביר את הבעלות על העסק ל${name}? התפקיד שלך יירד ל"מנהל מערכת" מיד לאחר מכן. הפעולה בלתי הפיכה מהצד שלך לבד — רק הבעלים החדש יוכל להעביר בחזרה.`)) return;
+    setMessage(""); setBusyId(employee.id);
+    const { error } = await supabase.rpc("transfer_organization_ownership", { target_user_id: employee.user_id });
+    setBusyId(null);
+    if (error) { setMessage("העברת הבעלות נכשלה. ייתכן שהמשתמש כבר אינו חבר פעיל בעסק."); return; }
+    setEmployees((current) => current.map((item) => {
+      if (item.id === employee.id) return { ...item, role: "owner" };
+      if (item.user_id === currentUserId) return { ...item, role: "admin" };
+      return item;
+    }));
+    setMessage(`הבעלות הועברה ל${name}. התפקיד שלך עודכן ל"מנהל מערכת".`);
+  }
+
   return (
     <div className="template-workbench">
       <section className="template-form-card">
@@ -147,6 +162,9 @@ export function EmployeesClient({
                 <label className="check-field"><input type="checkbox" checked={employee.can_close} disabled={busyId === employee.id} onChange={(e) => void updateEmployee(employee.id, { can_close: e.target.checked })} /><span><strong>סגירה</strong></span></label>
               </div>
               <button className="button" disabled={isSelf || busyId === employee.id || employee.role === "owner"} onClick={() => void updateEmployee(employee.id, { status: employee.status === "suspended" ? "active" : "suspended" })}>{busyId === employee.id ? <Loader2 className="spin" size={16} /> : <Power size={16} />}{employee.status === "suspended" ? "הפעלה" : "השבתה"}</button>
+              {callerRole === "owner" && !isSelf && employee.role !== "owner" && employee.status === "active"
+                ? <button className="button" disabled={busyId === employee.id} onClick={() => void transferOwnership(employee)}>{busyId === employee.id ? <Loader2 className="spin" size={16} /> : <Crown size={16} />} העברת בעלות</button>
+                : null}
             </article>;
           })}
           {!employees.length ? <div className="empty-template-state"><Users size={36} /><p>עדיין אין עובדים בסביבת העבודה.</p></div> : null}
