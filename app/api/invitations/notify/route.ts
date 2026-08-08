@@ -37,12 +37,27 @@ export async function POST(request: Request) {
   // (i.e. is a member of the organization it belongs to).
   const { data: invitation, error: invitationError } = await supabase
     .from("organization_invitations")
-    .select("email, status")
+    .select("email, status, last_notified_at")
     .eq("token", token)
     .maybeSingle();
 
   if (invitationError || !invitation || invitation.status !== "pending") {
     return NextResponse.json({ error: "Invitation not found or not pending" }, { status: 404 });
+  }
+
+  // Being a manager of the invitation's own organization is not the same
+  // as owning the target inbox -- create_organization_invitation never
+  // verifies the target address. Without a cooldown, resend could be
+  // hammered to bombard an arbitrary email with unlimited invite messages.
+  const RESEND_COOLDOWN_MS = 60_000;
+  if (invitation.last_notified_at) {
+    const elapsed = Date.now() - new Date(invitation.last_notified_at).getTime();
+    if (elapsed < RESEND_COOLDOWN_MS) {
+      return NextResponse.json(
+        { error: `יש להמתין עוד ${Math.ceil((RESEND_COOLDOWN_MS - elapsed) / 1000)} שניות לפני שליחה חוזרת.` },
+        { status: 429 }
+      );
+    }
   }
 
   const secretKey = process.env.SUPABASE_SECRET_KEY;
@@ -70,6 +85,10 @@ export async function POST(request: Request) {
       { status: alreadyRegistered ? 409 : 502 }
     );
   }
+
+  // Best-effort: record the send so the next call enforces the cooldown.
+  // Not worth failing the whole request over -- the email already went out.
+  await supabase.from("organization_invitations").update({ last_notified_at: new Date().toISOString() }).eq("token", token);
 
   return NextResponse.json({ ok: true });
 }
