@@ -41,6 +41,10 @@ const swapNotificationsMigrationUrl = new URL(
   "../supabase/migrations/20260808010000_shift_swap_notifications.sql",
   import.meta.url
 );
+const overlapPreventionMigrationUrl = new URL(
+  "../supabase/migrations/20260808124000_prevent_overlapping_shift_assignments.sql",
+  import.meta.url
+);
 
 const tenantTables = [
   "organizations",
@@ -275,11 +279,27 @@ if (!existsSync(swapNotificationsMigrationUrl)) {
   }
 }
 
+if (!existsSync(overlapPreventionMigrationUrl)) {
+  failures.push("overlapping shift assignment prevention migration is missing");
+} else {
+  const overlapMigration = readFileSync(overlapPreventionMigrationUrl, "utf8");
+  for (const requiredRule of [
+    "check_shift_assignment_overlap",
+    "before insert or update of shift_id, user_id on public.shift_assignments",
+    "Employee is already assigned to an overlapping shift",
+    "from public, anon"
+  ]) {
+    if (!overlapMigration.includes(requiredRule)) {
+      failures.push(`overlap prevention rule is missing: ${requiredRule}`);
+    }
+  }
+}
+
 if (failures.length) {
   console.error(failures.join("\n"));
   process.exit(1);
 }
 
 console.log(
-  `Validated ${tenantTables.length} RLS-protected ShiftPilot tables with authorization, workflow integrity, privacy, atomic operations, audit, and deduplicated notification protection.`
+  `Validated ${tenantTables.length} RLS-protected ShiftPilot tables with authorization, workflow integrity, privacy, atomic operations, audit, deduplicated notification, and scheduling-overlap protection.`
 );
