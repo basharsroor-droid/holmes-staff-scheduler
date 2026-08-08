@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { AlertTriangle, CalendarRange, CheckCircle2, Loader2, Send, Sparkles, Undo2, UserPlus } from "lucide-react";
+import { AlertTriangle, CalendarRange, CheckCircle2, CopyPlus, Loader2, Send, Sparkles, Undo2, UserPlus } from "lucide-react";
 
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import type { Database } from "@/types/database";
@@ -38,12 +38,19 @@ export function ScheduleBuilderClient({ organizationId, currentUserId, periods, 
   // the unpublish button, and the assignment controls stay in sync with
   // what actually happened.
   const [periodStatusOverrides, setPeriodStatusOverrides] = useState<Record<string, string>>({});
+  const [duplicateSourceId, setDuplicateSourceId] = useState("");
 
   const period = periods.find((item) => item.id === selectedPeriodId);
   const periodStatus = period ? (periodStatusOverrides[period.id] ?? period.status) : undefined;
   const periodTemplates = period ? templates.filter((item) => item.branch_id === period.branch_id) : [];
   const periodWorkers = period ? workers.filter((item) => !item.branch_id || item.branch_id === period.branch_id) : [];
   const periodShifts = shifts.filter((item) => item.schedule_period_id === selectedPeriodId);
+  // Only periods in the same branch that actually have shifts already are
+  // useful duplication sources -- an empty period would just duplicate
+  // nothing.
+  const duplicateCandidates = period
+    ? periods.filter((item) => item.branch_id === period.branch_id && item.id !== period.id && shifts.some((shift) => shift.schedule_period_id === item.id))
+    : [];
   const periodSubmissions = submissions.filter((item) => item.schedule_period_id === selectedPeriodId && item.submitted_at);
   const days = period ? Array.from({ length: new Date(period.year, period.month, 0).getDate() }, (_, index) => dateKey(period.year, period.month, index + 1)) : [];
   const filled = periodShifts.filter((shift) => assignments.filter((item) => item.shift_id === shift.id).length >= shift.required_employees).length;
@@ -87,6 +94,36 @@ export function ScheduleBuilderClient({ organizationId, currentUserId, periods, 
     if (error || !data) { setMessage("יצירת משמרות החודש נכשלה. נסה שוב."); return; }
     setShifts((current) => [...current.filter((item) => item.schedule_period_id !== period.id), ...data]);
     setMessage(`נוצרו ${data.length} משמרות לחודש.`);
+  }
+
+  async function duplicateFromPrevious() {
+    if (!period || !duplicateSourceId || periodShifts.length) return;
+    setBusy("duplicate"); setMessage("");
+    const { data, error } = await supabase.rpc("duplicate_schedule_period", {
+      source_period_id: duplicateSourceId,
+      target_period_id: period.id
+    });
+    if (error || !data || !data.length) {
+      setBusy("");
+      setMessage("שכפול הסידור נכשל.");
+      return;
+    }
+    const result = data[0];
+    // The RPC doesn't return the created rows themselves, only counts --
+    // reload this period's shifts and their assignments from the DB
+    // instead of trying to reconstruct them client-side.
+    const { data: newShifts } = await supabase
+      .from("shifts")
+      .select("id, schedule_period_id, shift_template_id, shift_date, name, start_time, end_time, required_employees, status")
+      .eq("schedule_period_id", period.id);
+    const newShiftIds = (newShifts ?? []).map((item) => item.id);
+    const { data: newAssignments } = newShiftIds.length
+      ? await supabase.from("shift_assignments").select("id, shift_id, user_id").in("shift_id", newShiftIds)
+      : { data: [] };
+    setBusy("");
+    setShifts((current) => [...current.filter((item) => item.schedule_period_id !== period.id), ...(newShifts ?? [])]);
+    setAssignments((current) => [...current.filter((item) => !newShiftIds.includes(item.shift_id)), ...(newAssignments ?? [])]);
+    setMessage(`שוכפלו ${result.shifts_created} משמרות ו-${result.assignments_created} שיבוצים מהחודש שנבחר${result.assignments_skipped_inactive ? ` (${result.assignments_skipped_inactive} שיבוצים דולגו כי העובד/ת כבר לא פעיל/ה בארגון)` : ""}.`);
   }
 
   async function assign(shift: Shift, userId: string) {
@@ -139,6 +176,15 @@ export function ScheduleBuilderClient({ organizationId, currentUserId, periods, 
     <div className="template-list-heading"><div><p className="eyebrow">חודש וסניף</p><h2>{period ? `${monthNames[period.month - 1]} ${period.year}` : ""}</h2></div><select className="input" style={{ maxWidth: 300 }} value={selectedPeriodId} onChange={(event) => setSelectedPeriodId(event.target.value)}>{periods.map((item) => <option value={item.id} key={item.id}>{monthNames[item.month - 1]} {item.year} · {branches.find((branch) => branch.id === item.branch_id)?.name ?? "סניף"}</option>)}</select></div>
     <div className="workspace-stats" style={{ margin: "0 0 20px" }}><article><CalendarRange /><span><strong>{periodShifts.length}</strong><small>משמרות בחודש</small></span></article><article><CheckCircle2 /><span><strong>{filled}</strong><small>משמרות מאוישות</small></span></article><article><UserPlus /><span><strong>{periodWorkers.length}</strong><small>עובדים לשיבוץ</small></span></article></div>
     <div className="actions" style={{ marginBottom: 18 }}><button className="button primary" disabled={!!busy || !periodTemplates.length} onClick={() => void generateMonth()}>{busy === "generate" ? <Loader2 className="spin" size={16} /> : <Sparkles size={16} />} {periodShifts.length ? "סנכרון משמרות החודש" : "יצירת משמרות החודש"}</button>{periodStatus === "published" ? <button className="button" disabled={!!busy} onClick={() => void unpublish()}>{busy === "unpublish" ? <Loader2 className="spin" size={16} /> : <Undo2 size={16} />} ביטול פרסום</button> : <button className="button" disabled={!!busy || !periodShifts.length} onClick={() => void publish()}>{busy === "publish" ? <Loader2 className="spin" size={16} /> : <Send size={16} />} פרסום הסידור</button>}</div>
+    {!periodShifts.length && duplicateCandidates.length
+      ? <div className="actions" style={{ marginBottom: 18 }}>
+          <select className="input" style={{ maxWidth: 260 }} value={duplicateSourceId} onChange={(event) => setDuplicateSourceId(event.target.value)}>
+            <option value="">שכפול מחודש קודם...</option>
+            {duplicateCandidates.map((item) => <option value={item.id} key={item.id}>{monthNames[item.month - 1]} {item.year}</option>)}
+          </select>
+          <button className="button" disabled={!!busy || !duplicateSourceId} onClick={() => void duplicateFromPrevious()}>{busy === "duplicate" ? <Loader2 className="spin" size={16} /> : <CopyPlus size={16} />} שכפול משמרות ושיבוצים</button>
+        </div>
+      : null}
     {!periodTemplates.length ? <div className="submission-banner closed"><AlertTriangle /><div><strong>אין סוגי משמרות פעילים בסניף</strong><span>יש להגדיר סוגי משמרות לפני יצירת הסידור.</span></div></div> : null}
     <div className="availability-board">{days.map((date) => {
       const dayShifts = periodShifts.filter((shift) => shift.shift_date === date);

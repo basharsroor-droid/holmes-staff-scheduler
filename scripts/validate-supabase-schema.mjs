@@ -69,6 +69,10 @@ const invitationResendCooldownMigrationUrl = new URL(
   "../supabase/migrations/20260808160000_invitation_resend_cooldown.sql",
   import.meta.url
 );
+const duplicateSchedulePeriodMigrationUrl = new URL(
+  "../supabase/migrations/20260808163000_duplicate_schedule_period.sql",
+  import.meta.url
+);
 
 const tenantTables = [
   "organizations",
@@ -417,11 +421,27 @@ for (const requiredRule of ["RESEND_COOLDOWN_MS", "last_notified_at"]) {
   }
 }
 
+if (!existsSync(duplicateSchedulePeriodMigrationUrl)) {
+  failures.push("duplicate schedule period migration is missing");
+} else {
+  const duplicatePeriodMigration = readFileSync(duplicateSchedulePeriodMigrationUrl, "utf8");
+  for (const requiredRule of [
+    "duplicate_schedule_period",
+    "dense_rank() over (partition by extract(dow from s.shift_date)",
+    "Target period already has shifts",
+    "m.status = 'active'"
+  ]) {
+    if (!duplicatePeriodMigration.includes(requiredRule)) {
+      failures.push(`duplicate schedule period rule is missing: ${requiredRule}`);
+    }
+  }
+}
+
 if (failures.length) {
   console.error(failures.join("\n"));
   process.exit(1);
 }
 
 console.log(
-  `Validated ${tenantTables.length} RLS-protected ShiftPilot tables with authorization, workflow integrity, privacy, atomic operations, audit, deduplicated notification, scheduling-overlap, last-owner protection, ownership transfer, manager/target swap-transition protection, schedule unpublishing, automatic future-shift release on suspension, and invitation resend rate-limiting.`
+  `Validated ${tenantTables.length} RLS-protected ShiftPilot tables with authorization, workflow integrity, privacy, atomic operations, audit, deduplicated notification, scheduling-overlap, last-owner protection, ownership transfer, manager/target swap-transition protection, schedule unpublishing, automatic future-shift release on suspension, invitation resend rate-limiting, and previous-month schedule duplication.`
 );
