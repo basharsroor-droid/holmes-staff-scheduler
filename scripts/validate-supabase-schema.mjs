@@ -37,6 +37,10 @@ const inAppNotificationsMigrationUrl = new URL(
   "../supabase/migrations/20260808003000_in_app_schedule_notifications.sql",
   import.meta.url
 );
+const swapNotificationsMigrationUrl = new URL(
+  "../supabase/migrations/20260808010000_shift_swap_notifications.sql",
+  import.meta.url
+);
 
 const tenantTables = [
   "organizations",
@@ -251,11 +255,31 @@ if (!existsSync(inAppNotificationsMigrationUrl)) {
   }
 }
 
+if (!existsSync(swapNotificationsMigrationUrl)) {
+  failures.push("shift swap notifications migration is missing");
+} else {
+  const swapNotificationMigration = readFileSync(swapNotificationsMigrationUrl, "utf8");
+  for (const requiredRule of [
+    "notifications_swap_event_once_idx",
+    "swap_request_received",
+    "swap_waiting_manager",
+    "swap_approved",
+    "swap_rejected",
+    "swap_cancelled",
+    "notify_shift_swap_change",
+    "on conflict do nothing"
+  ]) {
+    if (!swapNotificationMigration.includes(requiredRule)) {
+      failures.push(`shift swap notification rule is missing: ${requiredRule}`);
+    }
+  }
+}
+
 if (failures.length) {
   console.error(failures.join("\n"));
   process.exit(1);
 }
 
 console.log(
-  `Validated ${tenantTables.length} RLS-protected ShiftPilot tables with authorization, workflow integrity, privacy, atomic operations, audit, and notification protection.`
+  `Validated ${tenantTables.length} RLS-protected ShiftPilot tables with authorization, workflow integrity, privacy, atomic operations, audit, and deduplicated notification protection.`
 );
