@@ -73,6 +73,10 @@ const duplicateSchedulePeriodMigrationUrl = new URL(
   "../supabase/migrations/20260808163000_duplicate_schedule_period.sql",
   import.meta.url
 );
+const leaveRequestsMigrationUrl = new URL(
+  "../supabase/migrations/20260808170000_leave_requests.sql",
+  import.meta.url
+);
 
 const tenantTables = [
   "organizations",
@@ -437,11 +441,28 @@ if (!existsSync(duplicateSchedulePeriodMigrationUrl)) {
   }
 }
 
+if (!existsSync(leaveRequestsMigrationUrl)) {
+  failures.push("leave requests migration is missing");
+} else {
+  const leaveRequestsMigration = readFileSync(leaveRequestsMigrationUrl, "utf8");
+  for (const requiredRule of [
+    "alter table public.leave_requests enable row level security",
+    "leave_requests_select_allowed",
+    "leave_requests_insert_self",
+    "leave_requests_delete_self",
+    "audit_leave_requests_write"
+  ]) {
+    if (!leaveRequestsMigration.includes(requiredRule)) {
+      failures.push(`leave requests rule is missing: ${requiredRule}`);
+    }
+  }
+}
+
 if (failures.length) {
   console.error(failures.join("\n"));
   process.exit(1);
 }
 
 console.log(
-  `Validated ${tenantTables.length} RLS-protected ShiftPilot tables with authorization, workflow integrity, privacy, atomic operations, audit, deduplicated notification, scheduling-overlap, last-owner protection, ownership transfer, manager/target swap-transition protection, schedule unpublishing, automatic future-shift release on suspension, invitation resend rate-limiting, and previous-month schedule duplication.`
+  `Validated ${tenantTables.length} RLS-protected ShiftPilot tables with authorization, workflow integrity, privacy, atomic operations, audit, deduplicated notification, scheduling-overlap, last-owner protection, ownership transfer, manager/target swap-transition protection, schedule unpublishing, automatic future-shift release on suspension, invitation resend rate-limiting, previous-month schedule duplication, and self-service leave requests.`
 );
