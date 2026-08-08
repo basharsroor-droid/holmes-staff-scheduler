@@ -57,6 +57,10 @@ const swapManagerTargetOverlapMigrationUrl = new URL(
   "../supabase/migrations/20260808141500_fix_swap_transition_manager_target_overlap.sql",
   import.meta.url
 );
+const unpublishScheduleMigrationUrl = new URL(
+  "../supabase/migrations/20260808150000_unpublish_schedule_period.sql",
+  import.meta.url
+);
 
 const tenantTables = [
   "organizations",
@@ -355,11 +359,27 @@ if (!existsSync(swapManagerTargetOverlapMigrationUrl)) {
   }
 }
 
+if (!existsSync(unpublishScheduleMigrationUrl)) {
+  failures.push("unpublish schedule period migration is missing");
+} else {
+  const unpublishMigration = readFileSync(unpublishScheduleMigrationUrl, "utf8");
+  for (const requiredRule of [
+    "unpublish_schedule_period",
+    "Manager permission required",
+    "Only a published schedule can be unpublished",
+    "from public, anon"
+  ]) {
+    if (!unpublishMigration.includes(requiredRule)) {
+      failures.push(`unpublish schedule period rule is missing: ${requiredRule}`);
+    }
+  }
+}
+
 if (failures.length) {
   console.error(failures.join("\n"));
   process.exit(1);
 }
 
 console.log(
-  `Validated ${tenantTables.length} RLS-protected ShiftPilot tables with authorization, workflow integrity, privacy, atomic operations, audit, deduplicated notification, scheduling-overlap, last-owner protection, ownership transfer, and manager/target swap-transition protection.`
+  `Validated ${tenantTables.length} RLS-protected ShiftPilot tables with authorization, workflow integrity, privacy, atomic operations, audit, deduplicated notification, scheduling-overlap, last-owner protection, ownership transfer, manager/target swap-transition protection, and schedule unpublishing.`
 );
