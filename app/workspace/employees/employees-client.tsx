@@ -45,17 +45,15 @@ export function EmployeesClient({
     setMessage("פרטי העובד עודכנו בהצלחה.");
   }
 
-  function callbackUrl(token: string) {
-    const callback = new URL("/auth/callback", window.location.origin);
-    callback.searchParams.set("next", `/auth/accept-invite?token=${token}`);
-    return callback.toString();
-  }
-
-  async function sendMagicLink(email: string, token: string) {
-    return supabase.auth.signInWithOtp({
-      email,
-      options: { shouldCreateUser: true, emailRedirectTo: callbackUrl(token) }
+  async function sendMagicLink(token: string) {
+    const response = await fetch("/api/invitations/notify", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token })
     });
+    if (response.ok) return { error: null };
+    const body: { error?: string } = await response.json().catch(() => ({}));
+    return { error: { message: body.error ?? "Failed to send invitation" } };
   }
 
   async function inviteEmployee() {
@@ -78,7 +76,7 @@ export function EmployeesClient({
       setMessage(invitationError?.message.includes("already a member") ? "כתובת המייל כבר שייכת לחבר צוות בעסק." : "לא הצלחנו ליצור את ההזמנה.");
       return;
     }
-    const { error: emailError } = await sendMagicLink(normalizedEmail, token);
+    const { error: emailError } = await sendMagicLink(token);
     setInviteBusy(false);
     if (emailError) {
       setMessage(emailError.message.toLowerCase().includes("rate limit") ? "ההזמנה נשמרה, אך קיימת כרגע מגבלת שליחת מיילים. אפשר לשלוח שוב מאוחר יותר." : "ההזמנה נשמרה, אך שליחת המייל נכשלה.");
@@ -96,7 +94,7 @@ export function EmployeesClient({
 
   async function resendInvitation(invitation: Invitation) {
     setBusyId(invitation.id);
-    const { error } = await sendMagicLink(invitation.email, invitation.token);
+    const { error } = await sendMagicLink(invitation.token);
     setBusyId(null);
     setMessage(error ? "לא הצלחנו לשלוח את ההזמנה מחדש." : "ההזמנה נשלחה מחדש.");
   }
