@@ -102,7 +102,7 @@ export function ShiftSwapsClient({ organizationId, currentUserId, isManager, shi
     const note = managerNotes[request.id]?.trim() || null;
     const { error } = await supabase.rpc("approve_shift_swap", {
       target_request_id: request.id,
-      decision_note: note
+      decision_note: note ?? undefined
     });
     setBusy("");
 

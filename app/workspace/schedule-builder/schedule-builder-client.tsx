@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { AlertTriangle, CalendarRange, CheckCircle2, Loader2, Send, Sparkles, UserPlus } from "lucide-react";
+import { AlertTriangle, CalendarRange, CheckCircle2, Loader2, Send, Sparkles, Undo2, UserPlus } from "lucide-react";
 
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import type { Database } from "@/types/database";
@@ -32,8 +32,15 @@ export function ScheduleBuilderClient({ organizationId, currentUserId, periods, 
   const [assignments, setAssignments] = useState(initialAssignments);
   const [busy, setBusy] = useState("");
   const [message, setMessage] = useState("");
+  // `periods` is server-rendered data passed in as a prop, so it never
+  // reflects a publish/unpublish call made during this session without a
+  // full page reload. Track just the status locally so the publish button,
+  // the unpublish button, and the assignment controls stay in sync with
+  // what actually happened.
+  const [periodStatusOverrides, setPeriodStatusOverrides] = useState<Record<string, string>>({});
 
   const period = periods.find((item) => item.id === selectedPeriodId);
+  const periodStatus = period ? (periodStatusOverrides[period.id] ?? period.status) : undefined;
   const periodTemplates = period ? templates.filter((item) => item.branch_id === period.branch_id) : [];
   const periodWorkers = period ? workers.filter((item) => !item.branch_id || item.branch_id === period.branch_id) : [];
   const periodShifts = shifts.filter((item) => item.schedule_period_id === selectedPeriodId);
@@ -110,7 +117,20 @@ export function ScheduleBuilderClient({ organizationId, currentUserId, periods, 
     setBusy("");
     if (error) { setMessage("פרסום הסידור נכשל. לא בוצע שינוי חלקי."); return; }
     setShifts((current) => current.map((item) => item.schedule_period_id === period.id ? { ...item, status: "published" } : item));
+    setPeriodStatusOverrides((current) => ({ ...current, [period.id]: "published" }));
     setMessage("הסידור פורסם בהצלחה לצוות.");
+  }
+
+  async function unpublish() {
+    if (!period) return;
+    if (!window.confirm("ביטול הפרסום יחזיר את הסידור לטיוטה ויסתיר אותו מהעובדים עד שיפורסם מחדש. להמשיך?")) return;
+    setBusy("unpublish"); setMessage("");
+    const { error } = await supabase.rpc("unpublish_schedule_period", { target_period_id: period.id });
+    setBusy("");
+    if (error) { setMessage("ביטול הפרסום נכשל."); return; }
+    setShifts((current) => current.map((item) => item.schedule_period_id === period.id ? { ...item, status: "draft" } : item));
+    setPeriodStatusOverrides((current) => ({ ...current, [period.id]: "draft" }));
+    setMessage("הפרסום בוטל. הסידור חזר לטיוטה ואינו גלוי לעובדים.");
   }
 
   if (!periods.length) return <section className="template-list-card"><div className="empty-template-state"><CalendarRange size={42} /><h2>אין עדיין חודש עבודה</h2><p>פתח חודש עבודה לפני בניית הסידור.</p></div></section>;
@@ -118,7 +138,7 @@ export function ScheduleBuilderClient({ organizationId, currentUserId, periods, 
   return <section className="template-list-card">
     <div className="template-list-heading"><div><p className="eyebrow">חודש וסניף</p><h2>{period ? `${monthNames[period.month - 1]} ${period.year}` : ""}</h2></div><select className="input" style={{ maxWidth: 300 }} value={selectedPeriodId} onChange={(event) => setSelectedPeriodId(event.target.value)}>{periods.map((item) => <option value={item.id} key={item.id}>{monthNames[item.month - 1]} {item.year} · {branches.find((branch) => branch.id === item.branch_id)?.name ?? "סניף"}</option>)}</select></div>
     <div className="workspace-stats" style={{ margin: "0 0 20px" }}><article><CalendarRange /><span><strong>{periodShifts.length}</strong><small>משמרות בחודש</small></span></article><article><CheckCircle2 /><span><strong>{filled}</strong><small>משמרות מאוישות</small></span></article><article><UserPlus /><span><strong>{periodWorkers.length}</strong><small>עובדים לשיבוץ</small></span></article></div>
-    <div className="actions" style={{ marginBottom: 18 }}><button className="button primary" disabled={!!busy || !periodTemplates.length} onClick={() => void generateMonth()}>{busy === "generate" ? <Loader2 className="spin" size={16} /> : <Sparkles size={16} />} {periodShifts.length ? "סנכרון משמרות החודש" : "יצירת משמרות החודש"}</button><button className="button" disabled={!!busy || !periodShifts.length || period?.status === "published"} onClick={() => void publish()}>{busy === "publish" ? <Loader2 className="spin" size={16} /> : <Send size={16} />} פרסום הסידור</button></div>
+    <div className="actions" style={{ marginBottom: 18 }}><button className="button primary" disabled={!!busy || !periodTemplates.length} onClick={() => void generateMonth()}>{busy === "generate" ? <Loader2 className="spin" size={16} /> : <Sparkles size={16} />} {periodShifts.length ? "סנכרון משמרות החודש" : "יצירת משמרות החודש"}</button>{periodStatus === "published" ? <button className="button" disabled={!!busy} onClick={() => void unpublish()}>{busy === "unpublish" ? <Loader2 className="spin" size={16} /> : <Undo2 size={16} />} ביטול פרסום</button> : <button className="button" disabled={!!busy || !periodShifts.length} onClick={() => void publish()}>{busy === "publish" ? <Loader2 className="spin" size={16} /> : <Send size={16} />} פרסום הסידור</button>}</div>
     {!periodTemplates.length ? <div className="submission-banner closed"><AlertTriangle /><div><strong>אין סוגי משמרות פעילים בסניף</strong><span>יש להגדיר סוגי משמרות לפני יצירת הסידור.</span></div></div> : null}
     <div className="availability-board">{days.map((date) => {
       const dayShifts = periodShifts.filter((shift) => shift.shift_date === date);
@@ -128,7 +148,7 @@ export function ScheduleBuilderClient({ organizationId, currentUserId, periods, 
         return <div className="card-muted" key={shift.id}><div className="shift-title"><span>{shift.name}</span><small>{shift.start_time.slice(0,5)}–{shift.end_time.slice(0,5)} · {assigned.length}/{shift.required_employees}</small></div><div className="grid">{periodWorkers.map((worker) => {
           const selected = assigned.some((item) => item.user_id === worker.user_id);
           const availabilityStatus = workerAvailability(worker.user_id, shift);
-          return <button type="button" className={`button ${selected ? "primary" : ""}`} disabled={!!busy || period?.status === "published" || availabilityStatus === "unavailable"} onClick={() => void assign(shift, worker.user_id)} key={worker.user_id}><span>{workerName(worker.user_id)}</span><small>{availabilityStatus ? availabilityLabels[availabilityStatus] : "לא הוגשה זמינות"}</small></button>;
+          return <button type="button" className={`button ${selected ? "primary" : ""}`} disabled={!!busy || periodStatus === "published" || availabilityStatus === "unavailable"} onClick={() => void assign(shift, worker.user_id)} key={worker.user_id}><span>{workerName(worker.user_id)}</span><small>{availabilityStatus ? availabilityLabels[availabilityStatus] : "לא הוגשה זמינות"}</small></button>;
         })}</div></div>;
       })}</article>;
     })}</div>

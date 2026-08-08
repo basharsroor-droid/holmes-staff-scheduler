@@ -796,16 +796,13 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      approve_shift_swap: {
-        Args: {
-          decision_note?: string | null
-          target_request_id: string
-        }
-        Returns: boolean
-      }
       accept_organization_invitation: {
         Args: { invitation_token: string }
         Returns: string
+      }
+      approve_shift_swap: {
+        Args: { decision_note?: string; target_request_id: string }
+        Returns: boolean
       }
       create_organization_invitation: {
         Args: {
@@ -828,11 +825,16 @@ export type Database = {
         }
         Returns: string
       }
-      mark_my_notifications_read: {
-        Args: Record<PropertyKey, never>
+      mark_my_notifications_read: { Args: never; Returns: number }
+      publish_schedule_period: {
+        Args: { target_period_id: string }
         Returns: number
       }
-      publish_schedule_period: {
+      transfer_organization_ownership: {
+        Args: { target_user_id: string }
+        Returns: undefined
+      }
+      unpublish_schedule_period: {
         Args: { target_period_id: string }
         Returns: number
       }
