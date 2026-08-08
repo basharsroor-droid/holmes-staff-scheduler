@@ -18,6 +18,21 @@ function scheduleDetails(payload: unknown, branches: Map<string, string>) {
   return [month, year, branch].filter(Boolean).join(" · ") || "סידור עבודה חדש זמין.";
 }
 
+function notificationCopy(templateKey: string, payload: unknown, branches: Map<string, string>) {
+  if (templateKey === "schedule_published") {
+    return { title: "סידור העבודה פורסם", details: scheduleDetails(payload, branches), href: "/workspace/my-shifts" };
+  }
+
+  const swapCopy: Record<string, { title: string; details: string }> = {
+    swap_request_received: { title: "התקבלה בקשת החלפה", details: "עובד/ת מבקש/ת להחליף איתך משמרת." },
+    swap_waiting_manager: { title: "החלפה ממתינה לאישור מנהל", details: "שני העובדים אישרו והבקשה מוכנה להחלטה." },
+    swap_approved: { title: "החלפת המשמרת אושרה", details: "הסידור עודכן בהתאם להחלפה שאושרה." },
+    swap_rejected: { title: "בקשת ההחלפה נדחתה", details: "הבקשה נסגרה ללא שינוי בסידור." },
+    swap_cancelled: { title: "בקשת ההחלפה בוטלה", details: "הבקשה בוטלה ללא שינוי בסידור." }
+  };
+  return { ...(swapCopy[templateKey] ?? { title: "עדכון חדש", details: "יש עדכון חדש במערכת." }), href: "/workspace/shift-swaps" };
+}
+
 export default async function NotificationsPage() {
   const supabase = createSupabaseServerClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -69,17 +84,18 @@ export default async function NotificationsPage() {
         </span>
       </div>
 
-      <div className="template-list">{(notifications ?? []).map((notification) =>
-        <article className={`card notification-card ${notification.read_at ? "" : "unread"}`} key={notification.id}>
-          <div className="template-icon"><CalendarCheck /></div>
+      <div className="template-list">{(notifications ?? []).map((notification) => {
+        const copy = notificationCopy(notification.template_key, notification.payload, branchMap);
+        return <article className={`card notification-card ${notification.read_at ? "" : "unread"}`} key={notification.id}>
+          <div className="template-icon">{notification.template_key === "schedule_published" ? <CalendarCheck /> : <Bell />}</div>
           <span>
-            <strong>{notification.template_key === "schedule_published" ? "סידור העבודה פורסם" : "עדכון חדש"}</strong>
-            <small>{scheduleDetails(notification.payload, branchMap)}</small>
+            <strong>{copy.title}</strong>
+            <small>{copy.details}</small>
             <em>{new Date(notification.created_at).toLocaleString("he-IL", { dateStyle: "medium", timeStyle: "short" })}</em>
           </span>
-          {!notification.read_at ? <span className="badge warning">חדש</span> : <span className="badge">נקרא</span>}
-        </article>
-      )}</div>
+          <Link className="button" href={copy.href}>{notification.read_at ? "פתיחה" : "צפייה"}</Link>
+        </article>;
+      })}</div>
 
       {!(notifications ?? []).length ? <div className="empty-template-state">
         <Bell size={42} />
