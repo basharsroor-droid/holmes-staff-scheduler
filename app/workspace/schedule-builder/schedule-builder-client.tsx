@@ -26,8 +26,8 @@ function dateKey(year: number, month: number, day: number) {
   return `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
 }
 
-export function ScheduleBuilderClient({ organizationId, currentUserId, periods, branches, templates, workers, shifts: initialShifts, assignments: initialAssignments, submissions, availability, leaveRequests }: {
-  organizationId: string; currentUserId: string; periods: Period[]; branches: Branch[]; templates: Template[]; workers: Worker[]; shifts: Shift[]; assignments: Assignment[]; submissions: Submission[]; availability: Availability[]; leaveRequests: LeaveRequest[];
+export function ScheduleBuilderClient({ organizationId, currentUserId, callerRole, periods, branches, templates, workers, shifts: initialShifts, assignments: initialAssignments, submissions, availability, leaveRequests, initialMinRestHours }: {
+  organizationId: string; currentUserId: string; callerRole: string; periods: Period[]; branches: Branch[]; templates: Template[]; workers: Worker[]; shifts: Shift[]; assignments: Assignment[]; submissions: Submission[]; availability: Availability[]; leaveRequests: LeaveRequest[]; initialMinRestHours: number | null;
 }) {
   const supabase = useMemo(() => createSupabaseBrowserClient(), []);
   const [selectedPeriodId, setSelectedPeriodId] = useState(periods[0]?.id ?? "");
@@ -42,6 +42,8 @@ export function ScheduleBuilderClient({ organizationId, currentUserId, periods, 
   // what actually happened.
   const [periodStatusOverrides, setPeriodStatusOverrides] = useState<Record<string, string>>({});
   const [duplicateSourceId, setDuplicateSourceId] = useState("");
+  const [minRestHours, setMinRestHours] = useState(initialMinRestHours);
+  const [minRestDraft, setMinRestDraft] = useState(initialMinRestHours?.toString() ?? "");
 
   const period = periods.find((item) => item.id === selectedPeriodId);
   const periodStatus = period ? (periodStatusOverrides[period.id] ?? period.status) : undefined;
@@ -98,6 +100,49 @@ export function ScheduleBuilderClient({ organizationId, currentUserId, periods, 
     return periodShifts
       .filter((item) => weekStartKey(item.shift_date) === weekKey && assignments.some((a) => a.shift_id === item.id && a.user_id === userId))
       .reduce((total, item) => total + shiftHours(item), 0);
+  }
+
+  function shiftBounds(shift: Shift) {
+    const start = new Date(`${shift.shift_date}T${shift.start_time}`);
+    let end = new Date(`${shift.shift_date}T${shift.end_time}`);
+    if (end <= start) end = new Date(end.getTime() + 24 * 60 * 60 * 1000); // overnight
+    return { start, end };
+  }
+
+  // Smallest gap (hours) between this candidate shift and any OTHER shift
+  // already assigned to this worker within the selected period -- checked
+  // in both directions since we don't know if the candidate falls before
+  // or after their existing shifts. Overlapping shifts are excluded here
+  // (hasConflict already blocks those outright, as a real impossibility
+  // rather than a rest-time policy question).
+  function minRestGapHours(userId: string, shift: Shift) {
+    const { start, end } = shiftBounds(shift);
+    let minGap = Infinity;
+    for (const other of periodShifts) {
+      if (other.id === shift.id) continue;
+      if (!assignments.some((a) => a.shift_id === other.id && a.user_id === userId)) continue;
+      const otherBounds = shiftBounds(other);
+      if (otherBounds.end <= start) {
+        minGap = Math.min(minGap, (start.getTime() - otherBounds.end.getTime()) / 3600000);
+      } else if (otherBounds.start >= end) {
+        minGap = Math.min(minGap, (otherBounds.start.getTime() - end.getTime()) / 3600000);
+      }
+    }
+    return minGap;
+  }
+
+  async function saveMinRestHours() {
+    const parsed = minRestDraft.trim() ? Number(minRestDraft) : null;
+    if (parsed !== null && (!Number.isInteger(parsed) || parsed <= 0)) {
+      setMessage("מגבלת שעות המנוחה חייבת להיות מספר שלם חיובי, או ריקה לביטול המגבלה.");
+      setMinRestDraft(minRestHours?.toString() ?? "");
+      return;
+    }
+    if (parsed === minRestHours) return;
+    const { error } = await supabase.from("organizations").update({ min_rest_hours: parsed }).eq("id", organizationId);
+    if (error) { setMessage("עדכון מגבלת המנוחה נכשל."); setMinRestDraft(minRestHours?.toString() ?? ""); return; }
+    setMinRestHours(parsed);
+    setMessage("מגבלת המנוחה עודכנה.");
   }
 
   async function generateMonth() {
@@ -183,6 +228,13 @@ export function ScheduleBuilderClient({ organizationId, currentUserId, periods, 
         return;
       }
     }
+    if (minRestHours) {
+      const gap = minRestGapHours(userId, shift);
+      if (gap < minRestHours && !window.confirm(`יהיו רק ${Math.round(gap * 10) / 10} שעות מנוחה בין המשמרות של ${workerName(userId)} (מגבלה: ${minRestHours} שעות). לשבץ בכל זאת?`)) {
+        setBusy("");
+        return;
+      }
+    }
     const { data, error } = await supabase.from("shift_assignments").insert({ organization_id: organizationId, shift_id: shift.id, user_id: userId, assigned_by: currentUserId }).select("id, shift_id, user_id").single();
     setBusy("");
     if (error || !data) { setMessage("שמירת השיבוץ נכשלה."); return; }
@@ -255,6 +307,9 @@ export function ScheduleBuilderClient({ organizationId, currentUserId, periods, 
           </select>
           <button className="button" disabled={!!busy || !duplicateSourceId} onClick={() => void duplicateFromPrevious()}>{busy === "duplicate" ? <Loader2 className="spin" size={16} /> : <CopyPlus size={16} />} שכפול משמרות ושיבוצים</button>
         </div>
+      : null}
+    {callerRole === "owner" || callerRole === "admin"
+      ? <label className="field" style={{ maxWidth: 260, marginBottom: 18 }}><span>מגבלת שעות מנוחה מינימלית בין משמרות</span><input className="input" type="number" min={1} placeholder="ללא הגבלה" value={minRestDraft} onChange={(event) => setMinRestDraft(event.target.value)} onBlur={() => void saveMinRestHours()} /></label>
       : null}
     {!periodTemplates.length ? <div className="submission-banner closed"><AlertTriangle /><div><strong>אין סוגי משמרות פעילים בסניף</strong><span>יש להגדיר סוגי משמרות לפני יצירת הסידור.</span></div></div> : null}
     <div className="availability-board">{days.map((date) => {
