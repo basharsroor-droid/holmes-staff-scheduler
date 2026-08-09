@@ -383,6 +383,7 @@ export type Database = {
           status: Database["public"]["Enums"]["member_status"]
           updated_at: string
           user_id: string
+          weekly_hours_limit: number | null
         }
         Insert: {
           branch_id?: string | null
@@ -398,6 +399,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["member_status"]
           updated_at?: string
           user_id: string
+          weekly_hours_limit?: number | null
         }
         Update: {
           branch_id?: string | null
@@ -413,6 +415,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["member_status"]
           updated_at?: string
           user_id?: string
+          weekly_hours_limit?: number | null
         }
         Relationships: [
           {

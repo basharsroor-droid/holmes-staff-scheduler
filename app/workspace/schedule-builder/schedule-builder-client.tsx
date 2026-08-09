@@ -11,7 +11,7 @@ type LeaveType = Database["public"]["Enums"]["leave_type"];
 type Period = { id: string; branch_id: string; year: number; month: number; status: string; published_at: string | null };
 type Branch = { id: string; name: string };
 type Template = { id: string; branch_id: string; name: string; start_time: string; end_time: string; required_employees: number; requires_senior_employee: boolean };
-type Worker = { id: string; user_id: string; branch_id: string | null; role: string; seniority_level: string; can_open: boolean; can_close: boolean; profile: { id: string; first_name: string; last_name: string; color: string } | null };
+type Worker = { id: string; user_id: string; branch_id: string | null; role: string; seniority_level: string; can_open: boolean; can_close: boolean; weekly_hours_limit: number | null; profile: { id: string; first_name: string; last_name: string; color: string } | null };
 type Shift = { id: string; schedule_period_id: string; shift_template_id: string | null; shift_date: string; name: string; start_time: string; end_time: string; required_employees: number; status: string };
 type Assignment = { id: string; shift_id: string; user_id: string };
 type Submission = { id: string; schedule_period_id: string; user_id: string; submitted_at: string | null };
@@ -75,6 +75,29 @@ export function ScheduleBuilderClient({ organizationId, currentUserId, periods, 
 
   function workerLeave(userId: string, shift: Shift) {
     return leaveRequests.find((item) => item.user_id === userId && shift.shift_date >= item.start_date && shift.shift_date <= item.end_date) ?? null;
+  }
+
+  function shiftHours(shift: Shift) {
+    const [startH, startM] = shift.start_time.split(":").map(Number);
+    const [endH, endM] = shift.end_time.split(":").map(Number);
+    let minutes = (endH * 60 + endM) - (startH * 60 + startM);
+    if (minutes <= 0) minutes += 24 * 60; // overnight shift, matches the overlap-prevention trigger's convention
+    return minutes / 60;
+  }
+
+  // Sunday-Saturday, matching the Israeli work week. Only sums shifts within
+  // the currently selected period -- a week that straddles a month boundary
+  // undercounts the days that fall in the adjacent period, a known v1 gap.
+  function weekStartKey(date: string) {
+    const day = new Date(`${date}T12:00:00`);
+    day.setDate(day.getDate() - day.getDay());
+    return dateKey(day.getFullYear(), day.getMonth() + 1, day.getDate());
+  }
+
+  function weeklyHours(userId: string, weekKey: string) {
+    return periodShifts
+      .filter((item) => weekStartKey(item.shift_date) === weekKey && assignments.some((a) => a.shift_id === item.id && a.user_id === userId))
+      .reduce((total, item) => total + shiftHours(item), 0);
   }
 
   async function generateMonth() {
@@ -148,6 +171,18 @@ export function ScheduleBuilderClient({ organizationId, currentUserId, periods, 
     if (status === "unavailable") { setBusy(""); setMessage(`${workerName(userId)} סימן/ה שאינו/ה זמין/ה למשמרת הזאת.`); return; }
     const leave = workerLeave(userId, shift);
     if (leave) { setBusy(""); setMessage(`${workerName(userId)} ${leaveTypeLabels[leave.leave_type]} בתאריך הזה.`); return; }
+    const limit = periodWorkers.find((item) => item.user_id === userId)?.weekly_hours_limit;
+    if (limit) {
+      const weekKey = weekStartKey(shift.shift_date);
+      const projected = weeklyHours(userId, weekKey) + shiftHours(shift);
+      // Soft cap, not a hard block -- legitimate overtime happens, so a
+      // manager can confirm past it rather than being unable to schedule
+      // someone at all.
+      if (projected > limit && !window.confirm(`${workerName(userId)} יעבור/תעבור את מגבלת ${limit} השעות השבועית שלו/ה (יגיע/תגיע ל-${Math.round(projected * 10) / 10} שעות). לשבץ בכל זאת?`)) {
+        setBusy("");
+        return;
+      }
+    }
     const { data, error } = await supabase.from("shift_assignments").insert({ organization_id: organizationId, shift_id: shift.id, user_id: userId, assigned_by: currentUserId }).select("id, shift_id, user_id").single();
     setBusy("");
     if (error || !data) { setMessage("שמירת השיבוץ נכשלה."); return; }

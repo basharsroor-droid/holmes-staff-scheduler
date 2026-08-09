@@ -25,7 +25,7 @@ export default async function EmployeesPage() {
   const [organizationResult, branchesResult, membershipsResult, invitationsResult] = await Promise.all([
     supabase.from("organizations").select("name").eq("id", membership.organization_id).single(),
     supabase.from("branches").select("id, name").eq("organization_id", membership.organization_id).eq("active", true).order("name"),
-    supabase.from("organization_memberships").select("id, user_id, role, status, seniority_level, can_open, can_close, employee_number").eq("organization_id", membership.organization_id).order("created_at"),
+    supabase.from("organization_memberships").select("id, user_id, role, status, seniority_level, can_open, can_close, employee_number, weekly_hours_limit").eq("organization_id", membership.organization_id).order("created_at"),
     supabase.from("organization_invitations").select("id, email, first_name, last_name, role, status, token, branch_id, expires_at, created_at").eq("organization_id", membership.organization_id).order("created_at", { ascending: false })
   ]);
 

@@ -21,7 +21,7 @@ export default async function ScheduleBuilderPage() {
     supabase.from("branches").select("id, name").eq("organization_id", organizationId).eq("active", true).order("name"),
     supabase.from("schedule_periods").select("id, branch_id, year, month, status, published_at").eq("organization_id", organizationId).order("year", { ascending: false }).order("month", { ascending: false }),
     supabase.from("shift_templates").select("id, branch_id, name, start_time, end_time, required_employees, requires_senior_employee").eq("organization_id", organizationId).eq("active", true).order("start_time"),
-    supabase.from("organization_memberships").select("id, user_id, branch_id, role, seniority_level, can_open, can_close").eq("organization_id", organizationId).eq("status", "active").in("role", ["employee", "manager"]),
+    supabase.from("organization_memberships").select("id, user_id, branch_id, role, seniority_level, can_open, can_close, weekly_hours_limit").eq("organization_id", organizationId).eq("status", "active").in("role", ["employee", "manager"]),
     supabase.from("leave_requests").select("id, user_id, leave_type, start_date, end_date").eq("organization_id", organizationId)
   ]);
   if (!organizationResult.data) redirect("/workspace");
