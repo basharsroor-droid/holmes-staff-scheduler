@@ -114,6 +114,19 @@ export function EmployeesClient({
 
   async function resendInvitation(invitation: Invitation) {
     setBusyId(invitation.id);
+    // Resending an already-expired invitation with its original token
+    // would just re-send a link that can never be accepted
+    // (accept_organization_invitation rejects on expires_at). Push the
+    // expiry forward first so the resent link actually works -- same
+    // window create_organization_invitation already grants on a fresh
+    // invite.
+    let expiresAt = invitation.expires_at;
+    if (new Date(expiresAt) <= new Date()) {
+      expiresAt = new Date(Date.now() + 7 * 86400000).toISOString();
+      const { error: extendError } = await supabase.from("organization_invitations").update({ expires_at: expiresAt }).eq("id", invitation.id).eq("organization_id", organizationId);
+      if (extendError) { setBusyId(null); setMessage("לא הצלחנו לחדש את תוקף ההזמנה."); return; }
+      setInvitations((current) => current.map((item) => item.id === invitation.id ? { ...item, expires_at: expiresAt } : item));
+    }
     const { error } = await sendMagicLink(invitation.token);
     setBusyId(null);
     // The server enforces a cooldown between resends and returns a specific
@@ -162,11 +175,17 @@ export function EmployeesClient({
         <button className="button primary" disabled={inviteBusy} onClick={() => void inviteEmployee()}>{inviteBusy ? <Loader2 className="spin" size={17} /> : <MailPlus size={17} />} שליחת הזמנה</button>
         {message ? <p className="auth-message" role="status">{message}</p> : null}
         <div><p className="eyebrow">הזמנות אחרונות</p><div className="template-list">
-          {invitations.slice(0, 6).map((invitation) => <article className={`template-item ${invitation.status !== "pending" ? "inactive" : ""}`} key={invitation.id}>
-            <div className="template-main"><strong>{invitation.first_name} {invitation.last_name}</strong><span>{invitation.email}</span></div>
-            <span className="status-chip">{invitation.status === "pending" ? "ממתין" : invitation.status === "accepted" ? "התקבל" : "בוטל"}</span>
-            {invitation.status === "pending" ? <div className="actions"><button className="button" disabled={busyId === invitation.id} onClick={() => void resendInvitation(invitation)}><RotateCw size={15} /> שליחה חוזרת</button><button className="button danger" disabled={busyId === invitation.id} onClick={() => void revokeInvitation(invitation)}><UserX size={15} /> ביטול</button></div> : null}
-          </article>)}
+          {invitations.slice(0, 6).map((invitation) => {
+            // status stays 'pending' in the DB even past expires_at (see
+            // the fix_dead_expired_invitation_update migration) -- expiry
+            // is derived here from the date rather than a stored status.
+            const isExpired = invitation.status === "pending" && new Date(invitation.expires_at) <= new Date();
+            return <article className={`template-item ${invitation.status !== "pending" ? "inactive" : ""}`} key={invitation.id}>
+              <div className="template-main"><strong>{invitation.first_name} {invitation.last_name}</strong><span>{invitation.email}</span></div>
+              <span className="status-chip">{invitation.status !== "pending" ? (invitation.status === "accepted" ? "התקבל" : "בוטל") : isExpired ? "פג תוקף" : "ממתין"}</span>
+              {invitation.status === "pending" ? <div className="actions"><button className="button" disabled={busyId === invitation.id} onClick={() => void resendInvitation(invitation)}><RotateCw size={15} /> שליחה חוזרת</button><button className="button danger" disabled={busyId === invitation.id} onClick={() => void revokeInvitation(invitation)}><UserX size={15} /> ביטול</button></div> : null}
+            </article>;
+          })}
         </div></div>
       </section>
 
