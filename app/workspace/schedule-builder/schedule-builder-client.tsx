@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { AlertTriangle, CalendarRange, CheckCircle2, CopyPlus, FileDown, Loader2, Printer, Send, Sparkles, Undo2, UserPlus } from "lucide-react";
+import { AlertTriangle, CalendarRange, CheckCircle2, CopyPlus, FileDown, Loader2, Printer, Send, Sparkles, Trash2, Undo2, UserPlus } from "lucide-react";
 
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import type { Database } from "@/types/database";
@@ -49,7 +49,10 @@ export function ScheduleBuilderClient({ organizationId, currentUserId, callerRol
   const periodStatus = period ? (periodStatusOverrides[period.id] ?? period.status) : undefined;
   const periodTemplates = period ? templates.filter((item) => item.branch_id === period.branch_id) : [];
   const periodWorkers = period ? workers.filter((item) => !item.branch_id || item.branch_id === period.branch_id) : [];
-  const periodShifts = shifts.filter((item) => item.schedule_period_id === selectedPeriodId);
+  // Cancelled shifts drop out of the active board entirely -- they're no
+  // longer part of what needs staffing, matching the same soft-delete
+  // treatment already used elsewhere in this schema (e.g. swap_status).
+  const periodShifts = shifts.filter((item) => item.schedule_period_id === selectedPeriodId && item.status !== "cancelled");
   // Only periods in the same branch that actually have shifts already are
   // useful duplication sources -- an empty period would just duplicate
   // nothing.
@@ -201,6 +204,20 @@ export function ScheduleBuilderClient({ organizationId, currentUserId, callerRol
     setMessage(`שוכפלו ${result.shifts_created} משמרות ו-${result.assignments_created} שיבוצים מהחודש שנבחר${result.assignments_skipped_inactive ? ` (${result.assignments_skipped_inactive} שיבוצים דולגו כי העובד/ת כבר לא פעיל/ה בארגון)` : ""}.`);
   }
 
+  async function cancelDay(date: string) {
+    if (!period) return;
+    if (!window.confirm(`לבטל את כל משמרות ה-${new Date(`${date}T12:00:00`).toLocaleDateString("he-IL")}? העובדים המשובצים יוסרו מהמשמרות, והפעולה לא הפיכה.`)) return;
+    setBusy(`cancel-${date}`); setMessage("");
+    const { data, error } = await supabase.rpc("cancel_shifts_for_day", { target_period_id: period.id, target_date: date });
+    setBusy("");
+    if (error || !data || !data.length) { setMessage("ביטול המשמרות נכשל."); return; }
+    const result = data[0];
+    const cancelledIds = new Set(shifts.filter((item) => item.schedule_period_id === period.id && item.shift_date === date).map((item) => item.id));
+    setShifts((current) => current.map((item) => cancelledIds.has(item.id) ? { ...item, status: "cancelled" } : item));
+    setAssignments((current) => current.filter((item) => !cancelledIds.has(item.shift_id)));
+    setMessage(`בוטלו ${result.shifts_cancelled} משמרות (${result.assignments_removed} שיבוצים הוסרו).`);
+  }
+
   async function assign(shift: Shift, userId: string) {
     setBusy(shift.id); setMessage("");
     const existing = assignments.find((item) => item.shift_id === shift.id && item.user_id === userId);
@@ -315,7 +332,11 @@ export function ScheduleBuilderClient({ organizationId, currentUserId, callerRol
     <div className="availability-board">{days.map((date) => {
       const dayShifts = periodShifts.filter((shift) => shift.shift_date === date);
       if (!dayShifts.length) return null;
-      return <article className="availability-card" key={date}><strong>{new Date(`${date}T12:00:00`).toLocaleDateString("he-IL", { weekday: "long", day: "numeric", month: "numeric" })}</strong>{dayShifts.map((shift) => {
+      return <article className="availability-card" key={date}>
+        <div className="shift-title"><strong>{new Date(`${date}T12:00:00`).toLocaleDateString("he-IL", { weekday: "long", day: "numeric", month: "numeric" })}</strong>
+          <button type="button" className="button danger" disabled={!!busy} onClick={() => void cancelDay(date)}>{busy === `cancel-${date}` ? <Loader2 className="spin" size={14} /> : <Trash2 size={14} />} ביטול משמרות היום</button>
+        </div>
+        {dayShifts.map((shift) => {
         const assigned = assignments.filter((item) => item.shift_id === shift.id);
         return <div className="card-muted" key={shift.id}><div className="shift-title"><span>{shift.name}</span><small>{shift.start_time.slice(0,5)}–{shift.end_time.slice(0,5)} · {assigned.length}/{shift.required_employees}</small></div><div className="grid">{periodWorkers.map((worker) => {
           const selected = assigned.some((item) => item.user_id === worker.user_id);

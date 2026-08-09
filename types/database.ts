@@ -857,6 +857,13 @@ export type Database = {
         Args: { decision_note?: string; target_request_id: string }
         Returns: boolean
       }
+      cancel_shifts_for_day: {
+        Args: { target_date: string; target_period_id: string }
+        Returns: {
+          assignments_removed: number
+          shifts_cancelled: number
+        }[]
+      }
       create_organization_invitation: {
         Args: {
           target_branch_id: string
