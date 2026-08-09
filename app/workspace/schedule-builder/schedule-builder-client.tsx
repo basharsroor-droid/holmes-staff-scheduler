@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { AlertTriangle, CalendarRange, CheckCircle2, CopyPlus, Loader2, Send, Sparkles, Undo2, UserPlus } from "lucide-react";
+import { AlertTriangle, CalendarRange, CheckCircle2, CopyPlus, FileDown, Loader2, Printer, Send, Sparkles, Undo2, UserPlus } from "lucide-react";
 
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import type { Database } from "@/types/database";
@@ -179,12 +179,39 @@ export function ScheduleBuilderClient({ organizationId, currentUserId, periods, 
     setMessage("הפרסום בוטל. הסידור חזר לטיוטה ואינו גלוי לעובדים.");
   }
 
+  function exportCsv() {
+    if (!period || !periodShifts.length) return;
+    const rows = [["תאריך", "יום", "משמרת", "שעת התחלה", "שעת סיום", "עובדים משובצים", "חסרים"]];
+    for (const date of days) {
+      const dayShifts = periodShifts.filter((shift) => shift.shift_date === date);
+      for (const shift of dayShifts) {
+        const assignedNames = assignments.filter((item) => item.shift_id === shift.id).map((item) => workerName(item.user_id));
+        const weekday = new Date(`${date}T12:00:00`).toLocaleDateString("he-IL", { weekday: "long" });
+        const missing = Math.max(0, shift.required_employees - assignedNames.length);
+        rows.push([date, weekday, shift.name, shift.start_time.slice(0, 5), shift.end_time.slice(0, 5), assignedNames.join("; "), String(missing)]);
+      }
+    }
+    // Cell values may contain commas or quotes (worker names, day names) --
+    // escape properly rather than assuming plain text.
+    const csv = rows.map((row) => row.map((cell) => `"${cell.replace(/"/g, '""')}"`).join(",")).join("\r\n");
+    // Leading BOM (\uFEFF): without it, Excel guesses the wrong encoding
+    // for the Hebrew text and shows mojibake instead of readable headers.
+    const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `סידור-${monthNames[period.month - 1]}-${period.year}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+  }
+
   if (!periods.length) return <section className="template-list-card"><div className="empty-template-state"><CalendarRange size={42} /><h2>אין עדיין חודש עבודה</h2><p>פתח חודש עבודה לפני בניית הסידור.</p></div></section>;
 
   return <section className="template-list-card">
+    <div className="no-print">
     <div className="template-list-heading"><div><p className="eyebrow">חודש וסניף</p><h2>{period ? `${monthNames[period.month - 1]} ${period.year}` : ""}</h2></div><select className="input" style={{ maxWidth: 300 }} value={selectedPeriodId} onChange={(event) => setSelectedPeriodId(event.target.value)}>{periods.map((item) => <option value={item.id} key={item.id}>{monthNames[item.month - 1]} {item.year} · {branches.find((branch) => branch.id === item.branch_id)?.name ?? "סניף"}</option>)}</select></div>
     <div className="workspace-stats" style={{ margin: "0 0 20px" }}><article><CalendarRange /><span><strong>{periodShifts.length}</strong><small>משמרות בחודש</small></span></article><article><CheckCircle2 /><span><strong>{filled}</strong><small>משמרות מאוישות</small></span></article><article><UserPlus /><span><strong>{periodWorkers.length}</strong><small>עובדים לשיבוץ</small></span></article></div>
-    <div className="actions" style={{ marginBottom: 18 }}><button className="button primary" disabled={!!busy || !periodTemplates.length} onClick={() => void generateMonth()}>{busy === "generate" ? <Loader2 className="spin" size={16} /> : <Sparkles size={16} />} {periodShifts.length ? "סנכרון משמרות החודש" : "יצירת משמרות החודש"}</button>{periodStatus === "published" ? <button className="button" disabled={!!busy} onClick={() => void unpublish()}>{busy === "unpublish" ? <Loader2 className="spin" size={16} /> : <Undo2 size={16} />} ביטול פרסום</button> : <button className="button" disabled={!!busy || !periodShifts.length} onClick={() => void publish()}>{busy === "publish" ? <Loader2 className="spin" size={16} /> : <Send size={16} />} פרסום הסידור</button>}</div>
+    <div className="actions" style={{ marginBottom: 18 }}><button className="button primary" disabled={!!busy || !periodTemplates.length} onClick={() => void generateMonth()}>{busy === "generate" ? <Loader2 className="spin" size={16} /> : <Sparkles size={16} />} {periodShifts.length ? "סנכרון משמרות החודש" : "יצירת משמרות החודש"}</button>{periodStatus === "published" ? <button className="button" disabled={!!busy} onClick={() => void unpublish()}>{busy === "unpublish" ? <Loader2 className="spin" size={16} /> : <Undo2 size={16} />} ביטול פרסום</button> : <button className="button" disabled={!!busy || !periodShifts.length} onClick={() => void publish()}>{busy === "publish" ? <Loader2 className="spin" size={16} /> : <Send size={16} />} פרסום הסידור</button>}{periodShifts.length ? <button className="button" onClick={exportCsv}><FileDown size={16} /> ייצוא ל-Excel</button> : null}{periodShifts.length ? <button className="button" onClick={() => window.print()}><Printer size={16} /> הדפסה / PDF</button> : null}</div>
     {!periodShifts.length && duplicateCandidates.length
       ? <div className="actions" style={{ marginBottom: 18 }}>
           <select className="input" style={{ maxWidth: 260 }} value={duplicateSourceId} onChange={(event) => setDuplicateSourceId(event.target.value)}>
@@ -210,5 +237,23 @@ export function ScheduleBuilderClient({ organizationId, currentUserId, periods, 
     })}</div>
     {!periodShifts.length && periodTemplates.length ? <div className="empty-template-state"><CalendarRange size={38} /><p>לחץ על יצירת משמרות החודש כדי להתחיל לשבץ.</p></div> : null}
     {message ? <p className="auth-message" role="status">{message}</p> : null}
+    </div>
+    {period ? <div className="print-only">
+      <h2>{monthNames[period.month - 1]} {period.year} · {branches.find((branch) => branch.id === period.branch_id)?.name ?? "סניף"}</h2>
+      {days.map((date) => {
+        const dayShifts = periodShifts.filter((shift) => shift.shift_date === date);
+        if (!dayShifts.length) return null;
+        return <div className="print-schedule-day" key={date}>
+          <h3>{new Date(`${date}T12:00:00`).toLocaleDateString("he-IL", { weekday: "long", day: "numeric", month: "numeric" })}</h3>
+          {dayShifts.map((shift) => {
+            const assignedNames = assignments.filter((item) => item.shift_id === shift.id).map((item) => workerName(item.user_id));
+            return <div className="print-schedule-shift" key={shift.id}>
+              <span><strong>{shift.name}</strong> {shift.start_time.slice(0, 5)}–{shift.end_time.slice(0, 5)}</span>
+              <span className="names">{assignedNames.length ? assignedNames.join(", ") : "לא מאויש"}</span>
+            </div>;
+          })}
+        </div>;
+      })}
+    </div> : null}
   </section>;
 }

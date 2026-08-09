@@ -2425,3 +2425,20 @@ html.si-lock, html.si-lock body {
   .notification-card { grid-template-columns: auto 1fr; }
   .notification-card > .badge { grid-column: 2; width: max-content; }
 }
+
+/* Schedule export: the interactive assignment grid (dozens of per-worker
+   buttons per shift, most disabled/irrelevant) is unusable on paper, so a
+   dedicated .print-only summary (shift + assigned names only) is shown
+   instead when printing, and every interactive control is hidden. */
+.print-only { display: none; }
+.print-schedule-day { break-inside: avoid; margin-bottom: 14px; }
+.print-schedule-day h3 { margin: 0 0 6px; font-size: 15px; }
+.print-schedule-shift { display: flex; justify-content: space-between; gap: 12px; padding: 4px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+.print-schedule-shift .names { color: var(--muted); }
+
+@media print {
+  .no-print { display: none !important; }
+  .print-only { display: block; }
+  body { background: white; }
+  .template-list-card { box-shadow: none; border: none; padding: 0; }
+}
