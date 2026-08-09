@@ -199,6 +199,50 @@ export type Database = {
           },
         ]
       }
+      leave_requests: {
+        Row: {
+          created_at: string
+          end_date: string
+          id: string
+          leave_type: Database["public"]["Enums"]["leave_type"]
+          note: string | null
+          organization_id: string
+          start_date: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          end_date: string
+          id?: string
+          leave_type: Database["public"]["Enums"]["leave_type"]
+          note?: string | null
+          organization_id: string
+          start_date: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          end_date?: string
+          id?: string
+          leave_type?: Database["public"]["Enums"]["leave_type"]
+          note?: string | null
+          organization_id?: string
+          start_date?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "leave_requests_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notifications: {
         Row: {
           channel: string
@@ -856,6 +900,7 @@ export type Database = {
         | "preferred"
         | "only_if_needed"
         | "unavailable"
+      leave_type: "vacation" | "sick"
       member_role: "owner" | "admin" | "manager" | "employee"
       member_status: "invited" | "active" | "suspended"
       notification_status: "pending" | "sent" | "failed" | "cancelled"
@@ -1000,6 +1045,7 @@ export const Constants = {
         "only_if_needed",
         "unavailable",
       ],
+      leave_type: ["vacation", "sick"],
       member_role: ["owner", "admin", "manager", "employee"],
       member_status: ["invited", "active", "suspended"],
       notification_status: ["pending", "sent", "failed", "cancelled"],

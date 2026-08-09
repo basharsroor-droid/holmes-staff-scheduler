@@ -7,6 +7,7 @@ import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import type { Database } from "@/types/database";
 
 type AvailabilityStatus = Database["public"]["Enums"]["availability_status"];
+type LeaveType = Database["public"]["Enums"]["leave_type"];
 type Period = { id: string; branch_id: string; year: number; month: number; status: string; published_at: string | null };
 type Branch = { id: string; name: string };
 type Template = { id: string; branch_id: string; name: string; start_time: string; end_time: string; required_employees: number; requires_senior_employee: boolean };
@@ -15,16 +16,18 @@ type Shift = { id: string; schedule_period_id: string; shift_template_id: string
 type Assignment = { id: string; shift_id: string; user_id: string };
 type Submission = { id: string; schedule_period_id: string; user_id: string; submitted_at: string | null };
 type Availability = { submission_id: string; shift_template_id: string; shift_date: string; status: AvailabilityStatus };
+type LeaveRequest = { id: string; user_id: string; leave_type: LeaveType; start_date: string; end_date: string };
 
 const monthNames = ["ינואר","פברואר","מרץ","אפריל","מאי","יוני","יולי","אוגוסט","ספטמבר","אוקטובר","נובמבר","דצמבר"];
 const availabilityLabels: Record<AvailabilityStatus, string> = { preferred: "מועדפת", available: "זמין/ה", only_if_needed: "רק אם צריך", unavailable: "לא זמין/ה" };
+const leaveTypeLabels: Record<LeaveType, string> = { vacation: "בחופשה", sick: "במחלה" };
 
 function dateKey(year: number, month: number, day: number) {
   return `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
 }
 
-export function ScheduleBuilderClient({ organizationId, currentUserId, periods, branches, templates, workers, shifts: initialShifts, assignments: initialAssignments, submissions, availability }: {
-  organizationId: string; currentUserId: string; periods: Period[]; branches: Branch[]; templates: Template[]; workers: Worker[]; shifts: Shift[]; assignments: Assignment[]; submissions: Submission[]; availability: Availability[];
+export function ScheduleBuilderClient({ organizationId, currentUserId, periods, branches, templates, workers, shifts: initialShifts, assignments: initialAssignments, submissions, availability, leaveRequests }: {
+  organizationId: string; currentUserId: string; periods: Period[]; branches: Branch[]; templates: Template[]; workers: Worker[]; shifts: Shift[]; assignments: Assignment[]; submissions: Submission[]; availability: Availability[]; leaveRequests: LeaveRequest[];
 }) {
   const supabase = useMemo(() => createSupabaseBrowserClient(), []);
   const [selectedPeriodId, setSelectedPeriodId] = useState(periods[0]?.id ?? "");
@@ -68,6 +71,10 @@ export function ScheduleBuilderClient({ organizationId, currentUserId, periods, 
 
   function hasConflict(userId: string, shift: Shift) {
     return periodShifts.some((other) => other.id !== shift.id && other.shift_date === shift.shift_date && assignments.some((item) => item.shift_id === other.id && item.user_id === userId) && other.start_time < shift.end_time && shift.start_time < other.end_time);
+  }
+
+  function workerLeave(userId: string, shift: Shift) {
+    return leaveRequests.find((item) => item.user_id === userId && shift.shift_date >= item.start_date && shift.shift_date <= item.end_date) ?? null;
   }
 
   async function generateMonth() {
@@ -139,6 +146,8 @@ export function ScheduleBuilderClient({ organizationId, currentUserId, periods, 
     if (hasConflict(userId, shift)) { setBusy(""); setMessage(`${workerName(userId)} כבר משובץ/ת במשמרת חופפת.`); return; }
     const status = workerAvailability(userId, shift);
     if (status === "unavailable") { setBusy(""); setMessage(`${workerName(userId)} סימן/ה שאינו/ה זמין/ה למשמרת הזאת.`); return; }
+    const leave = workerLeave(userId, shift);
+    if (leave) { setBusy(""); setMessage(`${workerName(userId)} ${leaveTypeLabels[leave.leave_type]} בתאריך הזה.`); return; }
     const { data, error } = await supabase.from("shift_assignments").insert({ organization_id: organizationId, shift_id: shift.id, user_id: userId, assigned_by: currentUserId }).select("id, shift_id, user_id").single();
     setBusy("");
     if (error || !data) { setMessage("שמירת השיבוץ נכשלה."); return; }
@@ -194,7 +203,8 @@ export function ScheduleBuilderClient({ organizationId, currentUserId, periods, 
         return <div className="card-muted" key={shift.id}><div className="shift-title"><span>{shift.name}</span><small>{shift.start_time.slice(0,5)}–{shift.end_time.slice(0,5)} · {assigned.length}/{shift.required_employees}</small></div><div className="grid">{periodWorkers.map((worker) => {
           const selected = assigned.some((item) => item.user_id === worker.user_id);
           const availabilityStatus = workerAvailability(worker.user_id, shift);
-          return <button type="button" className={`button ${selected ? "primary" : ""}`} disabled={!!busy || periodStatus === "published" || availabilityStatus === "unavailable"} onClick={() => void assign(shift, worker.user_id)} key={worker.user_id}><span>{workerName(worker.user_id)}</span><small>{availabilityStatus ? availabilityLabels[availabilityStatus] : "לא הוגשה זמינות"}</small></button>;
+          const leave = workerLeave(worker.user_id, shift);
+          return <button type="button" className={`button ${selected ? "primary" : ""}`} disabled={!!busy || periodStatus === "published" || availabilityStatus === "unavailable" || !!leave} onClick={() => void assign(shift, worker.user_id)} key={worker.user_id}><span>{workerName(worker.user_id)}</span><small>{leave ? leaveTypeLabels[leave.leave_type] : availabilityStatus ? availabilityLabels[availabilityStatus] : "לא הוגשה זמינות"}</small></button>;
         })}</div></div>;
       })}</article>;
     })}</div>
