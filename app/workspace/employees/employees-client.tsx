@@ -10,7 +10,7 @@ type Role = Database["public"]["Enums"]["member_role"];
 type Status = Database["public"]["Enums"]["member_status"];
 type Employee = {
   id: string; user_id: string; role: Role; status: Status; seniority_level: string;
-  can_open: boolean; can_close: boolean; employee_number: string | null;
+  can_open: boolean; can_close: boolean; employee_number: string | null; weekly_hours_limit: number | null;
   profile: { id: string; first_name: string; last_name: string; phone: string | null; color: string } | null;
 };
 type Invitation = {
@@ -35,8 +35,13 @@ export function EmployeesClient({
   const [inviteBusy, setInviteBusy] = useState(false);
   const [message, setMessage] = useState("");
   const [form, setForm] = useState({ firstName: "", lastName: "", email: "", role: "employee" as Role, branchId: selectedBranchId });
+  // Local drafts so typing a weekly-hours number doesn't fire a save on
+  // every keystroke -- only commits on blur, and only if it actually changed.
+  const [hoursDraft, setHoursDraft] = useState<Record<string, string>>(() =>
+    Object.fromEntries(initialEmployees.map((item) => [item.id, item.weekly_hours_limit?.toString() ?? ""]))
+  );
 
-  async function updateEmployee(id: string, changes: Partial<Pick<Employee, "role" | "status" | "can_open" | "can_close">>) {
+  async function updateEmployee(id: string, changes: Partial<Pick<Employee, "role" | "status" | "can_open" | "can_close" | "weekly_hours_limit">>) {
     setMessage(""); setBusyId(id);
     const { error } = await supabase.from("organization_memberships").update(changes).eq("id", id).eq("organization_id", organizationId);
     setBusyId(null);
@@ -46,6 +51,18 @@ export function EmployeesClient({
     // that removes the employee from every not-yet-past shift, so the schedule never keeps
     // showing someone who can no longer work it.
     setMessage(changes.status === "suspended" ? "העובד הושבת, וכל השיבוצים העתידיים שלו הוסרו אוטומטית מהסידור." : "פרטי העובד עודכנו בהצלחה.");
+  }
+
+  async function commitHoursLimit(employee: Employee) {
+    const raw = hoursDraft[employee.id] ?? "";
+    const parsed = raw.trim() ? Number(raw) : null;
+    if (parsed !== null && (!Number.isInteger(parsed) || parsed <= 0)) {
+      setMessage("מגבלת השעות השבועית חייבת להיות מספר שלם חיובי, או ריקה לביטול המגבלה.");
+      setHoursDraft((current) => ({ ...current, [employee.id]: employee.weekly_hours_limit?.toString() ?? "" }));
+      return;
+    }
+    if (parsed === employee.weekly_hours_limit) return;
+    await updateEmployee(employee.id, { weekly_hours_limit: parsed });
   }
 
   async function sendMagicLink(token: string) {
@@ -166,6 +183,7 @@ export function EmployeesClient({
                 <label className="field"><span>תפקיד</span><select className="input" disabled={isSelf || busyId === employee.id || employee.role === "owner"} value={employee.role} onChange={(e) => void updateEmployee(employee.id, { role: e.target.value as Role })}><option value="employee">עובד/ת</option><option value="manager">מנהל/ת</option><option value="admin">מנהל מערכת</option>{employee.role === "owner" ? <option value="owner">בעלים</option> : null}</select></label>
                 <label className="check-field"><input type="checkbox" checked={employee.can_open} disabled={busyId === employee.id} onChange={(e) => void updateEmployee(employee.id, { can_open: e.target.checked })} /><span><strong>פתיחה</strong></span></label>
                 <label className="check-field"><input type="checkbox" checked={employee.can_close} disabled={busyId === employee.id} onChange={(e) => void updateEmployee(employee.id, { can_close: e.target.checked })} /><span><strong>סגירה</strong></span></label>
+                <label className="field"><span>מגבלת שעות שבועית</span><input className="input" type="number" min={1} placeholder="ללא הגבלה" disabled={busyId === employee.id} value={hoursDraft[employee.id] ?? ""} onChange={(e) => setHoursDraft((current) => ({ ...current, [employee.id]: e.target.value }))} onBlur={() => void commitHoursLimit(employee)} /></label>
               </div>
               <button className="button" disabled={isSelf || busyId === employee.id || employee.role === "owner"} onClick={() => void updateEmployee(employee.id, { status: employee.status === "suspended" ? "active" : "suspended" })}>{busyId === employee.id ? <Loader2 className="spin" size={16} /> : <Power size={16} />}{employee.status === "suspended" ? "הפעלה" : "השבתה"}</button>
               {callerRole === "owner" && !isSelf && employee.role !== "owner" && employee.status === "active"

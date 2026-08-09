@@ -77,6 +77,10 @@ const leaveRequestsMigrationUrl = new URL(
   "../supabase/migrations/20260808170000_leave_requests.sql",
   import.meta.url
 );
+const weeklyHoursLimitMigrationUrl = new URL(
+  "../supabase/migrations/20260809050000_weekly_hours_limit.sql",
+  import.meta.url
+);
 
 const tenantTables = [
   "organizations",
@@ -458,11 +462,22 @@ if (!existsSync(leaveRequestsMigrationUrl)) {
   }
 }
 
+if (!existsSync(weeklyHoursLimitMigrationUrl)) {
+  failures.push("weekly hours limit migration is missing");
+} else {
+  const weeklyHoursLimitMigration = readFileSync(weeklyHoursLimitMigrationUrl, "utf8");
+  for (const requiredRule of ["weekly_hours_limit", "weekly_hours_limit is null or weekly_hours_limit > 0"]) {
+    if (!weeklyHoursLimitMigration.includes(requiredRule)) {
+      failures.push(`weekly hours limit rule is missing: ${requiredRule}`);
+    }
+  }
+}
+
 if (failures.length) {
   console.error(failures.join("\n"));
   process.exit(1);
 }
 
 console.log(
-  `Validated ${tenantTables.length} RLS-protected ShiftPilot tables with authorization, workflow integrity, privacy, atomic operations, audit, deduplicated notification, scheduling-overlap, last-owner protection, ownership transfer, manager/target swap-transition protection, schedule unpublishing, automatic future-shift release on suspension, invitation resend rate-limiting, previous-month schedule duplication, and self-service leave requests.`
+  `Validated ${tenantTables.length} RLS-protected ShiftPilot tables with authorization, workflow integrity, privacy, atomic operations, audit, deduplicated notification, scheduling-overlap, last-owner protection, ownership transfer, manager/target swap-transition protection, schedule unpublishing, automatic future-shift release on suspension, invitation resend rate-limiting, previous-month schedule duplication, self-service leave requests, and per-employee weekly hour limits.`
 );
