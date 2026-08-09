@@ -2427,6 +2427,24 @@ html.si-lock, html.si-lock body {
   .notification-card > .badge { grid-column: 2; width: max-content; }
 }
 
+/* Route-level loading skeleton (app/workspace/*\/loading.tsx): every
+   workspace page is a force-dynamic server component doing its own
+   Supabase fetches before it can render anything, and none of them had a
+   loading.tsx, so navigating between them showed a blank white flash for
+   however long that fetch took. Shapes mirror .workspace-subheader +
+   .template-list-card so the skeleton doesn't visibly "jump" once the
+   real content swaps in. */
+@keyframes skeleton-shimmer { 0% { background-position: 100% 50%; } 100% { background-position: -100% 50%; } }
+.skeleton-page { max-width: 1180px; margin: 0 auto; padding: 28px clamp(20px, 5vw, 72px) 64px; }
+.skeleton-block {
+  background: linear-gradient(100deg, var(--surface-muted) 30%, #dfe7f0 50%, var(--surface-muted) 70%);
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.6s ease-in-out infinite;
+}
+.skeleton-title { height: 34px; width: min(360px, 60%); border-radius: 10px; margin: 10px 0 30px; }
+.skeleton-card { height: 120px; border-radius: 24px; border: 1px solid var(--line); margin-bottom: 16px; }
+.skeleton-card:last-child { margin-bottom: 0; }
+
 /* Schedule export: the interactive assignment grid (dozens of per-worker
    buttons per shift, most disabled/irrelevant) is unusable on paper, so a
    dedicated .print-only summary (shift + assigned names only) is shown
