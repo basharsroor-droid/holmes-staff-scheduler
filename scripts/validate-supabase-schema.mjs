@@ -89,6 +89,10 @@ const cancelShiftsForDayMigrationUrl = new URL(
   "../supabase/migrations/20260809100000_cancel_shifts_for_day.sql",
   import.meta.url
 );
+const fixDeadExpiredInvitationUpdateMigrationUrl = new URL(
+  "../supabase/migrations/20260809110000_fix_dead_expired_invitation_update.sql",
+  import.meta.url
+);
 
 const tenantTables = [
   "organizations",
@@ -503,11 +507,22 @@ if (!existsSync(cancelShiftsForDayMigrationUrl)) {
   }
 }
 
+if (!existsSync(fixDeadExpiredInvitationUpdateMigrationUrl)) {
+  failures.push("fix dead expired-invitation update migration is missing");
+} else {
+  const fixDeadExpiredInvitationMigration = readFileSync(fixDeadExpiredInvitationUpdateMigrationUrl, "utf8");
+  for (const requiredRule of ["accept_organization_invitation", "raise exception 'Invitation expired'"]) {
+    if (!fixDeadExpiredInvitationMigration.includes(requiredRule)) {
+      failures.push(`fix dead expired-invitation update rule is missing: ${requiredRule}`);
+    }
+  }
+}
+
 if (failures.length) {
   console.error(failures.join("\n"));
   process.exit(1);
 }
 
 console.log(
-  `Validated ${tenantTables.length} RLS-protected ShiftPilot tables with authorization, workflow integrity, privacy, atomic operations, audit, deduplicated notification, scheduling-overlap, last-owner protection, ownership transfer, manager/target swap-transition protection, schedule unpublishing, automatic future-shift release on suspension, invitation resend rate-limiting, previous-month schedule duplication, self-service leave requests, per-employee weekly hour limits, minimum rest time between shifts, and bulk shift cancellation by day.`
+  `Validated ${tenantTables.length} RLS-protected ShiftPilot tables with authorization, workflow integrity, privacy, atomic operations, audit, deduplicated notification, scheduling-overlap, last-owner protection, ownership transfer, manager/target swap-transition protection, schedule unpublishing, automatic future-shift release on suspension, invitation resend rate-limiting, previous-month schedule duplication, self-service leave requests, per-employee weekly hour limits, minimum rest time between shifts, bulk shift cancellation by day, and correct expired-invitation handling.`
 );
