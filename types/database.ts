@@ -439,6 +439,7 @@ export type Database = {
           active: boolean
           created_at: string
           id: string
+          min_rest_hours: number | null
           name: string
           slug: string
           timezone: string
@@ -448,6 +449,7 @@ export type Database = {
           active?: boolean
           created_at?: string
           id?: string
+          min_rest_hours?: number | null
           name: string
           slug: string
           timezone?: string
@@ -457,6 +459,7 @@ export type Database = {
           active?: boolean
           created_at?: string
           id?: string
+          min_rest_hours?: number | null
           name?: string
           slug?: string
           timezone?: string
