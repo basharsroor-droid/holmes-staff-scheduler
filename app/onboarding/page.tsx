@@ -20,6 +20,7 @@ export default function OnboardingPage() {
   const [lastName, setLastName] = useState("");
   const [businessName, setBusinessName] = useState("");
   const [branchName, setBranchName] = useState("סניף ראשי");
+  const [acceptedLegal, setAcceptedLegal] = useState(false);
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
@@ -33,8 +34,8 @@ export default function OnboardingPage() {
 
   async function createAccount() {
     setMessage("");
-    if (!email || password.length < 8 || !firstName.trim()) {
-      setMessage("יש למלא שם, כתובת מייל וסיסמה באורך 8 תווים לפחות.");
+    if (!email || password.length < 8 || !firstName.trim() || !acceptedLegal) {
+      setMessage(acceptedLegal ? "יש למלא שם, כתובת מייל וסיסמה באורך 8 תווים לפחות." : "יש לאשר את תנאי השימוש ומדיניות הפרטיות.");
       return;
     }
 
@@ -44,7 +45,12 @@ export default function OnboardingPage() {
       password,
       options: {
         emailRedirectTo: `${window.location.origin}/onboarding`,
-        data: { first_name: firstName.trim(), last_name: lastName.trim() }
+        data: {
+          first_name: firstName.trim(),
+          last_name: lastName.trim(),
+          legal_terms_version: "2026-08-10",
+          legal_accepted_at: new Date().toISOString()
+        }
       }
     });
     setBusy(false);
@@ -108,6 +114,7 @@ export default function OnboardingPage() {
             </div>
             <label className="field"><span>מייל עסקי</span><input className="input" type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} /></label>
             <label className="field"><span>סיסמה</span><input className="input" type="password" autoComplete="new-password" value={password} onChange={(e) => setPassword(e.target.value)} /></label>
+            <label className="legal-consent"><input type="checkbox" checked={acceptedLegal} onChange={(event) => setAcceptedLegal(event.target.checked)} /><span>קראתי ואני מסכים/ה ל<Link href="/terms" target="_blank">תנאי השימוש</Link> ול<Link href="/privacy" target="_blank">מדיניות הפרטיות</Link>.</span></label>
             <button className="button primary" disabled={busy} onClick={createAccount}>{busy ? <Loader2 className="spin" size={17} /> : null} יצירת חשבון מאובטח</button>
           </div>
         ) : null}

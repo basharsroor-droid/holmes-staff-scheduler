@@ -92,6 +92,8 @@ export default function HomePage() {
 
     <section className="final-cta"><ScrollReveal><BrandLogo light /><h2>הגיע הזמן להפסיק לרדוף אחרי המשמרות.</h2><p>פתחו סביבת עבודה, הגדירו את הסניף הראשון והכינו את הסידור הבא בצורה מסודרת.</p><div><Link className="button brand-button large" href="/onboarding">פתיחת עסק חדש <ArrowLeft size={18} /></Link><Link className="button glass-button large" href="/demo">כניסה לדמו</Link></div></ScrollReveal></section>
 
-    <div className="mobile-sticky-actions"><Link href="/demo">דמו</Link><Link href="/onboarding">פתיחת עסק <ArrowLeft size={16} /></Link></div>\n\n    <footer className="pro-footer"><BrandLogo href="/" /><p>ShiftPilot — הדרך הקלה למשמרת הבאה שלך.</p><div><Link href="/login">כניסה</Link><Link href="/onboarding">הרשמה</Link><Link href="/demo">דמו Holmes Place</Link></div><small>© 2026 ShiftPilot. כל הזכויות שמורות.</small></footer>
+    <div className="mobile-sticky-actions"><Link href="/demo">דמו</Link><Link href="/onboarding">פתיחת עסק <ArrowLeft size={16} /></Link></div>
+
+    <footer className="pro-footer"><BrandLogo href="/" /><p>ShiftPilot — הדרך הקלה למשמרת הבאה שלך.</p><div><Link href="/login">כניסה</Link><Link href="/onboarding">הרשמה</Link><Link href="/demo">דמו Holmes Place</Link><Link href="/terms">תנאי שימוש</Link><Link href="/privacy">פרטיות</Link></div><small>© 2026 ShiftPilot. כל הזכויות שמורות.</small></footer>
   </main>;
 }
