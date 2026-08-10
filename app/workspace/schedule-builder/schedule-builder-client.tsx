@@ -52,7 +52,11 @@ export function ScheduleBuilderClient({ organizationId, currentUserId, callerRol
   // Cancelled shifts drop out of the active board entirely -- they're no
   // longer part of what needs staffing, matching the same soft-delete
   // treatment already used elsewhere in this schema (e.g. swap_status).
-  const periodShifts = shifts.filter((item) => item.schedule_period_id === selectedPeriodId && item.status !== "cancelled");
+  // Keep every active shift loaded for the organization available to
+  // cross-period checks. The board still renders only the selected month,
+  // while weekly-hours, overlap and rest checks must see adjacent months.
+  const activeShifts = shifts.filter((item) => item.status !== "cancelled");
+  const periodShifts = activeShifts.filter((item) => item.schedule_period_id === selectedPeriodId);
   // Only periods in the same branch that actually have shifts already are
   // useful duplication sources -- an empty period would just duplicate
   // nothing.
@@ -75,7 +79,7 @@ export function ScheduleBuilderClient({ organizationId, currentUserId, callerRol
   }
 
   function hasConflict(userId: string, shift: Shift) {
-    return periodShifts.some((other) => other.id !== shift.id && other.shift_date === shift.shift_date && assignments.some((item) => item.shift_id === other.id && item.user_id === userId) && other.start_time < shift.end_time && shift.start_time < other.end_time);
+    return activeShifts.some((other) => other.id !== shift.id && other.shift_date === shift.shift_date && assignments.some((item) => item.shift_id === other.id && item.user_id === userId) && other.start_time < shift.end_time && shift.start_time < other.end_time);
   }
 
   function workerLeave(userId: string, shift: Shift) {
@@ -90,9 +94,9 @@ export function ScheduleBuilderClient({ organizationId, currentUserId, callerRol
     return minutes / 60;
   }
 
-  // Sunday-Saturday, matching the Israeli work week. Only sums shifts within
-  // the currently selected period -- a week that straddles a month boundary
-  // undercounts the days that fall in the adjacent period, a known v1 gap.
+  // Sunday-Saturday, matching the Israeli work week. `activeShifts` contains
+  // every loaded schedule period in the organization, so a week spanning two
+  // calendar months is counted as one complete week.
   function weekStartKey(date: string) {
     const day = new Date(`${date}T12:00:00`);
     day.setDate(day.getDate() - day.getDay());
@@ -100,7 +104,7 @@ export function ScheduleBuilderClient({ organizationId, currentUserId, callerRol
   }
 
   function weeklyHours(userId: string, weekKey: string) {
-    return periodShifts
+    return activeShifts
       .filter((item) => weekStartKey(item.shift_date) === weekKey && assignments.some((a) => a.shift_id === item.id && a.user_id === userId))
       .reduce((total, item) => total + shiftHours(item), 0);
   }
@@ -113,7 +117,7 @@ export function ScheduleBuilderClient({ organizationId, currentUserId, callerRol
   }
 
   // Smallest gap (hours) between this candidate shift and any OTHER shift
-  // already assigned to this worker within the selected period -- checked
+  // already assigned to this worker across all loaded periods -- checked
   // in both directions since we don't know if the candidate falls before
   // or after their existing shifts. Overlapping shifts are excluded here
   // (hasConflict already blocks those outright, as a real impossibility
@@ -121,7 +125,7 @@ export function ScheduleBuilderClient({ organizationId, currentUserId, callerRol
   function minRestGapHours(userId: string, shift: Shift) {
     const { start, end } = shiftBounds(shift);
     let minGap = Infinity;
-    for (const other of periodShifts) {
+    for (const other of activeShifts) {
       if (other.id === shift.id) continue;
       if (!assignments.some((a) => a.shift_id === other.id && a.user_id === userId)) continue;
       const otherBounds = shiftBounds(other);

@@ -546,6 +546,20 @@ const employeesClientSource = readFileSync(
 if (!employeesClientSource.includes('rpc("revoke_organization_invitation"')) {
   failures.push("employee management UI does not use the secured invitation revocation RPC");
 }
+
+const scheduleBuilderSource = readFileSync(
+  new URL("../app/workspace/schedule-builder/schedule-builder-client.tsx", import.meta.url),
+  "utf8"
+);
+for (const crossPeriodRule of [
+  "const activeShifts = shifts.filter",
+  "return activeShifts\n      .filter",
+  "for (const other of activeShifts)"
+]) {
+  if (!scheduleBuilderSource.includes(crossPeriodRule)) {
+    failures.push(`cross-period scheduling check is missing: ${crossPeriodRule}`);
+  }
+}
 if (employeesClientSource.includes('from("organization_invitations").update')) {
   failures.push("employee management UI still updates invitation rows directly");
 }
