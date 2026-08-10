@@ -34,7 +34,7 @@ function describeMetadata(metadata: unknown) {
 }
 
 export default async function AuditLogPage() {
-  const supabase = createSupabaseServerClient();
+  const supabase = await createSupabaseServerClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 

@@ -34,7 +34,7 @@ function notificationCopy(templateKey: string, payload: unknown, branches: Map<s
 }
 
 export default async function NotificationsPage() {
-  const supabase = createSupabaseServerClient();
+  const supabase = await createSupabaseServerClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
