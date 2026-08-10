@@ -114,20 +114,23 @@ export function EmployeesClient({
 
   async function resendInvitation(invitation: Invitation) {
     setBusyId(invitation.id);
-    // Resending an already-expired invitation with its original token
-    // would just re-send a link that can never be accepted
-    // (accept_organization_invitation rejects on expires_at). Push the
-    // expiry forward first so the resent link actually works -- same
-    // window create_organization_invitation already grants on a fresh
-    // invite.
-    let expiresAt = invitation.expires_at;
-    if (new Date(expiresAt) <= new Date()) {
-      expiresAt = new Date(Date.now() + 7 * 86400000).toISOString();
-      const { error: extendError } = await supabase.from("organization_invitations").update({ expires_at: expiresAt }).eq("id", invitation.id).eq("organization_id", organizationId);
-      if (extendError) { setBusyId(null); setMessage("לא הצלחנו לחדש את תוקף ההזמנה."); return; }
-      setInvitations((current) => current.map((item) => item.id === invitation.id ? { ...item, expires_at: expiresAt } : item));
+    // Reuse the hardened creation RPC. For an existing pending invitation it
+    // rotates the token, renews the seven-day expiry and rechecks the caller's
+    // current role and branch permissions atomically.
+    const { data: token, error: renewalError } = await supabase.rpc("create_organization_invitation", {
+      target_organization_id: organizationId,
+      target_branch_id: invitation.branch_id,
+      target_email: invitation.email,
+      target_first_name: invitation.first_name,
+      target_last_name: invitation.last_name,
+      target_role: invitation.role
+    });
+    if (renewalError || !token) {
+      setBusyId(null); setMessage("לא הצלחנו לחדש את תוקף ההזמנה."); return;
     }
-    const { error } = await sendMagicLink(invitation.token);
+    const expiresAt = new Date(Date.now() + 7 * 86400000).toISOString();
+    setInvitations((current) => current.map((item) => item.id === invitation.id ? { ...item, token, expires_at: expiresAt } : item));
+    const { error } = await sendMagicLink(token);
     setBusyId(null);
     // The server enforces a cooldown between resends and returns a specific
     // Hebrew message for it (e.g. "יש להמתין עוד X שניות") -- show that
@@ -137,7 +140,7 @@ export function EmployeesClient({
 
   async function revokeInvitation(invitation: Invitation) {
     setBusyId(invitation.id);
-    const { error } = await supabase.from("organization_invitations").update({ status: "revoked" }).eq("id", invitation.id).eq("organization_id", organizationId);
+    const { error } = await supabase.rpc("revoke_organization_invitation", { invitation_token: invitation.token });
     setBusyId(null);
     if (error) { setMessage("לא הצלחנו לבטל את ההזמנה."); return; }
     setInvitations((current) => current.map((item) => item.id === invitation.id ? { ...item, status: "revoked" } : item));
