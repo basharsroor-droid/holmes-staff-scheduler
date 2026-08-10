@@ -898,6 +898,10 @@ export type Database = {
         Args: { target_period_id: string }
         Returns: number
       }
+      revoke_organization_invitation: {
+        Args: { invitation_token: string }
+        Returns: boolean
+      }
       transfer_organization_ownership: {
         Args: { target_user_id: string }
         Returns: undefined
