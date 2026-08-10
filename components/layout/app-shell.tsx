@@ -44,6 +44,14 @@ const managerNav = [
   { href: "/admin/shift-templates", label: "תבניות", icon: Settings }
 ];
 
+const managerOnlyRoutes = ["/pilot", "/manager", "/admin"];
+
+function isManagerOnlyRoute(pathname: string) {
+  return managerOnlyRoutes.some(
+    (route) => pathname === route || pathname.startsWith(`${route}/`)
+  );
+}
+
 const roleLabels: Record<UserRole, string> = {
   employee: "עובד",
   manager: "מנהל/ת",
@@ -87,6 +95,10 @@ export function AppShell({ children }: { children: ReactNode }) {
       window.sessionStorage.getItem(AUTH_USER_KEY);
     if (storedAuth) {
       const parsedUser = normalizeAuthUser(JSON.parse(storedAuth) as AuthUser);
+      if (parsedUser.role === "employee" && isManagerOnlyRoute(pathname)) {
+        window.location.replace("/employee");
+        return;
+      }
       setAuthUser(parsedUser);
       setSelectedEmployeeId(parsedUser.id);
     } else if (pathname !== "/" && !isSaasRoute) {
