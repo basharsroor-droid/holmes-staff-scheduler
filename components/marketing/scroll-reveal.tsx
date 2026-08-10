@@ -1,9 +1,14 @@
 "use client";
 
-import type { ReactNode } from "react";
+import type { ComponentPropsWithoutRef, ReactNode } from "react";
 import { useEffect, useRef, useState } from "react";
 
-export function ScrollReveal({ children, className = "", delay = 0 }: { children: ReactNode; className?: string; delay?: number }) {
+type ScrollRevealProps = ComponentPropsWithoutRef<"div"> & {
+  children: ReactNode;
+  delay?: number;
+};
+
+export function ScrollReveal({ children, className = "", delay = 0, ...props }: ScrollRevealProps) {
   const ref = useRef<HTMLDivElement>(null);
   const [shown, setShown] = useState(false);
 
@@ -17,5 +22,5 @@ export function ScrollReveal({ children, className = "", delay = 0 }: { children
     return () => observer.disconnect();
   }, []);
 
-  return <div ref={ref} className={`scroll-reveal ${shown ? "shown" : ""} ${className}`} style={{ transitionDelay: `${delay}ms` }}>{children}</div>;
+  return <div {...props} ref={ref} className={`scroll-reveal ${shown ? "shown" : ""} ${className}`} style={{ ...props.style, transitionDelay: `${delay}ms` }}>{children}</div>;
 }

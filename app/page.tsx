@@ -50,7 +50,7 @@ export default function HomePage() {
       </ScrollReveal>
     </header>
 
-    <section className="proof-strip"><span>מתאים למסעדות</span><i /> <span>חדרי כושר</span><i /> <span>חנויות</span><i /> <span>מוקדי שירות</span><i /> <span>מרפאות</span><i /> <span>כל צוות שעובד במשמרות</span></section>
+    <section className="proof-strip" tabIndex={0} aria-label="ענפים מתאימים"><span>מתאים למסעדות</span><i /> <span>חדרי כושר</span><i /> <span>חנויות</span><i /> <span>מוקדי שירות</span><i /> <span>מרפאות</span><i /> <span>כל צוות שעובד במשמרות</span></section>
 
     <section className="pro-section problem-section">
       <ScrollReveal className="section-heading"><p className="pro-kicker dark">למה ShiftPilot?</p><h2>הבעיה היא לא הסידור. הבעיה היא כל מה שקורה סביבו.</h2><p>הודעות פרטיות, שינויים ברגע האחרון, טבלאות לא מעודכנות ועובדים שלא יודעים איזו גרסה היא הסופית.</p></ScrollReveal>
@@ -75,7 +75,7 @@ export default function HomePage() {
 
     <section className="pro-section example-section" id="example">
       <ScrollReveal className="section-heading centered"><p className="pro-kicker dark">דוגמה אמיתית למבנה</p><h2>כך נראה חודש עבודה ב־ShiftPilot</h2><p>העסק יכול לשנות את מספר המשמרות והשעות בכל עת. זו דוגמה למועדון עם פתיחה, אמצע וסגירה.</p></ScrollReveal>
-      <ScrollReveal className="example-table-wrap"><table className="example-table"><thead><tr><th>סוג משמרת</th><th>שעות</th><th>תקן</th><th>דרישה</th><th>דוגמת זמינות</th></tr></thead><tbody><tr><td><b>פתיחה</b></td><td>06:00–14:00</td><td>2 עובדים</td><td>עובד אחד מורשה פתיחה</td><td><span className="status preferred">מועדפת</span></td></tr><tr><td><b>אמצע</b></td><td>10:00–18:00</td><td>1 עובד</td><td>ללא</td><td><span className="status available">זמין</span></td></tr><tr><td><b>סגירה</b></td><td>14:00–22:00</td><td>2 עובדים</td><td>עובד בכיר / מורשה סגירה</td><td><span className="status needed">רק אם צריך</span></td></tr></tbody></table><div className="example-note"><Clock3 /><span><strong>המערכת גמישה</strong><small>ביולי ואוגוסט אפשר להפעיל ארבע משמרות ביום, ובחודשים אחרים שתיים בלבד — לפי צורכי העסק.</small></span></div></ScrollReveal>
+      <ScrollReveal className="example-table-wrap" tabIndex={0} role="region" aria-label="דוגמת מבנה משמרות"><table className="example-table"><thead><tr><th>סוג משמרת</th><th>שעות</th><th>תקן</th><th>דרישה</th><th>דוגמת זמינות</th></tr></thead><tbody><tr><td><b>פתיחה</b></td><td>06:00–14:00</td><td>2 עובדים</td><td>עובד אחד מורשה פתיחה</td><td><span className="status preferred">מועדפת</span></td></tr><tr><td><b>אמצע</b></td><td>10:00–18:00</td><td>1 עובד</td><td>ללא</td><td><span className="status available">זמין</span></td></tr><tr><td><b>סגירה</b></td><td>14:00–22:00</td><td>2 עובדים</td><td>עובד בכיר / מורשה סגירה</td><td><span className="status needed">רק אם צריך</span></td></tr></tbody></table><div className="example-note"><Clock3 /><span><strong>המערכת גמישה</strong><small>ביולי ואוגוסט אפשר להפעיל ארבע משמרות ביום, ובחודשים אחרים שתיים בלבד — לפי צורכי העסק.</small></span></div></ScrollReveal>
     </section>
 
     <section className="pro-section features-section">
