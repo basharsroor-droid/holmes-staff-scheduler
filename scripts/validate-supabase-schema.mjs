@@ -93,6 +93,10 @@ const fixDeadExpiredInvitationUpdateMigrationUrl = new URL(
   "../supabase/migrations/20260809110000_fix_dead_expired_invitation_update.sql",
   import.meta.url
 );
+const secureInvitationRevocationMigrationUrl = new URL(
+  "../supabase/migrations/20260810193000_secure_invitation_revocation.sql",
+  import.meta.url
+);
 
 const tenantTables = [
   "organizations",
@@ -516,6 +520,34 @@ if (!existsSync(fixDeadExpiredInvitationUpdateMigrationUrl)) {
       failures.push(`fix dead expired-invitation update rule is missing: ${requiredRule}`);
     }
   }
+}
+
+if (!existsSync(secureInvitationRevocationMigrationUrl)) {
+  failures.push("secure invitation revocation migration is missing");
+} else {
+  const invitationRevocationMigration = readFileSync(secureInvitationRevocationMigrationUrl, "utf8");
+  for (const requiredRule of [
+    "drop policy if exists invitations_update_manager",
+    "revoke_organization_invitation",
+    "Manager permission required",
+    "Only a pending invitation can be revoked",
+    "for update"
+  ]) {
+    if (!invitationRevocationMigration.includes(requiredRule)) {
+      failures.push(`secure invitation revocation rule is missing: ${requiredRule}`);
+    }
+  }
+}
+
+const employeesClientSource = readFileSync(
+  new URL("../app/workspace/employees/employees-client.tsx", import.meta.url),
+  "utf8"
+);
+if (!employeesClientSource.includes('rpc("revoke_organization_invitation"')) {
+  failures.push("employee management UI does not use the secured invitation revocation RPC");
+}
+if (employeesClientSource.includes('from("organization_invitations").update')) {
+  failures.push("employee management UI still updates invitation rows directly");
 }
 
 if (failures.length) {
