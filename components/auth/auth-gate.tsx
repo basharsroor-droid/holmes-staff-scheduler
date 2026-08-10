@@ -161,8 +161,9 @@ export function AuthGate() {
               </p>
             </div>
             <div className="field">
-              <label>סיסמה חדשה</label>
+              <label htmlFor="demo-new-password">סיסמה חדשה</label>
               <input
+                id="demo-new-password"
                 className="input"
                 type="password"
                 value={newPassword}
@@ -170,8 +171,9 @@ export function AuthGate() {
               />
             </div>
             <div className="field">
-              <label>אישור סיסמה חדשה</label>
+              <label htmlFor="demo-confirm-password">אישור סיסמה חדשה</label>
               <input
+                id="demo-confirm-password"
                 className="input"
                 type="password"
                 value={confirmPassword}
@@ -193,8 +195,9 @@ export function AuthGate() {
               <h2>כניסה למערכת</h2>
             </div>
             <div className="field">
-              <label>ת.ז / שם משתמש</label>
+              <label htmlFor="demo-login-id">ת.ז / שם משתמש</label>
               <input
+                id="demo-login-id"
                 className="input"
                 autoComplete="username"
                 value={loginId}
@@ -202,8 +205,9 @@ export function AuthGate() {
               />
             </div>
             <div className="field">
-              <label>סיסמה</label>
+              <label htmlFor="demo-login-password">סיסמה</label>
               <input
+                id="demo-login-password"
                 className="input"
                 type="password"
                 autoComplete="current-password"
