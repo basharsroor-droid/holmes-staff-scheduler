@@ -1,0 +1,30 @@
+name: ShiftPilot Production Health
+
+on:
+  schedule:
+    - cron: "*/30 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: shiftpilot-production-health
+  cancel-in-progress: true
+
+jobs:
+  health:
+    name: Check Vercel and Supabase
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    steps:
+      - name: Check out monitoring script
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Check production application and database
+        run: node scripts/check-production-health.mjs
