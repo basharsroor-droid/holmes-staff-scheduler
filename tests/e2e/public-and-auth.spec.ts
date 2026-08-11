@@ -9,6 +9,21 @@ test("marketing page exposes the primary product journeys", async ({ page }) => 
   await expect(page.getByRole("link", { name: /לצפייה בדמו/ })).toBeVisible();
 });
 
+test("production responses include browser security headers", async ({ request }) => {
+  const response = await request.get("/");
+  expect(response.headers()["x-content-type-options"]).toBe("nosniff");
+  expect(response.headers()["x-frame-options"]).toBe("DENY");
+  expect(response.headers()["referrer-policy"]).toBe("strict-origin-when-cross-origin");
+  expect(response.headers()["permissions-policy"]).toContain("camera=()");
+});
+
+test("health endpoint reports the application version without caching", async ({ request }) => {
+  const response = await request.get("/api/health");
+  expect(response.status()).toBe(200);
+  expect(response.headers()["cache-control"]).toContain("no-store");
+  await expect(response.json()).resolves.toMatchObject({ status: "ok", service: "shiftpilot" });
+});
+
 test("public legal pages are available and linked from the marketing site", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByRole("link", { name: "תנאי שימוש" })).toBeVisible();
