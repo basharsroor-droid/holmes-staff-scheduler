@@ -26,7 +26,10 @@ const setupSteps = [
 
 export default function HomePage() {
   return <main className="marketing-site" dir="rtl">
-    <div className="sticky top-0 z-40">
+    {/* Fixed (not sticky) so it floats over the Hero instead of pushing its
+        h-screen down by the navbar's own height -- otherwise the bottom of
+        a "full screen" Hero (peek card, scroll cue) sits below the fold. */}
+    <div className="fixed inset-x-0 top-0 z-40">
       <SiteNavbar />
     </div>
 

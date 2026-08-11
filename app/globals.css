@@ -9,9 +9,9 @@
   --ink: #172033;
   --muted: #667085;
   --line: #d8e0ea;
-  --primary: #136f63;
-  --primary-dark: #0f554c;
-  --primary-soft: #dff4ef;
+  --primary: #3578f5;
+  --primary-dark: #2158c9;
+  --primary-soft: #e3ebfe;
   --blue: #2563eb;
   --orange: #ea580c;
   --pink: #db2777;
@@ -32,19 +32,19 @@
   --card-foreground-hsl: 221 38% 15%;
   --popover-hsl: 0 0% 100%;
   --popover-foreground-hsl: 221 38% 15%;
-  --primary-hsl: 172 71% 25%;
+  --primary-hsl: 219 91% 58%;
   --primary-foreground-hsl: 0 0% 100%;
-  --secondary-hsl: 166 49% 92%;
-  --secondary-foreground-hsl: 172 70% 20%;
+  --secondary-hsl: 222 93% 94%;
+  --secondary-foreground-hsl: 220 72% 38%;
   --muted-hsl: 213 30% 88%;
   --muted-foreground-hsl: 221 13% 46%;
-  --accent-hsl: 166 49% 92%;
-  --accent-foreground-hsl: 172 70% 20%;
+  --accent-hsl: 222 93% 94%;
+  --accent-foreground-hsl: 220 72% 38%;
   --destructive-hsl: 0 72% 51%;
   --destructive-foreground-hsl: 0 0% 100%;
   --border-hsl: 213 30% 88%;
   --input-hsl: 213 30% 88%;
-  --ring-hsl: 172 71% 25%;
+  --ring-hsl: 219 91% 58%;
 }
 
 .page[data-theme="dark"],
@@ -55,17 +55,17 @@
   --card-foreground-hsl: 220 30% 94%;
   --popover-hsl: 222 28% 13%;
   --popover-foreground-hsl: 220 30% 94%;
-  --primary-hsl: 166 55% 55%;
-  --primary-foreground-hsl: 172 70% 12%;
+  --primary-hsl: 217 90% 68%;
+  --primary-foreground-hsl: 222 79% 13%;
   --secondary-hsl: 222 24% 18%;
-  --secondary-foreground-hsl: 166 55% 85%;
+  --secondary-foreground-hsl: 217 90% 85%;
   --muted-hsl: 222 24% 18%;
   --muted-foreground-hsl: 220 12% 65%;
   --accent-hsl: 222 24% 18%;
-  --accent-foreground-hsl: 166 55% 85%;
+  --accent-foreground-hsl: 217 90% 85%;
   --border-hsl: 222 20% 22%;
   --input-hsl: 222 20% 22%;
-  --ring-hsl: 166 55% 55%;
+  --ring-hsl: 217 90% 68%;
 }
 
 * {
@@ -1785,7 +1785,7 @@ h3 {
 .button.ghost-light { background:#fff; }
 .pro-hero { position:relative; width:min(calc(100% - 32px),1380px); min-height:720px; margin:0 auto; padding:88px 70px; display:grid; grid-template-columns:.94fr 1.06fr; gap:70px; align-items:center; overflow:hidden; border-radius:32px; color:#fff; background:linear-gradient(135deg,#061126 0%,#091a39 55%,#131541 100%); box-shadow:0 32px 90px rgba(5,18,45,.24); }
 .hero-glow { position:absolute; width:460px; height:460px; border-radius:50%; filter:blur(100px); opacity:.27; pointer-events:none; }
-.hero-glow.one { top:-200px; right:-80px; background:#149cff; }
+.hero-glow.one { top:-200px; right:-80px; background:var(--primary); }
 .hero-glow.two { bottom:-250px; left:10%; background:#7042ff; }
 .pro-hero-copy { position:relative; z-index:2; }
 .pro-kicker { display:flex; align-items:center; gap:8px; margin:0 0 18px; color:#7fd2ff; font-size:13px; font-weight:800; letter-spacing:.04em; }

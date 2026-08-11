@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 
 // Premium two-panel "who it's for" section. Same visual language as the new
-// Hero/Navbar (rounded surfaces, brand-teal accents, a dark inset "device"
+// Hero/Navbar (rounded surfaces, brand-blue accents, a dark inset "device"
 // panel for product moments) but built with lighter motion.whileInView
 // reveals instead of GSAP -- this section doesn't need scroll-jacking, just
 // a clean staggered entrance.
@@ -88,16 +88,16 @@ export function RolesShowcase() {
             ))}
           </ul>
 
-          <div className="mt-auto rounded-2xl bg-gradient-to-b from-[#123b34] to-[#081713] p-5 shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]">
+          <div className="mt-auto rounded-2xl bg-gradient-to-b from-[#10234c] to-[#050c1e] p-5 shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]">
             <div className="mb-4 flex items-center justify-between">
-              <span className="text-xs font-bold uppercase tracking-widest text-emerald-200/60">המשמרות שלי</span>
-              <span className="rounded-full bg-white/10 px-2.5 py-1 text-[11px] font-semibold text-emerald-100">אוגוסט</span>
+              <span className="text-xs font-bold uppercase tracking-widest text-blue-200/60">המשמרות שלי</span>
+              <span className="rounded-full bg-white/10 px-2.5 py-1 text-[11px] font-semibold text-blue-100">אוגוסט</span>
             </div>
             <div className="flex flex-col gap-2.5">
               {employeeShifts.map((shift) => (
                 <div key={shift.day} className="flex items-center justify-between rounded-xl bg-white/[0.04] px-3.5 py-2.5">
                   <div className="flex items-center gap-2.5">
-                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-400/15 text-[11px] font-bold text-emerald-300">
+                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-400/15 text-[11px] font-bold text-blue-300">
                       {shift.day.slice(0, 2)}
                     </span>
                     <div>
@@ -105,7 +105,7 @@ export function RolesShowcase() {
                       <p className="text-[11px] text-neutral-400">{shift.time}</p>
                     </div>
                   </div>
-                  {shift.tag && <span className="text-[10px] font-bold text-emerald-300">{shift.tag}</span>}
+                  {shift.tag && <span className="text-[10px] font-bold text-blue-300">{shift.tag}</span>}
                 </div>
               ))}
             </div>
@@ -141,10 +141,10 @@ export function RolesShowcase() {
             ))}
           </ul>
 
-          <div className="mt-auto rounded-2xl bg-gradient-to-b from-[#123b34] to-[#081713] p-5 shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]">
+          <div className="mt-auto rounded-2xl bg-gradient-to-b from-[#10234c] to-[#050c1e] p-5 shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]">
             <div className="mb-4 flex items-center justify-between">
-              <span className="text-xs font-bold uppercase tracking-widest text-emerald-200/60">סניף הכרמל · אוגוסט</span>
-              <span className="rounded-full bg-emerald-400/15 px-2.5 py-1 text-[11px] font-semibold text-emerald-300">83% מאויש</span>
+              <span className="text-xs font-bold uppercase tracking-widest text-blue-200/60">סניף הכרמל · אוגוסט</span>
+              <span className="rounded-full bg-blue-400/15 px-2.5 py-1 text-[11px] font-semibold text-blue-300">83% מאויש</span>
             </div>
             <div className="grid grid-cols-3 gap-2.5">
               <div className="rounded-xl bg-white/[0.04] px-3 py-3 text-center">
@@ -152,7 +152,7 @@ export function RolesShowcase() {
                 <p className="mt-0.5 text-[11px] text-neutral-400">עובדים</p>
               </div>
               <div className="rounded-xl bg-white/[0.04] px-3 py-3 text-center">
-                <p className="text-xl font-extrabold text-emerald-300">10</p>
+                <p className="text-xl font-extrabold text-blue-300">10</p>
                 <p className="mt-0.5 text-[11px] text-neutral-400">הגישו</p>
               </div>
               <div className="rounded-xl bg-white/[0.04] px-3 py-3 text-center">

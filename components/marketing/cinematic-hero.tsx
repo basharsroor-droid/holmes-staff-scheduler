@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 import Link from "next/link";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { ArrowLeft, CalendarCheck, CheckCircle2, PlayCircle, Repeat2 } from "lucide-react";
+import { ArrowLeft, CalendarCheck, CheckCircle2, ChevronDown, PlayCircle, Repeat2 } from "lucide-react";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
@@ -21,8 +21,8 @@ if (typeof window !== "undefined") {
 //   - the closing App Store / Google Play badges were dropped -- ShiftPilot
 //     has no native app yet (see roadmap phase 7) so real store links would
 //     be dead ends -- replaced with the site's actual two CTAs
-//   - card gradient and accent colors retinted to the brand teal instead of
-//     generic blue
+//   - card gradient and accent colors retinted to the actual brand blue from
+//     the logo (was a generic placeholder teal in an earlier pass)
 //   - pinned scroll distance shortened from 7000px to 3600px so the hero
 //     doesn't dominate the whole first visit before any real content shows
 const INJECTED_STYLES = `
@@ -49,18 +49,18 @@ const INJECTED_STYLES = `
       background: linear-gradient(180deg, var(--primary) 0%, var(--primary-dark) 100%);
       -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
       transform: translateZ(0);
-      filter: drop-shadow(0px 10px 20px rgba(19,111,99,0.2)) drop-shadow(0px 2px 4px rgba(19,111,99,0.15));
+      filter: drop-shadow(0px 10px 20px rgba(53,120,245,0.22)) drop-shadow(0px 2px 4px rgba(53,120,245,0.16));
   }
 
   .ch-text-card-silver {
-      background: linear-gradient(180deg, #FFFFFF 0%, #B7EFE1 100%);
+      background: linear-gradient(180deg, #FFFFFF 0%, #b6d1fb 100%);
       -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
       transform: translateZ(0);
       filter: drop-shadow(0px 12px 24px rgba(0,0,0,0.75)) drop-shadow(0px 4px 8px rgba(0,0,0,0.55));
   }
 
   .ch-depth-card {
-      background: linear-gradient(150deg, #123b34 0%, #081713 100%);
+      background: linear-gradient(150deg, #10234c 0%, #050c1e 100%);
       box-shadow:
           0 40px 100px -20px rgba(0,0,0,0.85), 0 20px 40px -20px rgba(0,0,0,0.7),
           inset 0 1px 2px rgba(255,255,255,0.14), inset 0 -2px 4px rgba(0,0,0,0.8);
@@ -70,7 +70,7 @@ const INJECTED_STYLES = `
 
   .ch-card-sheen {
       position: absolute; inset: 0; border-radius: inherit; pointer-events: none; z-index: 50;
-      background: radial-gradient(800px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(190,255,235,0.08) 0%, transparent 40%);
+      background: radial-gradient(800px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(120,170,255,0.1) 0%, transparent 40%);
       mix-blend-mode: screen; transition: opacity 0.3s ease;
   }
 
@@ -107,12 +107,19 @@ const INJECTED_STYLES = `
   }
   .ch-btn-light:hover { transform: translateY(-3px); box-shadow: 0 0 0 1px rgba(0,0,0,0.05), 0 6px 12px -2px rgba(0,0,0,0.15), 0 20px 32px -6px rgba(0,0,0,0.4), inset 0 1px 1px rgba(255,255,255,1), inset 0 -3px 6px rgba(0,0,0,0.06); }
   .ch-btn-dark {
-      background: linear-gradient(180deg, #17423b 0%, #0d2621 100%); color: #FFFFFF;
+      background: linear-gradient(180deg, #192d57 0%, #0b142d 100%); color: #FFFFFF;
       box-shadow: 0 0 0 1px rgba(255,255,255,0.1), 0 2px 4px rgba(0,0,0,0.6), 0 12px 24px -4px rgba(0,0,0,0.9), inset 0 1px 1px rgba(255,255,255,0.12), inset 0 -3px 6px rgba(0,0,0,0.8);
   }
   .ch-btn-dark:hover { transform: translateY(-3px); box-shadow: 0 0 0 1px rgba(255,255,255,0.15), 0 6px 12px -2px rgba(0,0,0,0.7), 0 20px 32px -6px rgba(0,0,0,1), inset 0 1px 1px rgba(255,255,255,0.18), inset 0 -3px 6px rgba(0,0,0,0.8); }
 
   .ch-progress-ring { transform: rotate(-90deg); transform-origin: center; stroke-dasharray: 402; stroke-dashoffset: 402; stroke-linecap: round; }
+
+  .ch-glow { position: absolute; border-radius: 50%; pointer-events: none; filter: blur(90px); }
+  .ch-glow-a { width: 480px; height: 480px; top: -160px; right: -100px; background: var(--primary); opacity: .22; }
+  .ch-glow-b { width: 420px; height: 420px; bottom: -180px; left: -60px; background: #6c5ce7; opacity: .16; }
+
+  @keyframes ch-bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(8px); } }
+  .ch-scroll-cue-icon { animation: ch-bounce 1.8s ease-in-out infinite; }
 `;
 
 export function CinematicHero() {
@@ -148,19 +155,25 @@ export function CinematicHero() {
     const ctx = gsap.context(() => {
       gsap.set(".ch-text-track", { autoAlpha: 0, y: 60, scale: 0.85, filter: "blur(20px)", rotationX: -20 });
       gsap.set(".ch-text-line2", { autoAlpha: 1, clipPath: "inset(0 0 0 100%)" });
-      gsap.set(".ch-main-card", { y: window.innerHeight + 200, autoAlpha: 1 });
+      // Instead of parking the card fully off-screen, leave a small sliver of
+      // its top edge peeking in at the bottom -- a passive hint that there's
+      // more to see, so the first screenful doesn't read as an empty void.
+      gsap.set(".ch-main-card", { y: window.innerHeight * 0.9, autoAlpha: 1 });
       gsap.set([".ch-card-left-text", ".ch-card-right-text", ".ch-mockup-wrapper", ".ch-floating-badge", ".ch-phone-widget"], { autoAlpha: 0 });
       gsap.set(".ch-cta-wrapper", { autoAlpha: 0, scale: 0.8, filter: "blur(30px)" });
+      gsap.set(".ch-scroll-cue", { autoAlpha: 0, y: 10 });
 
       gsap.timeline({ delay: 0.3 })
         .to(".ch-text-track", { duration: 1.8, autoAlpha: 1, y: 0, scale: 1, filter: "blur(0px)", rotationX: 0, ease: "expo.out" })
-        .to(".ch-text-line2", { duration: 1.4, clipPath: "inset(0 0 0 0%)", ease: "power4.inOut" }, "-=1.0");
+        .to(".ch-text-line2", { duration: 1.4, clipPath: "inset(0 0 0 0%)", ease: "power4.inOut" }, "-=1.0")
+        .to(".ch-scroll-cue", { duration: 0.8, autoAlpha: 1, y: 0, ease: "power2.out" }, "-=0.6");
 
       const scrollTl = gsap.timeline({
         scrollTrigger: { trigger: containerRef.current, start: "top top", end: "+=3600", pin: true, scrub: 1, anticipatePin: 1 }
       });
 
       scrollTl
+        .to(".ch-scroll-cue", { autoAlpha: 0, duration: 0.3 }, 0)
         .to([".ch-hero-text-wrapper", ".ch-grid-bg"], { scale: 1.15, filter: "blur(20px)", opacity: 0.2, ease: "power2.inOut", duration: 2 }, 0)
         .to(".ch-main-card", { y: 0, ease: "power3.inOut", duration: 2 }, 0)
         .to(".ch-main-card", { width: "100%", height: "100%", borderRadius: "0px", ease: "power3.inOut", duration: 1.5 })
@@ -193,7 +206,15 @@ export function CinematicHero() {
     >
       <style dangerouslySetInnerHTML={{ __html: INJECTED_STYLES }} />
       <div className="ch-grain" aria-hidden="true" />
+      <div className="ch-glow ch-glow-a" aria-hidden="true" />
+      <div className="ch-glow ch-glow-b" aria-hidden="true" />
       <div className="ch-grid-bg pointer-events-none absolute inset-0 z-0 opacity-60" aria-hidden="true" />
+
+      {/* hints at the pinned card peeking in below before any scroll happens */}
+      <div className="ch-scroll-cue ch-reveal pointer-events-none absolute bottom-10 z-10 flex flex-col items-center gap-1.5 text-[var(--muted)]">
+        <span className="text-xs font-semibold tracking-wide">גלילה לגילוי המוצר</span>
+        <ChevronDown size={20} className="ch-scroll-cue-icon" />
+      </div>
 
       {/* headline layer */}
       <div className="ch-hero-text-wrapper absolute z-10 flex w-screen flex-col items-center justify-center px-4 text-center will-change-transform">
@@ -250,13 +271,13 @@ export function CinematicHero() {
                   <div className="absolute inset-[7px] z-10 overflow-hidden rounded-[2.5rem] bg-[#050f0d] text-white shadow-[inset_0_0_15px_rgba(0,0,0,1)]">
                     <div className="ch-screen-glare pointer-events-none absolute inset-0 z-40" aria-hidden="true" />
                     <div className="absolute top-[5px] left-1/2 z-50 flex h-[28px] w-[100px] -translate-x-1/2 items-center justify-end rounded-full bg-black px-3 shadow-[inset_0_-1px_2px_rgba(255,255,255,0.1)]">
-                      <div className="h-1.5 w-1.5 animate-pulse rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
+                      <div className="h-1.5 w-1.5 animate-pulse rounded-full bg-blue-400 shadow-[0_0_8px_rgba(96,165,250,0.8)]" />
                     </div>
 
                     <div dir="rtl" className="relative flex h-full w-full flex-col px-5 pb-8 pt-12">
                       <div className="ch-phone-widget mb-6 flex items-center justify-between">
                         <div className="flex flex-col">
-                          <span className="mb-1 text-[10px] font-bold uppercase tracking-widest text-emerald-200/60">היום</span>
+                          <span className="mb-1 text-[10px] font-bold uppercase tracking-widest text-blue-200/60">היום</span>
                           <span className="text-xl font-bold tracking-tight text-white drop-shadow-md">המשמרות שלי</span>
                         </div>
                         <div className="flex h-9 w-9 items-center justify-center rounded-full border border-white/10 bg-white/5 text-sm font-bold text-neutral-200 shadow-lg shadow-black/50">מ</div>
@@ -265,19 +286,19 @@ export function CinematicHero() {
                       <div className="ch-phone-widget relative mx-auto mb-6 flex h-40 w-40 items-center justify-center drop-shadow-[0_15px_25px_rgba(0,0,0,0.8)]">
                         <svg className="absolute inset-0 h-full w-full" aria-hidden="true">
                           <circle cx="80" cy="80" r="58" fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="11" />
-                          <circle className="ch-progress-ring" cx="80" cy="80" r="58" fill="none" stroke="#4fd3ab" strokeWidth="11" />
+                          <circle className="ch-progress-ring" cx="80" cy="80" r="58" fill="none" stroke="#5593f6" strokeWidth="11" />
                         </svg>
                         <div className="z-10 flex flex-col items-center text-center">
                           <span className="text-lg font-extrabold leading-tight tracking-tight text-white">ראשון</span>
                           <span className="text-2xl font-extrabold leading-tight tracking-tight text-white">06:00</span>
-                          <span className="mt-0.5 text-[9px] font-bold uppercase tracking-[0.1em] text-emerald-200/60">פתיחה · הכרמל</span>
+                          <span className="mt-0.5 text-[9px] font-bold uppercase tracking-[0.1em] text-blue-200/60">פתיחה · הכרמל</span>
                         </div>
                       </div>
 
                       <div className="space-y-3">
                         <div className="ch-phone-widget flex items-center rounded-2xl p-3">
-                          <div className="me-3 flex h-10 w-10 items-center justify-center rounded-xl border border-emerald-400/20 bg-gradient-to-br from-emerald-500/20 to-emerald-600/5 shadow-inner">
-                            <CalendarCheck size={17} className="text-emerald-300 drop-shadow-md" />
+                          <div className="me-3 flex h-10 w-10 items-center justify-center rounded-xl border border-blue-400/20 bg-gradient-to-br from-blue-500/20 to-blue-600/5 shadow-inner">
+                            <CalendarCheck size={17} className="text-blue-300 drop-shadow-md" />
                           </div>
                           <div className="flex-1">
                             <p className="text-[13px] font-semibold text-neutral-100">זמינות אוגוסט הוגשה</p>
@@ -285,8 +306,8 @@ export function CinematicHero() {
                           </div>
                         </div>
                         <div className="ch-phone-widget flex items-center rounded-2xl p-3">
-                          <div className="me-3 flex h-10 w-10 items-center justify-center rounded-xl border border-sky-400/20 bg-gradient-to-br from-sky-500/20 to-sky-600/5 shadow-inner">
-                            <Repeat2 size={17} className="text-sky-300 drop-shadow-md" />
+                          <div className="me-3 flex h-10 w-10 items-center justify-center rounded-xl border border-indigo-400/20 bg-gradient-to-br from-indigo-500/20 to-indigo-600/5 shadow-inner">
+                            <Repeat2 size={17} className="text-indigo-300 drop-shadow-md" />
                           </div>
                           <div className="flex-1">
                             <p className="text-[13px] font-semibold text-neutral-100">בקשת החלפה אושרה</p>
@@ -301,22 +322,22 @@ export function CinematicHero() {
                 </div>
 
                 <div className="ch-floating-badge ch-glass-badge absolute left-[-15px] top-6 z-30 flex items-center gap-3 rounded-xl p-3 lg:left-[-90px] lg:top-12 lg:gap-4 lg:rounded-2xl lg:p-4">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full border border-emerald-400/30 bg-gradient-to-b from-emerald-500/20 to-emerald-900/10 shadow-inner lg:h-10 lg:w-10">
-                    <CheckCircle2 size={17} className="text-emerald-300 drop-shadow-lg" />
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full border border-blue-400/30 bg-gradient-to-b from-blue-500/20 to-blue-900/10 shadow-inner lg:h-10 lg:w-10">
+                    <CheckCircle2 size={17} className="text-blue-300 drop-shadow-lg" />
                   </div>
                   <div>
                     <p className="text-xs font-bold tracking-tight text-white lg:text-sm">הסידור פורסם</p>
-                    <p className="text-[10px] font-medium text-emerald-200/60 lg:text-xs">84 משמרות · 96% מאויש</p>
+                    <p className="text-[10px] font-medium text-blue-200/60 lg:text-xs">84 משמרות · 96% מאויש</p>
                   </div>
                 </div>
 
                 <div className="ch-floating-badge ch-glass-badge absolute bottom-12 right-[-15px] z-30 flex items-center gap-3 rounded-xl p-3 lg:bottom-20 lg:right-[-90px] lg:gap-4 lg:rounded-2xl lg:p-4">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-full border border-sky-400/30 bg-gradient-to-b from-sky-500/20 to-sky-900/10 shadow-inner lg:h-10 lg:w-10">
-                    <Repeat2 size={16} className="text-sky-300 drop-shadow-lg" />
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full border border-indigo-400/30 bg-gradient-to-b from-indigo-500/20 to-indigo-900/10 shadow-inner lg:h-10 lg:w-10">
+                    <Repeat2 size={16} className="text-indigo-300 drop-shadow-lg" />
                   </div>
                   <div>
                     <p className="text-xs font-bold tracking-tight text-white lg:text-sm">בקשת החלפה חדשה</p>
-                    <p className="text-[10px] font-medium text-emerald-200/60 lg:text-xs">ממתינה לאישור מנהל</p>
+                    <p className="text-[10px] font-medium text-blue-200/60 lg:text-xs">ממתינה לאישור מנהל</p>
                   </div>
                 </div>
               </div>
@@ -327,7 +348,7 @@ export function CinematicHero() {
               <h3 className="mb-0 text-2xl font-bold tracking-tight text-white md:text-3xl lg:mb-5 lg:text-4xl">
                 ניהול משמרות, בלי בלגן.
               </h3>
-              <p className="mx-auto hidden max-w-sm text-sm font-normal leading-relaxed text-emerald-100/70 md:block md:text-base lg:mx-0 lg:max-w-none lg:text-lg">
+              <p className="mx-auto hidden max-w-sm text-sm font-normal leading-relaxed text-blue-100/70 md:block md:text-base lg:mx-0 lg:max-w-none lg:text-lg">
                 <span className="font-semibold text-white">ShiftPilot</span> מחברת בין העובדים למנהלים בתהליך אחד — הגשת זמינות, בניית סידור, פרסום משמרות והחלפות מאושרות, בלי הודעות פרטיות ובלי טבלאות שאף אחד לא בטוח שהן מעודכנות.
               </p>
             </div>
