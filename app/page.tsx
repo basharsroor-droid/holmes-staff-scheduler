@@ -1,8 +1,10 @@
 import Link from "next/link";
-import { ArrowLeft, BarChart3, Building2, CalendarCheck, CalendarDays, CalendarRange, Check, CheckCircle2, Clock3, LockKeyhole, Mail, Menu, Repeat2, ShieldCheck, Sparkles, UserPlus, Users, Wand2 } from "lucide-react";
+import { ArrowLeft, BarChart3, Building2, CalendarCheck, CalendarDays, CalendarRange, CheckCircle2, Clock3, LockKeyhole, Mail, Repeat2, ShieldCheck, UserPlus, Users, Wand2 } from "lucide-react";
 
 import { BrandLogo } from "@/components/brand/brand-logo";
+import { CinematicHero } from "@/components/marketing/cinematic-hero";
 import { ScrollReveal } from "@/components/marketing/scroll-reveal";
+import { SiteNavbar } from "@/components/marketing/site-navbar";
 
 const capabilities = [
   { icon: CalendarCheck, title: "הגשת זמינות מסודרת", text: "כל עובד מסמן מועדפת, זמין, רק אם צריך או לא זמין — לכל משמרת בחודש." },
@@ -23,32 +25,11 @@ const setupSteps = [
 
 export default function HomePage() {
   return <main className="marketing-site" dir="rtl">
-    <nav className="pro-nav">
-      <BrandLogo href="/" />
-      <div className="pro-nav-links"><a href="#how">איך זה עובד</a><a href="#roles">למי זה מתאים</a><a href="#example">דוגמה</a><a href="#security">אבטחה</a></div><details className="mobile-menu"><summary><Menu size={20} /> תפריט</summary><div><a href="#how">איך זה עובד</a><a href="#roles">לעובדים ולמנהלים</a><a href="#example">דוגמת משמרות</a><a href="#security">אבטחה</a><Link href="/login">כניסה למערכת</Link><Link href="/demo">פתיחת הדמו</Link></div></details>
-      <div className="pro-nav-actions"><Link className="button ghost-light" href="/demo">דמו</Link><Link className="button ghost-light" href="/login">כניסה</Link><Link className="button brand-button" href="/onboarding">פתיחת עסק</Link></div>
-    </nav>
+    <div className="sticky top-0 z-40">
+      <SiteNavbar />
+    </div>
 
-    <header className="pro-hero">
-      <div className="hero-glow one" /><div className="hero-glow two" />
-      <ScrollReveal className="pro-hero-copy">
-        <p className="pro-kicker"><Sparkles size={16} /> ניהול משמרות לעסקים שרוצים לעבוד מסודר</p>
-        <h1>מהגשת זמינות ועד סידור עבודה — <span>בלי כאוס בקבוצת הוואטסאפ.</span></h1>
-        <p>ShiftPilot מחברת בין העובדים למנהלים בתהליך אחד: פתיחת חודש, הגשת זמינות, בניית סידור, פרסום משמרות והחלפות מאושרות.</p>
-        <div className="pro-hero-actions"><Link className="button brand-button large" href="/onboarding">פתיחת סביבת עבודה <ArrowLeft size={18} /></Link><Link className="button glass-button large" href="/demo">לצפייה בדמו</Link></div>
-        <div className="hero-assurances"><span><Check /> ללא התקנה</span><span><Check /> עובד בטלפון ובמחשב</span><span><Check /> הקמה תוך דקות</span></div>
-      </ScrollReveal>
-      <ScrollReveal className="product-window" delay={150}>
-        <div className="window-bar"><i /><i /><i /><span className="window-product-title"><bdi dir="ltr">ShiftPilot</bdi><i>·</i> סידור אוגוסט</span><b>פורסם</b></div>
-        <div className="window-body">
-          <aside><BrandLogo compact /><span className="active"><CalendarRange /> סידור עבודה</span><span><Users /> עובדים</span><span><CalendarCheck /> הגשות</span><span><Repeat2 /> החלפות</span></aside>
-          <div className="window-content"><div className="window-heading"><div><small>סניף הכרמל</small><strong>אוגוסט 2026</strong></div><button>פרסום הסידור</button></div>
-            <div className="mock-stats"><span><b>84</b><small>משמרות</small></span><span><b>12/12</b><small>הגישו</small></span><span><b>96%</b><small>מאויש</small></span></div>
-            <div className="mock-day"><strong>יום ראשון · 9 באוגוסט</strong><div><span><b>פתיחה</b><small>06:00–14:00</small></span><em>מיה</em><em>אדם</em><i>2/2</i></div><div><span><b>סגירה</b><small>14:00–22:00</small></span><em>נועה</em><em>עומר</em><i>2/2</i></div></div>
-          </div>
-        </div>
-      </ScrollReveal>
-    </header>
+    <CinematicHero />
 
     <section className="proof-strip" tabIndex={0} aria-label="ענפים מתאימים"><span>מתאים למסעדות</span><i /> <span>חדרי כושר</span><i /> <span>חנויות</span><i /> <span>מוקדי שירות</span><i /> <span>מרפאות</span><i /> <span>כל צוות שעובד במשמרות</span></section>
 
