@@ -1,5 +1,8 @@
 # ShiftPilot
 
+[![ShiftPilot CI](https://github.com/basharsroor-droid/holmes-staff-scheduler/actions/workflows/ci.yml/badge.svg)](https://github.com/basharsroor-droid/holmes-staff-scheduler/actions/workflows/ci.yml)
+[![Production Health](https://github.com/basharsroor-droid/holmes-staff-scheduler/actions/workflows/production-health.yml/badge.svg)](https://github.com/basharsroor-droid/holmes-staff-scheduler/actions/workflows/production-health.yml)
+
 ShiftPilot היא מערכת SaaS לניהול צוותים שעובדים במשמרות. עובדים מגישים זמינות חודשית, מנהלים בונים ומפרסמים סידור, והמערכת מרכזת החלפות, הרשאות והיסטוריה לפי עסק וסניף.
 
 ## כתובות
@@ -45,7 +48,7 @@ ShiftPilot היא מערכת SaaS לניהול צוותים שעובדים במ�
 
 ## ארכיטקטורה
 
-- Next.js 14 + React 18 + TypeScript
+- Next.js 16 + React 18 + TypeScript
 - Supabase Auth ו-PostgreSQL
 - Row Level Security על טבלאות המוצר
 - Vercel עבור Preview ו-Production
@@ -84,6 +87,7 @@ npm run dev
 ```bash
 npm run validate:schema
 npm run build
+npm run health:production
 ```
 
 GitHub Actions מריץ את שתי הבדיקות אוטומטית בכל Pull Request ל-`main` ובכל Push ל-`main`.
@@ -103,8 +107,8 @@ GitHub Actions מריץ את שתי הבדיקות אוטומטית בכל Pull 
 
 - פיילוט מלא עם מנהל ומספר עובדי בדיקה
 - SMTP מקצועי והתראות ממותגות
-- בדיקות E2E והרשאות
-- השלמת Audit אבטחה
 - גיבוי ושחזור
-- תנאי שימוש ומדיניות פרטיות
-- דומיין מקצועי וניטור שגיאות
+- בדיקה משפטית סופית של תנאי השימוש ומדיניות הפרטיות
+- דומיין מקצועי וניטור שגיאות מרכזי
+
+בדיקות E2E במחשב ובמובייל, Audit אבטחה בסיסי, מסמכים משפטיים ראשוניים וניטור זמינות אוטומטי כבר פעילים.
