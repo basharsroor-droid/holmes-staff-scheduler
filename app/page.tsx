@@ -1,8 +1,9 @@
 import Link from "next/link";
-import { ArrowLeft, BarChart3, Building2, CalendarCheck, CalendarDays, CalendarRange, CheckCircle2, Clock3, LockKeyhole, Mail, Repeat2, ShieldCheck, UserPlus, Users, Wand2 } from "lucide-react";
+import { ArrowLeft, BarChart3, Building2, CalendarCheck, CalendarRange, Clock3, LockKeyhole, Repeat2, ShieldCheck, UserPlus } from "lucide-react";
 
 import { BrandLogo } from "@/components/brand/brand-logo";
 import { CinematicHero } from "@/components/marketing/cinematic-hero";
+import { RolesShowcase } from "@/components/marketing/roles-showcase";
 import { ScrollReveal } from "@/components/marketing/scroll-reveal";
 import { SiteNavbar } from "@/components/marketing/site-navbar";
 
@@ -46,13 +47,7 @@ export default function HomePage() {
       <div className="process-timeline">{setupSteps.map((step,index) => <ScrollReveal className="process-step" delay={index*70} key={step.n}><b>{step.n}</b><div><h3>{step.title}</h3><p>{step.text}</p></div></ScrollReveal>)}</div>
     </section>
 
-    <section className="pro-section roles-section" id="roles">
-      <ScrollReveal className="section-heading"><p className="pro-kicker dark">שתי חוויות, מערכת אחת</p><h2>פשוט לעובדים. עוצמתי למנהלים.</h2></ScrollReveal>
-      <div className="role-showcase">
-        <ScrollReveal className="role-panel employee"><div className="role-icon"><Users /></div><small>סביבת העובד</small><h3>העובד יודע בדיוק מה צריך לעשות</h3><ul><li><CheckCircle2 /> הגשת זמינות חודשית מהטלפון</li><li><CalendarDays /> צפייה במשמרת הקרובה ובכל החודש</li><li><Repeat2 /> בקשת החלפה ומעקב אחר האישורים</li><li><Mail /> קבלת הזמנה וגישה אישית</li></ul><div className="phone-mock"><div><b>המשמרת הקרובה</b><span>יום ראשון · פתיחה</span><strong>06:00–14:00</strong><small>סניף הכרמל</small></div></div></ScrollReveal>
-        <ScrollReveal className="role-panel manager" delay={120}><div className="role-icon"><Wand2 /></div><small>סביבת המנהל</small><h3>המנהל מקבל שליטה ותמונה מלאה</h3><ul><li><BarChart3 /> מעקב מי הגיש ומי עדיין חסר</li><li><CalendarRange /> יצירת משמרות ושיבוץ עובדים</li><li><ShieldCheck /> תפקידים, סניפים והרשאות</li><li><Repeat2 /> אישור החלפות ועדכון הסידור</li></ul><div className="manager-mock"><span><b>12</b><small>עובדים</small></span><span><b>10</b><small>הגישו</small></span><span><b>2</b><small>חסרים</small></span></div></ScrollReveal>
-      </div>
-    </section>
+    <RolesShowcase />
 
     <section className="pro-section example-section" id="example">
       <ScrollReveal className="section-heading centered"><p className="pro-kicker dark">דוגמה אמיתית למבנה</p><h2>כך נראה חודש עבודה ב־ShiftPilot</h2><p>העסק יכול לשנות את מספר המשמרות והשעות בכל עת. זו דוגמה למועדון עם פתיחה, אמצע וסגירה.</p></ScrollReveal>
