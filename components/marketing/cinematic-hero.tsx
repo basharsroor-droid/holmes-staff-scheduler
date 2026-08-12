@@ -182,27 +182,33 @@ export function CinematicHero() {
         scrollTrigger: { trigger: containerRef.current, start: "top top", end: "+=3600", pin: true, scrub: 1, anticipatePin: 1 }
       });
 
+      // The card growing to fill the screen and its content (mockup, badges,
+      // copy) fading in used to be sequenced one after another -- for a
+      // stretch of the scroll in between, the card was already a full-bleed
+      // dark rectangle with nothing inside it yet, which read as the page
+      // being broken/empty. Now the content reveal overlaps the resize
+      // itself (starts at 1.2 out of the 2.5s resize) instead of waiting
+      // for it to finish, so there's no dead full-screen-blank window.
       scrollTl
         .to(".ch-scroll-cue", { autoAlpha: 0, duration: 0.3 }, 0)
         .to([".ch-hero-text-wrapper", ".ch-grid-bg"], { scale: 1.15, filter: "blur(20px)", opacity: 0.2, ease: "power2.inOut", duration: 2 }, 0)
-        .to(".ch-main-card", { y: 0, ease: "power3.inOut", duration: 2 }, 0)
-        .to(".ch-main-card", { width: "100%", height: "100%", borderRadius: "0px", ease: "power3.inOut", duration: 1.5 })
+        .to(".ch-main-card", { y: 0, width: "100%", height: "100%", borderRadius: "0px", ease: "power3.inOut", duration: 2.5 }, 0)
         .fromTo(".ch-mockup-wrapper",
           { y: 300, z: -500, rotationX: 50, rotationY: -30, autoAlpha: 0, scale: 0.6 },
-          { y: 0, z: 0, rotationX: 0, rotationY: 0, autoAlpha: 1, scale: 1, ease: "expo.out", duration: 2.5 }, "-=0.8")
-        .fromTo(".ch-phone-widget", { y: 40, autoAlpha: 0, scale: 0.95 }, { y: 0, autoAlpha: 1, scale: 1, stagger: 0.15, ease: "back.out(1.2)", duration: 1.5 }, "-=1.5")
-        .to(".ch-progress-ring", { strokeDashoffset: 95, duration: 2, ease: "power3.inOut" }, "-=1.2")
-        .fromTo(".ch-floating-badge", { y: 100, autoAlpha: 0, scale: 0.7, rotationZ: -10 }, { y: 0, autoAlpha: 1, scale: 1, rotationZ: 0, ease: "back.out(1.5)", duration: 1.5, stagger: 0.2 }, "-=2.0")
-        .fromTo(".ch-card-right-text", { x: 50, autoAlpha: 0 }, { x: 0, autoAlpha: 1, ease: "power4.out", duration: 1.5 }, "-=1.5")
-        .fromTo(".ch-card-left-text", { x: -50, autoAlpha: 0, scale: 0.8 }, { x: 0, autoAlpha: 1, scale: 1, ease: "expo.out", duration: 1.5 }, "<")
-        .to({}, { duration: 2.5 })
+          { y: 0, z: 0, rotationX: 0, rotationY: 0, autoAlpha: 1, scale: 1, ease: "expo.out", duration: 2 }, 1.2)
+        .fromTo(".ch-phone-widget", { y: 40, autoAlpha: 0, scale: 0.95 }, { y: 0, autoAlpha: 1, scale: 1, stagger: 0.15, ease: "back.out(1.2)", duration: 1.2 }, "-=1.2")
+        .to(".ch-progress-ring", { strokeDashoffset: 95, duration: 1.5, ease: "power3.inOut" }, "-=0.9")
+        .fromTo(".ch-floating-badge", { y: 100, autoAlpha: 0, scale: 0.7, rotationZ: -10 }, { y: 0, autoAlpha: 1, scale: 1, rotationZ: 0, ease: "back.out(1.5)", duration: 1.2, stagger: 0.15 }, "-=1.2")
+        .fromTo(".ch-card-right-text", { x: 50, autoAlpha: 0 }, { x: 0, autoAlpha: 1, ease: "power4.out", duration: 1.2 }, "-=1.0")
+        .fromTo(".ch-card-left-text", { x: -50, autoAlpha: 0, scale: 0.8 }, { x: 0, autoAlpha: 1, scale: 1, ease: "expo.out", duration: 1.2 }, "<")
+        .to({}, { duration: 1.5 })
         .set(".ch-hero-text-wrapper", { autoAlpha: 0 })
         .set(".ch-cta-wrapper", { autoAlpha: 1 })
-        .to({}, { duration: 1.5 })
-        .to([".ch-mockup-wrapper", ".ch-floating-badge", ".ch-card-left-text", ".ch-card-right-text"], { scale: 0.9, y: -40, z: -200, autoAlpha: 0, ease: "power3.in", duration: 1.2, stagger: 0.05 })
-        .to(".ch-main-card", { width: isMobile ? "92vw" : "85vw", height: isMobile ? "92vh" : "85vh", borderRadius: isMobile ? "32px" : "40px", ease: "expo.inOut", duration: 1.8 }, "pullback")
-        .to(".ch-cta-wrapper", { scale: 1, filter: "blur(0px)", ease: "expo.inOut", duration: 1.8 }, "pullback")
-        .to(".ch-main-card", { y: -window.innerHeight - 300, ease: "power3.in", duration: 1.5 });
+        .to({}, { duration: 1 })
+        .to([".ch-mockup-wrapper", ".ch-floating-badge", ".ch-card-left-text", ".ch-card-right-text"], { scale: 0.9, y: -40, z: -200, autoAlpha: 0, ease: "power3.in", duration: 1, stagger: 0.05 })
+        .to(".ch-main-card", { width: isMobile ? "92vw" : "85vw", height: isMobile ? "92vh" : "85vh", borderRadius: isMobile ? "32px" : "40px", ease: "expo.inOut", duration: 1.5 }, "pullback")
+        .to(".ch-cta-wrapper", { scale: 1, filter: "blur(0px)", ease: "expo.inOut", duration: 1.5 }, "pullback")
+        .to(".ch-main-card", { y: -window.innerHeight - 300, ease: "power3.in", duration: 1.2 });
     }, containerRef);
 
     return () => ctx.revert();
