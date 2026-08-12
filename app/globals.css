@@ -9,8 +9,14 @@
   --ink: #172033;
   --muted: #667085;
   --line: #d8e0ea;
-  --primary: #3578f5;
-  --primary-dark: #2158c9;
+  /* #3578f5 is the exact logo blue (sampled from the icon's arrow), but at
+     4.07:1 it fails WCAG AA (4.5:1) for white/normal-size text on a solid
+     fill -- caught by the CI accessibility suite on the login pages'
+     "button primary". Using the next shade down as --primary keeps every
+     white-on-fill and text-on-white use of the variable accessible
+     everywhere it's referenced (buttons, active states, links, gradients). */
+  --primary: #2158c9;
+  --primary-dark: #163f9e;
   --primary-soft: #e3ebfe;
   --blue: #2563eb;
   --orange: #ea580c;
@@ -32,7 +38,7 @@
   --card-foreground-hsl: 221 38% 15%;
   --popover-hsl: 0 0% 100%;
   --popover-foreground-hsl: 221 38% 15%;
-  --primary-hsl: 219 91% 58%;
+  --primary-hsl: 220 72% 46%;
   --primary-foreground-hsl: 0 0% 100%;
   --secondary-hsl: 222 93% 94%;
   --secondary-foreground-hsl: 220 72% 38%;
@@ -44,7 +50,7 @@
   --destructive-foreground-hsl: 0 0% 100%;
   --border-hsl: 213 30% 88%;
   --input-hsl: 213 30% 88%;
-  --ring-hsl: 219 91% 58%;
+  --ring-hsl: 220 72% 46%;
 }
 
 .page[data-theme="dark"],

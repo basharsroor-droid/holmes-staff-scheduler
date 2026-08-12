@@ -120,6 +120,16 @@ const INJECTED_STYLES = `
 
   @keyframes ch-bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(8px); } }
   .ch-scroll-cue-icon { animation: ch-bounce 1.8s ease-in-out infinite; }
+
+  /* Plain CSS fade-in, deliberately NOT GSAP/rAF-driven like the rest of the
+     Hero -- this is the primary CTA, so it must render and become clickable
+     on its own regardless of whether the bigger scroll-jack timeline is
+     running (slow devices, reduced-motion setups, etc). */
+  @keyframes ch-cta-fade-in { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+  .ch-hero-ctas { opacity: 0; animation: ch-cta-fade-in 0.7s ease-out 1.6s both; }
+  @media (prefers-reduced-motion: reduce) {
+    .ch-hero-ctas { animation-duration: 0.01ms; animation-delay: 0s; }
+  }
 `;
 
 export function CinematicHero() {
@@ -166,7 +176,7 @@ export function CinematicHero() {
       gsap.timeline({ delay: 0.3 })
         .to(".ch-text-track", { duration: 1.8, autoAlpha: 1, y: 0, scale: 1, filter: "blur(0px)", rotationX: 0, ease: "expo.out" })
         .to(".ch-text-line2", { duration: 1.4, clipPath: "inset(0 0 0 0%)", ease: "power4.inOut" }, "-=1.0")
-        .to(".ch-scroll-cue", { duration: 0.8, autoAlpha: 1, y: 0, ease: "power2.out" }, "-=0.6");
+        .to(".ch-scroll-cue", { duration: 0.8, autoAlpha: 1, y: 0, ease: "power2.out" }, "-=0.5");
 
       const scrollTl = gsap.timeline({
         scrollTrigger: { trigger: containerRef.current, start: "top top", end: "+=3600", pin: true, scrub: 1, anticipatePin: 1 }
@@ -216,14 +226,35 @@ export function CinematicHero() {
         <ChevronDown size={20} className="ch-scroll-cue-icon" />
       </div>
 
-      {/* headline layer */}
+      {/* headline layer -- a single <h1> (page-level heading) with two block
+          spans doing the two-line reveal, instead of two separate <h1>
+          tags. Two H1s on one page is invalid heading structure and broke
+          the e2e smoke test's getByRole("heading", {level:1}) query. */}
       <div className="ch-hero-text-wrapper absolute z-10 flex w-screen flex-col items-center justify-center px-4 text-center will-change-transform">
-        <h1 className="ch-text-track ch-reveal ch-text-3d mb-2 text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
-          מהגשת זמינות ועד סידור עבודה —
+        <h1 className="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
+          <span className="ch-text-track ch-reveal ch-text-3d mb-2 block">
+            מהגשת זמינות ועד סידור עבודה —
+          </span>
+          <span className="ch-text-line2 ch-reveal ch-text-brand block font-extrabold">
+            בלי כאוס בקבוצת הוואטסאפ.
+          </span>
         </h1>
-        <h1 className="ch-text-line2 ch-reveal ch-text-brand text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
-          בלי כאוס בקבוצת הוואטסאפ.
-        </h1>
+
+        {/* Reachable immediately, not gated behind the full pinned-scroll
+            story -- a visitor shouldn't have to scroll through the whole
+            cinematic sequence just to find the primary CTA. The nicer
+            closing CTA further down is a bonus reinforcement, not the only
+            way in. */}
+        <div className="ch-hero-ctas pointer-events-auto mt-8 flex flex-col gap-3 sm:flex-row">
+          <Link href="/onboarding" className="ch-btn-light group flex items-center justify-center gap-2 rounded-2xl px-7 py-3.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)]">
+            <span className="text-base font-bold leading-none tracking-tight">פתיחת סביבת עבודה</span>
+            <ArrowLeft size={18} className="transition-transform group-hover:-translate-x-1" />
+          </Link>
+          <Link href="/demo" className="ch-btn-dark group flex items-center justify-center gap-2 rounded-2xl px-7 py-3.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)]">
+            <PlayCircle size={18} />
+            <span className="text-base font-bold leading-none tracking-tight">לצפייה בדמו</span>
+          </Link>
+        </div>
       </div>
 
       {/* closing CTA layer */}
