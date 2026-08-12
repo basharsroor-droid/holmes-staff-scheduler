@@ -210,9 +210,10 @@ button {
   position: sticky;
   top: 0;
   z-index: 20;
-  border-bottom: 1px solid rgba(216, 224, 234, 0.86);
-  background: rgba(245, 247, 251, 0.9);
+  border-bottom: 1px solid rgba(216, 224, 234, 0.7);
+  background: rgba(245, 247, 251, 0.85);
   backdrop-filter: blur(16px);
+  box-shadow: 0 8px 30px rgba(23, 32, 51, 0.05);
 }
 
 .topbar-inner,
@@ -268,30 +269,41 @@ button {
 
 .nav-link {
   border: 1px solid transparent;
-  border-radius: var(--radius);
+  border-radius: 999px;
   color: #344054;
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  padding: 9px 11px;
+  padding: 9px 13px;
   font-size: 14px;
+  font-weight: 600;
+  transition: background-color 0.15s ease, color 0.15s ease;
 }
 
 .nav-link:hover {
-  background: var(--surface);
-  border-color: var(--line);
+  background: var(--primary-soft);
+  border-color: transparent;
+  color: var(--primary-dark);
 }
+
+.nav-link.active {
+  background: var(--primary);
+  color: white;
+  font-weight: 700;
+}
+.nav-link.active svg { color: white; }
 
 .role-pill {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  background: var(--surface);
-  padding: 9px 12px;
-  color: #344054;
+  border: 1px solid rgba(53, 120, 245, 0.16);
+  border-radius: 999px;
+  background: var(--primary-soft);
+  padding: 9px 13px;
+  color: var(--primary-dark);
   font-size: 14px;
+  font-weight: 700;
 }
 
 .user-switcher {
@@ -315,7 +327,7 @@ button {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  border: 1px solid rgba(19, 111, 99, 0.18);
+  border: 1px solid rgba(53, 120, 245, 0.18);
   border-radius: var(--radius);
   background: var(--primary-soft);
   color: var(--primary-dark);
@@ -324,7 +336,7 @@ button {
 }
 
 .workspace-strip span {
-  color: #2f6f66;
+  color: #2f5aa8;
 }
 
 .auth-page {
@@ -702,9 +714,25 @@ h3 {
 .card {
   background: rgba(255, 255, 255, 0.9);
   border: 1px solid var(--line);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
+  border-radius: 16px;
+  box-shadow: 0 14px 34px rgba(23, 32, 51, 0.06);
   padding: 18px;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.card.metric {
+  border-radius: 16px;
+}
+.card.metric:hover {
+  box-shadow: 0 20px 44px rgba(53, 120, 245, 0.14);
+  transform: translateY(-3px);
+}
+.card.metric .brand-mark {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary), #6947ff);
+  box-shadow: 0 10px 22px rgba(53, 120, 245, 0.32);
 }
 
 .card-muted {
@@ -998,7 +1026,7 @@ h3 {
 }
 
 .role-entry-card.manager {
-  border-color: rgba(19, 111, 99, 0.35);
+  border-color: rgba(53, 120, 245, 0.35);
   background: linear-gradient(135deg, white, var(--primary-soft));
 }
 
@@ -1068,21 +1096,33 @@ h3 {
 .big-action {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
   border: 1px solid var(--line);
-  border-radius: var(--radius);
+  border-radius: 14px;
   background: #fbfdff;
   padding: 14px;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+}
+
+.big-action:hover {
+  transform: translateX(-3px);
+  border-color: rgba(53, 120, 245, 0.3);
+  box-shadow: 0 14px 30px rgba(53, 120, 245, 0.12);
 }
 
 .big-action.priority {
-  border-color: rgba(19, 111, 99, 0.35);
+  border-color: rgba(53, 120, 245, 0.35);
   background: var(--primary-soft);
 }
 
 .big-action svg {
-  color: var(--primary);
   flex: 0 0 auto;
+  width: 38px;
+  height: 38px;
+  padding: 9px;
+  border-radius: 12px;
+  color: white;
+  background: linear-gradient(135deg, var(--primary), #6947ff);
 }
 
 .availability-mini-list,
@@ -1374,7 +1414,7 @@ h3 {
 
 .pilot-main-card {
   background:
-    linear-gradient(135deg, rgba(19, 111, 99, 0.12), transparent 36%),
+    linear-gradient(135deg, rgba(53, 120, 245, 0.12), transparent 36%),
     var(--surface);
   border: 1px solid var(--line);
   border-radius: var(--radius);
