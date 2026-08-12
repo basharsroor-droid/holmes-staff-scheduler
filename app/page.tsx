@@ -1,8 +1,11 @@
 import Link from "next/link";
-import { ArrowLeft, BarChart3, Building2, CalendarCheck, CalendarDays, CalendarRange, Check, CheckCircle2, Clock3, LockKeyhole, Mail, Menu, Repeat2, ShieldCheck, Sparkles, UserPlus, Users, Wand2 } from "lucide-react";
+import { ArrowLeft, BarChart3, Building2, CalendarCheck, CalendarRange, Clock3, LockKeyhole, Repeat2, ShieldCheck, UserPlus } from "lucide-react";
 
 import { BrandLogo } from "@/components/brand/brand-logo";
+import { CinematicHero } from "@/components/marketing/cinematic-hero";
+import { RolesShowcase } from "@/components/marketing/roles-showcase";
 import { ScrollReveal } from "@/components/marketing/scroll-reveal";
+import { SiteNavbar } from "@/components/marketing/site-navbar";
 
 const capabilities = [
   { icon: CalendarCheck, title: "הגשת זמינות מסודרת", text: "כל עובד מסמן מועדפת, זמין, רק אם צריך או לא זמין — לכל משמרת בחודש." },
@@ -23,36 +26,19 @@ const setupSteps = [
 
 export default function HomePage() {
   return <main className="marketing-site" dir="rtl">
-    <nav className="pro-nav">
-      <BrandLogo href="/" />
-      <div className="pro-nav-links"><a href="#how">איך זה עובד</a><a href="#roles">למי זה מתאים</a><a href="#example">דוגמה</a><a href="#security">אבטחה</a></div><details className="mobile-menu"><summary><Menu size={20} /> תפריט</summary><div><a href="#how">איך זה עובד</a><a href="#roles">לעובדים ולמנהלים</a><a href="#example">דוגמת משמרות</a><a href="#security">אבטחה</a><Link href="/login">כניסה למערכת</Link><Link href="/demo">פתיחת הדמו</Link></div></details>
-      <div className="pro-nav-actions"><Link className="button ghost-light" href="/demo">דמו</Link><Link className="button ghost-light" href="/login">כניסה</Link><Link className="button brand-button" href="/onboarding">פתיחת עסק</Link></div>
-    </nav>
+    {/* Fixed (not sticky) so it floats over the Hero instead of pushing its
+        h-screen down by the navbar's own height -- otherwise the bottom of
+        a "full screen" Hero (peek card, scroll cue) sits below the fold. */}
+    <div className="fixed inset-x-0 top-0 z-40">
+      <SiteNavbar />
+    </div>
 
-    <header className="pro-hero">
-      <div className="hero-glow one" /><div className="hero-glow two" />
-      <ScrollReveal className="pro-hero-copy">
-        <p className="pro-kicker"><Sparkles size={16} /> ניהול משמרות לעסקים שרוצים לעבוד מסודר</p>
-        <h1>מהגשת זמינות ועד סידור עבודה — <span>בלי כאוס בקבוצת הוואטסאפ.</span></h1>
-        <p>ShiftPilot מחברת בין העובדים למנהלים בתהליך אחד: פתיחת חודש, הגשת זמינות, בניית סידור, פרסום משמרות והחלפות מאושרות.</p>
-        <div className="pro-hero-actions"><Link className="button brand-button large" href="/onboarding">פתיחת סביבת עבודה <ArrowLeft size={18} /></Link><Link className="button glass-button large" href="/demo">לצפייה בדמו</Link></div>
-        <div className="hero-assurances"><span><Check /> ללא התקנה</span><span><Check /> עובד בטלפון ובמחשב</span><span><Check /> הקמה תוך דקות</span></div>
-      </ScrollReveal>
-      <ScrollReveal className="product-window" delay={150}>
-        <div className="window-bar"><i /><i /><i /><span className="window-product-title"><bdi dir="ltr">ShiftPilot</bdi><i>·</i> סידור אוגוסט</span><b>פורסם</b></div>
-        <div className="window-body">
-          <aside><BrandLogo compact /><span className="active"><CalendarRange /> סידור עבודה</span><span><Users /> עובדים</span><span><CalendarCheck /> הגשות</span><span><Repeat2 /> החלפות</span></aside>
-          <div className="window-content"><div className="window-heading"><div><small>סניף הכרמל</small><strong>אוגוסט 2026</strong></div><button>פרסום הסידור</button></div>
-            <div className="mock-stats"><span><b>84</b><small>משמרות</small></span><span><b>12/12</b><small>הגישו</small></span><span><b>96%</b><small>מאויש</small></span></div>
-            <div className="mock-day"><strong>יום ראשון · 9 באוגוסט</strong><div><span><b>פתיחה</b><small>06:00–14:00</small></span><em>מיה</em><em>אדם</em><i>2/2</i></div><div><span><b>סגירה</b><small>14:00–22:00</small></span><em>נועה</em><em>עומר</em><i>2/2</i></div></div>
-          </div>
-        </div>
-      </ScrollReveal>
-    </header>
+    <CinematicHero />
 
     <section className="proof-strip" tabIndex={0} aria-label="ענפים מתאימים"><span>מתאים למסעדות</span><i /> <span>חדרי כושר</span><i /> <span>חנויות</span><i /> <span>מוקדי שירות</span><i /> <span>מרפאות</span><i /> <span>כל צוות שעובד במשמרות</span></section>
 
     <section className="pro-section problem-section">
+      <div className="section-glow blue" style={{ width: 420, height: 420, top: -140, left: -80 }} aria-hidden="true" />
       <ScrollReveal className="section-heading"><p className="pro-kicker dark">למה ShiftPilot?</p><h2>הבעיה היא לא הסידור. הבעיה היא כל מה שקורה סביבו.</h2><p>הודעות פרטיות, שינויים ברגע האחרון, טבלאות לא מעודכנות ועובדים שלא יודעים איזו גרסה היא הסופית.</p></ScrollReveal>
       <div className="comparison-grid">
         <ScrollReveal className="comparison-card old"><small>היום</small><h3>ניהול ידני ומפוזר</h3><ul><li>עשרות הודעות זמינות בפורמטים שונים</li><li>העתקה ידנית לאקסל או לדף</li><li>התנגשויות וחוסרים שמתגלים מאוחר</li><li>החלפות ללא תיעוד ברור</li></ul></ScrollReveal>
@@ -65,13 +51,7 @@ export default function HomePage() {
       <div className="process-timeline">{setupSteps.map((step,index) => <ScrollReveal className="process-step" delay={index*70} key={step.n}><b>{step.n}</b><div><h3>{step.title}</h3><p>{step.text}</p></div></ScrollReveal>)}</div>
     </section>
 
-    <section className="pro-section roles-section" id="roles">
-      <ScrollReveal className="section-heading"><p className="pro-kicker dark">שתי חוויות, מערכת אחת</p><h2>פשוט לעובדים. עוצמתי למנהלים.</h2></ScrollReveal>
-      <div className="role-showcase">
-        <ScrollReveal className="role-panel employee"><div className="role-icon"><Users /></div><small>סביבת העובד</small><h3>העובד יודע בדיוק מה צריך לעשות</h3><ul><li><CheckCircle2 /> הגשת זמינות חודשית מהטלפון</li><li><CalendarDays /> צפייה במשמרת הקרובה ובכל החודש</li><li><Repeat2 /> בקשת החלפה ומעקב אחר האישורים</li><li><Mail /> קבלת הזמנה וגישה אישית</li></ul><div className="phone-mock"><div><b>המשמרת הקרובה</b><span>יום ראשון · פתיחה</span><strong>06:00–14:00</strong><small>סניף הכרמל</small></div></div></ScrollReveal>
-        <ScrollReveal className="role-panel manager" delay={120}><div className="role-icon"><Wand2 /></div><small>סביבת המנהל</small><h3>המנהל מקבל שליטה ותמונה מלאה</h3><ul><li><BarChart3 /> מעקב מי הגיש ומי עדיין חסר</li><li><CalendarRange /> יצירת משמרות ושיבוץ עובדים</li><li><ShieldCheck /> תפקידים, סניפים והרשאות</li><li><Repeat2 /> אישור החלפות ועדכון הסידור</li></ul><div className="manager-mock"><span><b>12</b><small>עובדים</small></span><span><b>10</b><small>הגישו</small></span><span><b>2</b><small>חסרים</small></span></div></ScrollReveal>
-      </div>
-    </section>
+    <RolesShowcase />
 
     <section className="pro-section example-section" id="example">
       <ScrollReveal className="section-heading centered"><p className="pro-kicker dark">דוגמה אמיתית למבנה</p><h2>כך נראה חודש עבודה ב־ShiftPilot</h2><p>העסק יכול לשנות את מספר המשמרות והשעות בכל עת. זו דוגמה למועדון עם פתיחה, אמצע וסגירה.</p></ScrollReveal>
@@ -79,6 +59,7 @@ export default function HomePage() {
     </section>
 
     <section className="pro-section features-section">
+      <div className="section-glow violet" style={{ width: 380, height: 380, top: -120, right: -60 }} aria-hidden="true" />
       <ScrollReveal className="section-heading centered"><p className="pro-kicker dark">יכולות המוצר</p><h2>כל הכלים, בלי להעמיס על הצוות</h2></ScrollReveal>
       <div className="capability-grid">{capabilities.map((item,index)=><ScrollReveal className="capability-card" delay={(index%3)*70} key={item.title}><item.icon /><h3>{item.title}</h3><p>{item.text}</p></ScrollReveal>)}</div>
     </section>

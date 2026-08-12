@@ -3,6 +3,9 @@ node_modules
 coverage
 .DS_Store
 *.log
+tsconfig.tsbuildinfo
+test-results/
+playwright-report/
 .env
 .env.local
 .env.*.local

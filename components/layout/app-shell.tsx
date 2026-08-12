@@ -144,8 +144,14 @@ export function AppShell({ children }: { children: ReactNode }) {
           <nav className="nav" aria-label="ניווט ראשי">
             {privateNavItems.map((item) => {
               const Icon = item.icon;
+              const isActive = pathname === item.href;
               return (
-                <Link className="nav-link" href={item.href} key={item.href}>
+                <Link
+                  className={`nav-link${isActive ? " active" : ""}`}
+                  href={item.href}
+                  key={item.href}
+                  aria-current={isActive ? "page" : undefined}
+                >
                   <Icon size={16} />
                   {item.label}
                 </Link>
