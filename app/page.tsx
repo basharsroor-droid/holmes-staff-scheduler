@@ -38,6 +38,7 @@ export default function HomePage() {
     <section className="proof-strip" tabIndex={0} aria-label="ענפים מתאימים"><span>מתאים למסעדות</span><i /> <span>חדרי כושר</span><i /> <span>חנויות</span><i /> <span>מוקדי שירות</span><i /> <span>מרפאות</span><i /> <span>כל צוות שעובד במשמרות</span></section>
 
     <section className="pro-section problem-section">
+      <div className="section-glow blue" style={{ width: 420, height: 420, top: -140, left: -80 }} aria-hidden="true" />
       <ScrollReveal className="section-heading"><p className="pro-kicker dark">למה ShiftPilot?</p><h2>הבעיה היא לא הסידור. הבעיה היא כל מה שקורה סביבו.</h2><p>הודעות פרטיות, שינויים ברגע האחרון, טבלאות לא מעודכנות ועובדים שלא יודעים איזו גרסה היא הסופית.</p></ScrollReveal>
       <div className="comparison-grid">
         <ScrollReveal className="comparison-card old"><small>היום</small><h3>ניהול ידני ומפוזר</h3><ul><li>עשרות הודעות זמינות בפורמטים שונים</li><li>העתקה ידנית לאקסל או לדף</li><li>התנגשויות וחוסרים שמתגלים מאוחר</li><li>החלפות ללא תיעוד ברור</li></ul></ScrollReveal>
@@ -58,6 +59,7 @@ export default function HomePage() {
     </section>
 
     <section className="pro-section features-section">
+      <div className="section-glow violet" style={{ width: 380, height: 380, top: -120, right: -60 }} aria-hidden="true" />
       <ScrollReveal className="section-heading centered"><p className="pro-kicker dark">יכולות המוצר</p><h2>כל הכלים, בלי להעמיס על הצוות</h2></ScrollReveal>
       <div className="capability-grid">{capabilities.map((item,index)=><ScrollReveal className="capability-card" delay={(index%3)*70} key={item.title}><item.icon /><h3>{item.title}</h3><p>{item.text}</p></ScrollReveal>)}</div>
     </section>

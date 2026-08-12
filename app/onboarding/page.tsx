@@ -89,6 +89,9 @@ export default function OnboardingPage() {
 
   return (
     <main className="onboarding-page" dir="rtl">
+      <div className="section-glow blue" style={{ width: 420, height: 420, top: -120, insetInlineEnd: -100 }} aria-hidden="true" />
+      <div className="section-glow violet" style={{ width: 340, height: 340, bottom: -140, insetInlineStart: -60 }} aria-hidden="true" />
+
       <section className="onboarding-intro">
         <BrandLogo href="/" />
         <p className="eyebrow">SHIFT PILOT לעסקים</p>

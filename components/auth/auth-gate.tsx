@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { KeyRound, LockKeyhole, ShieldCheck } from "lucide-react";
+import Link from "next/link";
+import { ArrowRight, KeyRound, LockKeyhole, ShieldCheck } from "lucide-react";
 
 import { BrandLogo } from "@/components/brand/brand-logo";
 import { type AuthUser } from "@/lib/auth-config";
@@ -137,6 +138,10 @@ export function AuthGate() {
 
   return (
     <div className="auth-page">
+      <div className="section-glow blue" style={{ width: 420, height: 420, top: -120, insetInlineStart: -100 }} aria-hidden="true" />
+      <div className="section-glow violet" style={{ width: 340, height: 340, bottom: -140, insetInlineEnd: -60 }} aria-hidden="true" />
+      <Link href="/" className="auth-back-link"><ArrowRight size={15} /> חזרה לאתר</Link>
+
       <section className="auth-hero">
         <BrandLogo />
         <p>
