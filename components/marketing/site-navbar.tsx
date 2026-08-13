@@ -26,7 +26,14 @@ export function SiteNavbar() {
 
   return (
     <div className="flex w-full justify-center px-4 py-6">
-      <div className="relative z-10 flex w-full max-w-3xl items-center justify-between rounded-full bg-[var(--surface)]/95 px-4 py-2.5 shadow-[0_18px_45px_rgba(15,23,42,0.12)] backdrop-blur sm:px-6 sm:py-3">
+      {/* bg-white/95 (not bg-[var(--surface)]/95) -- Tailwind's opacity
+          slash-modifier needs the color in rgb-channel form to compose;
+          against an arbitrary var() holding a hex string it silently
+          resolves to a fully transparent background instead. That bug was
+          invisible over the light page background at the top of the page,
+          but turned the whole pill invisible once scrolled over the dark
+          Hero card -- reported live by a user scrolling the real site. */}
+      <div className="relative z-10 flex w-full max-w-3xl items-center justify-between rounded-full bg-white/95 px-4 py-2.5 shadow-[0_18px_45px_rgba(15,23,42,0.12)] backdrop-blur sm:px-6 sm:py-3">
         <motion.div initial={{ scale: 0.85, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ duration: 0.3 }}>
           <BrandLogo href="/" compact />
         </motion.div>
