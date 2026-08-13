@@ -5,6 +5,7 @@ import { BrandLogo } from "@/components/brand/brand-logo";
 import { CinematicHero } from "@/components/marketing/cinematic-hero";
 import { RolesShowcase } from "@/components/marketing/roles-showcase";
 import { ScrollReveal } from "@/components/marketing/scroll-reveal";
+import { ScrollToTop } from "@/components/marketing/scroll-to-top";
 import { SiteNavbar } from "@/components/marketing/site-navbar";
 
 const capabilities = [
@@ -26,14 +27,14 @@ const setupSteps = [
 
 export default function HomePage() {
   return <main className="marketing-site" dir="rtl">
-    {/* Fixed (not sticky) so it floats over the Hero instead of pushing its
-        h-screen down by the navbar's own height -- otherwise the bottom of
-        a "full screen" Hero (peek card, scroll cue) sits below the fold. */}
+    {/* Fixed so the floating pill nav stays put while the page scrolls;
+        the Hero's own top padding clears its height. */}
     <div className="fixed inset-x-0 top-0 z-40">
       <SiteNavbar />
     </div>
 
     <CinematicHero />
+    <ScrollToTop />
 
     <section className="proof-strip" tabIndex={0} aria-label="ענפים מתאימים"><span>מתאים למסעדות</span><i /> <span>חדרי כושר</span><i /> <span>חנויות</span><i /> <span>מוקדי שירות</span><i /> <span>מרפאות</span><i /> <span>כל צוות שעובד במשמרות</span></section>
 
