@@ -1,0 +1,29 @@
+name: Deliver scheduled notifications
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: shiftpilot-notification-delivery
+  cancel-in-progress: false
+
+jobs:
+  deliver:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Schedule and deliver queued notifications
+        env:
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          NOTIFICATION_CRON_URL: ${{ secrets.NOTIFICATION_CRON_URL }}
+        run: |
+          test -n "$CRON_SECRET"
+          test -n "$NOTIFICATION_CRON_URL"
+          curl --fail-with-body --retry 2 --max-time 50 \
+            -H "Authorization: Bearer $CRON_SECRET" \
+            "$NOTIFICATION_CRON_URL"
