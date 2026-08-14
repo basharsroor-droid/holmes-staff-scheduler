@@ -9,18 +9,19 @@ import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import type { Database } from "@/types/database";
 
 type AvailabilityStatus = Database["public"]["Enums"]["availability_status"];
-type Period = { id: string; branch_id: string; year: number; month: number; status: string; submission_closes_at: string };
-type Worker = { id: string; user_id: string; branch_id: string | null; role: string; profile: { id: string; first_name: string; last_name: string; color: string } | null };
+type Period = { id: string; branch_id: string; department_id: string; year: number; month: number; status: string; submission_closes_at: string };
+type Worker = { id: string; user_id: string; branch_id: string | null; department_ids: string[]; role: string; profile: { id: string; first_name: string; last_name: string; color: string } | null };
 type Submission = { id: string; schedule_period_id: string; user_id: string; submitted_at: string | null; manager_note: string | null; updated_at: string };
 type Entry = { id: string; submission_id: string; shift_template_id: string; shift_date: string; status: AvailabilityStatus; note: string | null };
 type Template = { id: string; name: string; start_time: string; end_time: string };
 type Branch = { id: string; name: string };
+type Department = { id: string; branch_id: string; name: string };
 
 const monthNames = ["ינואר","פברואר","מרץ","אפריל","מאי","יוני","יולי","אוגוסט","ספטמבר","אוקטובר","נובמבר","דצמבר"];
 const statusLabels: Record<AvailabilityStatus, string> = { preferred: "מועדפת", available: "זמין/ה", only_if_needed: "רק אם צריך", unavailable: "לא זמין/ה" };
 
-export function SubmissionsClient({ periods, workers, submissions: initialSubmissions, entries, templates, branches }: {
-  periods: Period[]; workers: Worker[]; submissions: Submission[]; entries: Entry[]; templates: Template[]; branches: Branch[];
+export function SubmissionsClient({ periods, workers, submissions: initialSubmissions, entries, templates, branches, departments }: {
+  periods: Period[]; workers: Worker[]; submissions: Submission[]; entries: Entry[]; templates: Template[]; branches: Branch[]; departments: Department[];
 }) {
   const supabase = useMemo(() => createSupabaseBrowserClient(), []);
   const [selectedPeriodId, setSelectedPeriodId] = useState(periods[0]?.id ?? "");
@@ -32,7 +33,7 @@ export function SubmissionsClient({ periods, workers, submissions: initialSubmis
   const { message, kind, setMessage } = useStatusMessage();
 
   const period = periods.find((item) => item.id === selectedPeriodId);
-  const periodWorkers = period ? workers.filter((worker) => !worker.branch_id || worker.branch_id === period.branch_id) : [];
+  const periodWorkers = period ? workers.filter((worker) => worker.department_ids.includes(period.department_id)) : [];
   const periodSubmissions = submissions.filter((item) => item.schedule_period_id === selectedPeriodId);
   const submittedCount = periodSubmissions.filter((item) => item.submitted_at).length;
   const draftCount = periodSubmissions.filter((item) => !item.submitted_at).length;
@@ -58,7 +59,7 @@ export function SubmissionsClient({ periods, workers, submissions: initialSubmis
   if (!periods.length) return <section className="template-list-card"><div className="empty-template-state"><ClipboardCheck size={42} /><h2>אין עדיין חודשי עבודה</h2><p>פתח חודש עבודה כדי להתחיל לקבל הגשות.</p></div></section>;
 
   return <section className="template-list-card">
-    <div className="template-list-heading"><div><p className="eyebrow">חודש וסניף</p><h2>{period ? `${monthNames[period.month - 1]} ${period.year}` : ""}</h2></div><select className="input" style={{ maxWidth: 300 }} aria-label="בחירת חודש וסניף" value={selectedPeriodId} onChange={(e) => { setSelectedPeriodId(e.target.value); setExpandedUserId(null); }}>{periods.map((item) => <option value={item.id} key={item.id}>{monthNames[item.month - 1]} {item.year} · {branches.find((branch) => branch.id === item.branch_id)?.name ?? "סניף"}</option>)}</select></div>
+    <div className="template-list-heading"><div><p className="eyebrow">חודש, סניף ומחלקה</p><h2>{period ? `${monthNames[period.month - 1]} ${period.year}` : ""}</h2></div><select className="input" style={{ maxWidth: 360 }} aria-label="בחירת חודש, סניף ומחלקה" value={selectedPeriodId} onChange={(e) => { setSelectedPeriodId(e.target.value); setExpandedUserId(null); }}>{periods.map((item) => <option value={item.id} key={item.id}>{monthNames[item.month - 1]} {item.year} · {branches.find((branch) => branch.id === item.branch_id)?.name ?? "סניף"} · {departments.find((department) => department.id === item.department_id)?.name ?? "מחלקה"}</option>)}</select></div>
     <div className="workspace-stats" style={{ margin: "0 0 20px" }}>
       <article><Users /><span><strong>{periodWorkers.length}</strong><small>עובדים פעילים</small></span></article>
       <article><CheckCircle2 /><span><strong>{submittedCount}</strong><small>הגישו סופית</small></span></article>

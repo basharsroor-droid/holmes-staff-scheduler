@@ -10,8 +10,8 @@ import type { Database } from "@/types/database";
 
 type AvailabilityStatus = Database["public"]["Enums"]["availability_status"];
 type LeaveType = Database["public"]["Enums"]["leave_type"];
-type Period = { id: string; year: number; month: number; status: string; submission_opens_at: string; submission_closes_at: string };
-type Template = { id: string; name: string; start_time: string; end_time: string };
+type Period = { id: string; department_id: string; year: number; month: number; status: string; submission_opens_at: string; submission_closes_at: string };
+type Template = { id: string; department_id: string; name: string; start_time: string; end_time: string };
 type Submission = { id: string; schedule_period_id: string; submitted_at: string | null; manager_note: string | null };
 type Entry = { id: string; submission_id: string; shift_template_id: string; shift_date: string; status: AvailabilityStatus; note: string | null };
 type LeaveRequest = { id: string; leave_type: LeaveType; start_date: string; end_date: string; note: string | null };
@@ -45,6 +45,7 @@ export function AvailabilityClient({ organizationId, userId, periods, templates,
   const { message, kind, setMessage } = useStatusMessage();
 
   const period = periods.find((item) => item.id === selectedPeriodId);
+  const periodTemplates = period ? templates.filter((template) => template.department_id === period.department_id) : [];
   const days = useMemo(() => period ? Array.from({ length: new Date(period.year, period.month, 0).getDate() }, (_, index) => index + 1) : [], [period]);
   const deadlinePassed = period ? new Date(period.submission_closes_at) < new Date() : false;
   const notOpened = period ? new Date(period.submission_opens_at) > new Date() : false;
@@ -161,7 +162,7 @@ export function AvailabilityClient({ organizationId, userId, periods, templates,
         const date = dateKey(period.year, period.month, day);
         const label = new Date(`${date}T12:00:00`).toLocaleDateString("he-IL", { weekday: "long", day: "numeric", month: "numeric" });
         return <article className="availability-card" key={date}><strong>{label}</strong>
-          {templates.map((template) => {
+          {periodTemplates.map((template) => {
             const key = `${date}|${template.id}`; const choice = choices[key] ?? { status: "", note: "" };
             return <div className="card-muted" key={template.id}><div className="shift-title"><span>{template.name}</span><small>{template.start_time.slice(0,5)}–{template.end_time.slice(0,5)}</small></div>
               <select className="input" disabled={deadlinePassed || notOpened} aria-label={`זמינות ל${label}, משמרת ${template.name}`} value={choice.status} onChange={(e) => updateChoice(key, { status: e.target.value as AvailabilityStatus | "" })}><option value="">לא סומן</option>{Object.entries(statusLabels).map(([value, label]) => <option value={value} key={value}>{label}</option>)}</select>

@@ -11,10 +11,11 @@ import type { Database } from "@/types/database";
 
 type AvailabilityStatus = Database["public"]["Enums"]["availability_status"];
 type LeaveType = Database["public"]["Enums"]["leave_type"];
-type Period = { id: string; branch_id: string; year: number; month: number; status: string; published_at: string | null };
+type Period = { id: string; branch_id: string; department_id: string; year: number; month: number; status: string; published_at: string | null };
 type Branch = { id: string; name: string };
-type Template = { id: string; branch_id: string; name: string; start_time: string; end_time: string; required_employees: number; requires_senior_employee: boolean };
-type Worker = { id: string; user_id: string; branch_id: string | null; role: string; seniority_level: string; can_open: boolean; can_close: boolean; weekly_hours_limit: number | null; profile: { id: string; first_name: string; last_name: string; color: string } | null };
+type Department = { id: string; branch_id: string; name: string };
+type Template = { id: string; branch_id: string; department_id: string; name: string; start_time: string; end_time: string; required_employees: number; requires_senior_employee: boolean };
+type Worker = { id: string; user_id: string; branch_id: string | null; department_ids: string[]; role: string; seniority_level: string; can_open: boolean; can_close: boolean; weekly_hours_limit: number | null; profile: { id: string; first_name: string; last_name: string; color: string } | null };
 type Shift = { id: string; schedule_period_id: string; shift_template_id: string | null; shift_date: string; name: string; start_time: string; end_time: string; required_employees: number; status: string };
 type Assignment = { id: string; shift_id: string; user_id: string };
 type Submission = { id: string; schedule_period_id: string; user_id: string; submitted_at: string | null };
@@ -38,8 +39,8 @@ function dateKey(year: number, month: number, day: number) {
   return `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
 }
 
-export function ScheduleBuilderClient({ organizationId, currentUserId, callerRole, periods, branches, templates, workers, shifts: initialShifts, assignments: initialAssignments, submissions, availability, leaveRequests, initialMinRestHours }: {
-  organizationId: string; currentUserId: string; callerRole: string; periods: Period[]; branches: Branch[]; templates: Template[]; workers: Worker[]; shifts: Shift[]; assignments: Assignment[]; submissions: Submission[]; availability: Availability[]; leaveRequests: LeaveRequest[]; initialMinRestHours: number | null;
+export function ScheduleBuilderClient({ organizationId, currentUserId, callerRole, periods, branches, departments, templates, workers, shifts: initialShifts, assignments: initialAssignments, submissions, availability, leaveRequests, initialMinRestHours }: {
+  organizationId: string; currentUserId: string; callerRole: string; periods: Period[]; branches: Branch[]; departments: Department[]; templates: Template[]; workers: Worker[]; shifts: Shift[]; assignments: Assignment[]; submissions: Submission[]; availability: Availability[]; leaveRequests: LeaveRequest[]; initialMinRestHours: number | null;
 }) {
   const supabase = useMemo(() => createSupabaseBrowserClient(), []);
   const [selectedPeriodId, setSelectedPeriodId] = useState(periods[0]?.id ?? "");
@@ -59,8 +60,8 @@ export function ScheduleBuilderClient({ organizationId, currentUserId, callerRol
 
   const period = periods.find((item) => item.id === selectedPeriodId);
   const periodStatus = period ? (periodStatusOverrides[period.id] ?? period.status) : undefined;
-  const periodTemplates = period ? templates.filter((item) => item.branch_id === period.branch_id) : [];
-  const periodWorkers = period ? workers.filter((item) => !item.branch_id || item.branch_id === period.branch_id) : [];
+  const periodTemplates = period ? templates.filter((item) => item.department_id === period.department_id) : [];
+  const periodWorkers = period ? workers.filter((item) => item.department_ids.includes(period.department_id)) : [];
   // Cancelled shifts drop out of the active board entirely -- they're no
   // longer part of what needs staffing, matching the same soft-delete
   // treatment already used elsewhere in this schema (e.g. swap_status).
@@ -73,7 +74,7 @@ export function ScheduleBuilderClient({ organizationId, currentUserId, callerRol
   // useful duplication sources -- an empty period would just duplicate
   // nothing.
   const duplicateCandidates = period
-    ? periods.filter((item) => item.branch_id === period.branch_id && item.id !== period.id && shifts.some((shift) => shift.schedule_period_id === item.id))
+    ? periods.filter((item) => item.department_id === period.department_id && item.id !== period.id && shifts.some((shift) => shift.schedule_period_id === item.id))
     : [];
   const periodSubmissions = submissions.filter((item) => item.schedule_period_id === selectedPeriodId && item.submitted_at);
   const days = period ? Array.from({ length: new Date(period.year, period.month, 0).getDate() }, (_, index) => dateKey(period.year, period.month, index + 1)) : [];
@@ -333,7 +334,7 @@ export function ScheduleBuilderClient({ organizationId, currentUserId, callerRol
 
   return <section className="template-list-card">
     <div className="no-print">
-    <div className="template-list-heading"><div><p className="eyebrow">חודש וסניף</p><h2>{period ? `${monthNames[period.month - 1]} ${period.year}` : ""}</h2></div><select className="input" style={{ maxWidth: 300 }} aria-label="בחירת חודש וסניף" value={selectedPeriodId} onChange={(event) => setSelectedPeriodId(event.target.value)}>{periods.map((item) => <option value={item.id} key={item.id}>{monthNames[item.month - 1]} {item.year} · {branches.find((branch) => branch.id === item.branch_id)?.name ?? "סניף"}</option>)}</select></div>
+    <div className="template-list-heading"><div><p className="eyebrow">חודש, סניף ומחלקה</p><h2>{period ? `${monthNames[period.month - 1]} ${period.year}` : ""}</h2></div><select className="input" style={{ maxWidth: 360 }} aria-label="בחירת חודש, סניף ומחלקה" value={selectedPeriodId} onChange={(event) => setSelectedPeriodId(event.target.value)}>{periods.map((item) => <option value={item.id} key={item.id}>{monthNames[item.month - 1]} {item.year} · {branches.find((branch) => branch.id === item.branch_id)?.name ?? "סניף"} · {departments.find((department) => department.id === item.department_id)?.name ?? "מחלקה"}</option>)}</select></div>
     <div className="workspace-stats" style={{ margin: "0 0 20px" }}><article><CalendarRange /><span><strong>{periodShifts.length}</strong><small>משמרות בחודש</small></span></article><article><CheckCircle2 /><span><strong>{filled}</strong><small>משמרות מאוישות</small></span></article><article><UserPlus /><span><strong>{periodWorkers.length}</strong><small>עובדים לשיבוץ</small></span></article></div>
     <div className="actions" style={{ marginBottom: 18 }}><button className="button primary" disabled={!!busy || !periodTemplates.length} onClick={() => void generateMonth()}>{busy === "generate" ? <Loader2 className="spin" size={16} /> : <Sparkles size={16} />} {periodShifts.length ? "סנכרון משמרות החודש" : "יצירת משמרות החודש"}</button>{periodStatus === "published" ? <button className="button" disabled={!!busy} onClick={() => void unpublish()}>{busy === "unpublish" ? <Loader2 className="spin" size={16} /> : <Undo2 size={16} />} ביטול פרסום</button> : <button className="button" disabled={!!busy || !periodShifts.length} onClick={() => void publish()}>{busy === "publish" ? <Loader2 className="spin" size={16} /> : <Send size={16} />} פרסום הסידור</button>}{periodShifts.length ? <button className="button" onClick={exportCsv}><FileDown size={16} /> ייצוא ל-Excel</button> : null}{periodShifts.length ? <button className="button" onClick={() => window.print()}><Printer size={16} /> הדפסה / PDF</button> : null}</div>
     {!periodShifts.length && duplicateCandidates.length
@@ -375,7 +376,7 @@ export function ScheduleBuilderClient({ organizationId, currentUserId, callerRol
     <StatusMessage message={message} kind={kind} />
     </div>
     {period ? <div className="print-only">
-      <h2>{monthNames[period.month - 1]} {period.year} · {branches.find((branch) => branch.id === period.branch_id)?.name ?? "סניף"}</h2>
+      <h2>{monthNames[period.month - 1]} {period.year} · {branches.find((branch) => branch.id === period.branch_id)?.name ?? "סניף"} · {departments.find((department) => department.id === period.department_id)?.name ?? "מחלקה"}</h2>
       {days.map((date) => {
         const dayShifts = periodShifts.filter((shift) => shift.shift_date === date);
         if (!dayShifts.length) return null;
