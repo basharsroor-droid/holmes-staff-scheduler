@@ -629,7 +629,18 @@ button {
   grid-column: 1 / -1;
   display: flex;
   flex-wrap: wrap;
-  align-items: flex-end;
+  /*
+   * .field (label above input, ~66px) and .check-field (single-line
+   * checkbox + text, ~40px) are structurally different heights. align-items
+   * previously used flex-end, which glues every item's *bottom* to the same
+   * line -- for a much shorter check-field that visually yanks the checkbox
+   * ~26px below where the .field labels start, reading as "the checkbox is
+   * floating in the wrong place" (confirmed by measuring actual rendered
+   * getBoundingClientRect() of each child). flex-start instead lines up
+   * every item's top, which is where a .field's own label already begins,
+   * so nothing needs an artificial nudge to look aligned.
+   */
+  align-items: flex-start;
   gap: 14px;
   padding-top: 14px;
   margin-top: 2px;
