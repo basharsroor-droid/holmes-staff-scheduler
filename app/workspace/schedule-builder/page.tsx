@@ -16,12 +16,14 @@ export default async function ScheduleBuilderPage() {
   if (!membership || !["owner", "admin", "manager"].includes(membership.role)) redirect("/workspace");
 
   const organizationId = membership.organization_id;
-  const [organizationResult, branchesResult, periodsResult, templatesResult, membershipsResult, leaveRequestsResult] = await Promise.all([
+  const [organizationResult, branchesResult, departmentsResult, periodsResult, templatesResult, membershipsResult, departmentMembershipsResult, leaveRequestsResult] = await Promise.all([
     supabase.from("organizations").select("name, min_rest_hours").eq("id", organizationId).single(),
     supabase.from("branches").select("id, name").eq("organization_id", organizationId).eq("active", true).order("name"),
-    supabase.from("schedule_periods").select("id, branch_id, year, month, status, published_at").eq("organization_id", organizationId).order("year", { ascending: false }).order("month", { ascending: false }),
-    supabase.from("shift_templates").select("id, branch_id, name, start_time, end_time, required_employees, requires_senior_employee").eq("organization_id", organizationId).eq("active", true).order("start_time"),
+    supabase.from("departments").select("id, branch_id, name").eq("organization_id", organizationId).eq("active", true).order("name"),
+    supabase.from("schedule_periods").select("id, branch_id, department_id, year, month, status, published_at").eq("organization_id", organizationId).order("year", { ascending: false }).order("month", { ascending: false }),
+    supabase.from("shift_templates").select("id, branch_id, department_id, name, start_time, end_time, required_employees, requires_senior_employee").eq("organization_id", organizationId).eq("active", true).order("start_time"),
     supabase.from("organization_memberships").select("id, user_id, branch_id, role, seniority_level, can_open, can_close, weekly_hours_limit").eq("organization_id", organizationId).eq("status", "active").in("role", ["employee", "manager"]),
+    supabase.from("department_memberships").select("membership_id, department_id").eq("organization_id", organizationId),
     supabase.from("leave_requests").select("id, user_id, leave_type, start_date, end_date").eq("organization_id", organizationId)
   ]);
   if (!organizationResult.data) redirect("/workspace");
@@ -41,7 +43,11 @@ export default async function ScheduleBuilderPage() {
   ]);
 
   const profileMap = new Map((profiles ?? []).map((profile) => [profile.id, profile]));
-  const workers = (membershipsResult.data ?? []).map((item) => ({ ...item, profile: profileMap.get(item.user_id) ?? null }));
+  const workers = (membershipsResult.data ?? []).map((item) => ({
+    ...item,
+    department_ids: (departmentMembershipsResult.data ?? []).filter((assignment) => assignment.membership_id === item.id).map((assignment) => assignment.department_id),
+    profile: profileMap.get(item.user_id) ?? null
+  }));
 
   return <main className="workspace-home" dir="rtl">
     <header className="workspace-subheader"><div>
@@ -54,6 +60,7 @@ export default async function ScheduleBuilderPage() {
       assignments={assignments ?? []}
       availability={availability ?? []}
       branches={branchesResult.data ?? []}
+      departments={departmentsResult.data ?? []}
       callerRole={membership.role}
       currentUserId={user.id}
       initialMinRestHours={organizationResult.data.min_rest_hours}
