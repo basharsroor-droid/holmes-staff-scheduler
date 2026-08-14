@@ -655,6 +655,20 @@ button {
   padding: 10px 14px;
 }
 
+/* The employees screen contains substantially wider controls than the other
+ * template workbenches. At tablet and narrow-desktop widths the generic
+ * two-column layout leaves the team card too narrow, so its actions overflow
+ * into the invitation card. Stack only this workbench earlier; the regular
+ * mobile rules below still handle the rows themselves at 760px. */
+@media (max-width: 1100px) {
+  .employees-workbench {
+    grid-template-columns: 1fr;
+  }
+  .employees-workbench .template-form-card {
+    position: static;
+  }
+}
+
 @media (max-width: 760px) {
   .workspace-welcome { align-items: flex-start; flex-direction: column; margin-top: 34px; padding: 24px; }
   .workspace-stats { grid-template-columns: 1fr; }
