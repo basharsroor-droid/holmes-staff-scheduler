@@ -22,11 +22,12 @@ export default async function WorkMonthsPage() {
 
   if (!membership || !["owner", "admin", "manager"].includes(membership.role)) redirect("/workspace");
 
-  const [organizationResult, branchesResult, templatesResult, periodsResult] = await Promise.all([
+  const [organizationResult, branchesResult, departmentsResult, templatesResult, periodsResult] = await Promise.all([
     supabase.from("organizations").select("name").eq("id", membership.organization_id).single(),
     supabase.from("branches").select("id, name").eq("organization_id", membership.organization_id).eq("active", true).order("name"),
-    supabase.from("shift_templates").select("id, branch_id, name, start_time, end_time").eq("organization_id", membership.organization_id).eq("active", true).order("start_time"),
-    supabase.from("schedule_periods").select("id, branch_id, year, month, status, submission_opens_at, submission_closes_at, published_at").eq("organization_id", membership.organization_id).order("year", { ascending: false }).order("month", { ascending: false })
+    supabase.from("departments").select("id, branch_id, name").eq("organization_id", membership.organization_id).eq("active", true).order("name"),
+    supabase.from("shift_templates").select("id, branch_id, department_id, name, start_time, end_time").eq("organization_id", membership.organization_id).eq("active", true).order("start_time"),
+    supabase.from("schedule_periods").select("id, branch_id, department_id, year, month, status, submission_opens_at, submission_closes_at, published_at").eq("organization_id", membership.organization_id).order("year", { ascending: false }).order("month", { ascending: false })
   ]);
 
   if (!organizationResult.data) redirect("/workspace");
@@ -40,6 +41,7 @@ export default async function WorkMonthsPage() {
     </div></header>
     <WorkMonthsClient
       branches={branchesResult.data ?? []}
+      departments={departmentsResult.data ?? []}
       currentUserId={user.id}
       initialPeriods={periodsResult.data ?? []}
       organizationId={membership.organization_id}
