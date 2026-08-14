@@ -29,7 +29,13 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          # Node 20 reached end-of-life maintenance in April 2026. Node 22
+          # is current LTS; it's also required for tests/unit (Node's
+          # native TypeScript type-stripping, used to run
+          # lib/israeli-holidays.ts's unit tests directly with no
+          # transpile step, needs the --experimental-strip-types flag
+          # available from 22.6 -- Node 20 doesn't have it at all).
+          node-version: 22
           cache: npm
 
       - name: Install locked dependencies
@@ -37,6 +43,9 @@ jobs:
 
       - name: Validate tenant schema
         run: npm run validate:schema
+
+      - name: Run unit tests
+        run: npm run test:unit
 
       - name: Build production application
         run: npm run build

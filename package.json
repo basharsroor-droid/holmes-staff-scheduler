@@ -9,9 +9,11 @@
     "lint": "eslint .",
     "health:production": "node scripts/check-production-health.mjs",
     "test:e2e": "playwright test",
+    "test:unit": "node --experimental-strip-types --test tests/unit/**/*.test.mjs",
     "validate:schema": "node scripts/validate-supabase-schema.mjs"
   },
   "dependencies": {
+    "@hebcal/core": "^6.9.2",
     "@radix-ui/react-slot": "^1.2.4",
     "@supabase/ssr": "0.12.4",
     "@supabase/supabase-js": "2.112.1",
