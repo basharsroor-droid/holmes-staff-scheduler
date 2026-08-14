@@ -5,6 +5,7 @@ import { AlertTriangle, CalendarRange, CheckCircle2, CopyPlus, FileDown, Loader2
 
 import { StatusMessage } from "@/components/workspace/status-message";
 import { useStatusMessage } from "@/lib/hooks/use-status-message";
+import { getIsraeliHolidaysForMonth, type IsraeliHoliday, type IsraeliHolidayKind } from "@/lib/israeli-holidays";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import type { Database } from "@/types/database";
 
@@ -23,6 +24,15 @@ type LeaveRequest = { id: string; user_id: string; leave_type: LeaveType; start_
 const monthNames = ["ינואר","פברואר","מרץ","אפריל","מאי","יוני","יולי","אוגוסט","ספטמבר","אוקטובר","נובמבר","דצמבר"];
 const availabilityLabels: Record<AvailabilityStatus, string> = { preferred: "מועדפת", available: "זמין/ה", only_if_needed: "רק אם צריך", unavailable: "לא זמין/ה" };
 const leaveTypeLabels: Record<LeaveType, string> = { vacation: "בחופשה", sick: "במחלה" };
+// Reuses the existing .badge color system (see globals.css) instead of
+// inventing new colors, so holiday badges look consistent with every
+// other badge already in the app.
+const holidayBadgeClass: Record<IsraeliHolidayKind, string> = {
+  chag: "critical",
+  chagEve: "warning",
+  cholHamoed: "opening",
+  memorial: "closing"
+};
 
 function dateKey(year: number, month: number, day: number) {
   return `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
@@ -67,6 +77,10 @@ export function ScheduleBuilderClient({ organizationId, currentUserId, callerRol
     : [];
   const periodSubmissions = submissions.filter((item) => item.schedule_period_id === selectedPeriodId && item.submitted_at);
   const days = period ? Array.from({ length: new Date(period.year, period.month, 0).getDate() }, (_, index) => dateKey(period.year, period.month, index + 1)) : [];
+  const holidaysByDate = useMemo(
+    () => (period ? getIsraeliHolidaysForMonth(period.year, period.month) : new Map<string, IsraeliHoliday>()),
+    [period?.year, period?.month]
+  );
   const filled = periodShifts.filter((shift) => assignments.filter((item) => item.shift_id === shift.id).length >= shift.required_employees).length;
 
   function workerName(userId: string) {
@@ -338,8 +352,13 @@ export function ScheduleBuilderClient({ organizationId, currentUserId, callerRol
     <div className="availability-board">{days.map((date) => {
       const dayShifts = periodShifts.filter((shift) => shift.shift_date === date);
       if (!dayShifts.length) return null;
+      const holiday = holidaysByDate.get(date);
       return <article className="availability-card" key={date}>
-        <div className="shift-title"><strong>{new Date(`${date}T12:00:00`).toLocaleDateString("he-IL", { weekday: "long", day: "numeric", month: "numeric" })}</strong>
+        <div className="shift-title">
+          <span style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+            <strong>{new Date(`${date}T12:00:00`).toLocaleDateString("he-IL", { weekday: "long", day: "numeric", month: "numeric" })}</strong>
+            {holiday ? <span className={`badge ${holidayBadgeClass[holiday.kind]}`}>{holiday.label}</span> : null}
+          </span>
           <button type="button" className="button danger" disabled={!!busy} onClick={() => void cancelDay(date)}>{busy === `cancel-${date}` ? <Loader2 className="spin" size={14} /> : <Trash2 size={14} />} ביטול משמרות היום</button>
         </div>
         {dayShifts.map((shift) => {
