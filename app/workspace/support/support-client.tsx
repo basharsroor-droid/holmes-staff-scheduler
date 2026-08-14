@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { CheckCircle2, Clock3, LifeBuoy, Loader2, Send } from "lucide-react";
+import { Archive, CheckCircle2, Clock3, LifeBuoy, Loader2, Send } from "lucide-react";
 
 import { StatusMessage } from "@/components/workspace/status-message";
 import { useStatusMessage } from "@/lib/hooks/use-status-message";
@@ -11,7 +11,7 @@ import type { Database } from "@/types/database";
 type Category = Database["public"]["Enums"]["support_ticket_category"];
 type Priority = Database["public"]["Enums"]["support_ticket_priority"];
 type TicketStatus = Database["public"]["Enums"]["support_ticket_status"];
-type Ticket = { id: string; organization_id: string; organization_name: string; created_by: string; category: Category; priority: Priority; subject: string; description: string; status: TicketStatus; resolution_note: string | null; created_at: string; updated_at: string };
+type Ticket = { id: string; organization_id: string; organization_name: string; created_by: string; category: Category; priority: Priority; subject: string; description: string; status: TicketStatus; resolution_note: string | null; assigned_to: string | null; created_at: string; updated_at: string };
 
 const categories: Record<Category, string> = { technical: "תקלה טכנית", account: "חשבון והרשאות", billing: "חיוב ותשלום", feature: "הצעה לשיפור", other: "נושא אחר" };
 const priorities: Record<Priority, string> = { normal: "רגילה", high: "גבוהה", urgent: "דחופה" };
@@ -32,7 +32,7 @@ export function SupportClient({ organizationId, currentUserId, canManage, initia
     if (subject.trim().length < 4 || description.trim().length < 10) { setMessage("יש לכתוב כותרת ותיאור מפורט של הבעיה.", "error"); return; }
     setBusy("create"); setMessage("");
     const { data, error } = await supabase.from("support_tickets").insert({ organization_id: organizationId, created_by: currentUserId, category, priority, subject: subject.trim(), description: description.trim() })
-      .select("id, organization_id, organization_name, created_by, category, priority, subject, description, status, resolution_note, created_at, updated_at").single();
+      .select("id, organization_id, organization_name, created_by, category, priority, subject, description, status, resolution_note, assigned_to, created_at, updated_at").single();
     setBusy("");
     if (error || !data) { setMessage("פתיחת הפנייה נכשלה. נסו שוב בעוד רגע.", "error"); return; }
     setTickets((current) => [data, ...current]); setSubject(""); setDescription(""); setPriority("normal");
@@ -41,11 +41,15 @@ export function SupportClient({ organizationId, currentUserId, canManage, initia
 
   async function updateTicket(ticket: Ticket, status: TicketStatus) {
     const resolutionNote = notes[ticket.id]?.trim() || null;
+    if (["resolved", "closed"].includes(status) && !resolutionNote) {
+      setMessage("יש לכתוב עדכון ללקוח לפני פתרון או סגירת הפנייה.", "error");
+      return;
+    }
     setBusy(ticket.id); setMessage("");
-    const { error } = await supabase.from("support_tickets").update({ status, resolution_note: resolutionNote }).eq("id", ticket.id);
+    const { error } = await supabase.from("support_tickets").update({ status, resolution_note: resolutionNote, assigned_to: currentUserId }).eq("id", ticket.id);
     setBusy("");
     if (error) { setMessage("עדכון הפנייה נכשל.", "error"); return; }
-    setTickets((current) => current.map((item) => item.id === ticket.id ? { ...item, status, resolution_note: resolutionNote, updated_at: new Date().toISOString() } : item));
+    setTickets((current) => current.map((item) => item.id === ticket.id ? { ...item, status, resolution_note: resolutionNote, assigned_to: currentUserId, updated_at: new Date().toISOString() } : item));
     setMessage("סטטוס הפנייה עודכן.");
   }
 
@@ -63,7 +67,7 @@ export function SupportClient({ organizationId, currentUserId, canManage, initia
       <div className="template-list">{tickets.map((ticket) => <article className="card support-ticket" key={ticket.id}>
         <div className="support-ticket-head"><span><strong>{ticket.subject}</strong><small>{canManage ? `${ticket.organization_name} · ` : ""}{categories[ticket.category]} · דחיפות {priorities[ticket.priority]} · {new Date(ticket.created_at).toLocaleDateString("he-IL")}</small></span><span className={`badge ${["resolved", "closed"].includes(ticket.status) ? "success" : ticket.priority === "urgent" ? "critical" : "warning"}`}>{statuses[ticket.status]}</span></div>
         <p className="card-muted">{ticket.description}</p>{ticket.resolution_note ? <p><strong>עדכון טיפול:</strong> {ticket.resolution_note}</p> : null}
-        {canManage ? <div className="support-manager-controls"><label className="field"><span>עדכון ללקוח</span><textarea className="textarea" value={notes[ticket.id] ?? ""} onChange={(event) => setNotes((current) => ({ ...current, [ticket.id]: event.target.value }))} placeholder="מה בוצע או איזה מידע נוסף דרוש?" /></label><div className="actions"><button className="button" disabled={!!busy} onClick={() => void updateTicket(ticket, "in_progress")}>בטיפול</button><button className="button" disabled={!!busy} onClick={() => void updateTicket(ticket, "waiting_customer")}>ממתינה ללקוח</button><button className="button primary" disabled={!!busy} onClick={() => void updateTicket(ticket, "resolved")}>{busy === ticket.id ? <Loader2 className="spin" size={16} /> : <CheckCircle2 size={16} />} סימון כנפתרה</button></div></div> : null}
+        {canManage ? <div className="support-manager-controls"><label className="field"><span>עדכון ללקוח</span><textarea className="textarea" value={notes[ticket.id] ?? ""} onChange={(event) => setNotes((current) => ({ ...current, [ticket.id]: event.target.value }))} placeholder="מה בוצע או איזה מידע נוסף דרוש?" /></label><div className="actions"><button className="button" disabled={!!busy} onClick={() => void updateTicket(ticket, "in_progress")}>קבלה לטיפול</button><button className="button" disabled={!!busy} onClick={() => void updateTicket(ticket, "waiting_customer")}>ממתינה ללקוח</button><button className="button primary" disabled={!!busy} onClick={() => void updateTicket(ticket, "resolved")}>{busy === ticket.id ? <Loader2 className="spin" size={16} /> : <CheckCircle2 size={16} />} סימון כנפתרה</button><button className="button danger" disabled={!!busy} onClick={() => void updateTicket(ticket, "closed")}><Archive size={16} /> סגירת פנייה</button></div></div> : null}
       </article>)}</div>
       {!tickets.length ? <div className="empty-template-state"><LifeBuoy size={40} /><h2>עדיין אין פניות</h2><p>פנייה חדשה שתפתחו תופיע כאן עם סטטוס הטיפול.</p></div> : null}
     </section>

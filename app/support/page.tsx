@@ -18,7 +18,7 @@ export default async function PlatformSupportPage() {
   if (!supportAgent) redirect("/workspace");
 
   const { data: tickets } = await supabase.from("support_tickets")
-    .select("id, organization_id, organization_name, created_by, category, priority, subject, description, status, resolution_note, created_at, updated_at")
+    .select("id, organization_id, organization_name, created_by, category, priority, subject, description, status, resolution_note, assigned_to, created_at, updated_at")
     .order("created_at", { ascending: false }).limit(250);
 
   return <main className="workspace-home" dir="rtl">
