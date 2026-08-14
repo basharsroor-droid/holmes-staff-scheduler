@@ -17,7 +17,7 @@ const categories: Record<Category, string> = { technical: "תקלה טכנית",
 const priorities: Record<Priority, string> = { normal: "רגילה", high: "גבוהה", urgent: "דחופה" };
 const statuses: Record<TicketStatus, string> = { open: "חדשה", in_progress: "בטיפול", waiting_customer: "ממתינה ללקוח", resolved: "נפתרה", closed: "נסגרה" };
 
-export function SupportClient({ organizationId, currentUserId, canManage, initialTickets }: { organizationId: string; currentUserId: string; canManage: boolean; initialTickets: Ticket[] }) {
+export function SupportClient({ organizationId, currentUserId, canManage, initialTickets, showCreateForm = true }: { organizationId: string; currentUserId: string; canManage: boolean; initialTickets: Ticket[]; showCreateForm?: boolean }) {
   const supabase = useMemo(() => createSupabaseBrowserClient(), []);
   const [tickets, setTickets] = useState(initialTickets);
   const [category, setCategory] = useState<Category>("technical");
@@ -32,10 +32,10 @@ export function SupportClient({ organizationId, currentUserId, canManage, initia
     if (subject.trim().length < 4 || description.trim().length < 10) { setMessage("יש לכתוב כותרת ותיאור מפורט של הבעיה.", "error"); return; }
     setBusy("create"); setMessage("");
     const { data, error } = await supabase.from("support_tickets").insert({ organization_id: organizationId, created_by: currentUserId, category, priority, subject: subject.trim(), description: description.trim() })
-      .select("id, organization_id, created_by, category, priority, subject, description, status, resolution_note, created_at, updated_at").single();
+      .select("id, organization_id, organization_name, created_by, category, priority, subject, description, status, resolution_note, created_at, updated_at").single();
     setBusy("");
     if (error || !data) { setMessage("פתיחת הפנייה נכשלה. נסו שוב בעוד רגע.", "error"); return; }
-    setTickets((current) => [{ ...data, organization_name: current[0]?.organization_name ?? "העסק שלי" }, ...current]); setSubject(""); setDescription(""); setPriority("normal");
+    setTickets((current) => [data, ...current]); setSubject(""); setDescription(""); setPriority("normal");
     setMessage("הפנייה נפתחה בהצלחה ונשמרה במרכז התמיכה.");
   }
 
@@ -49,15 +49,15 @@ export function SupportClient({ organizationId, currentUserId, canManage, initia
     setMessage("סטטוס הפנייה עודכן.");
   }
 
-  return <div className="template-workbench support-workbench">
-    <section className="template-form-card">
+  return <div className={`template-workbench support-workbench${showCreateForm ? "" : " support-console-workbench"}`}>
+    {showCreateForm ? <section className="template-form-card">
       <div><p className="eyebrow">פנייה חדשה</p><h2>איך אפשר לעזור?</h2></div>
       <label className="field"><span>נושא</span><input className="input" maxLength={120} value={subject} onChange={(event) => setSubject(event.target.value)} placeholder="למשל: לא ניתן לפרסם את הסידור" /></label>
       <div className="form-grid two"><label className="field"><span>קטגוריה</span><select className="input" value={category} onChange={(event) => setCategory(event.target.value as Category)}>{Object.entries(categories).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label><label className="field"><span>דחיפות</span><select className="input" value={priority} onChange={(event) => setPriority(event.target.value as Priority)}>{Object.entries(priorities).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label></div>
       <label className="field"><span>תיאור הבעיה</span><textarea className="textarea" maxLength={4000} value={description} onChange={(event) => setDescription(event.target.value)} placeholder="מה ניסיתם לעשות, באיזה מסך ומה בדיוק הופיע? אין לכתוב סיסמאות או מפתחות API." /></label>
       <button className="button primary" disabled={!!busy} onClick={() => void createTicket()}>{busy === "create" ? <Loader2 className="spin" size={16} /> : <Send size={16} />} פתיחת פנייה</button>
       <StatusMessage message={message} kind={kind} />
-    </section>
+    </section> : null}
     <section className="template-list-card">
       <div className="template-list-heading"><div><p className="eyebrow">מעקב שקוף</p><h2>{canManage ? "פניות העסק" : "הפניות שלי"}</h2></div><span className="badge warning"><Clock3 size={15} /> {tickets.filter((ticket) => !["resolved", "closed"].includes(ticket.status)).length} פתוחות</span></div>
       <div className="template-list">{tickets.map((ticket) => <article className="card support-ticket" key={ticket.id}>

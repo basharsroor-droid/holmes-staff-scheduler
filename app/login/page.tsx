@@ -24,7 +24,7 @@ export default function LoginPage() {
     }
 
     setBusy(true);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     setBusy(false);
 
     if (error) {
@@ -32,7 +32,9 @@ export default function LoginPage() {
       return;
     }
 
-    router.replace("/workspace");
+    const { data: supportAgent } = await supabase.from("platform_support_agents")
+      .select("user_id").eq("user_id", data.user.id).maybeSingle();
+    router.replace(supportAgent ? "/support" : "/workspace");
     router.refresh();
   }
 

@@ -551,6 +551,7 @@ export type Database = {
           description: string
           id: string
           organization_id: string
+          organization_name: string
           priority: Database["public"]["Enums"]["support_ticket_priority"]
           resolution_note: string | null
           resolved_at: string | null
@@ -566,6 +567,7 @@ export type Database = {
           description: string
           id?: string
           organization_id: string
+          organization_name?: string
           priority?: Database["public"]["Enums"]["support_ticket_priority"]
           resolution_note?: string | null
           resolved_at?: string | null
@@ -581,6 +583,7 @@ export type Database = {
           description?: string
           id?: string
           organization_id?: string
+          organization_name?: string
           priority?: Database["public"]["Enums"]["support_ticket_priority"]
           resolution_note?: string | null
           resolved_at?: string | null

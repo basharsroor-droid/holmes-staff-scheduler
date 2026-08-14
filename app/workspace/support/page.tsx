@@ -22,14 +22,9 @@ export default async function SupportPage() {
   ]);
   if (!organization) redirect("/workspace");
   const ticketsQuery = supabase.from("support_tickets")
-    .select("id, organization_id, created_by, category, priority, subject, description, status, resolution_note, created_at, updated_at")
+    .select("id, organization_id, organization_name, created_by, category, priority, subject, description, status, resolution_note, created_at, updated_at")
     .order("created_at", { ascending: false }).limit(100);
   const { data: tickets } = supportAgent ? await ticketsQuery : await ticketsQuery.eq("created_by", user.id);
-  const organizationIds = [...new Set((tickets ?? []).map((ticket) => ticket.organization_id))];
-  const { data: ticketOrganizations } = supportAgent && organizationIds.length
-    ? await supabase.from("organizations").select("id, name").in("id", organizationIds)
-    : { data: [] };
-  const organizationNames = new Map((ticketOrganizations ?? []).map((item) => [item.id, item.name]));
 
   return <main className="workspace-home" dir="rtl">
     <header className="workspace-subheader"><div>
@@ -39,6 +34,6 @@ export default async function SupportPage() {
       <p>פותחים פנייה מסודרת, מציינים את רמת הדחיפות ועוקבים אחר הטיפול במקום אחד.</p>
     </div></header>
     <SupportClient organizationId={membership.organization_id} currentUserId={user.id}
-      canManage={Boolean(supportAgent)} initialTickets={(tickets ?? []).map((ticket) => ({ ...ticket, organization_name: organizationNames.get(ticket.organization_id) ?? organization.name }))} />
+      canManage={Boolean(supportAgent)} initialTickets={tickets ?? []} />
   </main>;
 }
