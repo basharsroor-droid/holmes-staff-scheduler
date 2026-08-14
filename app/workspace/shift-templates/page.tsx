@@ -25,12 +25,13 @@ export default async function ShiftTemplatesPage() {
     redirect("/workspace");
   }
 
-  const [organizationResult, branchesResult, templatesResult] = await Promise.all([
+  const [organizationResult, branchesResult, departmentsResult, templatesResult] = await Promise.all([
     supabase.from("organizations").select("name").eq("id", membership.organization_id).single(),
     supabase.from("branches").select("id, name").eq("organization_id", membership.organization_id).eq("active", true).order("name"),
+    supabase.from("departments").select("id, branch_id, name").eq("organization_id", membership.organization_id).eq("active", true).order("name"),
     supabase
       .from("shift_templates")
-      .select("id, branch_id, name, shift_type, start_time, end_time, required_employees, requires_senior_employee, active")
+      .select("id, branch_id, department_id, name, shift_type, start_time, end_time, required_employees, requires_senior_employee, active")
       .eq("organization_id", membership.organization_id)
       .order("start_time")
   ]);
@@ -63,6 +64,7 @@ export default async function ShiftTemplatesPage() {
 
       <ShiftTemplatesClient
         branches={branches}
+        departments={departmentsResult.data ?? []}
         initialTemplates={templatesResult.data ?? []}
         organizationId={membership.organization_id}
         selectedBranchId={selectedBranchId}
