@@ -604,6 +604,7 @@ export type Database = {
           branch_id: string
           created_at: string
           created_by: string | null
+          department_id: string
           id: string
           month: number
           organization_id: string
@@ -618,6 +619,7 @@ export type Database = {
           branch_id: string
           created_at?: string
           created_by?: string | null
+          department_id: string
           id?: string
           month: number
           organization_id: string
@@ -632,6 +634,7 @@ export type Database = {
           branch_id?: string
           created_at?: string
           created_by?: string | null
+          department_id?: string
           id?: string
           month?: number
           organization_id?: string
@@ -706,6 +709,7 @@ export type Database = {
           active: boolean
           branch_id: string
           created_at: string
+          department_id: string
           end_time: string
           id: string
           name: string
@@ -720,6 +724,7 @@ export type Database = {
           active?: boolean
           branch_id: string
           created_at?: string
+          department_id: string
           end_time: string
           id?: string
           name: string
@@ -734,6 +739,7 @@ export type Database = {
           active?: boolean
           branch_id?: string
           created_at?: string
+          department_id?: string
           end_time?: string
           id?: string
           name?: string
