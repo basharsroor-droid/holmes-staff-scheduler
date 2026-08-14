@@ -58,14 +58,14 @@ export function SubmissionsClient({ periods, workers, submissions: initialSubmis
   if (!periods.length) return <section className="template-list-card"><div className="empty-template-state"><ClipboardCheck size={42} /><h2>אין עדיין חודשי עבודה</h2><p>פתח חודש עבודה כדי להתחיל לקבל הגשות.</p></div></section>;
 
   return <section className="template-list-card">
-    <div className="template-list-heading"><div><p className="eyebrow">חודש וסניף</p><h2>{period ? `${monthNames[period.month - 1]} ${period.year}` : ""}</h2></div><select className="input" style={{ maxWidth: 300 }} value={selectedPeriodId} onChange={(e) => { setSelectedPeriodId(e.target.value); setExpandedUserId(null); }}>{periods.map((item) => <option value={item.id} key={item.id}>{monthNames[item.month - 1]} {item.year} · {branches.find((branch) => branch.id === item.branch_id)?.name ?? "סניף"}</option>)}</select></div>
+    <div className="template-list-heading"><div><p className="eyebrow">חודש וסניף</p><h2>{period ? `${monthNames[period.month - 1]} ${period.year}` : ""}</h2></div><select className="input" style={{ maxWidth: 300 }} aria-label="בחירת חודש וסניף" value={selectedPeriodId} onChange={(e) => { setSelectedPeriodId(e.target.value); setExpandedUserId(null); }}>{periods.map((item) => <option value={item.id} key={item.id}>{monthNames[item.month - 1]} {item.year} · {branches.find((branch) => branch.id === item.branch_id)?.name ?? "סניף"}</option>)}</select></div>
     <div className="workspace-stats" style={{ margin: "0 0 20px" }}>
       <article><Users /><span><strong>{periodWorkers.length}</strong><small>עובדים פעילים</small></span></article>
       <article><CheckCircle2 /><span><strong>{submittedCount}</strong><small>הגישו סופית</small></span></article>
       <article><XCircle /><span><strong>{missingCount}</strong><small>עדיין לא התחילו</small></span></article>
     </div>
     <div className="actions" style={{ marginBottom: 18 }}>
-      {([["all","הכול"],["submitted","הוגש"],["draft","טיוטה"],["missing","חסר"]] as const).map(([value,label]) => <button className={`button ${filter === value ? "primary" : ""}`} onClick={() => setFilter(value)} key={value}>{label}{value === "draft" ? ` (${draftCount})` : ""}</button>)}
+      {([["all","הכול"],["submitted","הוגש"],["draft","טיוטה"],["missing","חסר"]] as const).map(([value,label]) => <button className={`button ${filter === value ? "primary" : ""}`} aria-pressed={filter === value} onClick={() => setFilter(value)} key={value}>{label}{value === "draft" ? ` (${draftCount})` : ""}</button>)}
     </div>
     {period ? <div className="submission-banner open"><Clock3 /><div><strong>{period.status === "collecting" ? "ההגשה פתוחה" : period.status === "draft" ? "ההגשה נסגרה" : "הסידור פורסם"}</strong><span>דדליין: {new Date(period.submission_closes_at).toLocaleString("he-IL")}</span></div></div> : null}
     <div className="template-list">

@@ -319,12 +319,12 @@ export function ScheduleBuilderClient({ organizationId, currentUserId, callerRol
 
   return <section className="template-list-card">
     <div className="no-print">
-    <div className="template-list-heading"><div><p className="eyebrow">חודש וסניף</p><h2>{period ? `${monthNames[period.month - 1]} ${period.year}` : ""}</h2></div><select className="input" style={{ maxWidth: 300 }} value={selectedPeriodId} onChange={(event) => setSelectedPeriodId(event.target.value)}>{periods.map((item) => <option value={item.id} key={item.id}>{monthNames[item.month - 1]} {item.year} · {branches.find((branch) => branch.id === item.branch_id)?.name ?? "סניף"}</option>)}</select></div>
+    <div className="template-list-heading"><div><p className="eyebrow">חודש וסניף</p><h2>{period ? `${monthNames[period.month - 1]} ${period.year}` : ""}</h2></div><select className="input" style={{ maxWidth: 300 }} aria-label="בחירת חודש וסניף" value={selectedPeriodId} onChange={(event) => setSelectedPeriodId(event.target.value)}>{periods.map((item) => <option value={item.id} key={item.id}>{monthNames[item.month - 1]} {item.year} · {branches.find((branch) => branch.id === item.branch_id)?.name ?? "סניף"}</option>)}</select></div>
     <div className="workspace-stats" style={{ margin: "0 0 20px" }}><article><CalendarRange /><span><strong>{periodShifts.length}</strong><small>משמרות בחודש</small></span></article><article><CheckCircle2 /><span><strong>{filled}</strong><small>משמרות מאוישות</small></span></article><article><UserPlus /><span><strong>{periodWorkers.length}</strong><small>עובדים לשיבוץ</small></span></article></div>
     <div className="actions" style={{ marginBottom: 18 }}><button className="button primary" disabled={!!busy || !periodTemplates.length} onClick={() => void generateMonth()}>{busy === "generate" ? <Loader2 className="spin" size={16} /> : <Sparkles size={16} />} {periodShifts.length ? "סנכרון משמרות החודש" : "יצירת משמרות החודש"}</button>{periodStatus === "published" ? <button className="button" disabled={!!busy} onClick={() => void unpublish()}>{busy === "unpublish" ? <Loader2 className="spin" size={16} /> : <Undo2 size={16} />} ביטול פרסום</button> : <button className="button" disabled={!!busy || !periodShifts.length} onClick={() => void publish()}>{busy === "publish" ? <Loader2 className="spin" size={16} /> : <Send size={16} />} פרסום הסידור</button>}{periodShifts.length ? <button className="button" onClick={exportCsv}><FileDown size={16} /> ייצוא ל-Excel</button> : null}{periodShifts.length ? <button className="button" onClick={() => window.print()}><Printer size={16} /> הדפסה / PDF</button> : null}</div>
     {!periodShifts.length && duplicateCandidates.length
       ? <div className="actions" style={{ marginBottom: 18 }}>
-          <select className="input" style={{ maxWidth: 260 }} value={duplicateSourceId} onChange={(event) => setDuplicateSourceId(event.target.value)}>
+          <select className="input" style={{ maxWidth: 260 }} aria-label="שכפול משמרות ושיבוצים מחודש קודם" value={duplicateSourceId} onChange={(event) => setDuplicateSourceId(event.target.value)}>
             <option value="">שכפול מחודש קודם...</option>
             {duplicateCandidates.map((item) => <option value={item.id} key={item.id}>{monthNames[item.month - 1]} {item.year}</option>)}
           </select>
@@ -348,7 +348,7 @@ export function ScheduleBuilderClient({ organizationId, currentUserId, callerRol
           const selected = assigned.some((item) => item.user_id === worker.user_id);
           const availabilityStatus = workerAvailability(worker.user_id, shift);
           const leave = workerLeave(worker.user_id, shift);
-          return <button type="button" className={`button ${selected ? "primary" : ""}`} disabled={!!busy || periodStatus === "published" || availabilityStatus === "unavailable" || !!leave} onClick={() => void assign(shift, worker.user_id)} key={worker.user_id}><span>{workerName(worker.user_id)}</span><small>{leave ? leaveTypeLabels[leave.leave_type] : availabilityStatus ? availabilityLabels[availabilityStatus] : "לא הוגשה זמינות"}</small></button>;
+          return <button type="button" className={`button ${selected ? "primary" : ""}`} aria-pressed={selected} disabled={!!busy || periodStatus === "published" || availabilityStatus === "unavailable" || !!leave} onClick={() => void assign(shift, worker.user_id)} key={worker.user_id}><span>{workerName(worker.user_id)}</span><small>{leave ? leaveTypeLabels[leave.leave_type] : availabilityStatus ? availabilityLabels[availabilityStatus] : "לא הוגשה זמינות"}</small></button>;
         })}</div></div>;
       })}</article>;
     })}</div>
