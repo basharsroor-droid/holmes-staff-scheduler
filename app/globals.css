@@ -660,13 +660,21 @@ button {
  * two-column layout leaves the team card too narrow, so its actions overflow
  * into the invitation card. Stack only this workbench earlier; the regular
  * mobile rules below still handle the rows themselves at 760px. */
-@media (max-width: 1100px) {
-  .employees-workbench {
-    grid-template-columns: 1fr;
-  }
-  .employees-workbench .template-form-card {
-    position: static;
-  }
+.employees-workbench {
+  grid-template-columns: 1fr;
+}
+.employees-workbench .template-form-card {
+  position: static;
+}
+.employees-workbench .employee-row > .template-main {
+  min-width: 0;
+}
+.employees-workbench .employee-row > .template-main strong,
+.employees-workbench .employee-row > .template-main span {
+  overflow-wrap: anywhere;
+}
+.employees-workbench .employee-row > .actions {
+  flex-wrap: wrap;
 }
 
 @media (max-width: 760px) {
