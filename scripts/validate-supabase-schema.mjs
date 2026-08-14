@@ -105,6 +105,10 @@ const departmentsFoundationMigrationUrl = new URL(
   "../supabase/migrations/20260814160000_departments_foundation.sql",
   import.meta.url
 );
+const departmentScopedSchedulingMigrationUrl = new URL(
+  "../supabase/migrations/20260814180000_department_scoped_scheduling.sql",
+  import.meta.url
+);
 
 const tenantTables = [
   "organizations",
@@ -139,6 +143,26 @@ if (!existsSync(departmentsFoundationMigrationUrl)) {
     "from public, anon"
   ]) {
     if (!departmentsMigration.includes(requiredRule)) failures.push(`department authorization rule is missing: ${requiredRule}`);
+  }
+}
+
+if (!existsSync(departmentScopedSchedulingMigrationUrl)) {
+  failures.push("department-scoped scheduling migration is missing");
+} else {
+  const scopedSchedulingMigration = readFileSync(departmentScopedSchedulingMigrationUrl, "utf8");
+  for (const requiredRule of [
+    "shift_templates add column department_id",
+    "schedule_periods add column department_id",
+    "private.can_manage_schedule_period",
+    "templates_select_scoped",
+    "periods_select_scoped",
+    "shifts_select_allowed",
+    "submissions_select_scoped",
+    "assignments_select_scoped",
+    "Assigned worker must belong to the schedule department",
+    "Shift template and availability period must belong to the same department"
+  ]) {
+    if (!scopedSchedulingMigration.includes(requiredRule)) failures.push(`department scheduling rule is missing: ${requiredRule}`);
   }
 }
 
