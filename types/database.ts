@@ -380,8 +380,96 @@ export type Database = {
           },
         ]
       }
+      departments: {
+        Row: {
+          active: boolean
+          branch_id: string
+          created_at: string
+          id: string
+          name: string
+          organization_id: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          branch_id: string
+          created_at?: string
+          id?: string
+          name: string
+          organization_id: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          branch_id?: string
+          created_at?: string
+          id?: string
+          name?: string
+          organization_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "departments_branch_id_organization_id_fkey"
+            columns: ["branch_id", "organization_id"]
+            isOneToOne: false
+            referencedRelation: "branches"
+            referencedColumns: ["id", "organization_id"]
+          },
+          {
+            foreignKeyName: "departments_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      department_memberships: {
+        Row: {
+          branch_id: string
+          created_at: string
+          department_id: string
+          is_primary: boolean
+          membership_id: string
+          organization_id: string
+        }
+        Insert: {
+          branch_id: string
+          created_at?: string
+          department_id: string
+          is_primary?: boolean
+          membership_id: string
+          organization_id: string
+        }
+        Update: {
+          branch_id?: string
+          created_at?: string
+          department_id?: string
+          is_primary?: boolean
+          membership_id?: string
+          organization_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "department_memberships_department_id_organization_id_branch_id_fkey"
+            columns: ["department_id", "organization_id", "branch_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
+            referencedColumns: ["id", "organization_id", "branch_id"]
+          },
+          {
+            foreignKeyName: "department_memberships_membership_id_fkey"
+            columns: ["membership_id"]
+            isOneToOne: false
+            referencedRelation: "organization_memberships"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       organization_memberships: {
         Row: {
+          access_scope: string
           branch_id: string | null
           can_close: boolean
           can_open: boolean
@@ -398,6 +486,7 @@ export type Database = {
           weekly_hours_limit: number | null
         }
         Insert: {
+          access_scope?: string
           branch_id?: string | null
           can_close?: boolean
           can_open?: boolean
@@ -414,6 +503,7 @@ export type Database = {
           weekly_hours_limit?: number | null
         }
         Update: {
+          access_scope?: string
           branch_id?: string | null
           can_close?: boolean
           can_open?: boolean
@@ -921,6 +1011,10 @@ export type Database = {
       revoke_organization_invitation: {
         Args: { invitation_token: string }
         Returns: boolean
+      }
+      set_membership_departments: {
+        Args: { target_department_ids: string[]; target_membership_id: string }
+        Returns: undefined
       }
       transfer_organization_ownership: {
         Args: { target_user_id: string }
