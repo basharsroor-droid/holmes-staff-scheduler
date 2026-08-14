@@ -612,15 +612,51 @@ button {
 .template-meta span { display: inline-flex; align-items: center; gap: 5px; }
 .empty-template-state { display: grid; place-items: center; gap: 8px; min-height: 230px; color: var(--muted); text-align: center; border: 1px dashed var(--border); border-radius: 18px; }
 
+/*
+ * .template-item's shared grid (icon / name / meta / button) is sized for
+ * short read-only badge text in its third column (minmax(150px, auto)) --
+ * that's all every other consumer (shift lists, period lists, invitation
+ * lists) puts there. The employee row needs a real role <select>, two
+ * checkbox cards, and a number input in that spot, which never fit in
+ * 150px and inherited .template-meta's muted/small badge typography for
+ * their labels. Give it its own three-column shape (icon / name / actions)
+ * and let the controls form their own full-width row underneath instead.
+ */
+.template-item.employee-row {
+  grid-template-columns: auto minmax(120px, 1fr) auto;
+}
+.employee-controls {
+  grid-column: 1 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 14px;
+  padding-top: 14px;
+  margin-top: 2px;
+  border-top: 1px dashed var(--border);
+}
+.employee-controls .field {
+  flex: 1 1 150px;
+  min-width: 130px;
+}
+.employee-controls .check-field {
+  flex: 0 0 auto;
+  padding: 10px 14px;
+}
+
 @media (max-width: 760px) {
   .workspace-welcome { align-items: flex-start; flex-direction: column; margin-top: 34px; padding: 24px; }
   .workspace-stats { grid-template-columns: 1fr; }
   .workspace-home-header .brand-subtitle { display: none; }
   .template-workbench { grid-template-columns: 1fr; }
   .template-form-card { position: static; }
-  .template-item { grid-template-columns: auto 1fr; }
+  .template-item,
+  .template-item.employee-row { grid-template-columns: auto 1fr; }
   .template-meta,
   .template-item .button { grid-column: 2; }
+  .employee-controls,
+  .template-item.employee-row .actions { grid-column: 2; }
+  .employee-controls { border-top: none; padding-top: 0; margin-top: -4px; }
   .template-list-heading { align-items: flex-start; flex-direction: column; }
 }
 
