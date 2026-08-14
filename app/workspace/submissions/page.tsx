@@ -15,11 +15,13 @@ export default async function SubmissionsPage() {
   const { data: membership } = await supabase.from("organization_memberships").select("organization_id, branch_id, role").eq("user_id", user.id).eq("status", "active").limit(1).maybeSingle();
   if (!membership || !["owner", "admin", "manager"].includes(membership.role)) redirect("/workspace");
 
-  const [organizationResult, branchesResult, periodsResult, membershipsResult, templatesResult] = await Promise.all([
+  const [organizationResult, branchesResult, departmentsResult, periodsResult, membershipsResult, departmentMembershipsResult, templatesResult] = await Promise.all([
     supabase.from("organizations").select("name").eq("id", membership.organization_id).single(),
     supabase.from("branches").select("id, name").eq("organization_id", membership.organization_id).order("name"),
-    supabase.from("schedule_periods").select("id, branch_id, year, month, status, submission_closes_at").eq("organization_id", membership.organization_id).order("year", { ascending: false }).order("month", { ascending: false }),
+    supabase.from("departments").select("id, branch_id, name").eq("organization_id", membership.organization_id).order("name"),
+    supabase.from("schedule_periods").select("id, branch_id, department_id, year, month, status, submission_closes_at").eq("organization_id", membership.organization_id).order("year", { ascending: false }).order("month", { ascending: false }),
     supabase.from("organization_memberships").select("id, user_id, branch_id, role").eq("organization_id", membership.organization_id).eq("status", "active").in("role", ["employee", "manager"]),
+    supabase.from("department_memberships").select("membership_id, department_id").eq("organization_id", membership.organization_id),
     supabase.from("shift_templates").select("id, name, start_time, end_time").eq("organization_id", membership.organization_id)
   ]);
   if (!organizationResult.data) redirect("/workspace");
@@ -36,7 +38,7 @@ export default async function SubmissionsPage() {
     : { data: [] };
 
   const profileMap = new Map((profiles ?? []).map((profile) => [profile.id, profile]));
-  const workers = (membershipsResult.data ?? []).map((item) => ({ ...item, profile: profileMap.get(item.user_id) ?? null }));
+  const workers = (membershipsResult.data ?? []).map((item) => ({ ...item, department_ids: (departmentMembershipsResult.data ?? []).filter((assignment) => assignment.membership_id === item.id).map((assignment) => assignment.department_id), profile: profileMap.get(item.user_id) ?? null }));
 
   return <main className="workspace-home" dir="rtl">
     <header className="workspace-subheader"><div>
@@ -47,6 +49,7 @@ export default async function SubmissionsPage() {
     </div></header>
     <SubmissionsClient
       branches={branchesResult.data ?? []}
+      departments={departmentsResult.data ?? []}
       entries={entries ?? []}
       periods={periodsResult.data ?? []}
       submissions={submissions ?? []}
