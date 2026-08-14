@@ -165,7 +165,7 @@ export function EmployeesClient({
   }
 
   return (
-    <div className="template-workbench">
+    <div className="template-workbench employees-workbench">
       <section className="template-form-card">
         <div><p className="eyebrow">עובד חדש</p><h2>שליחת הזמנה במייל</h2></div>
         <div className="form-pair">
