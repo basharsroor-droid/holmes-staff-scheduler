@@ -153,7 +153,7 @@ export function AvailabilityClient({ organizationId, userId, periods, templates,
   return <div className="template-workbench">
     {leaveCard}
     <section className="template-list-card">
-    <div className="template-list-heading"><div><p className="eyebrow">תקופת הגשה</p><h2>{period ? `${monthNames[period.month - 1]} ${period.year}` : ""}</h2></div><select className="input" style={{ maxWidth: 240 }} value={selectedPeriodId} onChange={(e) => setSelectedPeriodId(e.target.value)}>{periods.map((item) => <option value={item.id} key={item.id}>{monthNames[item.month - 1]} {item.year}</option>)}</select></div>
+    <div className="template-list-heading"><div><p className="eyebrow">תקופת הגשה</p><h2>{period ? `${monthNames[period.month - 1]} ${period.year}` : ""}</h2></div><select className="input" style={{ maxWidth: 240 }} aria-label="בחירת חודש הגשה" value={selectedPeriodId} onChange={(e) => setSelectedPeriodId(e.target.value)}>{periods.map((item) => <option value={item.id} key={item.id}>{monthNames[item.month - 1]} {item.year}</option>)}</select></div>
     {period ? <div className={`submission-banner ${deadlinePassed ? "closed" : "open"}`}><Clock3 /><div><strong>{notOpened ? "ההגשה טרם נפתחה" : deadlinePassed ? "מועד ההגשה הסתיים" : submittedByPeriod[period.id] ? "הזמינות נשלחה" : "ההגשה פתוחה"}</strong><span>דדליין: {new Date(period.submission_closes_at).toLocaleString("he-IL")}</span></div></div> : null}
     <div className="availability-board">
       {days.map((day) => {
@@ -164,8 +164,8 @@ export function AvailabilityClient({ organizationId, userId, periods, templates,
           {templates.map((template) => {
             const key = `${date}|${template.id}`; const choice = choices[key] ?? { status: "", note: "" };
             return <div className="card-muted" key={template.id}><div className="shift-title"><span>{template.name}</span><small>{template.start_time.slice(0,5)}–{template.end_time.slice(0,5)}</small></div>
-              <select className="input" disabled={deadlinePassed || notOpened} value={choice.status} onChange={(e) => updateChoice(key, { status: e.target.value as AvailabilityStatus | "" })}><option value="">לא סומן</option>{Object.entries(statusLabels).map(([value, label]) => <option value={value} key={value}>{label}</option>)}</select>
-              {choice.status ? <input className="input" disabled={deadlinePassed || notOpened} placeholder="הערה אופציונלית" value={choice.note} onChange={(e) => updateChoice(key, { note: e.target.value })} /> : null}
+              <select className="input" disabled={deadlinePassed || notOpened} aria-label={`זמינות ל${label}, משמרת ${template.name}`} value={choice.status} onChange={(e) => updateChoice(key, { status: e.target.value as AvailabilityStatus | "" })}><option value="">לא סומן</option>{Object.entries(statusLabels).map(([value, label]) => <option value={value} key={value}>{label}</option>)}</select>
+              {choice.status ? <input className="input" disabled={deadlinePassed || notOpened} placeholder="הערה אופציונלית" aria-label={`הערה עבור ${label}, משמרת ${template.name}`} value={choice.note} onChange={(e) => updateChoice(key, { note: e.target.value })} /> : null}
             </div>;
           })}
         </article>;

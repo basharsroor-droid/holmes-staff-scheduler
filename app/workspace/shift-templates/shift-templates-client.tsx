@@ -133,7 +133,7 @@ export function ShiftTemplatesClient({
               <div className="template-icon"><Clock3 /></div>
               <div className="template-main"><strong>{template.name}</strong><span>{template.start_time.slice(0, 5)}–{template.end_time.slice(0, 5)}</span></div>
               <div className="template-meta"><span><Users size={15} /> {template.required_employees} עובדים</span>{template.requires_senior_employee ? <span><ShieldCheck size={15} /> עובד בכיר</span> : null}</div>
-              <button className="button" onClick={() => void toggleTemplate(template)}><Power size={16} /> {template.active ? "פעילה" : "כבויה"}</button>
+              <button className="button" aria-pressed={template.active} onClick={() => void toggleTemplate(template)}><Power size={16} /> {template.active ? "פעילה" : "כבויה"}</button>
             </article>
           ))}
           {!branchTemplates.length ? <div className="empty-template-state"><Clock3 size={36} /><p>הוסף את המשמרת הראשונה כדי להתחיל לבנות חודש עבודה.</p></div> : null}

@@ -825,6 +825,18 @@ h3 {
   opacity: 0.55;
 }
 
+.button:focus-visible,
+.input:focus-visible,
+.select:focus-visible,
+.textarea:focus-visible,
+a:focus-visible {
+  outline: none !important;
+  /* !important: focus indicators must stay visible regardless of which
+     component-specific box-shadow (e.g. .auth-card .button.primary) wins
+     the specificity battle on a given element. */
+  box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--primary) !important;
+}
+
 .button.danger {
   border-color: rgba(220, 38, 38, 0.25);
   color: var(--red);
