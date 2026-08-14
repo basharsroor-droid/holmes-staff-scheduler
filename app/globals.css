@@ -596,6 +596,12 @@ button {
 .template-form-card { display: grid; gap: 17px; position: sticky; top: 24px; }
 .template-form-card h2,
 .template-list-card h2 { margin: 4px 0 0; }
+.support-workbench { grid-template-columns: minmax(300px, .78fr) minmax(0, 1.22fr); }
+.support-ticket { display: grid; gap: 14px; }
+.support-ticket-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; }
+.support-ticket-head > span:first-child { display: grid; gap: 5px; min-width: 0; }
+.support-ticket-head small { color: var(--muted); }
+.support-manager-controls { display: grid; gap: 12px; padding-top: 14px; border-top: 1px dashed var(--border); }
 .check-field { display: flex; align-items: flex-start; gap: 11px; padding: 14px; border-radius: 15px; background: #f5f8fc; cursor: pointer; }
 .check-field input { margin-top: 4px; accent-color: var(--primary); }
 .check-field span { display: grid; gap: 3px; }
