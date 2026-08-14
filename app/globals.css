@@ -460,6 +460,32 @@ button {
   font-weight: 800;
 }
 
+.workspace-status-message {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 14px 0 0;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 0.92rem;
+  line-height: 1.5;
+}
+.workspace-status-message svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.workspace-status-message.success {
+  color: var(--primary-dark);
+  background: var(--primary-soft);
+  border: 1px solid rgba(53, 120, 245, 0.18);
+}
+.workspace-status-message.error {
+  color: #a82f3d;
+  background: #fdecee;
+  border: 1px solid rgba(220, 38, 38, 0.18);
+}
+
 .auth-secondary {
   margin: 0;
   color: var(--muted);

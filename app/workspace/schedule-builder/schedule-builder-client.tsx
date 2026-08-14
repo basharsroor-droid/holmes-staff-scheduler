@@ -3,6 +3,8 @@
 import { useMemo, useState } from "react";
 import { AlertTriangle, CalendarRange, CheckCircle2, CopyPlus, FileDown, Loader2, Printer, Send, Sparkles, Trash2, Undo2, UserPlus } from "lucide-react";
 
+import { StatusMessage } from "@/components/workspace/status-message";
+import { useStatusMessage } from "@/lib/hooks/use-status-message";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import type { Database } from "@/types/database";
 
@@ -34,7 +36,7 @@ export function ScheduleBuilderClient({ organizationId, currentUserId, callerRol
   const [shifts, setShifts] = useState(initialShifts);
   const [assignments, setAssignments] = useState(initialAssignments);
   const [busy, setBusy] = useState("");
-  const [message, setMessage] = useState("");
+  const { message, kind, setMessage } = useStatusMessage();
   // `periods` is server-rendered data passed in as a prop, so it never
   // reflects a publish/unpublish call made during this session without a
   // full page reload. Track just the status locally so the publish button,
@@ -141,13 +143,13 @@ export function ScheduleBuilderClient({ organizationId, currentUserId, callerRol
   async function saveMinRestHours() {
     const parsed = minRestDraft.trim() ? Number(minRestDraft) : null;
     if (parsed !== null && (!Number.isInteger(parsed) || parsed <= 0)) {
-      setMessage("מגבלת שעות המנוחה חייבת להיות מספר שלם חיובי, או ריקה לביטול המגבלה.");
+      setMessage("מגבלת שעות המנוחה חייבת להיות מספר שלם חיובי, או ריקה לביטול המגבלה.", "error");
       setMinRestDraft(minRestHours?.toString() ?? "");
       return;
     }
     if (parsed === minRestHours) return;
     const { error } = await supabase.from("organizations").update({ min_rest_hours: parsed }).eq("id", organizationId);
-    if (error) { setMessage("עדכון מגבלת המנוחה נכשל."); setMinRestDraft(minRestHours?.toString() ?? ""); return; }
+    if (error) { setMessage("עדכון מגבלת המנוחה נכשל.", "error"); setMinRestDraft(minRestHours?.toString() ?? ""); return; }
     setMinRestHours(parsed);
     setMessage("מגבלת המנוחה עודכנה.");
   }
@@ -173,7 +175,7 @@ export function ScheduleBuilderClient({ organizationId, currentUserId, callerRol
     // specification").
     const { data, error } = await supabase.from("shifts").upsert(rows, { onConflict: "schedule_period_id,shift_date,name" }).select("id, schedule_period_id, shift_template_id, shift_date, name, start_time, end_time, required_employees, status");
     setBusy("");
-    if (error || !data) { setMessage("יצירת משמרות החודש נכשלה. נסה שוב."); return; }
+    if (error || !data) { setMessage("יצירת משמרות החודש נכשלה. נסה שוב.", "error"); return; }
     setShifts((current) => [...current.filter((item) => item.schedule_period_id !== period.id), ...data]);
     setMessage(`נוצרו ${data.length} משמרות לחודש.`);
   }
@@ -187,7 +189,7 @@ export function ScheduleBuilderClient({ organizationId, currentUserId, callerRol
     });
     if (error || !data || !data.length) {
       setBusy("");
-      setMessage("שכפול הסידור נכשל.");
+      setMessage("שכפול הסידור נכשל.", "error");
       return;
     }
     const result = data[0];
@@ -214,7 +216,7 @@ export function ScheduleBuilderClient({ organizationId, currentUserId, callerRol
     setBusy(`cancel-${date}`); setMessage("");
     const { data, error } = await supabase.rpc("cancel_shifts_for_day", { target_period_id: period.id, target_date: date });
     setBusy("");
-    if (error || !data || !data.length) { setMessage("ביטול המשמרות נכשל."); return; }
+    if (error || !data || !data.length) { setMessage("ביטול המשמרות נכשל.", "error"); return; }
     const result = data[0];
     const cancelledIds = new Set(shifts.filter((item) => item.schedule_period_id === period.id && item.shift_date === date).map((item) => item.id));
     setShifts((current) => current.map((item) => cancelledIds.has(item.id) ? { ...item, status: "cancelled" } : item));
@@ -228,15 +230,15 @@ export function ScheduleBuilderClient({ organizationId, currentUserId, callerRol
     if (existing) {
       const { error } = await supabase.from("shift_assignments").delete().eq("id", existing.id);
       setBusy("");
-      if (error) { setMessage("הסרת השיבוץ נכשלה."); return; }
+      if (error) { setMessage("הסרת השיבוץ נכשלה.", "error"); return; }
       setAssignments((current) => current.filter((item) => item.id !== existing.id));
       return;
     }
-    if (hasConflict(userId, shift)) { setBusy(""); setMessage(`${workerName(userId)} כבר משובץ/ת במשמרת חופפת.`); return; }
+    if (hasConflict(userId, shift)) { setBusy(""); setMessage(`${workerName(userId)} כבר משובץ/ת במשמרת חופפת.`, "error"); return; }
     const status = workerAvailability(userId, shift);
-    if (status === "unavailable") { setBusy(""); setMessage(`${workerName(userId)} סימן/ה שאינו/ה זמין/ה למשמרת הזאת.`); return; }
+    if (status === "unavailable") { setBusy(""); setMessage(`${workerName(userId)} סימן/ה שאינו/ה זמין/ה למשמרת הזאת.`, "error"); return; }
     const leave = workerLeave(userId, shift);
-    if (leave) { setBusy(""); setMessage(`${workerName(userId)} ${leaveTypeLabels[leave.leave_type]} בתאריך הזה.`); return; }
+    if (leave) { setBusy(""); setMessage(`${workerName(userId)} ${leaveTypeLabels[leave.leave_type]} בתאריך הזה.`, "error"); return; }
     const limit = periodWorkers.find((item) => item.user_id === userId)?.weekly_hours_limit;
     if (limit) {
       const weekKey = weekStartKey(shift.shift_date);
@@ -258,7 +260,7 @@ export function ScheduleBuilderClient({ organizationId, currentUserId, callerRol
     }
     const { data, error } = await supabase.from("shift_assignments").insert({ organization_id: organizationId, shift_id: shift.id, user_id: userId, assigned_by: currentUserId }).select("id, shift_id, user_id").single();
     setBusy("");
-    if (error || !data) { setMessage("שמירת השיבוץ נכשלה."); return; }
+    if (error || !data) { setMessage("שמירת השיבוץ נכשלה.", "error"); return; }
     setAssignments((current) => [...current, data]);
   }
 
@@ -269,7 +271,7 @@ export function ScheduleBuilderClient({ organizationId, currentUserId, callerRol
     setBusy("publish"); setMessage("");
     const { error } = await supabase.rpc("publish_schedule_period", { target_period_id: period.id });
     setBusy("");
-    if (error) { setMessage("פרסום הסידור נכשל. לא בוצע שינוי חלקי."); return; }
+    if (error) { setMessage("פרסום הסידור נכשל. לא בוצע שינוי חלקי.", "error"); return; }
     setShifts((current) => current.map((item) => item.schedule_period_id === period.id ? { ...item, status: "published" } : item));
     setPeriodStatusOverrides((current) => ({ ...current, [period.id]: "published" }));
     setMessage("הסידור פורסם בהצלחה לצוות.");
@@ -281,7 +283,7 @@ export function ScheduleBuilderClient({ organizationId, currentUserId, callerRol
     setBusy("unpublish"); setMessage("");
     const { error } = await supabase.rpc("unpublish_schedule_period", { target_period_id: period.id });
     setBusy("");
-    if (error) { setMessage("ביטול הפרסום נכשל."); return; }
+    if (error) { setMessage("ביטול הפרסום נכשל.", "error"); return; }
     setShifts((current) => current.map((item) => item.schedule_period_id === period.id ? { ...item, status: "draft" } : item));
     setPeriodStatusOverrides((current) => ({ ...current, [period.id]: "draft" }));
     setMessage("הפרסום בוטל. הסידור חזר לטיוטה ואינו גלוי לעובדים.");
@@ -351,7 +353,7 @@ export function ScheduleBuilderClient({ organizationId, currentUserId, callerRol
       })}</article>;
     })}</div>
     {!periodShifts.length && periodTemplates.length ? <div className="empty-template-state"><CalendarRange size={38} /><p>לחץ על יצירת משמרות החודש כדי להתחיל לשבץ.</p></div> : null}
-    {message ? <p className="auth-message" role="status">{message}</p> : null}
+    <StatusMessage message={message} kind={kind} />
     </div>
     {period ? <div className="print-only">
       <h2>{monthNames[period.month - 1]} {period.year} · {branches.find((branch) => branch.id === period.branch_id)?.name ?? "סניף"}</h2>

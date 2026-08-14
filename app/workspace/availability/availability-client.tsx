@@ -3,6 +3,8 @@
 import { useMemo, useState } from "react";
 import { CalendarCheck, CheckCircle2, Clock3, Loader2, Palmtree, Save, Send, Trash2 } from "lucide-react";
 
+import { StatusMessage } from "@/components/workspace/status-message";
+import { useStatusMessage } from "@/lib/hooks/use-status-message";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import type { Database } from "@/types/database";
 
@@ -33,14 +35,14 @@ export function AvailabilityClient({ organizationId, userId, periods, templates,
   const [leaveRequests, setLeaveRequests] = useState(initialLeaveRequests);
   const [leaveForm, setLeaveForm] = useState<{ leaveType: LeaveType; startDate: string; endDate: string; note: string }>({ leaveType: "vacation", startDate: "", endDate: "", note: "" });
   const [leaveBusy, setLeaveBusy] = useState(false);
-  const [leaveMessage, setLeaveMessage] = useState("");
+  const { message: leaveMessage, kind: leaveKind, setMessage: setLeaveMessage } = useStatusMessage();
   const [choices, setChoices] = useState<Record<string, Choice>>(() => {
     const submissionIds = new Set(submissions.map((submission) => submission.id));
     return Object.fromEntries(entries.filter((entry) => submissionIds.has(entry.submission_id)).map((entry) => [`${entry.shift_date}|${entry.shift_template_id}`, { status: entry.status, note: entry.note ?? "" }]));
   });
   const [submittedByPeriod, setSubmittedByPeriod] = useState<Record<string, string | null>>(() => Object.fromEntries(submissions.map((item) => [item.schedule_period_id, item.submitted_at])));
   const [busy, setBusy] = useState(false);
-  const [message, setMessage] = useState("");
+  const { message, kind, setMessage } = useStatusMessage();
 
   const period = periods.find((item) => item.id === selectedPeriodId);
   const days = useMemo(() => period ? Array.from({ length: new Date(period.year, period.month, 0).getDate() }, (_, index) => index + 1) : [], [period]);
@@ -67,11 +69,11 @@ export function AvailabilityClient({ organizationId, userId, periods, templates,
     if (!period || deadlinePassed || notOpened) return;
     setBusy(true); setMessage("");
     const submissionId = await ensureSubmission();
-    if (!submissionId) { setBusy(false); setMessage("לא הצלחנו לפתוח את טופס הזמינות."); return; }
+    if (!submissionId) { setBusy(false); setMessage("לא הצלחנו לפתוח את טופס הזמינות.", "error"); return; }
 
     const periodPrefix = `${period.year}-${String(period.month).padStart(2, "0")}-`;
     const selected = Object.entries(choices).filter(([key, choice]) => key.startsWith(periodPrefix) && choice.status);
-    if (finalSubmit && !selected.length) { setBusy(false); setMessage("יש לסמן לפחות משמרת אחת לפני השליחה."); return; }
+    if (finalSubmit && !selected.length) { setBusy(false); setMessage("יש לסמן לפחות משמרת אחת לפני השליחה.", "error"); return; }
 
     const rows = selected.map(([key, choice]) => {
       const [shift_date, shift_template_id] = key.split("|");
@@ -79,21 +81,21 @@ export function AvailabilityClient({ organizationId, userId, periods, templates,
     });
     if (rows.length) {
       const { error } = await supabase.from("availability_entries").upsert(rows, { onConflict: "submission_id,shift_date,shift_template_id" });
-      if (error) { setBusy(false); setMessage("שמירת הזמינות נכשלה."); return; }
+      if (error) { setBusy(false); setMessage("שמירת הזמינות נכשלה.", "error"); return; }
     }
 
     const submittedAt = finalSubmit ? new Date().toISOString() : null;
     const { error } = await supabase.from("availability_submissions").update({ submitted_at: submittedAt }).eq("id", submissionId).eq("user_id", userId);
     setBusy(false);
-    if (error) { setMessage("לא הצלחנו לעדכן את מצב ההגשה."); return; }
+    if (error) { setMessage("לא הצלחנו לעדכן את מצב ההגשה.", "error"); return; }
     setSubmittedByPeriod((current) => ({ ...current, [period.id]: submittedAt }));
     setMessage(finalSubmit ? "הזמינות נשלחה למנהל בהצלחה." : "הטיוטה נשמרה.");
   }
 
   async function addLeaveRequest() {
     setLeaveMessage("");
-    if (!leaveForm.startDate || !leaveForm.endDate) { setLeaveMessage("יש לבחור תאריך התחלה וסיום."); return; }
-    if (leaveForm.endDate < leaveForm.startDate) { setLeaveMessage("תאריך הסיום חייב להיות אחרי תאריך ההתחלה."); return; }
+    if (!leaveForm.startDate || !leaveForm.endDate) { setLeaveMessage("יש לבחור תאריך התחלה וסיום.", "error"); return; }
+    if (leaveForm.endDate < leaveForm.startDate) { setLeaveMessage("תאריך הסיום חייב להיות אחרי תאריך ההתחלה.", "error"); return; }
     setLeaveBusy(true);
     const { data, error } = await supabase
       .from("leave_requests")
@@ -108,7 +110,7 @@ export function AvailabilityClient({ organizationId, userId, periods, templates,
       .select("id, leave_type, start_date, end_date, note")
       .single();
     setLeaveBusy(false);
-    if (error || !data) { setLeaveMessage("לא הצלחנו לשמור את הבקשה."); return; }
+    if (error || !data) { setLeaveMessage("לא הצלחנו לשמור את הבקשה.", "error"); return; }
     setLeaveRequests((current) => [data, ...current]);
     setLeaveForm({ leaveType: "vacation", startDate: "", endDate: "", note: "" });
     setLeaveMessage("הבקשה נשמרה. המנהל יראה אותה בבניית הסידור.");
@@ -118,7 +120,7 @@ export function AvailabilityClient({ organizationId, userId, periods, templates,
     setLeaveBusy(true); setLeaveMessage("");
     const { error } = await supabase.from("leave_requests").delete().eq("id", id).eq("user_id", userId);
     setLeaveBusy(false);
-    if (error) { setLeaveMessage("ביטול הבקשה נכשל."); return; }
+    if (error) { setLeaveMessage("ביטול הבקשה נכשל.", "error"); return; }
     setLeaveRequests((current) => current.filter((item) => item.id !== id));
   }
 
@@ -134,7 +136,7 @@ export function AvailabilityClient({ organizationId, userId, periods, templates,
       <label className="field"><span>עד תאריך</span><input className="input" type="date" value={leaveForm.endDate} onChange={(e) => setLeaveForm((c) => ({ ...c, endDate: e.target.value }))} /></label>
     </div>
     <button className="button primary" disabled={leaveBusy} onClick={() => void addLeaveRequest()}>{leaveBusy ? <Loader2 className="spin" size={17} /> : <Palmtree size={17} />} שליחת בקשה</button>
-    {leaveMessage ? <p className="auth-message" role="status">{leaveMessage}</p> : null}
+    <StatusMessage message={leaveMessage} kind={leaveKind} />
     {leaveRequests.length
       ? <div className="template-list">{leaveRequests.map((item) => <article className="template-item" key={item.id}>
           <div className="template-main"><strong>{leaveTypeLabels[item.leave_type]}</strong><span>{new Date(`${item.start_date}T12:00:00`).toLocaleDateString("he-IL")} – {new Date(`${item.end_date}T12:00:00`).toLocaleDateString("he-IL")}{item.note ? ` · ${item.note}` : ""}</span></div>
@@ -170,7 +172,7 @@ export function AvailabilityClient({ organizationId, userId, periods, templates,
       })}
     </div>
     <div className="actions" style={{ marginTop: 20 }}><button className="button" disabled={busy || deadlinePassed || notOpened} onClick={() => void save(false)}>{busy ? <Loader2 className="spin" size={17} /> : <Save size={17} />} שמירת טיוטה</button><button className="button primary" disabled={busy || deadlinePassed || notOpened} onClick={() => void save(true)}>{busy ? <Loader2 className="spin" size={17} /> : submittedByPeriod[period?.id ?? ""] ? <CheckCircle2 size={17} /> : <Send size={17} />} {submittedByPeriod[period?.id ?? ""] ? "עדכון ושליחה מחדש" : "שליחה למנהל"}</button></div>
-    {message ? <p className="auth-message" role="status">{message}</p> : null}
+    <StatusMessage message={message} kind={kind} />
     </section>
   </div>;
 }

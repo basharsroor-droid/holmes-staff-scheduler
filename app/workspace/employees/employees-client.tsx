@@ -3,6 +3,8 @@
 import { useMemo, useState } from "react";
 import { Crown, Loader2, MailPlus, Power, RotateCw, ShieldCheck, UserRound, UserX, Users } from "lucide-react";
 
+import { StatusMessage } from "@/components/workspace/status-message";
+import { useStatusMessage } from "@/lib/hooks/use-status-message";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import type { Database } from "@/types/database";
 
@@ -33,7 +35,7 @@ export function EmployeesClient({
   const [invitations, setInvitations] = useState(initialInvitations);
   const [busyId, setBusyId] = useState<string | null>(null);
   const [inviteBusy, setInviteBusy] = useState(false);
-  const [message, setMessage] = useState("");
+  const { message, kind, setMessage } = useStatusMessage();
   const [form, setForm] = useState({ firstName: "", lastName: "", email: "", role: "employee" as Role, branchId: selectedBranchId });
   // Local drafts so typing a weekly-hours number doesn't fire a save on
   // every keystroke -- only commits on blur, and only if it actually changed.
@@ -45,7 +47,7 @@ export function EmployeesClient({
     setMessage(""); setBusyId(id);
     const { error } = await supabase.from("organization_memberships").update(changes).eq("id", id).eq("organization_id", organizationId);
     setBusyId(null);
-    if (error) { setMessage("לא הצלחנו לעדכן את העובד. בדוק את ההרשאות ונסה שוב."); return; }
+    if (error) { setMessage("לא הצלחנו לעדכן את העובד. בדוק את ההרשאות ונסה שוב.", "error"); return; }
     setEmployees((current) => current.map((employee) => employee.id === id ? { ...employee, ...changes } : employee));
     // Suspending triggers a server-side cleanup (organization_memberships_release_future_shifts)
     // that removes the employee from every not-yet-past shift, so the schedule never keeps
@@ -57,7 +59,7 @@ export function EmployeesClient({
     const raw = hoursDraft[employee.id] ?? "";
     const parsed = raw.trim() ? Number(raw) : null;
     if (parsed !== null && (!Number.isInteger(parsed) || parsed <= 0)) {
-      setMessage("מגבלת השעות השבועית חייבת להיות מספר שלם חיובי, או ריקה לביטול המגבלה.");
+      setMessage("מגבלת השעות השבועית חייבת להיות מספר שלם חיובי, או ריקה לביטול המגבלה.", "error");
       setHoursDraft((current) => ({ ...current, [employee.id]: employee.weekly_hours_limit?.toString() ?? "" }));
       return;
     }
@@ -79,7 +81,7 @@ export function EmployeesClient({
   async function inviteEmployee() {
     setMessage("");
     if (!form.firstName.trim() || !form.email.includes("@") || !form.branchId) {
-      setMessage("יש להזין שם פרטי, מייל תקין וסניף."); return;
+      setMessage("יש להזין שם פרטי, מייל תקין וסניף.", "error"); return;
     }
     setInviteBusy(true);
     const normalizedEmail = form.email.trim().toLowerCase();
@@ -93,13 +95,13 @@ export function EmployeesClient({
     });
     if (invitationError || !token) {
       setInviteBusy(false);
-      setMessage(invitationError?.message.includes("already a member") ? "כתובת המייל כבר שייכת לחבר צוות בעסק." : "לא הצלחנו ליצור את ההזמנה.");
+      setMessage(invitationError?.message.includes("already a member") ? "כתובת המייל כבר שייכת לחבר צוות בעסק." : "לא הצלחנו ליצור את ההזמנה.", "error");
       return;
     }
     const { error: emailError } = await sendMagicLink(token);
     setInviteBusy(false);
     if (emailError) {
-      setMessage(emailError.message.toLowerCase().includes("rate limit") ? "ההזמנה נשמרה, אך קיימת כרגע מגבלת שליחת מיילים. אפשר לשלוח שוב מאוחר יותר." : "ההזמנה נשמרה, אך שליחת המייל נכשלה.");
+      setMessage(emailError.message.toLowerCase().includes("rate limit") ? "ההזמנה נשמרה, אך קיימת כרגע מגבלת שליחת מיילים. אפשר לשלוח שוב מאוחר יותר." : "ההזמנה נשמרה, אך שליחת המייל נכשלה.", "error");
       return;
     }
     const newInvitation: Invitation = {
@@ -126,7 +128,7 @@ export function EmployeesClient({
       target_role: invitation.role
     });
     if (renewalError || !token) {
-      setBusyId(null); setMessage("לא הצלחנו לחדש את תוקף ההזמנה."); return;
+      setBusyId(null); setMessage("לא הצלחנו לחדש את תוקף ההזמנה.", "error"); return;
     }
     const expiresAt = new Date(Date.now() + 7 * 86400000).toISOString();
     setInvitations((current) => current.map((item) => item.id === invitation.id ? { ...item, token, expires_at: expiresAt } : item));
@@ -135,14 +137,14 @@ export function EmployeesClient({
     // The server enforces a cooldown between resends and returns a specific
     // Hebrew message for it (e.g. "יש להמתין עוד X שניות") -- show that
     // instead of a generic failure message when we have it.
-    setMessage(error ? (error.message || "לא הצלחנו לשלוח את ההזמנה מחדש.") : "ההזמנה נשלחה מחדש.");
+    setMessage(error ? (error.message || "לא הצלחנו לשלוח את ההזמנה מחדש.") : "ההזמנה נשלחה מחדש.", error ? "error" : "success");
   }
 
   async function revokeInvitation(invitation: Invitation) {
     setBusyId(invitation.id);
     const { error } = await supabase.rpc("revoke_organization_invitation", { invitation_token: invitation.token });
     setBusyId(null);
-    if (error) { setMessage("לא הצלחנו לבטל את ההזמנה."); return; }
+    if (error) { setMessage("לא הצלחנו לבטל את ההזמנה.", "error"); return; }
     setInvitations((current) => current.map((item) => item.id === invitation.id ? { ...item, status: "revoked" } : item));
     setMessage("ההזמנה בוטלה.");
   }
@@ -153,7 +155,7 @@ export function EmployeesClient({
     setMessage(""); setBusyId(employee.id);
     const { error } = await supabase.rpc("transfer_organization_ownership", { target_user_id: employee.user_id });
     setBusyId(null);
-    if (error) { setMessage("העברת הבעלות נכשלה. ייתכן שהמשתמש כבר אינו חבר פעיל בעסק."); return; }
+    if (error) { setMessage("העברת הבעלות נכשלה. ייתכן שהמשתמש כבר אינו חבר פעיל בעסק.", "error"); return; }
     setEmployees((current) => current.map((item) => {
       if (item.id === employee.id) return { ...item, role: "owner" };
       if (item.user_id === currentUserId) return { ...item, role: "admin" };
@@ -176,7 +178,7 @@ export function EmployeesClient({
           <label className="field"><span>תפקיד</span><select className="input" value={form.role} onChange={(e) => setForm((c) => ({ ...c, role: e.target.value as Role }))}><option value="employee">עובד/ת</option>{callerRole !== "manager" ? <><option value="manager">מנהל/ת</option><option value="admin">מנהל מערכת</option></> : null}</select></label>
         </div>
         <button className="button primary" disabled={inviteBusy} onClick={() => void inviteEmployee()}>{inviteBusy ? <Loader2 className="spin" size={17} /> : <MailPlus size={17} />} שליחת הזמנה</button>
-        {message ? <p className="auth-message" role="status">{message}</p> : null}
+        <StatusMessage message={message} kind={kind} />
         <div><p className="eyebrow">הזמנות אחרונות</p><div className="template-list">
           {invitations.slice(0, 6).map((invitation) => {
             // status stays 'pending' in the DB even past expires_at (see
