@@ -2652,6 +2652,11 @@ html.si-lock, html.si-lock body {
 
 
 /* In-app notifications */
+.notification-preferences-list { display: grid; gap: 10px; margin-top: 20px; }
+.notification-preference { display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 16px 18px; border: 1px solid #dce5f1; border-radius: 14px; background: #f8fafc; cursor: pointer; }
+.notification-preference span { display: grid; gap: 4px; }
+.notification-preference small { color: #64748b; line-height: 1.5; }
+.notification-preference input { width: 21px; height: 21px; accent-color: #2f6fed; flex: 0 0 auto; }
 .notification-card {
   display: grid;
   grid-template-columns: auto 1fr auto;

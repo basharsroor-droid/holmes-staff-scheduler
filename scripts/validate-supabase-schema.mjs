@@ -97,6 +97,10 @@ const secureInvitationRevocationMigrationUrl = new URL(
   "../supabase/migrations/20260810193000_secure_invitation_revocation.sql",
   import.meta.url
 );
+const emailNotificationDeliveryMigrationUrl = new URL(
+  "../supabase/migrations/20260814090000_email_notification_delivery.sql",
+  import.meta.url
+);
 
 const tenantTables = [
   "organizations",
@@ -116,6 +120,22 @@ const tenantTables = [
 ];
 
 const failures = [];
+
+if (!existsSync(emailNotificationDeliveryMigrationUrl)) {
+  failures.push("email notification delivery migration is missing");
+} else {
+  const emailMigration = readFileSync(emailNotificationDeliveryMigrationUrl, "utf8");
+  for (const requiredRule of [
+    "alter table public.notification_preferences enable row level security",
+    "alter table public.email_delivery_queue enable row level security",
+    "idempotency_key text not null unique",
+    "for update skip locked",
+    "Service role required",
+    "queue_email_for_in_app_notification"
+  ]) {
+    if (!emailMigration.includes(requiredRule)) failures.push(`email delivery rule is missing: ${requiredRule}`);
+  }
+}
 
 for (const table of tenantTables) {
   if (!schema.includes(`alter table public.${table} enable row level security;`)) {

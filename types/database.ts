@@ -296,6 +296,18 @@ export type Database = {
           },
         ]
       }
+      notification_preferences: {
+        Row: { organization_id: string; user_id: string; schedule_published: boolean; shift_changes: boolean; shift_reminders: boolean; availability_reminders: boolean; swap_updates: boolean; created_at: string; updated_at: string }
+        Insert: { organization_id: string; user_id: string; schedule_published?: boolean; shift_changes?: boolean; shift_reminders?: boolean; availability_reminders?: boolean; swap_updates?: boolean; created_at?: string; updated_at?: string }
+        Update: { organization_id?: string; user_id?: string; schedule_published?: boolean; shift_changes?: boolean; shift_reminders?: boolean; availability_reminders?: boolean; swap_updates?: boolean; created_at?: string; updated_at?: string }
+        Relationships: [{ foreignKeyName: "notification_preferences_organization_id_fkey"; columns: ["organization_id"]; isOneToOne: false; referencedRelation: "organizations"; referencedColumns: ["id"] }]
+      }
+      email_delivery_queue: {
+        Row: { id: string; organization_id: string; user_id: string | null; recipient: string; template_key: string; payload: Json; idempotency_key: string; status: string; attempts: number; scheduled_for: string; locked_at: string | null; sent_at: string | null; provider_message_id: string | null; last_error: string | null; created_at: string; updated_at: string }
+        Insert: { id?: string; organization_id: string; user_id?: string | null; recipient: string; template_key: string; payload?: Json; idempotency_key: string; status?: string; attempts?: number; scheduled_for?: string; locked_at?: string | null; sent_at?: string | null; provider_message_id?: string | null; last_error?: string | null; created_at?: string; updated_at?: string }
+        Update: { id?: string; organization_id?: string; user_id?: string | null; recipient?: string; template_key?: string; payload?: Json; idempotency_key?: string; status?: string; attempts?: number; scheduled_for?: string; locked_at?: string | null; sent_at?: string | null; provider_message_id?: string | null; last_error?: string | null; created_at?: string; updated_at?: string }
+        Relationships: [{ foreignKeyName: "email_delivery_queue_organization_id_fkey"; columns: ["organization_id"]; isOneToOne: false; referencedRelation: "organizations"; referencedColumns: ["id"] }]
+      }
       organization_invitations: {
         Row: {
           accepted_at: string | null
@@ -849,6 +861,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      claim_email_delivery_jobs: {
+        Args: { batch_size?: number }
+        Returns: Database["public"]["Tables"]["email_delivery_queue"]["Row"][]
+      }
+      enqueue_scheduled_notifications: {
+        Args: { run_at?: string }
+        Returns: number
+      }
       accept_organization_invitation: {
         Args: { invitation_token: string }
         Returns: string

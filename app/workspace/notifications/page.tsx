@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { ArrowRight, Bell, CalendarCheck, CheckCircle2 } from "lucide-react";
 
 import { MarkNotificationsReadButton } from "@/app/workspace/notifications/mark-notifications-read-button";
+import { NotificationPreferences, type PreferenceValues } from "@/app/workspace/notifications/notification-preferences";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
@@ -22,6 +23,11 @@ function notificationCopy(templateKey: string, payload: unknown, branches: Map<s
   if (templateKey === "schedule_published") {
     return { title: "סידור העבודה פורסם", details: scheduleDetails(payload, branches), href: "/workspace/my-shifts" };
   }
+
+  if (templateKey === "shift_assignment_changed") return { title: "השיבוץ שלך עודכן", details: "בוצע שינוי במשמרת שפורסמה.", href: "/workspace/my-shifts" };
+  if (templateKey === "shift_reminder") return { title: "המשמרת מתחילה בעוד כשעה", details: scheduleDetails(payload, branches), href: "/workspace/my-shifts" };
+  if (templateKey === "availability_reminder") return { title: "תזכורת להגשת זמינות", details: "חלון ההגשה עומד להיסגר.", href: "/workspace/availability" };
+  if (templateKey === "availability_closing") return { title: "הגשת הזמינות נסגרת היום", details: "זו ההזדמנות האחרונה להשלים את ההגשה.", href: "/workspace/availability" };
 
   const swapCopy: Record<string, { title: string; details: string }> = {
     swap_request_received: { title: "התקבלה בקשת החלפה", details: "עובד/ת מבקש/ת להחליף איתך משמרת." },
@@ -47,7 +53,7 @@ export default async function NotificationsPage() {
     .maybeSingle();
   if (!membership) redirect("/onboarding");
 
-  const [{ data: organization }, { data: notifications }, { data: branches }] = await Promise.all([
+  const [{ data: organization }, { data: notifications }, { data: branches }, { data: preferences }] = await Promise.all([
     supabase.from("organizations").select("name").eq("id", membership.organization_id).single(),
     supabase
       .from("notifications")
@@ -57,12 +63,14 @@ export default async function NotificationsPage() {
       .eq("channel", "in_app")
       .order("created_at", { ascending: false })
       .limit(100),
-    supabase.from("branches").select("id, name").eq("organization_id", membership.organization_id)
+    supabase.from("branches").select("id, name").eq("organization_id", membership.organization_id),
+    supabase.from("notification_preferences").select("schedule_published, shift_changes, shift_reminders, availability_reminders, swap_updates").eq("organization_id", membership.organization_id).eq("user_id", user.id).maybeSingle()
   ]);
   if (!organization) redirect("/workspace");
 
   const branchMap = new Map((branches ?? []).map((branch) => [branch.id, branch.name]));
   const unreadCount = (notifications ?? []).filter((notification) => !notification.read_at).length;
+  const initialPreferences: PreferenceValues = preferences ?? { schedule_published: true, shift_changes: true, shift_reminders: true, availability_reminders: true, swap_updates: true };
 
   return <main className="workspace-home" dir="rtl">
     <header className="workspace-subheader">
@@ -103,5 +111,6 @@ export default async function NotificationsPage() {
         <p>כאשר מנהל יפרסם סידור עבודה, העדכון יופיע כאן.</p>
       </div> : null}
     </section>
+    <NotificationPreferences organizationId={membership.organization_id} userId={user.id} initial={initialPreferences} />
   </main>;
 }
