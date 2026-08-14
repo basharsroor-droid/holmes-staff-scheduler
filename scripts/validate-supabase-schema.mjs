@@ -101,6 +101,10 @@ const emailNotificationDeliveryMigrationUrl = new URL(
   "../supabase/migrations/20260814090000_email_notification_delivery.sql",
   import.meta.url
 );
+const departmentsFoundationMigrationUrl = new URL(
+  "../supabase/migrations/20260814160000_departments_foundation.sql",
+  import.meta.url
+);
 
 const tenantTables = [
   "organizations",
@@ -120,6 +124,23 @@ const tenantTables = [
 ];
 
 const failures = [];
+
+if (!existsSync(departmentsFoundationMigrationUrl)) {
+  failures.push("departments foundation migration is missing");
+} else {
+  const departmentsMigration = readFileSync(departmentsFoundationMigrationUrl, "utf8");
+  for (const requiredRule of [
+    "alter table public.departments enable row level security",
+    "alter table public.department_memberships enable row level security",
+    "private.can_access_department",
+    "private.can_manage_department",
+    "set_membership_departments",
+    "Employees must belong to at least one department",
+    "from public, anon"
+  ]) {
+    if (!departmentsMigration.includes(requiredRule)) failures.push(`department authorization rule is missing: ${requiredRule}`);
+  }
+}
 
 if (!existsSync(emailNotificationDeliveryMigrationUrl)) {
   failures.push("email notification delivery migration is missing");
@@ -590,5 +611,5 @@ if (failures.length) {
 }
 
 console.log(
-  `Validated ${tenantTables.length} RLS-protected ShiftPilot tables with authorization, workflow integrity, privacy, atomic operations, audit, deduplicated notification, scheduling-overlap, last-owner protection, ownership transfer, manager/target swap-transition protection, schedule unpublishing, automatic future-shift release on suspension, invitation resend rate-limiting, previous-month schedule duplication, self-service leave requests, per-employee weekly hour limits, minimum rest time between shifts, bulk shift cancellation by day, and correct expired-invitation handling.`
+  `Validated ${tenantTables.length + 2} RLS-protected ShiftPilot tables with authorization, department-scoped access, workflow integrity, privacy, atomic operations, audit, deduplicated notification, scheduling-overlap, last-owner protection, ownership transfer, manager/target swap-transition protection, schedule unpublishing, automatic future-shift release on suspension, invitation resend rate-limiting, previous-month schedule duplication, self-service leave requests, per-employee weekly hour limits, minimum rest time between shifts, bulk shift cancellation by day, and correct expired-invitation handling.`
 );
