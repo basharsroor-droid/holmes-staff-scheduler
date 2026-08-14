@@ -3,6 +3,8 @@
 import { useMemo, useState } from "react";
 import { CheckCircle2, ChevronDown, ChevronUp, ClipboardCheck, Clock3, Loader2, Save, UserRound, Users, XCircle } from "lucide-react";
 
+import { StatusMessage } from "@/components/workspace/status-message";
+import { useStatusMessage } from "@/lib/hooks/use-status-message";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import type { Database } from "@/types/database";
 
@@ -27,7 +29,7 @@ export function SubmissionsClient({ periods, workers, submissions: initialSubmis
   const [submissions, setSubmissions] = useState(initialSubmissions);
   const [notes, setNotes] = useState<Record<string, string>>(() => Object.fromEntries(initialSubmissions.map((item) => [item.id, item.manager_note ?? ""])));
   const [busyId, setBusyId] = useState<string | null>(null);
-  const [message, setMessage] = useState("");
+  const { message, kind, setMessage } = useStatusMessage();
 
   const period = periods.find((item) => item.id === selectedPeriodId);
   const periodWorkers = period ? workers.filter((worker) => !worker.branch_id || worker.branch_id === period.branch_id) : [];
@@ -48,7 +50,7 @@ export function SubmissionsClient({ periods, workers, submissions: initialSubmis
     const managerNote = notes[submission.id]?.trim() || null;
     const { error } = await supabase.from("availability_submissions").update({ manager_note: managerNote }).eq("id", submission.id);
     setBusyId(null);
-    if (error) { setMessage("לא הצלחנו לשמור את הערת המנהל."); return; }
+    if (error) { setMessage("לא הצלחנו לשמור את הערת המנהל.", "error"); return; }
     setSubmissions((current) => current.map((item) => item.id === submission.id ? { ...item, manager_note: managerNote } : item));
     setMessage("הערת המנהל נשמרה.");
   }
@@ -87,6 +89,6 @@ export function SubmissionsClient({ periods, workers, submissions: initialSubmis
       })}
       {!visibleWorkers.length ? <div className="empty-template-state"><ClipboardCheck size={38} /><p>אין עובדים בקטגוריה שנבחרה.</p></div> : null}
     </div>
-    {message ? <p className="auth-message" role="status">{message}</p> : null}
+    <StatusMessage message={message} kind={kind} />
   </section>;
 }

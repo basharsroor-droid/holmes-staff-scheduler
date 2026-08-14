@@ -3,6 +3,8 @@
 import { useMemo, useState } from "react";
 import { Check, Clock3, Loader2, Plus, Power, ShieldCheck, Users } from "lucide-react";
 
+import { StatusMessage } from "@/components/workspace/status-message";
+import { useStatusMessage } from "@/lib/hooks/use-status-message";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 
 type Branch = { id: string; name: string };
@@ -43,19 +45,19 @@ export function ShiftTemplatesClient({
   const [branchId, setBranchId] = useState(selectedBranchId);
   const [form, setForm] = useState(emptyForm);
   const [busy, setBusy] = useState(false);
-  const [message, setMessage] = useState("");
+  const { message, kind, setMessage } = useStatusMessage();
 
   const branchTemplates = templates.filter((template) => template.branch_id === branchId);
 
   async function addTemplate() {
     setMessage("");
-    if (!branchId) { setMessage("יש לבחור סניף."); return; }
+    if (!branchId) { setMessage("יש לבחור סניף.", "error"); return; }
     if (form.name.trim().length < 2 || !form.startTime || !form.endTime) {
-      setMessage("יש להזין שם משמרת ושעות התחלה וסיום.");
+      setMessage("יש להזין שם משמרת ושעות התחלה וסיום.", "error");
       return;
     }
     if (form.startTime === form.endTime) {
-      setMessage("שעת ההתחלה ושעת הסיום אינן יכולות להיות זהות.");
+      setMessage("שעת ההתחלה ושעת הסיום אינן יכולות להיות זהות.", "error");
       return;
     }
 
@@ -77,7 +79,7 @@ export function ShiftTemplatesClient({
     setBusy(false);
 
     if (error || !data) {
-      setMessage(error?.message.includes("duplicate") ? "כבר קיימת משמרת בשם הזה בסניף." : "לא הצלחנו לשמור את המשמרת. נסה שוב.");
+      setMessage(error?.message.includes("duplicate") ? "כבר קיימת משמרת בשם הזה בסניף." : "לא הצלחנו לשמור את המשמרת. נסה שוב.", "error");
       return;
     }
 
@@ -96,7 +98,7 @@ export function ShiftTemplatesClient({
       .eq("organization_id", organizationId);
 
     if (error) {
-      setMessage("לא הצלחנו לעדכן את המשמרת.");
+      setMessage("לא הצלחנו לעדכן את המשמרת.", "error");
       return;
     }
     setTemplates((current) => current.map((item) => item.id === template.id ? { ...item, active: nextActive } : item));
@@ -120,7 +122,7 @@ export function ShiftTemplatesClient({
         </div>
         <label className="check-field"><input type="checkbox" checked={form.requiresSenior} onChange={(event) => setForm((current) => ({ ...current, requiresSenior: event.target.checked }))} /><span><strong>נדרש עובד בכיר</strong><small>המערכת תתריע אם אין במשמרת עובד ותיק או אחראי.</small></span></label>
         <button className="button primary" disabled={busy || !branchId} onClick={addTemplate}>{busy ? <Loader2 className="spin" size={17} /> : <Plus size={17} />} שמירת משמרת</button>
-        {message ? <p className="auth-message" role="status">{message}</p> : null}
+        <StatusMessage message={message} kind={kind} />
       </div>
 
       <div className="template-list-card">

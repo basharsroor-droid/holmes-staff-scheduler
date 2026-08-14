@@ -3,6 +3,8 @@
 import { useMemo, useState } from "react";
 import { Check, Clock3, Loader2, Repeat2, Send, X } from "lucide-react";
 
+import { StatusMessage } from "@/components/workspace/status-message";
+import { useStatusMessage } from "@/lib/hooks/use-status-message";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import type { Database } from "@/types/database";
 
@@ -31,7 +33,7 @@ export function ShiftSwapsClient({ organizationId, currentUserId, isManager, shi
   const [reason, setReason] = useState("");
   const [managerNotes, setManagerNotes] = useState<Record<string, string>>(() => Object.fromEntries(initialRequests.map((item) => [item.id, item.manager_note ?? ""])));
   const [busy, setBusy] = useState("");
-  const [message, setMessage] = useState("");
+  const { message, kind, setMessage } = useStatusMessage();
 
   const myAssignments = assignments.filter((item) => item.user_id === currentUserId && shifts.some((shift) => shift.id === item.shift_id));
   const targetAssignments = assignments.filter((item) => item.user_id !== currentUserId && shifts.some((shift) => shift.id === item.shift_id));
@@ -59,7 +61,7 @@ export function ShiftSwapsClient({ organizationId, currentUserId, isManager, shi
   async function createRequest() {
     const original = assignments.find((item) => item.id === originalAssignmentId);
     const target = assignments.find((item) => item.id === targetAssignmentId);
-    if (!original || !target || !reason.trim()) { setMessage("יש לבחור שתי משמרות ולכתוב סיבה לבקשה."); return; }
+    if (!original || !target || !reason.trim()) { setMessage("יש לבחור שתי משמרות ולכתוב סיבה לבקשה.", "error"); return; }
     setBusy("create"); setMessage("");
     const { data, error } = await supabase.from("swap_requests").insert({
       organization_id: organizationId,
@@ -71,7 +73,7 @@ export function ShiftSwapsClient({ organizationId, currentUserId, isManager, shi
       status: "pending_employee"
     }).select("id, original_assignment_id, requested_by, target_user_id, target_shift_id, reason, status, manager_note, created_at, decided_at").single();
     setBusy("");
-    if (error || !data) { setMessage("פתיחת בקשת ההחלפה נכשלה."); return; }
+    if (error || !data) { setMessage("פתיחת בקשת ההחלפה נכשלה.", "error"); return; }
     setRequests((current) => [data, ...current]);
     setOriginalAssignmentId(""); setTargetAssignmentId(""); setReason("");
     void addEvent(data.id, "created", data.reason);
@@ -83,7 +85,7 @@ export function ShiftSwapsClient({ organizationId, currentUserId, isManager, shi
     const patch = { status, manager_note: note || null, decided_at: ["approved", "rejected", "cancelled"].includes(status) ? new Date().toISOString() : null, decided_by: ["approved", "rejected"].includes(status) ? currentUserId : null };
     const { error } = await supabase.from("swap_requests").update(patch).eq("id", request.id);
     setBusy("");
-    if (error) { setMessage("עדכון הבקשה נכשל."); return false; }
+    if (error) { setMessage("עדכון הבקשה נכשל.", "error"); return false; }
     setRequests((current) => current.map((item) => item.id === request.id ? { ...item, ...patch } : item));
     void addEvent(request.id, status, note);
     return true;
@@ -93,7 +95,7 @@ export function ShiftSwapsClient({ organizationId, currentUserId, isManager, shi
     const original = assignments.find((item) => item.id === request.original_assignment_id);
     const target = assignments.find((item) => item.shift_id === request.target_shift_id && item.user_id === request.target_user_id);
     if (!original || !target || !request.target_user_id) {
-      setMessage("השיבוצים השתנו מאז פתיחת הבקשה. לא ניתן לאשר אותה.");
+      setMessage("השיבוצים השתנו מאז פתיחת הבקשה. לא ניתן לאשר אותה.", "error");
       return;
     }
 
@@ -107,7 +109,7 @@ export function ShiftSwapsClient({ organizationId, currentUserId, isManager, shi
     setBusy("");
 
     if (error) {
-      setMessage("אישור ההחלפה נכשל. לא בוצע שינוי חלקי.");
+      setMessage("אישור ההחלפה נכשל. לא בוצע שינוי חלקי.", "error");
       return;
     }
 
@@ -134,7 +136,7 @@ export function ShiftSwapsClient({ organizationId, currentUserId, isManager, shi
       <label className="field"><span>המשמרת המבוקשת</span><select className="input" value={targetAssignmentId} onChange={(event) => setTargetAssignmentId(event.target.value)}><option value="">בחירת עובד ומשמרת</option>{targetAssignments.map((assignment) => <option value={assignment.id} key={assignment.id}>{name(assignment.user_id)} · {shiftLabel(shiftForAssignment(assignment.id))}</option>)}</select></label>
       <label className="field"><span>סיבת ההחלפה</span><textarea className="textarea" value={reason} onChange={(event) => setReason(event.target.value)} placeholder="למשל: מבחן באוניברסיטה" /></label>
       <button className="button primary" disabled={!!busy || !myAssignments.length} onClick={() => void createRequest()}>{busy === "create" ? <Loader2 className="spin" size={16} /> : <Send size={16} />} שליחת בקשה</button>
-      {!myAssignments.length ? <p className="auth-message">אין כרגע משמרות עתידיות שניתן להחליף.</p> : null}
+      {!myAssignments.length ? <p className="card-muted">אין כרגע משמרות עתידיות שניתן להחליף.</p> : null}
     </section> : null}
 
     <section className="template-list-card">
@@ -151,7 +153,7 @@ export function ShiftSwapsClient({ organizationId, currentUserId, isManager, shi
         </article>;
       })}</div>
       {!visibleRequests.length ? <div className="empty-template-state"><Repeat2 size={38} /><p>אין כרגע בקשות החלפה.</p></div> : null}
-      {message ? <p className="auth-message" role="status">{message}</p> : null}
+      <StatusMessage message={message} kind={kind} />
     </section>
   </div>;
 }

@@ -3,6 +3,8 @@
 import { useMemo, useState } from "react";
 import { CalendarDays, CalendarPlus, CheckCircle2, Clock3, Loader2, Lock, RotateCcw } from "lucide-react";
 
+import { StatusMessage } from "@/components/workspace/status-message";
+import { useStatusMessage } from "@/lib/hooks/use-status-message";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import type { Database } from "@/types/database";
 
@@ -41,19 +43,19 @@ export function WorkMonthsClient({
   });
   const [busy, setBusy] = useState(false);
   const [busyId, setBusyId] = useState<string | null>(null);
-  const [message, setMessage] = useState("");
+  const { message, kind, setMessage } = useStatusMessage();
 
   const branchTemplates = templates.filter((template) => template.branch_id === form.branchId);
 
   async function createPeriod() {
     setMessage("");
-    if (!form.branchId || !form.opensAt || !form.closesAt) { setMessage("יש לבחור סניף ותאריכי פתיחה וסגירה."); return; }
+    if (!form.branchId || !form.opensAt || !form.closesAt) { setMessage("יש לבחור סניף ותאריכי פתיחה וסגירה.", "error"); return; }
     const opens = new Date(form.opensAt);
     const closes = new Date(form.closesAt);
     if (Number.isNaN(opens.getTime()) || Number.isNaN(closes.getTime()) || closes <= opens) {
-      setMessage("מועד סיום ההגשה חייב להיות מאוחר ממועד הפתיחה."); return;
+      setMessage("מועד סיום ההגשה חייב להיות מאוחר ממועד הפתיחה.", "error"); return;
     }
-    if (!branchTemplates.length) { setMessage("יש להגדיר לפחות סוג משמרת פעיל אחד בסניף לפני פתיחת חודש."); return; }
+    if (!branchTemplates.length) { setMessage("יש להגדיר לפחות סוג משמרת פעיל אחד בסניף לפני פתיחת חודש.", "error"); return; }
 
     setBusy(true);
     const { data, error } = await supabase.from("schedule_periods").insert({
@@ -69,7 +71,7 @@ export function WorkMonthsClient({
     setBusy(false);
 
     if (error || !data) {
-      setMessage(error?.message.includes("duplicate") ? "כבר קיים חודש עבודה כזה בסניף." : "לא הצלחנו לפתוח את חודש העבודה.");
+      setMessage(error?.message.includes("duplicate") ? "כבר קיים חודש עבודה כזה בסניף." : "לא הצלחנו לפתוח את חודש העבודה.", "error");
       return;
     }
     setPeriods((current) => [data, ...current]);
@@ -80,7 +82,7 @@ export function WorkMonthsClient({
     setBusyId(period.id); setMessage("");
     const { error } = await supabase.from("schedule_periods").update({ status }).eq("id", period.id).eq("organization_id", organizationId);
     setBusyId(null);
-    if (error) { setMessage("לא הצלחנו לעדכן את מצב החודש."); return; }
+    if (error) { setMessage("לא הצלחנו לעדכן את מצב החודש.", "error"); return; }
     setPeriods((current) => current.map((item) => item.id === period.id ? { ...item, status } : item));
     setMessage(status === "collecting" ? "חלון ההגשה נפתח מחדש." : "חלון ההגשה נסגר והחודש עבר להכנת סידור.");
   }
@@ -97,7 +99,7 @@ export function WorkMonthsClient({
       <label className="field"><span>דדליין להגשה</span><input className="input" type="datetime-local" value={form.closesAt} onChange={(e) => setForm((c) => ({ ...c, closesAt: e.target.value }))} /></label>
       <div className="card-muted"><strong>{branchTemplates.length} סוגי משמרות פעילים</strong><p className="auth-secondary">{branchTemplates.map((template) => `${template.name} ${template.start_time.slice(0,5)}–${template.end_time.slice(0,5)}`).join(" · ") || "לא הוגדרו משמרות"}</p></div>
       <button className="button primary" disabled={busy} onClick={() => void createPeriod()}>{busy ? <Loader2 className="spin" size={17} /> : <CalendarPlus size={17} />} פתיחת חודש עבודה</button>
-      {message ? <p className="auth-message" role="status">{message}</p> : null}
+      <StatusMessage message={message} kind={kind} />
     </section>
 
     <section className="template-list-card">

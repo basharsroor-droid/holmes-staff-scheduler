@@ -4,13 +4,15 @@ import { useMemo, useState } from "react";
 import { CheckCheck, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 
+import { StatusMessage } from "@/components/workspace/status-message";
+import { useStatusMessage } from "@/lib/hooks/use-status-message";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 
 export function MarkNotificationsReadButton({ unreadCount }: { unreadCount: number }) {
   const router = useRouter();
   const supabase = useMemo(() => createSupabaseBrowserClient(), []);
   const [busy, setBusy] = useState(false);
-  const [message, setMessage] = useState("");
+  const { message, kind, setMessage } = useStatusMessage();
 
   async function markRead() {
     setBusy(true);
@@ -18,7 +20,7 @@ export function MarkNotificationsReadButton({ unreadCount }: { unreadCount: numb
     const { error } = await supabase.rpc("mark_my_notifications_read");
     setBusy(false);
     if (error) {
-      setMessage("לא הצלחנו לסמן את ההתראות כנקראו.");
+      setMessage("לא הצלחנו לסמן את ההתראות כנקראו.", "error");
       return;
     }
     setMessage("כל ההתראות סומנו כנקראו.");
@@ -30,6 +32,6 @@ export function MarkNotificationsReadButton({ unreadCount }: { unreadCount: numb
       {busy ? <Loader2 className="spin" size={16} /> : <CheckCheck size={16} />}
       סימון הכול כנקרא
     </button>
-    {message ? <p className="auth-message" role="status">{message}</p> : null}
+    <StatusMessage message={message} kind={kind} />
   </div>;
 }
