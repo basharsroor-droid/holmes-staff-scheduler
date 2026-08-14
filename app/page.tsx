@@ -27,10 +27,12 @@ const setupSteps = [
 
 export default function HomePage() {
   return <main className="marketing-site" dir="rtl">
-    {/* Fixed (not sticky) so it floats over the Hero instead of pushing its
-        h-screen down by the navbar's own height -- otherwise the bottom of
-        a "full screen" Hero (peek card, scroll cue) sits below the fold. */}
-    <div className="fixed inset-x-0 top-0 z-40">
+    {/* Absolute (not fixed) -- sits at the very top of the page without
+        taking up flow space (so it doesn't push the Hero's h-screen down),
+        but unlike `fixed` it scrolls away normally with the page instead of
+        staying glued to the viewport and covering the pinned Hero card
+        while scrolling through it. */}
+    <div className="absolute inset-x-0 top-0 z-40">
       <SiteNavbar />
     </div>
 
