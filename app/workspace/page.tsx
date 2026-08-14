@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Bell, Building2, CalendarCheck, CalendarDays, CalendarRange, CheckCircle2, Circle, ClipboardCheck, Clock3, History, Repeat2, Settings, Users } from "lucide-react";
+import { Bell, Building2, CalendarCheck, CalendarDays, CalendarRange, CheckCircle2, Circle, ClipboardCheck, Clock3, History, Network, Repeat2, Settings, Users } from "lucide-react";
 
 import { LogoutButton } from "@/app/workspace/logout-button";
 import { BrandLogo } from "@/components/brand/brand-logo";
@@ -79,6 +79,8 @@ export default async function WorkspacePage() {
         <div><CheckCircle2 aria-hidden="true" /><span><p className="eyebrow">מוכנים לבדיקה</p><h2>הגדרות הפיילוט הושלמו</h2><p>אפשר להתחיל בהגשת זמינות, לבדוק את ההגשות ולבנות סידור ראשון.</p></span></div>
         <Link className="button primary" href="/workspace/submissions">מעקב הגשות</Link>
       </section>}
+
+      <section className="workspace-next"><div><p className="eyebrow">מבנה ארגוני</p><h2>סניפים ומחלקות</h2></div><div className="workspace-actions"><Link href="/workspace/departments"><Network /><span><strong>ניהול סניפים ומחלקות</strong><small>שיוך מנהלים ועובדים לאזור העבודה המדויק שלהם.</small></span><span className="status-chip active">פתיחה</span></Link></div></section>
 
       <section className="workspace-next"><div><p className="eyebrow">הגדרת העסק</p><h2>כלי הניהול</h2></div><div className="workspace-actions"><Link href="/workspace/employees"><Users /><span><strong>ניהול עובדים</strong><small>הזמנות, תפקידים והרשאות.</small></span><span className="status-chip active">פתיחה</span></Link><Link href="/workspace/shift-templates"><Settings /><span><strong>סוגי משמרות</strong><small>שעות, כמות עובדים ודרישות.</small></span><span className="status-chip active">פתיחה</span></Link><Link href="/workspace/work-months"><CalendarDays /><span><strong>חודשי עבודה</strong><small>פתיחת הגשת זמינות וקביעת דדליין.</small></span><span className="status-chip active">פתיחה</span></Link><Link href="/workspace/submissions"><ClipboardCheck /><span><strong>מעקב הגשות</strong><small>מי הגיש, מי חסר ופירוט הזמינות.</small></span><span className="status-chip active">פתיחה</span></Link><Link href="/workspace/schedule-builder"><CalendarRange /><span><strong>בניית סידור</strong><small>יצירת משמרות, שיבוץ ופרסום לצוות.</small></span><span className="status-chip active">פתיחה</span></Link><Link href="/workspace/shift-swaps"><Repeat2 /><span><strong>בקשות החלפה</strong><small>אישור החלפות ועדכון הסידור.</small></span><span className="status-chip active">פתיחה</span></Link><Link href="/workspace/notifications"><Bell /><span><strong>התראות</strong><small>סידורים חדשים ועדכונים חשובים.</small></span><span className={`status-chip ${notificationsResult.count ? "warning" : "active"}`}>{notificationsResult.count ?? 0} חדשות</span></Link>{["owner", "admin"].includes(membership.role) ? <Link href="/workspace/audit-log"><History /><span><strong>יומן פעילות</strong><small>מעקב מאובטח אחר פעולות ניהול.</small></span><span className="status-chip active">פתיחה</span></Link> : null}</div></section>
     </>}
