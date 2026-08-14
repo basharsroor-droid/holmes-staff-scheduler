@@ -113,6 +113,10 @@ const customerSupportMigrationUrl = new URL(
   "../supabase/migrations/20260814193000_customer_support_center.sql",
   import.meta.url
 );
+const platformSupportConsoleMigrationUrl = new URL(
+  "../supabase/migrations/20260814203000_platform_support_console.sql",
+  import.meta.url
+);
 
 const tenantTables = [
   "organizations",
@@ -132,6 +136,20 @@ const tenantTables = [
 ];
 
 const failures = [];
+
+if (!existsSync(platformSupportConsoleMigrationUrl)) {
+  failures.push("platform support console migration is missing");
+} else {
+  const consoleMigration = readFileSync(platformSupportConsoleMigrationUrl, "utf8");
+  for (const requiredRule of [
+    "support_tickets add column organization_name",
+    "set_support_ticket_organization_name",
+    "alter column organization_name set not null",
+    "from public, anon, authenticated"
+  ]) {
+    if (!consoleMigration.includes(requiredRule)) failures.push(`support console rule is missing: ${requiredRule}`);
+  }
+}
 
 if (!existsSync(customerSupportMigrationUrl)) {
   failures.push("customer support migration is missing");

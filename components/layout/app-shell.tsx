@@ -79,6 +79,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     pathname === "/demo" ||
     pathname === "/terms" ||
     pathname === "/privacy" ||
+    pathname.startsWith("/support") ||
     pathname.startsWith("/workspace") ||
     pathname.startsWith("/auth/");
   const [authUser, setAuthUser] = useState<AuthUser | null>(null);

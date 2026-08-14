@@ -597,6 +597,7 @@ button {
 .template-form-card h2,
 .template-list-card h2 { margin: 4px 0 0; }
 .support-workbench { grid-template-columns: minmax(300px, .78fr) minmax(0, 1.22fr); }
+.support-console-workbench { grid-template-columns: minmax(0, 1fr); }
 .support-ticket { display: grid; gap: 14px; }
 .support-ticket-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; }
 .support-ticket-head > span:first-child { display: grid; gap: 5px; min-width: 0; }
