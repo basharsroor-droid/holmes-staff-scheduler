@@ -22,8 +22,10 @@ jobs:
           CRON_SECRET: ${{ secrets.CRON_SECRET }}
           NOTIFICATION_CRON_URL: ${{ secrets.NOTIFICATION_CRON_URL }}
         run: |
-          test -n "$CRON_SECRET"
-          test -n "$NOTIFICATION_CRON_URL"
+          if [ -z "$CRON_SECRET" ] || [ -z "$NOTIFICATION_CRON_URL" ]; then
+            echo "Notification delivery is not configured yet; skipping safely."
+            exit 0
+          fi
           curl --fail-with-body --retry 2 --max-time 50 \
             -H "Authorization: Bearer $CRON_SECRET" \
             "$NOTIFICATION_CRON_URL"
