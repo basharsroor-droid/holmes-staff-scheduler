@@ -109,6 +109,10 @@ const departmentScopedSchedulingMigrationUrl = new URL(
   "../supabase/migrations/20260814180000_department_scoped_scheduling.sql",
   import.meta.url
 );
+const customerSupportMigrationUrl = new URL(
+  "../supabase/migrations/20260814193000_customer_support_center.sql",
+  import.meta.url
+);
 
 const tenantTables = [
   "organizations",
@@ -128,6 +132,27 @@ const tenantTables = [
 ];
 
 const failures = [];
+
+if (!existsSync(customerSupportMigrationUrl)) {
+  failures.push("customer support migration is missing");
+} else {
+  const supportMigration = readFileSync(customerSupportMigrationUrl, "utf8");
+  for (const requiredRule of [
+    "alter table public.support_tickets enable row level security",
+    "support_tickets_select_allowed",
+    "support_tickets_insert_member",
+    "support_tickets_update_agent",
+    "private.is_platform_support_agent",
+    "queue_support_ticket_email",
+    "support_ticket_created",
+    "support_ticket_updated",
+    "revoke insert, update, delete on public.platform_support_agents from authenticated",
+    "created_by = (select auth.uid())",
+    "revoke delete on public.support_tickets from authenticated"
+  ]) {
+    if (!supportMigration.includes(requiredRule)) failures.push(`customer support rule is missing: ${requiredRule}`);
+  }
+}
 
 if (!existsSync(departmentsFoundationMigrationUrl)) {
   failures.push("departments foundation migration is missing");
