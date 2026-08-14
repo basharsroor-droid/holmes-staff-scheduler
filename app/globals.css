@@ -677,6 +677,31 @@ button {
   flex-wrap: wrap;
 }
 
+.departments-workbench {
+  display: grid;
+  grid-template-columns: minmax(260px, 0.34fr) minmax(0, 1fr);
+  align-items: start;
+  gap: 24px;
+}
+.departments-sidebar { position: sticky; top: 24px; }
+.departments-content { display: grid; gap: 24px; min-width: 0; }
+.scope-explainer { display: flex; gap: 12px; padding: 15px; border-radius: 16px; background: #eef7ff; color: var(--ink); }
+.scope-explainer > svg { flex: 0 0 auto; color: var(--primary); }
+.scope-explainer span { display: grid; gap: 4px; }
+.scope-explainer small { color: var(--muted); line-height: 1.55; }
+.department-grid,
+.department-members { display: grid; gap: 12px; }
+.department-card { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 14px; padding: 15px; border: 1px solid var(--border); border-radius: 17px; }
+.department-card.inactive { opacity: 0.58; background: #f4f5f7; }
+.department-card > span:nth-child(2),
+.department-member-head > span:nth-child(2) { display: grid; gap: 4px; min-width: 0; }
+.department-card small,
+.department-member small { color: var(--muted); }
+.department-member { display: grid; gap: 14px; padding: 16px; border: 1px solid var(--border); border-radius: 17px; }
+.department-member-head { display: flex; align-items: center; gap: 12px; }
+.department-checkboxes { display: flex; flex-wrap: wrap; gap: 10px; padding-top: 12px; border-top: 1px dashed var(--border); }
+.department-checkboxes .check-field { padding: 9px 12px; }
+
 @media (max-width: 760px) {
   .workspace-welcome { align-items: flex-start; flex-direction: column; margin-top: 34px; padding: 24px; }
   .workspace-stats { grid-template-columns: 1fr; }
@@ -691,6 +716,11 @@ button {
   .template-item.employee-row .actions { grid-column: 2; }
   .employee-controls { border-top: none; padding-top: 0; margin-top: -4px; }
   .template-list-heading { align-items: flex-start; flex-direction: column; }
+  .departments-workbench { grid-template-columns: 1fr; }
+  .departments-sidebar { position: static; }
+  .department-card { grid-template-columns: auto minmax(0, 1fr); }
+  .department-card .button,
+  .department-card > .status-chip { grid-column: 2; width: fit-content; }
 }
 
 .demo-credentials {
