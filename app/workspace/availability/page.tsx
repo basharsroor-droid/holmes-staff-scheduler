@@ -25,8 +25,8 @@ export default async function AvailabilityPage() {
   const [organizationResult, branchResult, periodsResult, templatesResult] = await Promise.all([
     supabase.from("organizations").select("name").eq("id", membership.organization_id).single(),
     supabase.from("branches").select("name").eq("id", membership.branch_id).single(),
-    supabase.from("schedule_periods").select("id, year, month, status, submission_opens_at, submission_closes_at").eq("organization_id", membership.organization_id).eq("branch_id", membership.branch_id).eq("status", "collecting").order("year").order("month"),
-    supabase.from("shift_templates").select("id, name, start_time, end_time").eq("organization_id", membership.organization_id).eq("branch_id", membership.branch_id).eq("active", true).order("start_time")
+    supabase.from("schedule_periods").select("id, department_id, year, month, status, submission_opens_at, submission_closes_at").eq("organization_id", membership.organization_id).eq("branch_id", membership.branch_id).eq("status", "collecting").order("year").order("month"),
+    supabase.from("shift_templates").select("id, department_id, name, start_time, end_time").eq("organization_id", membership.organization_id).eq("branch_id", membership.branch_id).eq("active", true).order("start_time")
   ]);
 
   if (!organizationResult.data || !branchResult.data) redirect("/workspace");
