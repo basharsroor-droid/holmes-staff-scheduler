@@ -80,18 +80,18 @@ export default async function AuditLogPage() {
       </div>
     </header>
 
-    <section className="template-list-card">
-      <div className="template-list-heading">
+    <section className="template-list-card audit-console">
+      <div className="template-list-heading audit-heading">
         <div><p className="eyebrow">מעקב מאובטח</p><h2>פעולות אחרונות</h2></div>
         <span className="badge success"><ShieldCheck size={15} /> בעלים ו-Admin בלבד</span>
       </div>
 
-      {(events ?? []).length ? <div className="table-wrap">
+      {(events ?? []).length ? <div className="table-wrap audit-table-wrap">
         <table className="table compact-table">
           <thead><tr><th>זמן</th><th>מי ביצע</th><th>פעולה</th><th>ישות</th><th>פרטים</th></tr></thead>
           <tbody>{(events ?? []).map((event) => {
             const operation = event.action.split(".").at(-1) ?? "";
-            return <tr key={event.id}>
+            return <tr className={`audit-row operation-${operation}`} key={event.id}>
               <td>{new Date(event.created_at).toLocaleString("he-IL", { dateStyle: "short", timeStyle: "short" })}</td>
               <td>{event.actor_user_id ? profileMap.get(event.actor_user_id) ?? "משתמש מערכת" : "פעולת מערכת"}</td>
               <td><span className="badge">{operationLabels[operation] ?? operation}</span></td>
