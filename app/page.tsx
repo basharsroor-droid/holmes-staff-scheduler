@@ -9,12 +9,12 @@ import { ScrollToTop } from "@/components/marketing/scroll-to-top";
 import { SiteNavbar } from "@/components/marketing/site-navbar";
 
 const capabilities = [
-  { icon: CalendarCheck, title: "הגשת זמינות מסודרת", text: "כל עובד מסמן מועדפת, זמין, רק אם צריך או לא זמין — לכל משמרת בחודש." },
-  { icon: CalendarRange, title: "בניית סידור חכמה", text: "המנהל רואה את כל ההגשות במקום אחד ומשבץ בלי התנגשויות ובלי לנחש." },
-  { icon: Repeat2, title: "החלפות עם אישורים", text: "העובד השני מאשר, המנהל מאשר סופית והסידור מתעדכן באופן מבוקר." },
-  { icon: UserPlus, title: "ניהול עובדים", text: "הזמנה במייל, שיוך לסניף, תפקיד, הרשאות פתיחה וסגירה ורמת ותק." },
-  { icon: BarChart3, title: "תמונה ניהולית", text: "מי הגיש, מי חסר, אילו משמרות אינן מאוישות ומה עומס השעות של כל עובד." },
-  { icon: ShieldCheck, title: "סביבה פרטית לכל עסק", text: "העובדים רואים רק את המידע שלהם והמנהלים פועלים רק בתוך הארגון והסניף." }
+  { icon: CalendarCheck, title: "כל הזמינות במקום אחד", text: "כל עובד מסמן מועדפת, זמין, רק אם צריך או לא זמין — והמנהל מקבל תמונה מסודרת לחודש." },
+  { icon: CalendarRange, title: "שיבוץ לפי מה שהוגש", text: "רואים את זמינות העובדים לצד המשמרות והתקנים, ומשבצים על בסיס מידע עדכני." },
+  { icon: Repeat2, title: "החלפות בתהליך ברור", text: "העובד השני מאשר, המנהל נותן אישור סופי וכל שינוי נשמר ומתועד במערכת." },
+  { icon: UserPlus, title: "צוות, סניפים ומחלקות", text: "מזמינים עובדים במייל ומשייכים כל אחד לסניף, למחלקה, לתפקיד ולהרשאות המתאימות." },
+  { icon: BarChart3, title: "תמונה ברורה לפני הפרסום", text: "רואים מי הגיש, מי עדיין חסר, אילו משמרות דורשות שיבוץ ומה מצב הסידור לפני שמפרסמים." },
+  { icon: ShieldCheck, title: "גישה לפי עסק ותפקיד", text: "כל עסק פועל בסביבה נפרדת, וכל משתמש מקבל גישה לפי הארגון, הסניף והתפקיד שלו." }
 ];
 
 const setupSteps = [
@@ -64,7 +64,7 @@ export default function HomePage() {
 
     <section className="pro-section features-section">
       <div className="section-glow violet" style={{ width: 380, height: 380, top: -120, right: -60 }} aria-hidden="true" />
-      <ScrollReveal className="section-heading centered"><p className="pro-kicker dark">יכולות המוצר</p><h2>כל הכלים, בלי להעמיס על הצוות</h2></ScrollReveal>
+      <ScrollReveal className="section-heading centered"><p className="pro-kicker dark">יכולות המוצר</p><h2>כל מה שצריך, לאורך כל תהליך הסידור</h2></ScrollReveal>
       <div className="capability-grid">{capabilities.map((item,index)=><ScrollReveal className="capability-card" delay={(index%3)*70} key={item.title}><item.icon /><h3>{item.title}</h3><p>{item.text}</p></ScrollReveal>)}</div>
     </section>
 
