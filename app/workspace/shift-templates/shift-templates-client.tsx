@@ -117,8 +117,8 @@ export function ShiftTemplatesClient({
   }
 
   return (
-    <section className="template-workbench">
-      <div className="template-form-card">
+    <section className="template-workbench business-setup-workbench shift-template-workbench">
+      <div className="template-form-card setup-form-card shift-template-form">
         <div><p className="eyebrow">משמרת חדשה</p><h2>הוספת סוג משמרת</h2></div>
         {branches.length > 1
           ? <label className="field"><span>סניף</span><select className="input" value={branchId} onChange={(event) => selectBranch(event.target.value)}>{branches.map((branch) => <option value={branch.id} key={branch.id}>{branch.name}</option>)}</select></label>
@@ -138,11 +138,11 @@ export function ShiftTemplatesClient({
         <StatusMessage message={message} kind={kind} />
       </div>
 
-      <div className="template-list-card">
-        <div className="template-list-heading"><div><p className="eyebrow">{branches.find((branch) => branch.id === branchId)?.name ?? "הסניף"} · {branchDepartments.find((department) => department.id === departmentId)?.name ?? "מחלקה"}</p><h2>{departmentTemplates.length ? `${departmentTemplates.length} סוגי משמרות` : "עדיין לא הוגדרו משמרות"}</h2></div><span className="status-chip active"><Check size={14} /> נשמר ב־Supabase</span></div>
+      <div className="template-list-card setup-list-card shift-template-list-card">
+        <div className="template-list-heading setup-list-heading"><div><p className="eyebrow">{branches.find((branch) => branch.id === branchId)?.name ?? "הסניף"} · {branchDepartments.find((department) => department.id === departmentId)?.name ?? "מחלקה"}</p><h2>{departmentTemplates.length ? `${departmentTemplates.length} סוגי משמרות` : "עדיין לא הוגדרו משמרות"}</h2></div><span className="status-chip active"><Check size={14} /> נשמר ב־Supabase</span></div>
         <div className="template-list">
           {departmentTemplates.map((template) => (
-            <article className={`template-item ${template.active ? "" : "inactive"}`} key={template.id}>
+            <article className={`template-item shift-template-row ${template.active ? "" : "inactive"}`} key={template.id}>
               <div className="template-icon"><Clock3 /></div>
               <div className="template-main"><strong>{template.name}</strong><span>{template.start_time.slice(0, 5)}–{template.end_time.slice(0, 5)}</span></div>
               <div className="template-meta"><span><Users size={15} /> {template.required_employees} עובדים</span>{template.requires_senior_employee ? <span><ShieldCheck size={15} /> עובד בכיר</span> : null}</div>

@@ -3882,3 +3882,283 @@ html.si-lock, html.si-lock body {
     grid-template-columns: 1fr 1fr;
   }
 }
+
+
+/* Business setup screens: departments, work months and shift templates */
+.business-setup-workbench {
+  width: min(1180px, 100%);
+  margin: 0 auto;
+}
+.template-workbench.business-setup-workbench {
+  grid-template-columns: minmax(320px, .72fr) minmax(0, 1.28fr);
+}
+.setup-form-card,
+.setup-sidebar {
+  overflow: hidden;
+  border-color: #d9e4f1;
+  background:
+    radial-gradient(circle at 100% 0, rgba(52, 144, 248, .09), transparent 30%),
+    #fff;
+}
+.setup-form-card > div:first-child,
+.setup-sidebar > div:first-child {
+  padding-bottom: 14px;
+  border-bottom: 1px solid #e2e8f0;
+}
+.setup-form-card > .button.primary,
+.setup-sidebar > .button.primary {
+  width: 100%;
+  min-height: 48px;
+  justify-content: center;
+  box-shadow: 0 9px 22px rgba(30, 111, 224, .18);
+}
+.setup-list-card,
+.departments-panel,
+.department-access-panel {
+  padding: 0;
+  overflow: hidden;
+}
+.setup-list-heading {
+  margin: 0;
+  padding: 23px 25px;
+  border-bottom: 1px solid #dfe7f1;
+  background: linear-gradient(135deg, #f6faff, #fff);
+}
+.setup-list-card > .template-list {
+  gap: 11px;
+  padding: 22px 24px 25px;
+}
+.setup-list-card .template-item {
+  min-height: 88px;
+  border-color: #dce5ef;
+  background: #fff;
+}
+.setup-list-card .template-item:hover {
+  border-color: #b8cee9;
+  box-shadow: 0 10px 26px rgba(23, 63, 116, .07);
+}
+.setup-list-card .template-item > .button {
+  min-width: 106px;
+  justify-content: center;
+}
+.setup-list-card .template-icon {
+  width: 46px;
+  height: 46px;
+}
+
+/* Work months */
+.work-month-form .card-muted {
+  padding: 15px;
+  border-color: #dce7f3;
+  background: #f7faff;
+}
+.work-month-form .card-muted strong {
+  display: block;
+  margin-bottom: 5px;
+  color: #174f9a;
+}
+.work-month-form .card-muted p {
+  margin: 0;
+  line-height: 1.55;
+}
+.work-month-card {
+  position: relative;
+  overflow: hidden;
+}
+.work-month-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 0 auto;
+  width: 4px;
+  background: #9aabba;
+}
+.work-month-card.period-collecting::before { background: #18a76e; }
+.work-month-card.period-draft::before { background: #e2a01e; }
+.work-month-card.period-published::before { background: #2879df; }
+.work-month-card .template-meta {
+  display: grid;
+  gap: 5px;
+}
+.work-month-card .template-meta > span:not(.status-chip) {
+  white-space: nowrap;
+}
+.work-month-card .status-chip {
+  width: fit-content;
+}
+
+/* Shift templates */
+.shift-template-form .check-field {
+  border: 1px solid #dce5f0;
+  background: #f7faff;
+}
+.shift-template-row .template-main span {
+  width: fit-content;
+  padding: 4px 8px;
+  border-radius: 8px;
+  color: #385676;
+  background: #edf4fb;
+  font-size: 12px;
+  font-weight: 750;
+}
+.shift-template-row .template-meta span {
+  padding: 6px 9px;
+  border-radius: 999px;
+  background: #f2f6fa;
+}
+.shift-template-row.inactive {
+  filter: grayscale(.15);
+}
+
+/* Departments and access */
+.departments-workbench.business-setup-workbench {
+  grid-template-columns: minmax(290px, .42fr) minmax(0, 1fr);
+}
+.setup-sidebar .scope-explainer {
+  border: 1px solid #d6e8fb;
+  background: #f0f7ff;
+}
+.departments-panel .department-grid,
+.department-access-panel .department-members {
+  gap: 11px;
+  padding: 22px 24px 25px;
+}
+.departments-panel .department-card {
+  min-height: 78px;
+  border-color: #dce5ef;
+  background: #fff;
+  transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease;
+}
+.departments-panel .department-card:hover {
+  transform: translateY(-1px);
+  border-color: #b8cee9;
+  box-shadow: 0 9px 22px rgba(23, 63, 116, .07);
+}
+.departments-panel .department-card > .button {
+  min-width: 94px;
+  justify-content: center;
+}
+.department-access-panel .department-member {
+  padding: 0;
+  overflow: hidden;
+  border-color: #dce5ef;
+  background: #fff;
+}
+.department-access-panel .department-member-head {
+  padding: 15px 17px;
+}
+.department-access-panel .department-checkboxes {
+  margin: 0;
+  padding: 13px 17px 16px;
+  border-top: 1px solid #e2e8f0;
+  background: #f8fafc;
+}
+.department-access-panel .department-checkboxes .check-field {
+  min-height: 42px;
+  border: 1px solid #dce5ef;
+  background: #fff;
+}
+.department-access-panel .department-checkboxes .check-field:has(input:checked) {
+  border-color: #91baf0;
+  color: #155cae;
+  background: #eef6ff;
+}
+
+@media (max-width: 980px) {
+  .template-workbench.business-setup-workbench,
+  .departments-workbench.business-setup-workbench {
+    grid-template-columns: 1fr;
+  }
+  .business-setup-workbench .template-form-card,
+  .business-setup-workbench .departments-sidebar {
+    position: static;
+  }
+}
+
+@media (max-width: 760px) {
+  .business-setup-workbench {
+    gap: 14px;
+  }
+  .setup-form-card,
+  .setup-sidebar,
+  .setup-list-card,
+  .departments-panel,
+  .department-access-panel {
+    border-radius: 19px;
+  }
+  .setup-form-card,
+  .setup-sidebar {
+    padding: 19px 15px;
+  }
+  .setup-list-heading {
+    align-items: center;
+    flex-direction: row;
+    padding: 18px 15px;
+  }
+  .setup-list-heading h2 {
+    font-size: 22px;
+  }
+  .setup-list-heading .status-chip {
+    max-width: 130px;
+    text-align: center;
+  }
+  .setup-list-card > .template-list,
+  .departments-panel .department-grid,
+  .department-access-panel .department-members {
+    padding: 14px 12px 16px;
+  }
+  .setup-list-card .template-item {
+    min-height: 0;
+    padding: 14px 11px;
+    border-radius: 15px;
+  }
+  .work-month-card .template-meta,
+  .work-month-card > .button {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+  .work-month-card .template-meta {
+    padding: 10px;
+    border-radius: 11px;
+    background: #f6f9fc;
+  }
+  .shift-template-row .template-meta,
+  .shift-template-row > .button {
+    grid-column: 2;
+  }
+  .shift-template-row > .button {
+    width: 100%;
+    justify-content: center;
+  }
+  .departments-panel .department-card {
+    padding: 13px 11px;
+  }
+  .departments-panel .department-card > .button {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+  .department-access-panel .department-member-head {
+    padding: 14px;
+  }
+  .department-access-panel .department-checkboxes {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    padding: 12px;
+  }
+}
+
+@media (max-width: 420px) {
+  .setup-list-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .setup-list-heading .status-chip {
+    max-width: none;
+  }
+  .department-access-panel .department-checkboxes {
+    grid-template-columns: 1fr;
+  }
+  .shift-template-row .template-meta,
+  .shift-template-row > .button {
+    grid-column: 1 / -1;
+  }
+}
