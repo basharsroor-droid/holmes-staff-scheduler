@@ -217,7 +217,7 @@ export function CinematicHero() {
   return (
     <div
       ref={containerRef}
-      className="relative flex h-screen w-screen items-center justify-center overflow-hidden bg-background text-foreground"
+      className="cinematic-hero-root relative flex h-screen w-screen items-center justify-center overflow-hidden bg-background text-foreground"
       style={{ perspective: "1500px" }}
     >
       <style dangerouslySetInnerHTML={{ __html: INJECTED_STYLES }} />
