@@ -20,7 +20,7 @@ test("all SaaS workspace routes require an authenticated session", async ({ page
   for (const route of protectedWorkspaceRoutes) {
     await page.goto(route);
     await expect(page).toHaveURL(/\/login$/);
-    await expect(page.getByRole("heading", { name: "כניסה ל־ShiftPilot" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "טוב לראות אותך שוב." })).toBeVisible();
   }
 });
 
