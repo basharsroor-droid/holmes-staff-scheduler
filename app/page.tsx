@@ -39,7 +39,7 @@ export default function HomePage() {
     <CinematicHero />
     <ScrollToTop />
 
-    <section className="proof-strip" tabIndex={0} aria-label="ענפים מתאימים"><span>מתאים למסעדות</span><i /> <span>חדרי כושר</span><i /> <span>חנויות</span><i /> <span>מוקדי שירות</span><i /> <span>מרפאות</span><i /> <span>כל צוות שעובד במשמרות</span></section>
+    <section className="proof-strip" tabIndex={0} aria-label="עסקים שעובדים במשמרות"><span>מסעדות</span><i /> <span>חדרי כושר</span><i /> <span>חנויות</span><i /> <span>מוקדי שירות</span><i /> <span>מרפאות</span><i /> <span>צוותי תפעול</span></section>
 
     <section className="pro-section problem-section">
       <div className="section-glow blue" style={{ width: 420, height: 420, top: -140, left: -80 }} aria-hidden="true" />
@@ -69,16 +69,16 @@ export default function HomePage() {
     </section>
 
     <section className="pro-section security-section" id="security">
-      <ScrollReveal className="security-copy"><p className="pro-kicker">בנוי לעבודה אמיתית</p><h2>המידע של כל עסק נשאר בתוך העסק.</h2><p>לכל ארגון סביבת נתונים נפרדת. העובד רואה את הזמינות והשיבוצים שלו, מנהל רואה את הסניף שלו ובעל העסק שולט בהרשאות.</p><div><span><LockKeyhole /> כניסה מאובטחת ואימות מייל</span><span><ShieldCheck /> הרשאות לפי תפקיד</span><span><Building2 /> הפרדה מלאה בין ארגונים</span></div></ScrollReveal>
+      <ScrollReveal className="security-copy"><p className="pro-kicker">הרשאות והפרדת מידע</p><h2>הגישה למידע נקבעת לפי העסק והתפקיד.</h2><p>כל משתמש מקבל גישה בהתאם לארגון, לסניף ולתפקיד שלו. העובדים רואים את המידע הנדרש להם, המנהלים פועלים בתוך תחומי האחריות שלהם ובעל העסק שולט בהרשאות.</p><div><span><LockKeyhole /> כניסה מאובטחת ואימות מייל</span><span><ShieldCheck /> הרשאות לפי תפקיד וסניף</span><span><Building2 /> הפרדה בין סביבות עבודה</span></div></ScrollReveal>
       <ScrollReveal className="security-visual" delay={120}><ShieldCheck /><span><b>RLS</b><small>Row Level Security</small></span><i /><span><b>Roles</b><small>Owner · Manager · Employee</small></span><i /><span><b>Audit</b><small>פעולות והחלטות מתועדות</small></span></ScrollReveal>
     </section>
 
-    <section className="pro-section faq-section"><ScrollReveal className="section-heading"><p className="pro-kicker dark">שאלות נפוצות</p><h2>לפני שמתחילים</h2></ScrollReveal><div className="faq-grid"><details open><summary>האם העובדים צריכים להוריד אפליקציה?</summary><p>לא. המערכת פועלת בדפדפן בטלפון ובמחשב, וכל עובד נכנס דרך קישור מאובטח.</p></details><details><summary>אפשר לשנות את סוגי המשמרות בכל חודש?</summary><p>כן. שעות, שמות, תקנים ודרישות ניהוליות ניתנים לשינוי לפי עונה וסניף.</p></details><details><summary>מה קורה אחרי פרסום הסידור?</summary><p>כל עובד רואה רק את המשמרות שלו. החלפות מתבצעות דרך תהליך אישור ולא משנות את הסידור ללא מנהל.</p></details><details><summary>אפשר לנהל יותר מסניף אחד?</summary><p>המבנה כבר בנוי לשיוך עובדים, משמרות וחודשים לפי ארגון וסניף.</p></details></div></section>
+    <section className="pro-section faq-section"><ScrollReveal className="section-heading"><p className="pro-kicker dark">שאלות נפוצות</p><h2>לפני שמתחילים</h2></ScrollReveal><div className="faq-grid"><details open><summary>האם צריך להוריד אפליקציה?</summary><p>לא. ShiftPilot פועלת ישירות בדפדפן בטלפון ובמחשב, וכל משתמש נכנס לסביבה שלו באמצעות חשבון מאובטח.</p></details><details><summary>אפשר להתאים את המשמרות לכל עסק?</summary><p>כן. אפשר להגדיר שמות, שעות, מספר עובדים ודרישות מיוחדות בהתאם לסניף, לעונה ולאופן העבודה של העסק.</p></details><details><summary>איך מתבצעת החלפת משמרת?</summary><p>העובד שולח בקשה, העובד המחליף מאשר והמנהל נותן אישור סופי. הסידור מתעדכן רק לאחר השלמת התהליך.</p></details><details><summary>אפשר לנהל כמה סניפים ומחלקות?</summary><p>כן. אפשר לשייך עובדים, מנהלים ומשמרות לסניפים ולמחלקות, ולהגדיר לכל משתמש את תחומי הגישה המתאימים לו.</p></details></div></section>
 
-    <section className="final-cta"><ScrollReveal><BrandLogo light /><h2>הגיע הזמן להפסיק לרדוף אחרי המשמרות.</h2><p>פתחו סביבת עבודה, הגדירו את הסניף הראשון והכינו את הסידור הבא בצורה מסודרת.</p><div><Link className="button brand-button large" href="/onboarding">פתיחת עסק חדש <ArrowLeft size={18} /></Link><Link className="button glass-button large" href="/demo">כניסה לדמו</Link></div></ScrollReveal></section>
+    <section className="final-cta"><ScrollReveal><BrandLogo light /><h2>את הסידור הבא אפשר להתחיל אחרת.</h2><p>פתחו סביבת עבודה לעסק, הזמינו את הצוות ורכזו את הזמינות, השיבוצים וההחלפות במקום אחד.</p><div><Link className="button brand-button large" href="/onboarding">פתיחת עסק חדש <ArrowLeft size={18} /></Link><Link className="button glass-button large" href="/demo">צפייה בדמו</Link></div></ScrollReveal></section>
 
     <div className="mobile-sticky-actions"><Link href="/demo">דמו</Link><Link href="/onboarding">פתיחת עסק <ArrowLeft size={16} /></Link></div>
 
-    <footer className="pro-footer"><BrandLogo href="/" /><p>ShiftPilot — הדרך הקלה למשמרת הבאה שלך.</p><div><Link href="/login">כניסה</Link><Link href="/onboarding">הרשמה</Link><Link href="/demo">דמו Holmes Place</Link><Link href="/terms">תנאי שימוש</Link><Link href="/privacy">פרטיות</Link></div><small>© 2026 ShiftPilot. כל הזכויות שמורות.</small></footer>
+    <footer className="pro-footer"><BrandLogo href="/" /><p>זמינות, סידורי עבודה והחלפות משמרת — במקום אחד.</p><div><Link href="/login">כניסה למערכת</Link><Link href="/onboarding">פתיחת עסק</Link><Link href="/demo">סביבת הדמו</Link><Link href="/support">תמיכה</Link><Link href="/terms">תנאי שימוש</Link><Link href="/privacy">מדיניות פרטיות</Link></div><small>© 2026 ShiftPilot. כל הזכויות שמורות.</small></footer>
   </main>;
 }
