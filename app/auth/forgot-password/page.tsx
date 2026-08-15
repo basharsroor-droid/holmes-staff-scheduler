@@ -41,7 +41,7 @@ export default function ForgotPasswordPage() {
   return (
     <main className="onboarding-page auth-flow auth-recovery" dir="rtl">
       <section className="onboarding-intro auth-flow-intro">
-        <BrandLogo href="/" />
+        <BrandLogo href="/" light />
         <p className="eyebrow">שחזור גישה מאובטח</p>
         <h1>חוזרים לחשבון בכמה צעדים.</h1>
         <p className="lead">נשלח קישור חד־פעמי לכתובת המייל של החשבון. הקישור מיועד רק להגדרת סיסמה חדשה.</p>
