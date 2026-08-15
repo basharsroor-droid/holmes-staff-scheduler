@@ -43,10 +43,10 @@ export default function HomePage() {
 
     <section className="pro-section problem-section">
       <div className="section-glow blue" style={{ width: 420, height: 420, top: -140, left: -80 }} aria-hidden="true" />
-      <ScrollReveal className="section-heading"><p className="pro-kicker dark">למה ShiftPilot?</p><h2>הבעיה היא לא הסידור. הבעיה היא כל מה שקורה סביבו.</h2><p>הודעות פרטיות, שינויים ברגע האחרון, טבלאות לא מעודכנות ועובדים שלא יודעים איזו גרסה היא הסופית.</p></ScrollReveal>
+      <ScrollReveal className="section-heading"><p className="pro-kicker dark">למה ShiftPilot?</p><h2>הבעיה היא לא הסידור. הבעיה היא קבוצת הוואטסאפ, האקסל הישן וההודעות שאף אחד לא זוכר אם ענה עליהן.</h2><p>כל שינוי הופך לשרשור הודעות חדש. כל גרסה של הסידור מתחרה בגרסה הקודמת. ואף אחד לא בטוח איזו מהן הנכונה.</p></ScrollReveal>
       <div className="comparison-grid">
-        <ScrollReveal className="comparison-card old"><small>היום</small><h3>ניהול ידני ומפוזר</h3><ul><li>עשרות הודעות זמינות בפורמטים שונים</li><li>העתקה ידנית לאקסל או לדף</li><li>התנגשויות וחוסרים שמתגלים מאוחר</li><li>החלפות ללא תיעוד ברור</li></ul></ScrollReveal>
-        <ScrollReveal className="comparison-card new" delay={120}><small>עם ShiftPilot</small><h3>תהליך אחד ושקוף</h3><ul><li>טופס אחיד לכל העובדים</li><li>תמונת מצב מיידית למנהלת</li><li>שיבוץ לפי זמינות ותקנים</li><li>כל שינוי עובר אישור ומתועד</li></ul></ScrollReveal>
+        <ScrollReveal className="comparison-card old"><small>היום</small><h3>וואטסאפ, אקסל וזיכרון</h3><ul><li>עשרות הודעות זמינות מפוזרות בקבוצות וואטסאפ, SMS ושיחות טלפון</li><li>העתקה ידנית לאקסל, ללוח מחיק או לדף מודפס</li><li>התנגשויות וחוסרים שמתגלים רק כשהעובד כבר לא הגיע</li><li>החלפות משמרת בלי תיעוד — מי בעצם אישר את זה?</li></ul></ScrollReveal>
+        <ScrollReveal className="comparison-card new" delay={120}><small>עם ShiftPilot</small><h3>כל הזמינות, במקום אחד</h3><ul><li>טופס אחד לכל העובדים — בלי קבוצות וואטסאפ נפרדות</li><li>תמונת מצב מיידית: מי הגיש, מי חסר, איפה יש חור בסידור</li><li>שיבוץ לפי זמינות ותקנים, לא לפי מי שהתקשר אחרון</li><li>כל החלפה עוברת אישור מתועד — תמיד יודעים מי אישר מה</li></ul></ScrollReveal>
       </div>
     </section>
 
