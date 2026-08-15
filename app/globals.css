@@ -4923,3 +4923,351 @@ html.si-lock, html.si-lock body {
     grid-template-columns: 1fr;
   }
 }
+
+
+/* Authentication and onboarding experience */
+.onboarding-page.auth-flow,
+.onboarding-page.business-onboarding {
+  width: min(calc(100% - 40px), 1140px);
+  min-height: min(760px, calc(100vh - 48px));
+  margin: 24px auto;
+  padding: 0;
+  gap: 0;
+  align-items: stretch;
+  overflow: hidden;
+  border: 1px solid rgba(33, 72, 126, .14);
+  border-radius: 30px;
+  background: #fff;
+  box-shadow: 0 30px 90px rgba(10, 35, 73, .16);
+}
+.auth-flow-intro,
+.business-onboarding-intro {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: clamp(38px, 5vw, 66px);
+  color: #fff;
+  background:
+    linear-gradient(142deg, rgba(8, 26, 60, .98), rgba(10, 53, 112, .98)),
+    #071a3c;
+}
+.auth-flow-intro::before,
+.business-onboarding-intro::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: -120px auto auto -120px;
+  width: 360px;
+  height: 360px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(92, 105, 255, .42), transparent 68%);
+}
+.auth-flow-intro::after,
+.business-onboarding-intro::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: auto -100px -150px auto;
+  width: 390px;
+  height: 390px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(35, 159, 255, .35), transparent 68%);
+}
+.auth-flow-intro .shiftpilot-logo-link,
+.business-onboarding-intro .shiftpilot-logo-link {
+  width: fit-content;
+  margin-bottom: 30px;
+}
+.auth-flow-intro .shiftpilot-logo.original.light,
+.business-onboarding-intro .shiftpilot-logo.original.light {
+  display: block;
+  width: fit-content;
+}
+.auth-flow-intro .shiftpilot-logo.original.light img,
+.business-onboarding-intro .shiftpilot-logo.original.light img {
+  width: 210px;
+  max-width: min(210px, 62vw);
+  padding: 8px 11px;
+  border-radius: 13px;
+  background: rgba(255,255,255,.96);
+}
+.auth-flow-intro h1,
+.business-onboarding-intro h1 {
+  max-width: 590px;
+  margin: 14px 0 17px;
+  color: #fff;
+  font-size: clamp(38px, 4.6vw, 59px);
+  line-height: 1.08;
+  letter-spacing: -.045em;
+}
+.auth-flow-intro .eyebrow,
+.business-onboarding-intro .eyebrow {
+  color: #8fc3ff;
+}
+.auth-flow-intro > .lead,
+.business-onboarding-intro > .lead {
+  max-width: 560px;
+  color: #d5e4f6;
+  font-size: 16px;
+  line-height: 1.75;
+}
+.auth-flow-intro > .auth-secondary,
+.business-onboarding-intro > .auth-secondary {
+  color: #c9d9ed;
+}
+.auth-flow-intro > .auth-secondary a,
+.business-onboarding-intro > .auth-secondary a {
+  color: #fff;
+}
+.auth-flow-card,
+.business-onboarding-card {
+  display: grid;
+  align-content: center;
+  min-width: 0;
+  padding: clamp(26px, 4vw, 48px);
+  border: 0;
+  border-radius: 0;
+  background: #fff;
+  box-shadow: none;
+}
+.auth-flow-card > .grid,
+.business-onboarding-card > .grid {
+  gap: 17px;
+}
+.auth-flow-card h2,
+.business-onboarding-card h2 {
+  margin: 4px 0 0;
+  color: #10213c;
+  font-size: clamp(25px, 3vw, 32px);
+}
+.auth-flow-card .field > span,
+.business-onboarding-card .field > span {
+  color: #384b65;
+  font-size: 12px;
+  font-weight: 800;
+}
+.auth-flow-card .input,
+.business-onboarding-card .input {
+  min-height: 49px;
+  border-radius: 13px;
+  background: #fbfdff;
+}
+.auth-flow-card .button.primary,
+.business-onboarding-card .button.primary {
+  width: 100%;
+  min-height: 50px;
+  justify-content: center;
+  border-radius: 13px;
+  box-shadow: 0 9px 22px rgba(30, 111, 224, .20);
+}
+.auth-forgot-link {
+  display: flex;
+  justify-content: flex-end;
+}
+.auth-flow-card .auth-secondary,
+.auth-flow-card .auth-legal {
+  text-align: center;
+}
+.auth-flow-card .auth-message,
+.business-onboarding-card .auth-message {
+  margin: 0;
+  padding: 11px 13px;
+  border: 1px solid #f0c9cf;
+  border-radius: 11px;
+  color: #a8323e;
+  background: #fff3f5;
+}
+.auth-flow-card .onboarding-state,
+.business-onboarding-card .onboarding-state {
+  min-height: 330px;
+}
+.auth-flow-card .onboarding-state > svg:not(.spin),
+.business-onboarding-card .onboarding-state > svg:not(.spin) {
+  width: 64px;
+  height: 64px;
+  padding: 15px;
+  border-radius: 20px;
+  color: #176fdc;
+  background: #eaf4ff;
+}
+.auth-flow-card .onboarding-state .button,
+.business-onboarding-card .onboarding-state .button {
+  min-height: 46px;
+  padding-inline: 20px;
+  justify-content: center;
+}
+.auth-flow-card .eyebrow:has(svg) {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Two-stage business setup */
+.business-onboarding {
+  grid-template-columns: minmax(0, 1.08fr) minmax(400px, .92fr);
+}
+.business-onboarding > .section-glow {
+  display: none;
+}
+.business-onboarding-intro .onboarding-benefits {
+  gap: 9px;
+  margin-top: 27px;
+}
+.business-onboarding-intro .onboarding-benefits > div {
+  min-height: 68px;
+  padding: 11px 13px;
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 15px;
+  color: #fff;
+  background: rgba(255,255,255,.07);
+}
+.business-onboarding-intro .onboarding-benefits svg {
+  flex: 0 0 auto;
+  color: #9bcaff;
+  background: rgba(255,255,255,.10);
+}
+.business-onboarding-intro .onboarding-benefits small {
+  color: #cbdcf1;
+}
+.onboarding-progress {
+  display: grid;
+  grid-template-columns: auto minmax(36px, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 28px;
+  padding-bottom: 22px;
+  border-bottom: 1px solid #e2e8f0;
+}
+.onboarding-progress > span {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #8a97a9;
+}
+.onboarding-progress b {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border: 1px solid #d6dfeb;
+  border-radius: 50%;
+  background: #f5f7fa;
+  font-size: 12px;
+}
+.onboarding-progress small {
+  font-size: 11px;
+  font-weight: 850;
+}
+.onboarding-progress i {
+  height: 2px;
+  border-radius: 99px;
+  background: #dce4ee;
+}
+.onboarding-progress > span.active,
+.onboarding-progress > span.complete {
+  color: #176fdc;
+}
+.onboarding-progress > span.active b,
+.onboarding-progress > span.complete b {
+  border-color: #75acf0;
+  color: #fff;
+  background: #2479df;
+}
+.onboarding-progress > span.complete + i {
+  background: #58a0ed;
+}
+.business-onboarding-card .legal-consent {
+  padding: 12px 13px;
+  border: 1px solid #dce5f0;
+  border-radius: 12px;
+  background: #f8fafc;
+}
+.business-onboarding-card .legal-consent:has(input:checked) {
+  border-color: #9cc2ee;
+  background: #f0f7ff;
+}
+
+@media (max-width: 850px) {
+  .onboarding-page.auth-flow,
+  .onboarding-page.business-onboarding {
+    width: min(calc(100% - 24px), 620px);
+    min-height: 0;
+    margin: 12px auto;
+    grid-template-columns: 1fr;
+    border-radius: 23px;
+  }
+  .auth-flow-intro,
+  .business-onboarding-intro {
+    padding: 31px 24px 29px;
+  }
+  .auth-flow-intro .shiftpilot-logo-link,
+  .business-onboarding-intro .shiftpilot-logo-link {
+    margin-bottom: 20px;
+  }
+  .auth-flow-intro .shiftpilot-logo.original.light img,
+  .business-onboarding-intro .shiftpilot-logo.original.light img {
+    width: 176px;
+  }
+  .auth-flow-intro h1,
+  .business-onboarding-intro h1 {
+    margin: 11px 0 13px;
+    font-size: 35px;
+    line-height: 1.1;
+  }
+  .auth-flow-intro > .lead,
+  .business-onboarding-intro > .lead {
+    font-size: 14px;
+    line-height: 1.65;
+  }
+  .auth-flow-card,
+  .business-onboarding-card {
+    padding: 27px 21px 30px;
+  }
+  .auth-flow-card .onboarding-state,
+  .business-onboarding-card .onboarding-state {
+    min-height: 270px;
+  }
+  .business-onboarding-intro .onboarding-benefits {
+    grid-template-columns: 1fr;
+    margin-top: 20px;
+  }
+  .business-onboarding-intro .onboarding-benefits > div {
+    min-height: 58px;
+    padding: 9px 11px;
+  }
+}
+
+@media (max-width: 430px) {
+  .onboarding-page.auth-flow,
+  .onboarding-page.business-onboarding {
+    width: 100%;
+    margin: 0;
+    border: 0;
+    border-radius: 0;
+  }
+  .auth-flow-intro,
+  .business-onboarding-intro {
+    padding: 24px 18px 23px;
+  }
+  .auth-flow-intro h1,
+  .business-onboarding-intro h1 {
+    font-size: 31px;
+  }
+  .auth-flow-intro .shiftpilot-logo.original.light img,
+  .business-onboarding-intro .shiftpilot-logo.original.light img {
+    width: 158px;
+  }
+  .auth-flow-card,
+  .business-onboarding-card {
+    padding: 25px 18px 32px;
+  }
+  .business-onboarding-card .form-pair {
+    grid-template-columns: 1fr;
+  }
+  .onboarding-progress {
+    margin-bottom: 22px;
+  }
+}
