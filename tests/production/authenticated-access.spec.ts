@@ -84,21 +84,22 @@ test("employee sees employee tools and is blocked from management routes", async
   }
 });
 
-test("owners from separate businesses never see the other organization", async ({ browser }) => {
+test("owners from separate businesses never see the other organization", async ({ page }) => {
   const firstTenant = requiredCredentials("OWNER");
   const secondTenant = optionalSecondTenantOwner();
   test.skip(!secondTenant, "Second isolated production tenant is not configured.");
   if (!secondTenant) return;
 
-  const firstContext = await browser.newContext();
-  const firstPage = await firstContext.newPage();
-  await login(firstPage, firstTenant);
-  await expect(firstPage.locator("body")).not.toContainText(secondTenant.organization);
-  await firstContext.close();
+  await login(page, firstTenant);
+  await expect(page.locator("body")).not.toContainText(secondTenant.organization);
 
-  const secondContext = await browser.newContext();
-  const secondPage = await secondContext.newPage();
-  await login(secondPage, secondTenant);
-  await expect(secondPage.locator("body")).not.toContainText(firstTenant.organization);
-  await secondContext.close();
+  await page.context().clearCookies();
+  await page.goto("/login");
+  await page.evaluate(() => {
+    window.localStorage.clear();
+    window.sessionStorage.clear();
+  });
+
+  await login(page, secondTenant);
+  await expect(page.locator("body")).not.toContainText(firstTenant.organization);
 });
