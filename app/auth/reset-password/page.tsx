@@ -63,7 +63,7 @@ export default function ResetPasswordPage() {
   return (
     <main className="onboarding-page auth-flow auth-recovery" dir="rtl">
       <section className="onboarding-intro auth-flow-intro">
-        <BrandLogo href="/" />
+        <BrandLogo href="/" light />
         <p className="eyebrow">SHIFT PILOT</p>
         <h1>בחירת סיסמה חדשה.</h1>
         <p className="lead">הסיסמה נשמרת באופן מאובטח ב־Supabase ואינה נחשפת למנהלים או לעובדי ShiftPilot.</p>
