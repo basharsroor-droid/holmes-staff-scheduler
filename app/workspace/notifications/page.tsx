@@ -73,7 +73,7 @@ export default async function NotificationsPage() {
   const initialPreferences: PreferenceValues = preferences ?? { schedule_published: true, shift_changes: true, shift_reminders: true, availability_reminders: true, swap_updates: true };
 
   return <main className="workspace-home" dir="rtl">
-    <header className="workspace-subheader">
+    <header className="workspace-subheader notifications-header">
       <div>
         <Link href="/workspace" className="back-link"><ArrowRight size={17} /> חזרה לסביבת העבודה</Link>
         <p className="eyebrow">{organization.name}</p>
@@ -83,8 +83,8 @@ export default async function NotificationsPage() {
       <MarkNotificationsReadButton unreadCount={unreadCount} />
     </header>
 
-    <section className="template-list-card">
-      <div className="template-list-heading">
+    <section className="template-list-card notifications-center">
+      <div className="template-list-heading notifications-heading">
         <div><p className="eyebrow">מרכז עדכונים</p><h2>{unreadCount ? `${unreadCount} התראות חדשות` : "הכול מעודכן"}</h2></div>
         <span className={`badge ${unreadCount ? "warning" : "success"}`}>
           {unreadCount ? <Bell size={15} /> : <CheckCircle2 size={15} />}
@@ -92,7 +92,7 @@ export default async function NotificationsPage() {
         </span>
       </div>
 
-      <div className="template-list">{(notifications ?? []).map((notification) => {
+      <div className="template-list notifications-list">{(notifications ?? []).map((notification) => {
         const copy = notificationCopy(notification.template_key, notification.payload, branchMap);
         return <article className={`card notification-card ${notification.read_at ? "" : "unread"}`} key={notification.id}>
           <div className="template-icon">{notification.template_key === "schedule_published" ? <CalendarCheck /> : <Bell />}</div>
