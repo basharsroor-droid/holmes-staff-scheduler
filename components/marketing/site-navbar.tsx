@@ -8,10 +8,10 @@ import { motion, AnimatePresence } from "motion/react";
 import { BrandLogo } from "@/components/brand/brand-logo";
 
 const navItems = [
-  { href: "#how", label: "איך זה עובד", detail: "מהרשמה ועד סידור", icon: CalendarCheck },
-  { href: "#roles", label: "למי זה מתאים", detail: "לעובדים ולמנהלים", icon: Users },
-  { href: "#example", label: "המערכת בפעולה", detail: "הצצה לסביבת העבודה", icon: LayoutDashboard },
-  { href: "#security", label: "אבטחה והרשאות", detail: "המידע נשאר בעסק", icon: ShieldCheck }
+  { href: "#how", label: "איך זה עובד", detail: "מהרשמה ועד פרסום הסידור", icon: CalendarCheck },
+  { href: "#roles", label: "למי זה מתאים", detail: "חוויה נפרדת למנהל ולעובד", icon: Users },
+  { href: "#example", label: "המערכת בפעולה", detail: "דוגמה למבנה משמרות גמיש", icon: LayoutDashboard },
+  { href: "#security", label: "אבטחה והרשאות", detail: "גישה לפי עסק, סניף ותפקיד", icon: ShieldCheck }
 ];
 
 // Floating pill navbar for the marketing site. Adapted from a shadcn-style
@@ -61,7 +61,7 @@ export function SiteNavbar() {
           transition={{ duration: 0.3, delay: 0.15 }}
         >
           <Link href="/demo" className="rounded-full px-3.5 py-2 text-sm font-medium text-[var(--ink)] transition-colors hover:text-[var(--primary)]">
-            דמו
+            צפייה בדמו
           </Link>
           <Link href="/login" className="rounded-full px-3.5 py-2 text-sm font-medium text-[var(--ink)] transition-colors hover:text-[var(--primary)]">
             כניסה
@@ -109,7 +109,7 @@ export function SiteNavbar() {
               <X size={22} className="text-[var(--ink)]" />
             </motion.button>
 
-            <div className="marketing-menu-brand"><BrandLogo href="/" /><span>ניהול משמרות, פשוט יותר.</span></div>
+            <div className="marketing-menu-brand"><BrandLogo href="/" /><span>זמינות, סידורים והחלפות במקום אחד.</span></div>
             <div className="marketing-menu-content">
               <p className="marketing-menu-kicker">ניווט מהיר</p>
               {navItems.map((item, index) => (
@@ -137,7 +137,7 @@ export function SiteNavbar() {
                 exit={{ opacity: 0, y: 16 }}
               >
                 <Link href="/demo" onClick={() => setIsOpen(false)} className="rounded-full border border-[var(--line)] px-5 py-3 text-center text-base font-medium text-[var(--ink)]">
-                  דמו
+                  צפייה בדמו
                 </Link>
                 <Link href="/login" onClick={() => setIsOpen(false)} className="rounded-full border border-[var(--line)] px-5 py-3 text-center text-base font-medium text-[var(--ink)]">
                   כניסה
