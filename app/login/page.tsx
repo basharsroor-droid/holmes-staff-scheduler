@@ -41,7 +41,7 @@ export default function LoginPage() {
   return (
     <main className="onboarding-page auth-flow auth-login" dir="rtl">
       <section className="onboarding-intro auth-flow-intro">
-        <BrandLogo href="/" />
+        <BrandLogo href="/" light />
         <p className="eyebrow">SHIFT PILOT לעסקים</p>
         <h1>טוב לראות אותך שוב.</h1>
         <p className="lead">כניסה מאובטחת לסביבת העסק, הצוות וסידורי העבודה.</p>
