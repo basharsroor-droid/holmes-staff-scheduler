@@ -58,32 +58,32 @@ export function SubmissionsClient({ periods, workers, submissions: initialSubmis
 
   if (!periods.length) return <section className="template-list-card"><div className="empty-template-state"><ClipboardCheck size={42} /><h2>אין עדיין חודשי עבודה</h2><p>פתח חודש עבודה כדי להתחיל לקבל הגשות.</p></div></section>;
 
-  return <section className="template-list-card">
-    <div className="template-list-heading"><div><p className="eyebrow">חודש, סניף ומחלקה</p><h2>{period ? `${monthNames[period.month - 1]} ${period.year}` : ""}</h2></div><select className="input" style={{ maxWidth: 360 }} aria-label="בחירת חודש, סניף ומחלקה" value={selectedPeriodId} onChange={(e) => { setSelectedPeriodId(e.target.value); setExpandedUserId(null); }}>{periods.map((item) => <option value={item.id} key={item.id}>{monthNames[item.month - 1]} {item.year} · {branches.find((branch) => branch.id === item.branch_id)?.name ?? "סניף"} · {departments.find((department) => department.id === item.department_id)?.name ?? "מחלקה"}</option>)}</select></div>
-    <div className="workspace-stats" style={{ margin: "0 0 20px" }}>
+  return <section className="template-list-card submissions-console">
+    <div className="template-list-heading submissions-toolbar"><div><p className="eyebrow">חודש, סניף ומחלקה</p><h2>{period ? `${monthNames[period.month - 1]} ${period.year}` : ""}</h2></div><select className="input submissions-period-select" aria-label="בחירת חודש, סניף ומחלקה" value={selectedPeriodId} onChange={(e) => { setSelectedPeriodId(e.target.value); setExpandedUserId(null); }}>{periods.map((item) => <option value={item.id} key={item.id}>{monthNames[item.month - 1]} {item.year} · {branches.find((branch) => branch.id === item.branch_id)?.name ?? "סניף"} · {departments.find((department) => department.id === item.department_id)?.name ?? "מחלקה"}</option>)}</select></div>
+    <div className="workspace-stats submissions-stats">
       <article><Users /><span><strong>{periodWorkers.length}</strong><small>עובדים פעילים</small></span></article>
       <article><CheckCircle2 /><span><strong>{submittedCount}</strong><small>הגישו סופית</small></span></article>
       <article><XCircle /><span><strong>{missingCount}</strong><small>עדיין לא התחילו</small></span></article>
     </div>
-    <div className="actions" style={{ marginBottom: 18 }}>
+    <div className="actions submission-filters" role="group" aria-label="סינון הגשות">
       {([["all","הכול"],["submitted","הוגש"],["draft","טיוטה"],["missing","חסר"]] as const).map(([value,label]) => <button className={`button ${filter === value ? "primary" : ""}`} aria-pressed={filter === value} onClick={() => setFilter(value)} key={value}>{label}{value === "draft" ? ` (${draftCount})` : ""}</button>)}
     </div>
-    {period ? <div className="submission-banner open"><Clock3 /><div><strong>{period.status === "collecting" ? "ההגשה פתוחה" : period.status === "draft" ? "ההגשה נסגרה" : "הסידור פורסם"}</strong><span>דדליין: {new Date(period.submission_closes_at).toLocaleString("he-IL")}</span></div></div> : null}
-    <div className="template-list">
+    {period ? <div className={`submission-banner submission-deadline ${period.status === "collecting" ? "open" : "closed"}`}><Clock3 /><div><strong>{period.status === "collecting" ? "ההגשה פתוחה" : period.status === "draft" ? "ההגשה נסגרה" : "הסידור פורסם"}</strong><span>דדליין: {new Date(period.submission_closes_at).toLocaleString("he-IL")}</span></div></div> : null}
+    <div className="template-list submission-list">
       {visibleWorkers.map((worker) => {
         const { submission, state } = workerState(worker);
         const name = worker.profile ? `${worker.profile.first_name} ${worker.profile.last_name}`.trim() : "עובד/ת";
         const submissionEntries = submission ? entries.filter((entry) => entry.submission_id === submission.id) : [];
         const expanded = expandedUserId === worker.user_id;
-        return <article className="card" key={worker.id}>
-          <div className="mini-row" style={{ border: 0, padding: 0 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 12 }}><div className="template-icon" style={{ color: worker.profile?.color }}><UserRound /></div><span><strong>{name}</strong><small>{worker.role === "manager" ? "מנהל/ת" : "עובד/ת"} · {submissionEntries.length} סימונים</small></span></div>
+        return <article className={`card submission-worker-card ${state}`} key={worker.id}>
+          <div className="mini-row submission-worker-head">
+            <div className="submission-worker-identity"><div className="template-icon" style={{ color: worker.profile?.color }}><UserRound /></div><span><strong>{name}</strong><small>{worker.role === "manager" ? "מנהל/ת" : "עובד/ת"} · {submissionEntries.length} סימונים</small></span></div>
             <span className={`badge ${state === "submitted" ? "success" : state === "draft" ? "warning" : "critical"}`}>{state === "submitted" ? "הוגש" : state === "draft" ? "טיוטה" : "חסר"}</span>
             {submission ? <button className="button" onClick={() => setExpandedUserId(expanded ? null : worker.user_id)}>{expanded ? <ChevronUp size={16} /> : <ChevronDown size={16} />} פירוט</button> : null}
           </div>
-          {expanded && submission ? <div className="grid" style={{ marginTop: 16 }}>
+          {expanded && submission ? <div className="grid submission-details">
             <div className="table-wrap"><table className="table compact-table"><thead><tr><th>תאריך</th><th>משמרת</th><th>זמינות</th><th>הערה</th></tr></thead><tbody>{submissionEntries.map((entry) => { const template = templates.find((item) => item.id === entry.shift_template_id); return <tr key={entry.id}><td>{new Date(`${entry.shift_date}T12:00:00`).toLocaleDateString("he-IL")}</td><td>{template?.name ?? "משמרת"} {template ? `${template.start_time.slice(0,5)}–${template.end_time.slice(0,5)}` : ""}</td><td>{statusLabels[entry.status]}</td><td>{entry.note || "—"}</td></tr>; })}{!submissionEntries.length ? <tr><td colSpan={4}>העובד עדיין לא סימן משמרות.</td></tr> : null}</tbody></table></div>
-            <label className="field"><span>הערת מנהל פנימית</span><textarea className="textarea" value={notes[submission.id] ?? ""} onChange={(e) => setNotes((current) => ({ ...current, [submission.id]: e.target.value }))} /></label>
+            <label className="field submission-manager-note"><span>הערת מנהל פנימית</span><textarea className="textarea" value={notes[submission.id] ?? ""} onChange={(e) => setNotes((current) => ({ ...current, [submission.id]: e.target.value }))} /></label>
             <button className="button" disabled={busyId === submission.id} onClick={() => void saveManagerNote(submission)}>{busyId === submission.id ? <Loader2 className="spin" size={16} /> : <Save size={16} />} שמירת הערה</button>
           </div> : null}
         </article>;
