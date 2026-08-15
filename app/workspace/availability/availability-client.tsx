@@ -125,7 +125,7 @@ export function AvailabilityClient({ organizationId, userId, periods, templates,
     setLeaveRequests((current) => current.filter((item) => item.id !== id));
   }
 
-  const leaveCard = <section className="template-form-card">
+  const leaveCard = <section className="template-form-card availability-leave-card">
     <div><p className="eyebrow">חופשה ומחלה</p><h2>דיווח על ימי היעדרות</h2></div>
     <p className="auth-secondary">דיווח כאן חוסם שיבוץ אוטומטית בבניית הסידור בטווח התאריכים שנבחר, בלי קשר לתקופת ההגשה.</p>
     <div className="form-pair">
@@ -146,25 +146,25 @@ export function AvailabilityClient({ organizationId, userId, periods, templates,
       : null}
   </section>;
 
-  if (!periods.length) return <div className="template-workbench">
+  if (!periods.length) return <div className="template-workbench availability-workbench">
     {leaveCard}
     <section className="template-list-card"><div className="empty-template-state"><CalendarCheck size={42} /><h2>אין כרגע חודש פתוח להגשה</h2><p>המנהל עדיין לא פתח תקופת זמינות חדשה.</p></div></section>
   </div>;
 
-  return <div className="template-workbench">
+  return <div className="template-workbench availability-workbench">
     {leaveCard}
-    <section className="template-list-card">
-    <div className="template-list-heading"><div><p className="eyebrow">תקופת הגשה</p><h2>{period ? `${monthNames[period.month - 1]} ${period.year}` : ""}</h2></div><select className="input" style={{ maxWidth: 240 }} aria-label="בחירת חודש הגשה" value={selectedPeriodId} onChange={(e) => setSelectedPeriodId(e.target.value)}>{periods.map((item) => <option value={item.id} key={item.id}>{monthNames[item.month - 1]} {item.year}</option>)}</select></div>
-    {period ? <div className={`submission-banner ${deadlinePassed ? "closed" : "open"}`}><Clock3 /><div><strong>{notOpened ? "ההגשה טרם נפתחה" : deadlinePassed ? "מועד ההגשה הסתיים" : submittedByPeriod[period.id] ? "הזמינות נשלחה" : "ההגשה פתוחה"}</strong><span>דדליין: {new Date(period.submission_closes_at).toLocaleString("he-IL")}</span></div></div> : null}
-    <div className="availability-board">
+    <section className="template-list-card availability-form-panel">
+    <div className="template-list-heading availability-toolbar"><div><p className="eyebrow">תקופת הגשה</p><h2>{period ? `${monthNames[period.month - 1]} ${period.year}` : ""}</h2></div><select className="input availability-period-select" aria-label="בחירת חודש הגשה" value={selectedPeriodId} onChange={(e) => setSelectedPeriodId(e.target.value)}>{periods.map((item) => <option value={item.id} key={item.id}>{monthNames[item.month - 1]} {item.year}</option>)}</select></div>
+    {period ? <div className={`submission-banner availability-deadline ${deadlinePassed || notOpened ? "closed" : "open"}`}><Clock3 /><div><strong>{notOpened ? "ההגשה טרם נפתחה" : deadlinePassed ? "מועד ההגשה הסתיים" : submittedByPeriod[period.id] ? "הזמינות נשלחה" : "ההגשה פתוחה"}</strong><span>דדליין: {new Date(period.submission_closes_at).toLocaleString("he-IL")}</span></div></div> : null}
+    <div className="availability-board availability-selection-board">
       {days.map((day) => {
         if (!period) return null;
         const date = dateKey(period.year, period.month, day);
         const label = new Date(`${date}T12:00:00`).toLocaleDateString("he-IL", { weekday: "long", day: "numeric", month: "numeric" });
-        return <article className="availability-card" key={date}><strong>{label}</strong>
+        return <article className="availability-card availability-day-card" key={date}><strong>{label}</strong>
           {periodTemplates.map((template) => {
             const key = `${date}|${template.id}`; const choice = choices[key] ?? { status: "", note: "" };
-            return <div className="card-muted" key={template.id}><div className="shift-title"><span>{template.name}</span><small>{template.start_time.slice(0,5)}–{template.end_time.slice(0,5)}</small></div>
+            return <div className="card-muted availability-shift-choice" key={template.id}><div className="shift-title"><span>{template.name}</span><small>{template.start_time.slice(0,5)}–{template.end_time.slice(0,5)}</small></div>
               <select className="input" disabled={deadlinePassed || notOpened} aria-label={`זמינות ל${label}, משמרת ${template.name}`} value={choice.status} onChange={(e) => updateChoice(key, { status: e.target.value as AvailabilityStatus | "" })}><option value="">לא סומן</option>{Object.entries(statusLabels).map(([value, label]) => <option value={value} key={value}>{label}</option>)}</select>
               {choice.status ? <input className="input" disabled={deadlinePassed || notOpened} placeholder="הערה אופציונלית" aria-label={`הערה עבור ${label}, משמרת ${template.name}`} value={choice.note} onChange={(e) => updateChoice(key, { note: e.target.value })} /> : null}
             </div>;
@@ -172,7 +172,7 @@ export function AvailabilityClient({ organizationId, userId, periods, templates,
         </article>;
       })}
     </div>
-    <div className="actions" style={{ marginTop: 20 }}><button className="button" disabled={busy || deadlinePassed || notOpened} onClick={() => void save(false)}>{busy ? <Loader2 className="spin" size={17} /> : <Save size={17} />} שמירת טיוטה</button><button className="button primary" disabled={busy || deadlinePassed || notOpened} onClick={() => void save(true)}>{busy ? <Loader2 className="spin" size={17} /> : submittedByPeriod[period?.id ?? ""] ? <CheckCircle2 size={17} /> : <Send size={17} />} {submittedByPeriod[period?.id ?? ""] ? "עדכון ושליחה מחדש" : "שליחה למנהל"}</button></div>
+    <div className="actions availability-submit-actions"><button className="button" disabled={busy || deadlinePassed || notOpened} onClick={() => void save(false)}>{busy ? <Loader2 className="spin" size={17} /> : <Save size={17} />} שמירת טיוטה</button><button className="button primary" disabled={busy || deadlinePassed || notOpened} onClick={() => void save(true)}>{busy ? <Loader2 className="spin" size={17} /> : submittedByPeriod[period?.id ?? ""] ? <CheckCircle2 size={17} /> : <Send size={17} />} {submittedByPeriod[period?.id ?? ""] ? "עדכון ושליחה מחדש" : "שליחה למנהל"}</button></div>
     <StatusMessage message={message} kind={kind} />
     </section>
   </div>;
