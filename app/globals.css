@@ -4162,3 +4162,469 @@ html.si-lock, html.si-lock body {
     grid-column: 1 / -1;
   }
 }
+
+
+/* Employee experience: availability, shifts and swaps */
+.availability-workbench,
+.my-shifts-dashboard,
+.swap-workbench {
+  width: min(1180px, 100%);
+  margin: 0 auto;
+}
+.availability-workbench {
+  grid-template-columns: minmax(300px, .62fr) minmax(0, 1.38fr);
+  align-items: start;
+}
+.availability-leave-card {
+  position: sticky;
+  top: 24px;
+  overflow: hidden;
+  border-color: #d9e4f1;
+  background:
+    radial-gradient(circle at 100% 0, rgba(68, 160, 239, .09), transparent 30%),
+    #fff;
+}
+.availability-leave-card > div:first-child {
+  padding-bottom: 13px;
+  border-bottom: 1px solid #e2e8f0;
+}
+.availability-leave-card > .button.primary {
+  width: 100%;
+  min-height: 46px;
+  justify-content: center;
+}
+.availability-leave-card > .template-list {
+  padding-top: 16px;
+  border-top: 1px solid #e4eaf1;
+}
+.availability-leave-card .template-item {
+  grid-template-columns: minmax(0, 1fr) auto;
+  padding: 12px;
+  background: #fbfdff;
+}
+.availability-form-panel {
+  padding: 0;
+  overflow: hidden;
+}
+.availability-form-panel > .availability-deadline,
+.availability-form-panel > .availability-selection-board,
+.availability-form-panel > .availability-submit-actions,
+.availability-form-panel > .status-message {
+  margin-inline: 24px;
+}
+.availability-toolbar {
+  margin: 0 0 20px;
+  padding: 23px 25px;
+  border-bottom: 1px solid #dfe7f1;
+  background: linear-gradient(135deg, #f6faff, #fff);
+}
+.availability-period-select {
+  width: min(280px, 100%);
+}
+.availability-deadline {
+  margin-bottom: 18px;
+}
+.availability-selection-board {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+.availability-day-card {
+  gap: 11px;
+  padding: 16px;
+  border-color: #d9e4f0;
+  border-radius: 18px;
+  background: #f8fbff;
+  box-shadow: 0 8px 24px rgba(24, 58, 106, .05);
+}
+.availability-day-card > strong {
+  padding-bottom: 10px;
+  border-bottom: 1px solid #dce5f0;
+  color: #193b67;
+}
+.availability-shift-choice {
+  padding: 12px;
+  border-color: #e0e7ef;
+  border-radius: 14px;
+  background: #fff;
+}
+.availability-shift-choice .shift-title {
+  margin-bottom: 9px;
+}
+.availability-shift-choice .shift-title span {
+  font-weight: 850;
+}
+.availability-shift-choice .shift-title small {
+  padding: 4px 7px;
+  border-radius: 7px;
+  color: #45617f;
+  background: #edf3f8;
+  font-weight: 750;
+}
+.availability-shift-choice .input + .input {
+  margin-top: 7px;
+}
+.availability-submit-actions {
+  justify-content: flex-end;
+  margin-top: 20px;
+  padding: 17px 0 24px;
+  border-top: 1px solid #e2e8f0;
+}
+.availability-submit-actions .button {
+  min-width: 150px;
+  justify-content: center;
+}
+
+/* My shifts */
+.my-shifts-dashboard {
+  gap: 18px;
+}
+.next-shift-card {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  padding: 27px;
+  border-color: rgba(129, 178, 240, .25);
+  color: #fff;
+  background: linear-gradient(135deg, #071a3c, #0c3a78);
+  box-shadow: 0 22px 58px rgba(7, 26, 60, .17);
+}
+.next-shift-card::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: auto -70px -120px auto;
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(45, 154, 255, .38), transparent 67%);
+}
+.next-shift-heading {
+  margin-bottom: 20px;
+}
+.next-shift-heading h2,
+.next-shift-heading .eyebrow {
+  color: #fff;
+}
+.next-shift-stats {
+  margin: 0;
+}
+.next-shift-stats article {
+  min-height: 86px;
+  border-color: rgba(255, 255, 255, .14);
+  color: #fff;
+  background: rgba(255, 255, 255, .08);
+  box-shadow: none;
+}
+.next-shift-stats article > svg {
+  color: #9bc8ff;
+  background: rgba(255, 255, 255, .09);
+}
+.next-shift-stats small {
+  color: #cbdcf3;
+}
+.next-shift-card .submission-banner {
+  margin-top: 17px;
+  border-color: rgba(255, 255, 255, .15);
+  color: #fff;
+  background: rgba(255, 255, 255, .09);
+}
+.next-shift-card .submission-banner span {
+  color: #d6e5f7;
+}
+.my-schedule-card {
+  padding: 0;
+  overflow: hidden;
+}
+.my-schedule-toolbar {
+  margin: 0 0 20px;
+  padding: 23px 25px;
+  border-bottom: 1px solid #dfe7f1;
+  background: linear-gradient(135deg, #f6faff, #fff);
+}
+.my-schedule-period-select {
+  width: min(330px, 100%);
+}
+.my-schedule-stats {
+  margin: 0 24px 20px;
+}
+.my-schedule-stats article {
+  min-height: 82px;
+  box-shadow: none;
+  background: #fbfdff;
+}
+.my-shift-list {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  padding: 0 24px 25px;
+}
+.my-shift-card {
+  padding: 16px;
+  border-color: #dce5ef;
+  border-radius: 16px;
+  box-shadow: none;
+}
+.my-shift-row {
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  padding: 0;
+  border: 0;
+}
+.my-shift-row > span:nth-child(2) {
+  display: grid;
+  gap: 3px;
+}
+.my-shift-note {
+  margin-top: 12px;
+  padding: 10px 12px;
+  background: #f7faff;
+}
+
+/* Shift swaps */
+.swap-workbench.employee {
+  grid-template-columns: minmax(300px, .7fr) minmax(0, 1.3fr);
+  align-items: start;
+}
+.swap-workbench.manager {
+  grid-template-columns: 1fr;
+}
+.swap-request-form {
+  position: sticky;
+  top: 24px;
+  display: grid;
+  gap: 16px;
+  border-color: #d9e4f1;
+  background:
+    radial-gradient(circle at 100% 0, rgba(87, 127, 243, .09), transparent 30%),
+    #fff;
+}
+.swap-form-heading {
+  margin-bottom: 0;
+  padding-bottom: 14px;
+  border-bottom: 1px solid #e2e8f0;
+}
+.swap-request-form > .button.primary {
+  width: 100%;
+  min-height: 47px;
+  justify-content: center;
+}
+.swap-requests-panel {
+  padding: 0;
+  overflow: hidden;
+}
+.swap-list-heading {
+  margin: 0;
+  padding: 23px 25px;
+  border-bottom: 1px solid #dfe7f1;
+  background: linear-gradient(135deg, #f6faff, #fff);
+}
+.swap-request-list {
+  gap: 11px;
+  padding: 22px 24px 25px;
+}
+.swap-request-card {
+  position: relative;
+  overflow: hidden;
+  padding: 17px;
+  border-color: #dce5ef;
+  border-radius: 17px;
+  box-shadow: none;
+}
+.swap-request-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 0 auto;
+  width: 4px;
+  background: #dca126;
+}
+.swap-request-card.status-approved::before { background: #18a76e; }
+.swap-request-card.status-rejected::before,
+.swap-request-card.status-cancelled::before { background: #dc5360; }
+.swap-request-head {
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  padding: 0;
+  border: 0;
+}
+.swap-request-head > span:nth-child(2) {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+.swap-request-head small {
+  color: var(--muted);
+  line-height: 1.55;
+}
+.swap-reason {
+  margin-top: 13px;
+  padding: 11px 13px;
+  background: #f7f9fc;
+}
+.swap-manager-decision {
+  gap: 12px;
+  margin-top: 14px;
+  padding: 14px;
+  border-radius: 14px;
+  background: #f6f9fc;
+}
+.swap-manager-decision .textarea {
+  background: #fff;
+}
+
+@media (max-width: 980px) {
+  .availability-workbench,
+  .swap-workbench.employee {
+    grid-template-columns: 1fr;
+  }
+  .availability-leave-card,
+  .swap-request-form {
+    position: static;
+  }
+}
+
+@media (max-width: 760px) {
+  .availability-workbench,
+  .my-shifts-dashboard,
+  .swap-workbench {
+    gap: 14px;
+  }
+  .availability-leave-card,
+  .availability-form-panel,
+  .next-shift-card,
+  .my-schedule-card,
+  .swap-request-form,
+  .swap-requests-panel {
+    border-radius: 19px;
+  }
+  .availability-leave-card,
+  .swap-request-form {
+    padding: 19px 15px;
+  }
+  .availability-toolbar,
+  .my-schedule-toolbar,
+  .swap-list-heading {
+    align-items: stretch;
+    padding: 18px 15px;
+  }
+  .availability-period-select,
+  .my-schedule-period-select {
+    width: 100%;
+  }
+  .availability-form-panel > .availability-deadline,
+  .availability-form-panel > .availability-selection-board,
+  .availability-form-panel > .availability-submit-actions,
+  .availability-form-panel > .status-message {
+    margin-inline: 12px;
+  }
+  .availability-selection-board {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+  .availability-day-card {
+    padding: 13px 11px;
+    border-radius: 16px;
+  }
+  .availability-submit-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    padding-bottom: 15px;
+  }
+  .availability-submit-actions .button {
+    min-width: 0;
+    width: 100%;
+    padding-inline: 8px;
+    justify-content: center;
+    font-size: 12px;
+  }
+  .next-shift-card {
+    padding: 21px 15px;
+  }
+  .next-shift-heading {
+    align-items: flex-start;
+  }
+  .next-shift-stats,
+  .my-schedule-stats {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 7px;
+  }
+  .next-shift-stats article,
+  .my-schedule-stats article {
+    min-height: 102px;
+    padding: 11px 8px;
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .next-shift-stats article > svg,
+  .my-schedule-stats article > svg {
+    width: 34px;
+    height: 34px;
+    padding: 8px;
+  }
+  .next-shift-stats strong,
+  .my-schedule-stats strong {
+    font-size: 15px;
+    line-height: 1.3;
+  }
+  .next-shift-stats small,
+  .my-schedule-stats small {
+    font-size: 10px;
+  }
+  .my-schedule-stats {
+    margin: 0 12px 14px;
+  }
+  .my-shift-list {
+    grid-template-columns: 1fr;
+    padding: 0 12px 16px;
+  }
+  .my-shift-card {
+    padding: 14px 11px;
+  }
+  .swap-request-list {
+    padding: 14px 12px 16px;
+  }
+  .swap-request-card {
+    padding: 14px 11px;
+  }
+  .swap-request-head {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+  .swap-request-head > .badge {
+    grid-column: 2;
+    width: fit-content;
+  }
+  .swap-request-card > .actions,
+  .swap-manager-decision .actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+  }
+  .swap-request-card > .button,
+  .swap-request-card > .actions .button,
+  .swap-manager-decision .button {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 420px) {
+  .availability-submit-actions,
+  .swap-request-card > .actions,
+  .swap-manager-decision .actions {
+    grid-template-columns: 1fr;
+  }
+  .next-shift-stats,
+  .my-schedule-stats {
+    grid-template-columns: 1fr;
+  }
+  .next-shift-stats article,
+  .my-schedule-stats article {
+    min-height: 68px;
+    flex-direction: row;
+    align-items: center;
+  }
+  .my-shift-row {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+  .my-shift-row > .badge {
+    grid-column: 2;
+    width: fit-content;
+  }
+}
