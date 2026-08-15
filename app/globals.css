@@ -5271,3 +5271,194 @@ html.si-lock, html.si-lock body {
     margin-bottom: 22px;
   }
 }
+
+
+/* Final responsive and demo-route polish */
+.demo-auth-flow {
+  width: min(calc(100% - 40px), 1140px);
+  min-height: min(720px, calc(100vh - 48px));
+  margin: 24px auto;
+  padding: 0;
+  gap: 0;
+  align-items: stretch;
+  overflow: hidden;
+  border: 1px solid rgba(33, 72, 126, .14);
+  border-radius: 30px;
+  background: #fff;
+  box-shadow: 0 30px 90px rgba(10, 35, 73, .16);
+}
+.demo-auth-flow > .section-glow {
+  display: none;
+}
+.demo-auth-flow .auth-back-link {
+  z-index: 3;
+  top: 22px;
+  inset-inline-start: 25px;
+  color: #d6e4f6;
+}
+.demo-auth-flow .auth-back-link:hover {
+  color: #fff;
+}
+.demo-auth-intro {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  align-content: center;
+  padding: clamp(38px, 5vw, 64px);
+  color: #fff;
+  background: linear-gradient(142deg, #071a3c, #0b3976);
+}
+.demo-auth-intro::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: auto -100px -150px auto;
+  width: 390px;
+  height: 390px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(35, 159, 255, .36), transparent 68%);
+}
+.demo-auth-intro .shiftpilot-logo.original.light img {
+  width: 220px;
+  max-width: min(220px, 64vw);
+}
+.demo-auth-intro p {
+  color: #d5e4f6;
+  font-size: 16px;
+}
+.demo-auth-intro .card-muted {
+  border-color: rgba(255,255,255,.14);
+  color: #fff;
+  background: rgba(255,255,255,.08);
+}
+.demo-auth-card {
+  align-self: stretch;
+  display: grid;
+  align-content: center;
+  padding: clamp(27px, 4vw, 48px);
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+.demo-auth-card::before {
+  display: none;
+}
+.demo-auth-card > .grid {
+  gap: 17px;
+}
+.demo-auth-card .input {
+  min-height: 49px;
+  border-radius: 13px;
+  background: #fbfdff;
+}
+.demo-auth-card .button.primary {
+  width: 100%;
+  min-height: 50px;
+  justify-content: center;
+  border-radius: 13px;
+}
+.demo-auth-card .checkbox-row {
+  padding: 11px 12px;
+  border: 1px solid #dce5f0;
+  border-radius: 11px;
+  background: #f8fafc;
+}
+.demo-auth-card .card-muted {
+  line-height: 1.65;
+}
+
+/* Shared hardening for every redesigned route. */
+.workspace-home > *,
+.template-workbench > *,
+.departments-workbench > *,
+.employee-workspace > *,
+.manager-focus-grid > *,
+.pilot-grid > *,
+.split > * {
+  min-width: 0;
+}
+.workspace-subheader h1,
+.page-header h1,
+.template-main strong,
+.support-ticket-head strong {
+  overflow-wrap: anywhere;
+}
+.table-wrap {
+  overscroll-behavior-inline: contain;
+  -webkit-overflow-scrolling: touch;
+}
+.button,
+.nav-link,
+.mobile-menu summary,
+input,
+select,
+textarea {
+  touch-action: manipulation;
+}
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+summary:focus-visible {
+  outline: 3px solid rgba(37, 121, 223, .35);
+  outline-offset: 3px;
+}
+@media (hover: none) {
+  .workspace-actions > a:hover,
+  .template-item:hover,
+  .department-card:hover,
+  .capability-card:hover {
+    transform: none;
+  }
+}
+@media (max-width: 850px) {
+  .demo-auth-flow {
+    width: min(calc(100% - 24px), 620px);
+    min-height: 0;
+    margin: 12px auto;
+    grid-template-columns: 1fr;
+    border-radius: 23px;
+  }
+  .demo-auth-flow .auth-back-link {
+    top: 16px;
+    inset-inline-start: 18px;
+  }
+  .demo-auth-intro {
+    padding: 62px 23px 28px;
+  }
+  .demo-auth-intro .shiftpilot-logo.original.light img {
+    width: 180px;
+  }
+  .demo-auth-intro p {
+    font-size: 14px;
+    line-height: 1.65;
+  }
+  .demo-auth-card {
+    padding: 27px 20px 31px;
+  }
+}
+@media (max-width: 430px) {
+  .demo-auth-flow {
+    width: 100%;
+    margin: 0;
+    border: 0;
+    border-radius: 0;
+  }
+  .demo-auth-intro {
+    padding-inline: 18px;
+  }
+  .demo-auth-card {
+    padding-inline: 18px;
+  }
+  .workspace-subheader h1 {
+    font-size: 28px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+  }
+}

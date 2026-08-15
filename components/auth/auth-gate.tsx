@@ -137,13 +137,13 @@ export function AuthGate() {
   }
 
   return (
-    <div className="auth-page">
+    <div className="auth-page demo-auth-flow">
       <div className="section-glow blue" style={{ width: 420, height: 420, top: -120, insetInlineStart: -100 }} aria-hidden="true" />
       <div className="section-glow violet" style={{ width: 340, height: 340, bottom: -140, insetInlineEnd: -60 }} aria-hidden="true" />
       <Link href="/" className="auth-back-link"><ArrowRight size={15} /> חזרה לאתר</Link>
 
-      <section className="auth-hero">
-        <BrandLogo />
+      <section className="auth-hero demo-auth-intro">
+        <BrandLogo light />
         <p>
           {productConfig.tagline}. זה אזור פרטי לעובדים ולמנהלים, עם משתמשים
           שנוצרים מראש וכניסה ראשונה עם החלפת סיסמה חובה.
@@ -153,7 +153,7 @@ export function AuthGate() {
         </div>
       </section>
 
-      <section className="auth-card">
+      <section className="auth-card demo-auth-card">
         {passwordChangeUser ? (
           <div className="grid">
             <ShieldCheck size={36} color="var(--primary)" />
