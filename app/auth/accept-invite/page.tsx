@@ -72,7 +72,7 @@ export default function AcceptInvitePage() {
   }
 
   return <main className="onboarding-page auth-flow auth-invite" dir="rtl">
-    <section className="onboarding-intro auth-flow-intro"><BrandLogo href="/" /><p className="eyebrow">הצטרפות לצוות</p><h1>ברוכים הבאים ל־ShiftPilot.</h1><p className="lead">נשלים את פתיחת החשבון ונחבר אותך רק לעסק ולסניף שאליהם הוזמנת.</p></section>
+    <section className="onboarding-intro auth-flow-intro"><BrandLogo href="/" light /><p className="eyebrow">הצטרפות לצוות</p><h1>ברוכים הבאים ל־ShiftPilot.</h1><p className="lead">נשלים את פתיחת החשבון ונחבר אותך רק לעסק ולסניף שאליהם הוזמנת.</p></section>
     <section className="auth-card onboarding-card auth-flow-card">
       {stage === "checking" ? <div className="onboarding-state"><Loader2 className="spin" size={38} /><p>בודקים את ההזמנה...</p></div> : null}
       {stage === "invalid" ? <div className="onboarding-state"><UserPlus size={48} /><h2>ההזמנה אינה זמינה</h2><p>הקישור פג תוקף, בוטל או כבר נוצל. פנה למנהל כדי לקבל הזמנה חדשה.</p><Link className="button" href="/login">למסך הכניסה</Link></div> : null}
