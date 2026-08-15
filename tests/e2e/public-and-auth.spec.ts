@@ -4,7 +4,7 @@ test("marketing page exposes the primary product journeys", async ({ page }) => 
   await page.goto("/");
 
   await expect(page).toHaveTitle(/ShiftPilot/i);
-  await expect(page.getByRole("heading", { level: 1 })).toContainText("מהגשת זמינות");
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("כל המשמרות");
   await expect(page.getByRole("link", { name: /פתיחת סביבת עבודה/ })).toBeVisible();
   await expect(page.getByRole("link", { name: /לצפייה בדמו/ })).toBeVisible();
 });
