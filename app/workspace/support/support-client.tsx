@@ -53,8 +53,8 @@ export function SupportClient({ organizationId, currentUserId, canManage, initia
     setMessage("סטטוס הפנייה עודכן.");
   }
 
-  return <div className={`template-workbench support-workbench${showCreateForm ? "" : " support-console-workbench"}`}>
-    {showCreateForm ? <section className="template-form-card">
+  return <div className={`template-workbench support-workbench support-experience${showCreateForm ? "" : " support-console-workbench"}`}>
+    {showCreateForm ? <section className="template-form-card support-create-card">
       <div><p className="eyebrow">פנייה חדשה</p><h2>איך אפשר לעזור?</h2></div>
       <label className="field"><span>נושא</span><input className="input" maxLength={120} value={subject} onChange={(event) => setSubject(event.target.value)} placeholder="למשל: לא ניתן לפרסם את הסידור" /></label>
       <div className="form-grid two"><label className="field"><span>קטגוריה</span><select className="input" value={category} onChange={(event) => setCategory(event.target.value as Category)}>{Object.entries(categories).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label><label className="field"><span>דחיפות</span><select className="input" value={priority} onChange={(event) => setPriority(event.target.value as Priority)}>{Object.entries(priorities).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label></div>
@@ -62,9 +62,9 @@ export function SupportClient({ organizationId, currentUserId, canManage, initia
       <button className="button primary" disabled={!!busy} onClick={() => void createTicket()}>{busy === "create" ? <Loader2 className="spin" size={16} /> : <Send size={16} />} פתיחת פנייה</button>
       <StatusMessage message={message} kind={kind} />
     </section> : null}
-    <section className="template-list-card">
-      <div className="template-list-heading"><div><p className="eyebrow">מעקב שקוף</p><h2>{canManage ? "פניות העסק" : "הפניות שלי"}</h2></div><span className="badge warning"><Clock3 size={15} /> {tickets.filter((ticket) => !["resolved", "closed"].includes(ticket.status)).length} פתוחות</span></div>
-      <div className="template-list">{tickets.map((ticket) => <article className="card support-ticket" key={ticket.id}>
+    <section className="template-list-card support-tickets-panel">
+      <div className="template-list-heading support-list-heading"><div><p className="eyebrow">מעקב שקוף</p><h2>{canManage ? "פניות העסק" : "הפניות שלי"}</h2></div><span className="badge warning"><Clock3 size={15} /> {tickets.filter((ticket) => !["resolved", "closed"].includes(ticket.status)).length} פתוחות</span></div>
+      <div className="template-list support-ticket-list">{tickets.map((ticket) => <article className={`card support-ticket priority-${ticket.priority} status-${ticket.status}`} key={ticket.id}>
         <div className="support-ticket-head"><span><strong>{ticket.subject}</strong><small>{canManage ? `${ticket.organization_name} · ` : ""}{categories[ticket.category]} · דחיפות {priorities[ticket.priority]} · {new Date(ticket.created_at).toLocaleDateString("he-IL")}</small></span><span className={`badge ${["resolved", "closed"].includes(ticket.status) ? "success" : ticket.priority === "urgent" ? "critical" : "warning"}`}>{statuses[ticket.status]}</span></div>
         <p className="card-muted">{ticket.description}</p>{ticket.resolution_note ? <p><strong>עדכון טיפול:</strong> {ticket.resolution_note}</p> : null}
         {canManage ? <div className="support-manager-controls"><label className="field"><span>עדכון ללקוח</span><textarea className="textarea" value={notes[ticket.id] ?? ""} onChange={(event) => setNotes((current) => ({ ...current, [ticket.id]: event.target.value }))} placeholder="מה בוצע או איזה מידע נוסף דרוש?" /></label><div className="actions"><button className="button" disabled={!!busy} onClick={() => void updateTicket(ticket, "in_progress")}>קבלה לטיפול</button><button className="button" disabled={!!busy} onClick={() => void updateTicket(ticket, "waiting_customer")}>ממתינה ללקוח</button><button className="button primary" disabled={!!busy} onClick={() => void updateTicket(ticket, "resolved")}>{busy === ticket.id ? <Loader2 className="spin" size={16} /> : <CheckCircle2 size={16} />} סימון כנפתרה</button><button className="button danger" disabled={!!busy} onClick={() => void updateTicket(ticket, "closed")}><Archive size={16} /> סגירת פנייה</button></div></div> : null}
