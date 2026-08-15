@@ -35,8 +35,8 @@ export function NotificationPreferences({ organizationId, userId, initial }: { o
     setMessage(error ? "לא הצלחנו לשמור את העדפות המייל." : "העדפות המייל נשמרו.", error ? "error" : "success");
   }
 
-  return <section className="template-list-card" aria-labelledby="email-preferences-title">
-    <div className="template-list-heading">
+  return <section className="template-list-card notification-preferences-card" aria-labelledby="email-preferences-title">
+    <div className="template-list-heading notification-preferences-heading">
       <div><p className="eyebrow">שליטה אישית</p><h2 id="email-preferences-title"><Mail size={20} /> העדפות מייל</h2></div>
       <button className="button primary" disabled={saving} onClick={() => void save()}><Save size={16} />{saving ? "שומר..." : "שמירה"}</button>
     </div>
