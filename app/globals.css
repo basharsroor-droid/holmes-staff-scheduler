@@ -2430,7 +2430,7 @@ html.si-lock, html.si-lock body {
 
 @media (max-width: 820px) {
   .marketing-navbar-shell {
-    position: fixed !important;
+    position: absolute !important;
     inset: 0 0 auto !important;
     z-index: 1000 !important;
   }
