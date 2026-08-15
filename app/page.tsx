@@ -32,7 +32,7 @@ export default function HomePage() {
         but unlike `fixed` it scrolls away normally with the page instead of
         staying glued to the viewport and covering the pinned Hero card
         while scrolling through it. */}
-    <div className="absolute inset-x-0 top-0 z-40">
+    <div className="marketing-navbar-shell absolute inset-x-0 top-0 z-40">
       <SiteNavbar />
     </div>
 

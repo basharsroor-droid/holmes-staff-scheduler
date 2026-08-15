@@ -7,12 +7,14 @@ import { usePathname } from "next/navigation";
 import {
   CalendarCheck,
   Clock3,
+  Menu,
   MessageSquareText,
   MonitorPlay,
   Repeat2,
   Settings,
   Users,
-  Wand2
+  Wand2,
+  X
 } from "lucide-react";
 
 import {
@@ -84,6 +86,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     pathname.startsWith("/auth/");
   const [authUser, setAuthUser] = useState<AuthUser | null>(null);
   const [authChecked, setAuthChecked] = useState(false);
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
   const [selectedEmployeeId, setSelectedEmployeeId] = useState(managerEmployeeId);
   const selectedEmployee = useMemo(
     () =>
@@ -109,6 +112,8 @@ export function AppShell({ children }: { children: ReactNode }) {
     }
     setAuthChecked(true);
   }, [isSaasRoute, pathname]);
+
+  useEffect(() => setMobileNavOpen(false), [pathname]);
 
   function logout() {
     window.localStorage.removeItem(AUTH_USER_KEY);
@@ -142,7 +147,19 @@ export function AppShell({ children }: { children: ReactNode }) {
         <div className="topbar-inner">
           <div className="demo-brand"><BrandLogo href="/demo" /><small>{organization.businessName} · {organization.branchName}</small></div>
 
-          <nav className="nav" aria-label="ניווט ראשי">
+          <button
+            type="button"
+            className="mobile-nav-toggle"
+            aria-label={mobileNavOpen ? "סגירת תפריט" : "פתיחת תפריט"}
+            aria-expanded={mobileNavOpen}
+            aria-controls="private-navigation"
+            onClick={() => setMobileNavOpen((open) => !open)}
+          >
+            {mobileNavOpen ? <X size={22} /> : <Menu size={22} />}
+            <span>תפריט</span>
+          </button>
+
+          <nav id="private-navigation" className={`nav${mobileNavOpen ? " mobile-open" : ""}`} aria-label="ניווט ראשי">
             {privateNavItems.map((item) => {
               const Icon = item.icon;
               const isActive = pathname === item.href;
@@ -158,9 +175,16 @@ export function AppShell({ children }: { children: ReactNode }) {
                 </Link>
               );
             })}
+            <div className="mobile-user-panel">
+              <div className="role-pill">
+                <span className="dot" style={{ background: selectedEmployee.color }} />
+                {displayName || selectedEmployee.fullName} · {roleLabel}
+              </div>
+              <button className="button" onClick={logout}>יציאה</button>
+            </div>
           </nav>
 
-          <div className="user-switcher" aria-label="כניסה עם משתמש דמו">
+          <div className="user-switcher" aria-label="פרטי המשתמש המחובר">
             <div className="role-pill">
               <span className="dot" style={{ background: selectedEmployee.color }} />
               {displayName || selectedEmployee.fullName} · {roleLabel} ·{" "}
