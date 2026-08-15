@@ -20,17 +20,17 @@ import {
 // a clean staggered entrance.
 
 const employeePoints = [
-  { icon: CalendarCheck, text: "הגשת זמינות חודשית מהטלפון" },
-  { icon: CheckCircle2, text: "צפייה במשמרת הקרובה ובכל החודש" },
-  { icon: Repeat2, text: "בקשת החלפה ומעקב אחר האישורים" },
-  { icon: Mail, text: "קבלת הזמנה וגישה אישית" }
+  { icon: CalendarCheck, text: "הגשת זמינות לכל משמרת בחודש — מהטלפון" },
+  { icon: CheckCircle2, text: "צפייה בסידור העדכני ובמשמרת הקרובה" },
+  { icon: Repeat2, text: "בקשת החלפה ומעקב ברור אחר האישורים" },
+  { icon: Mail, text: "כניסה מאובטחת לסביבה האישית" }
 ];
 
 const managerPoints = [
-  { icon: BarChart3, text: "מעקב מי הגיש ומי עדיין חסר" },
-  { icon: CalendarRange, text: "יצירת משמרות ושיבוץ עובדים" },
-  { icon: ShieldCheck, text: "תפקידים, סניפים והרשאות" },
-  { icon: Repeat2, text: "אישור החלפות ועדכון הסידור" }
+  { icon: BarChart3, text: "תמונה ברורה: מי הגיש, מי חסר ואיפה נדרש שיבוץ" },
+  { icon: CalendarRange, text: "בניית הסידור לפי הזמינות והתקנים שהוגדרו" },
+  { icon: ShieldCheck, text: "ניהול סניפים, מחלקות, תפקידים והרשאות" },
+  { icon: Repeat2, text: "אישור החלפות ותיעוד כל שינוי בסידור" }
 ];
 
 const employeeShifts = [
@@ -54,8 +54,8 @@ export function RolesShowcase() {
         viewport={{ once: true, amount: 0.5 }}
         transition={{ duration: 0.5 }}
       >
-        <p className="pro-kicker dark">שתי חוויות, מערכת אחת</p>
-        <h2>פשוט לעובדים. עוצמתי למנהלים.</h2>
+        <p className="pro-kicker dark">לכל אחד, בדיוק מה שהוא צריך</p>
+        <h2>למנהל יש שליטה. לעובדים יש ודאות.</h2>
       </motion.div>
 
       <div className="grid gap-6 md:grid-cols-2">
@@ -75,7 +75,7 @@ export function RolesShowcase() {
             </span>
             <span className="text-sm font-semibold text-[var(--muted)]">סביבת העובד</span>
           </div>
-          <h3 className="mb-5 text-xl font-bold text-[var(--ink)] sm:text-2xl">העובד יודע בדיוק מה צריך לעשות</h3>
+          <h3 className="mb-5 text-xl font-bold text-[var(--ink)] sm:text-2xl">כל עובד יודע מתי הוא עובד ומה אפשר לעשות</h3>
 
           <ul className="mb-7 flex flex-col gap-3">
             {employeePoints.map((point) => (
@@ -128,7 +128,7 @@ export function RolesShowcase() {
             </span>
             <span className="text-sm font-semibold text-[var(--muted)]">סביבת המנהל</span>
           </div>
-          <h3 className="mb-5 text-xl font-bold text-[var(--ink)] sm:text-2xl">המנהל מקבל שליטה ותמונה מלאה</h3>
+          <h3 className="mb-5 text-xl font-bold text-[var(--ink)] sm:text-2xl">כל מה שהמנהל צריך כדי לבנות ולנהל את הסידור</h3>
 
           <ul className="mb-7 flex flex-col gap-3">
             {managerPoints.map((point) => (
