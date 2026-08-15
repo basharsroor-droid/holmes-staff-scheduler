@@ -88,11 +88,11 @@ export default function OnboardingPage() {
   }
 
   return (
-    <main className="onboarding-page" dir="rtl">
+    <main className="onboarding-page business-onboarding" dir="rtl">
       <div className="section-glow blue" style={{ width: 420, height: 420, top: -120, insetInlineEnd: -100 }} aria-hidden="true" />
       <div className="section-glow violet" style={{ width: 340, height: 340, bottom: -140, insetInlineStart: -60 }} aria-hidden="true" />
 
-      <section className="onboarding-intro">
+      <section className="onboarding-intro business-onboarding-intro">
         <BrandLogo href="/" />
         <p className="eyebrow">SHIFT PILOT לעסקים</p>
         <h1>סביבת העבודה של העסק שלך, מוכנה תוך כמה דקות.</h1>
@@ -105,7 +105,8 @@ export default function OnboardingPage() {
         </div>
       </section>
 
-      <section className="auth-card onboarding-card">
+      <section className="auth-card onboarding-card business-onboarding-card">
+        {stage !== "loading" ? <div className="onboarding-progress" aria-label="התקדמות בהקמת החשבון"><span className={["workspace", "done"].includes(stage) ? "complete" : "active"}><b>1</b><small>חשבון</small></span><i aria-hidden="true" /><span className={["workspace", "done"].includes(stage) ? "active" : ""}><b>2</b><small>העסק</small></span></div> : null}
         {stage === "loading" ? <Loading /> : null}
 
         {stage === "account" ? (
