@@ -93,7 +93,7 @@ export default function OnboardingPage() {
       <div className="section-glow violet" style={{ width: 340, height: 340, bottom: -140, insetInlineStart: -60 }} aria-hidden="true" />
 
       <section className="onboarding-intro business-onboarding-intro">
-        <BrandLogo href="/" />
+        <BrandLogo href="/" light />
         <p className="eyebrow">SHIFT PILOT לעסקים</p>
         <h1>סביבת העבודה של העסק שלך, מוכנה תוך כמה דקות.</h1>
         <p className="lead">פותחים חשבון עסקי מאובטח, מגדירים את הסניף הראשון ואז מזמינים מנהלים ועובדים.</p>
