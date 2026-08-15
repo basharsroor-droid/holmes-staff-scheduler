@@ -5,6 +5,7 @@ async function loginToDemo(page: Page, username: string, password: string) {
   await page.getByLabel("ת.ז / שם משתמש").fill(username);
   await page.getByLabel("סיסמה").fill(password);
   await page.getByRole("button", { name: "כניסה", exact: true }).click();
+  await expect(page).toHaveURL(username === "manager" ? /\\/pilot$/ : /\\/employee$/);
 }
 
 test("employee can update and save monthly availability", async ({ page }) => {
