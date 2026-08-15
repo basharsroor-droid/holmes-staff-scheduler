@@ -95,8 +95,8 @@ export function WorkMonthsClient({
     setMessage(status === "collecting" ? "חלון ההגשה נפתח מחדש." : "חלון ההגשה נסגר והחודש עבר להכנת סידור.");
   }
 
-  return <div className="template-workbench">
-    <section className="template-form-card">
+  return <div className="template-workbench business-setup-workbench work-months-workbench">
+    <section className="template-form-card setup-form-card work-month-form">
       <div><p className="eyebrow">חודש חדש</p><h2>פתיחת הגשת זמינות</h2></div>
       <div className="form-pair">
         <label className="field"><span>סניף</span><select className="input" value={form.branchId} onChange={(e) => selectBranch(e.target.value)}>{branches.map((branch) => <option value={branch.id} key={branch.id}>{branch.name}</option>)}</select></label>
@@ -111,14 +111,14 @@ export function WorkMonthsClient({
       <StatusMessage message={message} kind={kind} />
     </section>
 
-    <section className="template-list-card">
-      <div className="template-list-heading"><div><p className="eyebrow">תקופות עבודה</p><h2>{periods.length ? `${periods.length} חודשים` : "עדיין לא נפתח חודש"}</h2></div><span className="status-chip active"><CheckCircle2 size={14} /> נשמר ב־Supabase</span></div>
+    <section className="template-list-card setup-list-card work-months-list">
+      <div className="template-list-heading setup-list-heading"><div><p className="eyebrow">תקופות עבודה</p><h2>{periods.length ? `${periods.length} חודשים` : "עדיין לא נפתח חודש"}</h2></div><span className="status-chip active"><CheckCircle2 size={14} /> נשמר ב־Supabase</span></div>
       <div className="template-list">
         {periods.map((period) => {
           const branch = branches.find((item) => item.id === period.branch_id);
           const department = departments.find((item) => item.id === period.department_id);
           const collecting = period.status === "collecting";
-          return <article className={`template-item ${period.status === "archived" ? "inactive" : ""}`} key={period.id}>
+          return <article className={`template-item work-month-card period-${period.status} ${period.status === "archived" ? "inactive" : ""}`} key={period.id}>
             <div className="template-icon"><Clock3 /></div>
             <div className="template-main"><strong>{monthNames[period.month - 1]} {period.year}</strong><span>{branch?.name ?? "סניף"} · {department?.name ?? "מחלקה"}</span></div>
             <div className="template-meta"><span>פתיחה: {new Date(period.submission_opens_at).toLocaleDateString("he-IL")}</span><span>דדליין: {new Date(period.submission_closes_at).toLocaleDateString("he-IL")}</span><span className="status-chip">{collecting ? "איסוף זמינות" : period.status === "draft" ? "הכנת סידור" : period.status === "published" ? "פורסם" : "ארכיון"}</span></div>
