@@ -237,14 +237,16 @@ export function CinematicHero() {
           tags. Two H1s on one page is invalid heading structure and broke
           the e2e smoke test's getByRole("heading", {level:1}) query. */}
       <div className="ch-hero-text-wrapper absolute z-10 flex w-screen flex-col items-center justify-center px-4 text-center will-change-transform">
+        <div className="ch-mobile-kicker">ניהול משמרות חכם לעסקים</div>
         <h1 className="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
           <span className="ch-text-track ch-reveal ch-text-3d mb-2 block">
-            מהגשת זמינות ועד סידור עבודה —
+            כל המשמרות. מקום אחד.
           </span>
           <span className="ch-text-line2 ch-reveal ch-text-brand block font-extrabold">
-            בלי כאוס בקבוצת הוואטסאפ.
+            בלי לרדוף אחרי הודעות.
           </span>
         </h1>
+        <p className="ch-mobile-lead">הגשת זמינות, בניית סידור והחלפות — בתהליך ברור ונוח לכל הצוות.</p>
 
         {/* Reachable immediately, not gated behind the full pinned-scroll
             story -- a visitor shouldn't have to scroll through the whole

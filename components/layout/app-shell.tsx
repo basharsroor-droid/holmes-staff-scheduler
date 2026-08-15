@@ -156,7 +156,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             onClick={() => setMobileNavOpen((open) => !open)}
           >
             {mobileNavOpen ? <X size={22} /> : <Menu size={22} />}
-            <span>תפריט</span>
+            <span className="sr-only">תפריט</span>
           </button>
 
           <nav id="private-navigation" className={`nav${mobileNavOpen ? " mobile-open" : ""}`} aria-label="ניווט ראשי">
