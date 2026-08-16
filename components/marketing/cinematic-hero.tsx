@@ -142,10 +142,18 @@ const INJECTED_STYLES = `
      center, sized to bleed past the screen edges (cropped by the hero's
      own overflow:hidden), so it reads as a giant brand mark anchored at
      the base rather than a second line of text fighting the headline for
-     the same reading zone. */
+     the same reading zone.
+     Fourth pass: the gradient's near-white stops (#eaf1ff / #ffffff, for
+     the "white" half of "blue and white") were close enough to the
+     hero's own near-white background (--background-hsl 220 43% 97%) that
+     the middle of the word visually vanished into the page -- reported
+     live, with a screenshot. Every stop is now a tint of the brand blue
+     (never pure white), so the letters stay legible against the
+     background across their whole length; opacity raised slightly to
+     compensate now that the mark no longer overlaps any readable text. */
   @keyframes ch-bg-loop {
-    0%, 100% { transform: translateX(-50%) scale(1); opacity: 0.12; }
-    50% { transform: translateX(-50%) scale(1.04); opacity: 0.22; }
+    0%, 100% { transform: translateX(-50%) scale(1); opacity: 0.18; }
+    50% { transform: translateX(-50%) scale(1.04); opacity: 0.30; }
   }
   .ch-bg-wordmark {
     position: absolute; bottom: -5%; left: 50%; z-index: 0;
@@ -153,14 +161,14 @@ const INJECTED_STYLES = `
     font-size: clamp(96px, 20vw, 320px);
     font-weight: 900; letter-spacing: -0.02em; line-height: 1; white-space: nowrap;
     color: transparent;
-    background: linear-gradient(120deg, var(--primary-dark) 0%, var(--primary) 38%, #eaf1ff 55%, #ffffff 68%, var(--primary) 100%);
+    background: linear-gradient(120deg, var(--primary-dark) 0%, var(--primary) 35%, color-mix(in srgb, var(--primary) 30%, white) 58%, var(--primary) 78%, var(--primary-dark) 100%);
     -webkit-background-clip: text; background-clip: text;
     filter: drop-shadow(0 18px 44px rgba(33,88,201,0.25)) blur(0.5px);
     pointer-events: none; user-select: none;
     animation: ch-bg-loop 9s ease-in-out infinite;
   }
   @media (prefers-reduced-motion: reduce) {
-    .ch-bg-wordmark { animation: none; opacity: 0.16; }
+    .ch-bg-wordmark { animation: none; opacity: 0.22; }
   }
 
   /* Plain CSS fade-in, deliberately NOT GSAP/rAF-driven like the rest of the
