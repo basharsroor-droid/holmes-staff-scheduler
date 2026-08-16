@@ -2,13 +2,33 @@
 
 מדריך פעולה מהיר למקרה שמשהו נשבר. ראו גם [ARCHITECTURE.md](./ARCHITECTURE.md) להבנת המבנה, ו-[INCIDENT_RESPONSE.md](./INCIDENT_RESPONSE.md) לתוכנית התגובה הפורמלית (חומרת אירועים, בעל ההחלטה, ומתי כל נוהל למטה רלוונטי).
 
+## Checklist לפני כל Deploy (חובה, לא רשות)
+
+חמש הבדיקות האלה הן בדיוק מה שכבר קורה בכל PR שהוזרם בפועל בפרויקט הזה עד היום — הרשימה כאן רק הופכת אותו מהרגל למחייב, כך שגם דילוג בלי לב רע (עייפות, לחץ זמן) לא יעבור בלי סימון מודע:
+
+- [ ] **Migration** — אם יש שינוי סכימה: `list_migrations` אחרי מיזוג מוודא שהיא נרשמה בפועל (מיזוג ל-`main` **לא** מפעיל migration אוטומטית — `apply_migration` צריך קריאה נפרדת. ראו § שינוי סכימה למטה).
+- [ ] **Secrets** — אם ה-PR מוסיף env var חדש: קיים גם ב-Vercel (Production+Preview+Development) וגם ב-GitHub Actions secrets אם צריך ל-CI, *לפני* שהקוד שתלוי בו מגיע ל-`main`.
+- [ ] **Tests** — `npm run lint` + `tsc --noEmit` + `npm run build` + `npm run test:unit` + `npm run validate:schema`, כולם ירוקים מקומית לפני push, ו-CI ירוק ב-PR לפני מיזוג.
+- [ ] **Preview** — ה-Preview Deployment של ה-PR עצמו הוא `READY` ולא `ERROR` (`get_deployment` / Vercel Dashboard) — לא מספיק ש-CI ירוק, כי Preview תופס בעיות build-time שהטסטים לא בהכרח מכסים.
+- [ ] **Backup** — לפני deploy עם שינוי סכימה משמעותי (לא תוספת עמודה תמימה): לוודא שריצת הגיבוי הלילית האחרונה הצליחה (`gh run list --workflow=database-backup.yml --limit 1`), או להריץ אחת ידנית (`gh workflow run database-backup.yml`) לפני.
+
+**בדיקת Smoke אחרי כל Deploy לפרודקשן:**
+1. `curl -sL https://www.shiftpilothq.com/api/health` — סטטוס `ok` וה-`commit` תואם למה שזה עתה נדחף.
+2. `curl -sL "https://www.shiftpilothq.com/api/health?deep=1"` — מוודא גם קישוריות אמיתית ל-Supabase, לא רק שהשרת עונה.
+3. עומס עין אחד על עמוד הבית ועל `/login` — שלא נראה שבור ויזואלית (ה-health check לא תופס בעיות רינדור).
+
 ## Deploy גרוע ב-Production
 
 **תסמין:** האתר שבור אחרי מיזוג ל-`main`.
 
-1. Vercel Dashboard → Deployments → למצוא את הפריסה התקינה האחרונה (`isRollbackCandidate: true`) → **Promote to Production**. זו פעולה מיידית, לא דורשת קוד חדש.
+**החלטת Rollback מול Fix-forward** (לפי רמות החומרה ב-[INCIDENT_RESPONSE.md](./INCIDENT_RESPONSE.md)): Sev1/Sev2 (האתר למטה לגמרי, או דליפת נתונים) → Rollback מיידי, לא מנסים לאבחן קודם. Sev3/Sev4 (פיצ'ר ספציפי שבור, לא חוסם) → מותר fix-forward רגיל דרך PR חדש, אין צורך ב-rollback.
+
+1. Vercel Dashboard → Deployments → למצוא את הפריסה התקינה האחרונה (`isRollbackCandidate: true`) → **Promote to Production**. זו פעולה מיידית, לא דורשת קוד חדש. (אומת 16.8.2026: תמיד יש כמה מועמדי rollback זמינים — כל deploy קודם לפרודקשן מסומן `isRollbackCandidate: true` — המנגנון אינו תיאורטי.)
 2. במקביל, ב-GitHub: `git revert <commit>` על `main` דרך PR (branch protection מחייב את זה — אי אפשר לדחוף ישירות).
 3. לבדוק את `Runtime Logs` ב-Vercel (`get_runtime_logs`) ואת `get_deployment_build_logs` כדי להבין מה נשבר לפני שמנסים שוב.
+4. אחרי rollback: להריץ שוב את בדיקת ה-Smoke למעלה מול הפריסה שהוחזרה.
+
+**תרגול מלא (deploy אמיתי + promote-to-previous אמיתי):** לא בוצע עדיין — זו פעולה חיה בפרודקשן (גם אם קצרה והפיכה), ולכן נשארת החלטה של בשאר מתי להריץ, לא משהו שמבוצע באופן חד-צדדי. המנגנון עצמו כן אומת כזמין (סעיף 1 למעלה).
 
 ## שגיאות בפרודקשן (500 / RLS denies)
 
