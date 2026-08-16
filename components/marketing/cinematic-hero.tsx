@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 import Link from "next/link";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { ArrowLeft, CalendarCheck, CheckCircle2, ChevronDown, PlayCircle, Repeat2 } from "lucide-react";
+import { ArrowLeft, CalendarCheck, CheckCircle2, ChevronDown, PlayCircle, Repeat2, ShieldCheck } from "lucide-react";
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
@@ -120,6 +120,34 @@ const INJECTED_STYLES = `
 
   @keyframes ch-bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(8px); } }
   .ch-scroll-cue-icon { animation: ch-bounce 1.8s ease-in-out infinite; }
+
+  /* Requested directly: "make the background more interesting than plain
+     white" + "like the giant faint wordmark we did in the footer" + "as a
+     continuous loop". A slow, subtle breathing wordmark behind everything
+     else -- deliberately a plain CSS animation, not tied to the GSAP
+     scroll timeline at all, so it can't interact with or break the
+     scroll-jacked sequence. It's covered by the opaque card once that
+     grows to fill the screen, so it's only visible bookending the
+     experience (opening + closing), never competing with the mid-sequence
+     content. */
+  @keyframes ch-bg-loop {
+    0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.55; }
+    50% { transform: translate(-50%, -50%) scale(1.06); opacity: 0.85; }
+  }
+  .ch-bg-wordmark {
+    position: absolute; top: 50%; left: 50%; z-index: 0;
+    transform: translate(-50%, -50%);
+    font-size: clamp(64px, 13vw, 230px);
+    font-weight: 900; letter-spacing: -0.04em; line-height: 1; white-space: nowrap;
+    color: transparent;
+    background: linear-gradient(180deg, color-mix(in srgb, var(--primary) 12%, transparent) 0%, transparent 72%);
+    -webkit-background-clip: text; background-clip: text;
+    pointer-events: none; user-select: none;
+    animation: ch-bg-loop 9s ease-in-out infinite;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .ch-bg-wordmark { animation: none; opacity: 0.6; }
+  }
 
   /* Plain CSS fade-in, deliberately NOT GSAP/rAF-driven like the rest of the
      Hero -- this is the primary CTA, so it must render and become clickable
@@ -244,6 +272,7 @@ export function CinematicHero() {
       <div className="ch-glow ch-glow-a" aria-hidden="true" />
       <div className="ch-glow ch-glow-b" aria-hidden="true" />
       <div className="ch-grid-bg pointer-events-none absolute inset-0 z-0 opacity-60" aria-hidden="true" />
+      <div className="ch-bg-wordmark" aria-hidden="true">ShiftPilot</div>
 
       {/* hints at the pinned card peeking in below before any scroll happens */}
       <div className="ch-scroll-cue ch-reveal pointer-events-none absolute bottom-10 z-10 flex flex-col items-center gap-1.5 text-[var(--muted)]">
@@ -301,6 +330,23 @@ export function CinematicHero() {
             <PlayCircle size={20} />
             <span className="text-lg font-bold leading-none tracking-tight">לצפייה בדמו</span>
           </Link>
+        </div>
+
+        {/* Requested directly: the closing CTA felt too bare, just text and
+            two buttons. Reuses the exact same 3 short capability titles
+            already established and approved in the "יכולות המוצר" section
+            further down the page (app/page.tsx `capabilities`), not new
+            copy invented for this spot. */}
+        <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
+          <span className="inline-flex items-center gap-2 rounded-full border border-black/5 bg-white/75 px-4 py-2 text-xs font-bold text-[var(--ink)] shadow-sm backdrop-blur-sm sm:text-sm">
+            <CalendarCheck size={16} className="text-[var(--primary)]" /> כל הזמינות במקום אחד
+          </span>
+          <span className="inline-flex items-center gap-2 rounded-full border border-black/5 bg-white/75 px-4 py-2 text-xs font-bold text-[var(--ink)] shadow-sm backdrop-blur-sm sm:text-sm">
+            <Repeat2 size={16} className="text-[var(--primary)]" /> החלפות בתהליך ברור
+          </span>
+          <span className="inline-flex items-center gap-2 rounded-full border border-black/5 bg-white/75 px-4 py-2 text-xs font-bold text-[var(--ink)] shadow-sm backdrop-blur-sm sm:text-sm">
+            <ShieldCheck size={16} className="text-[var(--primary)]" /> גישה לפי עסק ותפקיד
+          </span>
         </div>
       </div>
 
