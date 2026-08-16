@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { ArrowRight, LifeBuoy } from "lucide-react";
+import { ArrowRight, LifeBuoy, Search } from "lucide-react";
 
 import { SupportClient } from "@/app/workspace/support/support-client";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -33,6 +33,9 @@ export default async function SupportPage() {
       <h1><LifeBuoy /> מרכז תמיכה</h1>
       <p>פותחים פנייה מסודרת, מציינים את רמת הדחיפות ועוקבים אחר הטיפול במקום אחד.</p>
     </div></header>
+    {!supportAgent ? <Link href="/workspace/help" className="help-callout">
+      <Search size={18} /><span><strong>לפני שפותחים פנייה</strong><small>הרבה תקלות נפוצות אפשר לפתור לבד תוך דקה — כדאי להעיף מבט במרכז העזרה.</small></span>
+    </Link> : null}
     <SupportClient organizationId={membership.organization_id} currentUserId={user.id}
       canManage={Boolean(supportAgent)} initialTickets={tickets ?? []} />
   </main>;
