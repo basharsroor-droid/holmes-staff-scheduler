@@ -129,6 +129,10 @@ const demoSalesEnvironmentMigrationUrl = new URL(
   "../supabase/migrations/20260816103122_demo_sales_environment.sql",
   import.meta.url
 );
+const departmentMembershipsActiveOnlyMigrationUrl = new URL(
+  "../supabase/migrations/20260816123500_department_memberships_select_active_only.sql",
+  import.meta.url
+);
 
 const tenantTables = [
   "organizations",
@@ -737,11 +741,23 @@ if (!existsSync(demoSalesEnvironmentMigrationUrl)) {
   }
 }
 
+if (!existsSync(departmentMembershipsActiveOnlyMigrationUrl)) {
+  failures.push("department_memberships suspended-member SELECT fix migration is missing");
+} else {
+  const departmentMembershipsActiveOnlyMigration = readFileSync(departmentMembershipsActiveOnlyMigrationUrl, "utf8");
+  if (!departmentMembershipsActiveOnlyMigration.includes("alter policy department_memberships_select_scoped")) {
+    failures.push("department_memberships_select_scoped policy fix is missing");
+  }
+  if (!departmentMembershipsActiveOnlyMigration.includes("own_membership.status = 'active'")) {
+    failures.push("department_memberships_select_scoped must require an active membership -- a suspended employee should not be able to read their own (now-stale) department assignment");
+  }
+}
+
 if (failures.length) {
   console.error(failures.join("\n"));
   process.exit(1);
 }
 
 console.log(
-  `Validated ${tenantTables.length + 2} RLS-protected ShiftPilot tables with authorization, department-scoped access, workflow integrity, privacy, atomic operations, audit, deduplicated notification, scheduling-overlap, last-owner protection, ownership transfer, manager/target swap-transition protection, schedule unpublishing, automatic future-shift release on suspension, invitation resend rate-limiting, previous-month schedule duplication, self-service leave requests, per-employee weekly hour limits, minimum rest time between shifts, bulk shift cancellation by day, and correct expired-invitation handling, a resettable demo-sales-environment guard, and concurrent-invitation race protection.`
+  `Validated ${tenantTables.length + 2} RLS-protected ShiftPilot tables with authorization, department-scoped access, workflow integrity, privacy, atomic operations, audit, deduplicated notification, scheduling-overlap, last-owner protection, ownership transfer, manager/target swap-transition protection, schedule unpublishing, automatic future-shift release on suspension, invitation resend rate-limiting, previous-month schedule duplication, self-service leave requests, per-employee weekly hour limits, minimum rest time between shifts, bulk shift cancellation by day, and correct expired-invitation handling, a resettable demo-sales-environment guard, concurrent-invitation race protection, and active-only department-membership visibility.`
 );
