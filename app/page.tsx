@@ -39,7 +39,18 @@ export default function HomePage() {
     <CinematicHero />
     <ScrollToTop />
 
-    <section className="proof-strip" tabIndex={0} aria-label="עסקים שעובדים במשמרות"><span>מסעדות</span><i /> <span>חדרי כושר</span><i /> <span>חנויות</span><i /> <span>מוקדי שירות</span><i /> <span>מרפאות</span><i /> <span>צוותי תפעול</span></section>
+    <section className="proof-strip" tabIndex={0} aria-label="עסקים שעובדים במשמרות">
+      <div className="proof-strip-track">
+        <span>מסעדות</span><i /> <span>חדרי כושר</span><i /> <span>חנויות</span><i /> <span>מוקדי שירות</span><i /> <span>מרפאות</span><i /> <span>צוותי תפעול</span>
+        {/* Exact duplicate so the marquee can loop seamlessly (translateX(-50%)
+            lands precisely on the real set's end). aria-hidden goes on each
+            element directly, not on a display:contents wrapper -- verified
+            that combination is NOT reliably excluded from the accessibility
+            tree, so a screen reader would otherwise read every business type
+            twice in a row. */}
+        <span aria-hidden="true">מסעדות</span><i aria-hidden="true" /> <span aria-hidden="true">חדרי כושר</span><i aria-hidden="true" /> <span aria-hidden="true">חנויות</span><i aria-hidden="true" /> <span aria-hidden="true">מוקדי שירות</span><i aria-hidden="true" /> <span aria-hidden="true">מרפאות</span><i aria-hidden="true" /> <span aria-hidden="true">צוותי תפעול</span>
+      </div>
+    </section>
 
     <section className="pro-section problem-section">
       <div className="section-glow blue" style={{ width: 420, height: 420, top: -140, left: -80 }} aria-hidden="true" />
@@ -79,6 +90,14 @@ export default function HomePage() {
 
     <div className="mobile-sticky-actions"><Link href="/demo">דמו</Link><Link href="/onboarding">פתיחת עסק <ArrowLeft size={16} /></Link></div>
 
-    <footer className="pro-footer"><BrandLogo href="/" /><p>זמינות, סידורי עבודה והחלפות משמרת — במקום אחד.</p><div><Link href="/login">כניסה למערכת</Link><Link href="/onboarding">פתיחת עסק</Link><Link href="/demo">סביבת הדמו</Link><Link href="/support">תמיכה</Link><Link href="/terms">תנאי שימוש</Link><Link href="/privacy">מדיניות פרטיות</Link></div><small>© 2026 ShiftPilot. כל הזכויות שמורות.</small></footer>
+    <footer className="pro-footer">
+      <div className="pro-footer-top">
+        <div className="pro-footer-brand"><BrandLogo href="/" /><p>זמינות, סידורי עבודה והחלפות משמרת — במקום אחד.</p></div>
+        <nav className="pro-footer-col" aria-label="גישה למערכת"><h4>גישה למערכת</h4><Link href="/login">כניסה למערכת</Link><Link href="/onboarding">פתיחת עסק</Link><Link href="/demo">סביבת הדמו</Link></nav>
+        <nav className="pro-footer-col" aria-label="מידע ותמיכה"><h4>מידע ותמיכה</h4><Link href="/support">תמיכה</Link><Link href="/terms">תנאי שימוש</Link><Link href="/privacy">מדיניות פרטיות</Link></nav>
+      </div>
+      <div className="pro-footer-wordmark" aria-hidden="true">ShiftPilot</div>
+      <small>© 2026 ShiftPilot. כל הזכויות שמורות.</small>
+    </footer>
   </main>;
 }
