@@ -609,7 +609,16 @@ button {
 .template-form-card h2,
 .template-list-card h2 { margin: 4px 0 0; }
 .support-workbench { grid-template-columns: minmax(300px, .78fr) minmax(0, 1.22fr); }
-.support-console-workbench { grid-template-columns: minmax(0, 1fr); }
+/* Combined selector (not just .support-console-workbench alone) so this
+   reliably wins over .support-workbench above regardless of any
+   equal-specificity same-order ambiguity in the compiled cascade --
+   verified live that the single-class override did not consistently
+   take effect while this combined one does. Without it, /support (the
+   real agent console, which renders with showCreateForm=false and no
+   second grid item) kept the two-column track sizing meant for the
+   create-form layout, leaving the ticket list squeezed into ~35% of
+   the page width instead of spanning it. */
+.support-workbench.support-console-workbench { grid-template-columns: minmax(0, 1fr); }
 .support-ticket { display: grid; gap: 14px; }
 .support-ticket-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; }
 .support-ticket-head > span:first-child { display: grid; gap: 5px; min-width: 0; }
