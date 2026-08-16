@@ -34,6 +34,19 @@ const ORG_NAME = "פיט־זון";
 // Published, intentionally-shared demo credentials -- the same pattern
 // already shipped for the /demo Holmes Place environment (visible on the
 // login page). Not a real person's password.
+//
+// Access model, deliberately distinct per account so the demo actually
+// shows off department-scoped permissions rather than having every login
+// see the same thing:
+//   - owner:    access_scope "organization" -> sees every branch and every
+//               department. Represents the business owner (or, equally, a
+//               branch/site manager -- the schema gives both the same
+//               "sees everything" scope).
+//   - manager:  access_scope "department", linked to exactly ONE
+//               department (reception). Represents a department head, who
+//               must NOT see other departments' schedules/staff.
+//   - employee: access_scope "department", linked to that same one
+//               department -- ordinary staff-level access.
 const ACCOUNTS = [
   { key: "owner", email: "owner-demo@shiftpilothq.com", password: "FitZoneDemo2026!", role: "owner", firstName: "מיכל", lastName: "בעלים", accessScope: "organization" },
   { key: "manager", email: "manager-demo@shiftpilothq.com", password: "FitZoneDemo2026!", role: "manager", firstName: "רון", lastName: "מנהל", accessScope: "department" },
@@ -182,6 +195,34 @@ async function ensureDepartmentMembership(organizationId, branchId, departmentId
   if (error) throw new Error(`Failed to link department membership: ${error.message}`);
 }
 
+// Convergent, not just additive: removes any department_memberships for this
+// membership that are NOT in the desired set. This matters specifically
+// because a previous version of this script over-granted the demo manager
+// access to every department in the branch (see below) -- without this
+// pruning step, re-running the corrected script would add the right rows
+// but leave the wrong one in place too.
+async function syncDepartmentMemberships(organizationId, branchId, membershipId, desired) {
+  for (const entry of desired) {
+    await ensureDepartmentMembership(organizationId, branchId, entry.departmentId, membershipId, entry.isPrimary);
+  }
+  const desiredIds = new Set(desired.map((entry) => entry.departmentId));
+  const { data: current, error: fetchError } = await supabase
+    .from("department_memberships")
+    .select("department_id")
+    .eq("membership_id", membershipId);
+  if (fetchError) throw new Error(`Failed to read department memberships: ${fetchError.message}`);
+  const stale = (current ?? []).filter((row) => !desiredIds.has(row.department_id));
+  for (const row of stale) {
+    const { error: deleteError } = await supabase
+      .from("department_memberships")
+      .delete()
+      .eq("membership_id", membershipId)
+      .eq("department_id", row.department_id);
+    if (deleteError) throw new Error(`Failed to remove stale department membership: ${deleteError.message}`);
+    console.log(`  removed stale department membership (department ${row.department_id})`);
+  }
+}
+
 async function main() {
   console.log("Ensuring organization...");
   const organizationId = await ensureOrganization();
@@ -210,9 +251,15 @@ async function main() {
   }
 
   console.log("Ensuring department assignments...");
-  await ensureDepartmentMembership(organizationId, branchTlv, deptReception, membershipByKey.manager, true);
-  await ensureDepartmentMembership(organizationId, branchTlv, deptTrainers, membershipByKey.manager, false);
-  await ensureDepartmentMembership(organizationId, branchTlv, deptReception, membershipByKey.employee, true);
+  // Manager is a department head: reception ONLY, never the trainers
+  // department too -- see the ACCOUNTS comment above. syncDepartmentMemberships
+  // also removes any extra department link left over from an earlier run.
+  await syncDepartmentMemberships(organizationId, branchTlv, membershipByKey.manager, [
+    { departmentId: deptReception, isPrimary: true }
+  ]);
+  await syncDepartmentMemberships(organizationId, branchTlv, membershipByKey.employee, [
+    { departmentId: deptReception, isPrimary: true }
+  ]);
 
   console.log("Resetting operational data to baseline (schedule, shifts, availability, swap request, ticket)...");
   const { error: resetError } = await supabase.rpc("reset_demo_environment", { target_organization_id: organizationId });
