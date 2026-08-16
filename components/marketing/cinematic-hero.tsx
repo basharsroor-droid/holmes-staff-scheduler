@@ -132,29 +132,35 @@ const INJECTED_STYLES = `
      content.
      First pass faded the fill to fully transparent by 72% of the letter
      height, which on the light hero background read as barely-there /
-     broken rather than a wordmark -- reported live, with a screenshot.
-     Rebuilt with an actually-opaque blue-to-white diagonal fill (the same
-     brand blue as --primary/--primary-dark) and a low element-level
-     opacity instead, so the color combination itself stays crisp and only
-     its overall presence is dialed down to stay a background accent. */
+     broken. Second pass fixed the color (opaque blue-to-white) but kept
+     it dead-center at the same spot as the headline -- on a real screenshot
+     the letter strokes visibly cut through "בלי לרדוף אחרי הודעות", unlike
+     the footer version this was modeled on, which sits in its own row
+     below all the readable text, never overlapping it.
+     Third pass: keep the footer's actual layout logic, not just its
+     color -- anchor the mark to the BOTTOM of the hero instead of the
+     center, sized to bleed past the screen edges (cropped by the hero's
+     own overflow:hidden), so it reads as a giant brand mark anchored at
+     the base rather than a second line of text fighting the headline for
+     the same reading zone. */
   @keyframes ch-bg-loop {
-    0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.14; }
-    50% { transform: translate(-50%, -50%) scale(1.045); opacity: 0.26; }
+    0%, 100% { transform: translateX(-50%) scale(1); opacity: 0.12; }
+    50% { transform: translateX(-50%) scale(1.04); opacity: 0.22; }
   }
   .ch-bg-wordmark {
-    position: absolute; top: 50%; left: 50%; z-index: 0;
-    transform: translate(-50%, -50%);
-    font-size: clamp(72px, 15vw, 260px);
-    font-weight: 900; letter-spacing: -0.04em; line-height: 1; white-space: nowrap;
+    position: absolute; bottom: -5%; left: 50%; z-index: 0;
+    transform: translateX(-50%);
+    font-size: clamp(96px, 20vw, 320px);
+    font-weight: 900; letter-spacing: -0.02em; line-height: 1; white-space: nowrap;
     color: transparent;
     background: linear-gradient(120deg, var(--primary-dark) 0%, var(--primary) 38%, #eaf1ff 55%, #ffffff 68%, var(--primary) 100%);
     -webkit-background-clip: text; background-clip: text;
-    filter: drop-shadow(0 18px 44px rgba(33,88,201,0.25));
+    filter: drop-shadow(0 18px 44px rgba(33,88,201,0.25)) blur(0.5px);
     pointer-events: none; user-select: none;
     animation: ch-bg-loop 9s ease-in-out infinite;
   }
   @media (prefers-reduced-motion: reduce) {
-    .ch-bg-wordmark { animation: none; opacity: 0.18; }
+    .ch-bg-wordmark { animation: none; opacity: 0.16; }
   }
 
   /* Plain CSS fade-in, deliberately NOT GSAP/rAF-driven like the rest of the
