@@ -37,10 +37,15 @@ export function SiteNavbar() {
           3 actions) at real Hebrew text widths -- individual nav links
           were wrapping onto two lines mid-phrase ("אבטחה" / "והרשאות" on
           separate lines), reported live by a user looking at the actual
-          site. max-w-4xl plus whitespace-nowrap on every link is the
-          standard fix: give the pill enough room and make sure a link's
-          own text is never allowed to break internally regardless. */}
-      <div className="marketing-nav-bar relative z-10 flex w-full max-w-4xl items-center justify-between rounded-full bg-white/95 px-4 py-2.5 shadow-[0_18px_45px_rgba(15,23,42,0.12)] backdrop-blur sm:px-6 sm:py-3">
+          site. The fix went through two rounds of measuring, not
+          guessing: max-w-4xl (896px) still overflowed (actions group
+          floating disconnected past the pill's own left edge, reported
+          live with a screenshot); max-w-5xl (1024px) measured at only
+          4px of margin -- real content is ~972px, both earlier estimates
+          (896px, 913px) were under the real number. max-w-6xl (1152px)
+          finally gives genuine margin (~132px) instead of sitting right
+          at the edge for a third time. */}
+      <div className="marketing-nav-bar relative z-10 flex w-full max-w-6xl items-center justify-between rounded-full bg-white/95 px-4 py-2.5 shadow-[0_18px_45px_rgba(15,23,42,0.12)] backdrop-blur sm:px-6 sm:py-3">
         <motion.div initial={{ scale: 0.85, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ duration: 0.3 }}>
           <BrandLogo href="/" />
         </motion.div>
@@ -48,11 +53,14 @@ export function SiteNavbar() {
         {/* md: (768px) genuinely isn't enough room for the full pill (logo +
             4 nav links + 3 actions) at real Hebrew text widths -- checked
             directly and it overflows the viewport around 820-950px, cut
-            off on both edges. lg: (1024px) is where the actual measured
-            content width (~970px) comfortably fits; the mobile hamburger
-            menu below now correctly covers that whole in-between range
-            instead of a half-broken squeezed desktop layout. */}
-        <nav className="hidden items-center gap-5 lg:flex lg:gap-7">
+            off on both edges. xl: (1280px), not lg: (1024px) -- the pill
+            itself is now max-w-5xl (1024px), so showing it right at a
+            1024px viewport would leave zero margin for the wrap's own
+            padding and reproduce the exact overflow this is fixing. xl:
+            keeps real breathing room; the mobile hamburger menu below
+            covers the whole range below that instead of a squeezed
+            desktop layout. */}
+        <nav className="hidden items-center gap-5 xl:flex xl:gap-7">
           {navItems.map((item, index) => (
             <motion.a
               key={item.href}
@@ -69,7 +77,7 @@ export function SiteNavbar() {
         </nav>
 
         <motion.div
-          className="hidden items-center gap-2 lg:flex"
+          className="hidden items-center gap-2 xl:flex"
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.3, delay: 0.15 }}
@@ -92,7 +100,7 @@ export function SiteNavbar() {
 
         <motion.button
           type="button"
-          className="marketing-menu-trigger flex items-center lg:hidden"
+          className="marketing-menu-trigger flex items-center xl:hidden"
           onClick={() => setIsOpen(true)}
           whileTap={{ scale: 0.9 }}
           aria-label="פתיחת תפריט"
@@ -104,7 +112,7 @@ export function SiteNavbar() {
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            className="marketing-mobile-menu fixed inset-0 z-50 flex flex-col lg:hidden"
+            className="marketing-mobile-menu fixed inset-0 z-50 flex flex-col xl:hidden"
             initial={{ opacity: 0, x: "100%" }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: "100%" }}
