@@ -121,6 +121,10 @@ const advisorHardeningMigrationUrl = new URL(
   "../supabase/migrations/20260815210000_advisor_hardening_indexes.sql",
   import.meta.url
 );
+const demoSalesEnvironmentMigrationUrl = new URL(
+  "../supabase/migrations/20260816103122_demo_sales_environment.sql",
+  import.meta.url
+);
 
 const tenantTables = [
   "organizations",
@@ -700,11 +704,28 @@ if (employeesClientSource.includes('from("organization_invitations").update')) {
   failures.push("employee management UI still updates invitation rows directly");
 }
 
+if (!existsSync(demoSalesEnvironmentMigrationUrl)) {
+  failures.push("demo sales environment migration is missing");
+} else {
+  const demoSalesEnvironmentMigration = readFileSync(demoSalesEnvironmentMigrationUrl, "utf8");
+  for (const requiredRule of [
+    "add column if not exists is_demo",
+    "if not org.is_demo then",
+    "set local session_replication_role = replica",
+    "grant execute on function public.reset_demo_environment(uuid) to service_role",
+    "revoke all on function public.reset_demo_environment(uuid) from public, anon, authenticated"
+  ]) {
+    if (!demoSalesEnvironmentMigration.includes(requiredRule)) {
+      failures.push(`demo sales environment rule is missing: ${requiredRule}`);
+    }
+  }
+}
+
 if (failures.length) {
   console.error(failures.join("\n"));
   process.exit(1);
 }
 
 console.log(
-  `Validated ${tenantTables.length + 2} RLS-protected ShiftPilot tables with authorization, department-scoped access, workflow integrity, privacy, atomic operations, audit, deduplicated notification, scheduling-overlap, last-owner protection, ownership transfer, manager/target swap-transition protection, schedule unpublishing, automatic future-shift release on suspension, invitation resend rate-limiting, previous-month schedule duplication, self-service leave requests, per-employee weekly hour limits, minimum rest time between shifts, bulk shift cancellation by day, and correct expired-invitation handling.`
+  `Validated ${tenantTables.length + 2} RLS-protected ShiftPilot tables with authorization, department-scoped access, workflow integrity, privacy, atomic operations, audit, deduplicated notification, scheduling-overlap, last-owner protection, ownership transfer, manager/target swap-transition protection, schedule unpublishing, automatic future-shift release on suspension, invitation resend rate-limiting, previous-month schedule duplication, self-service leave requests, per-employee weekly hour limits, minimum rest time between shifts, bulk shift cancellation by day, and correct expired-invitation handling, and a resettable demo-sales-environment guard.`
 );

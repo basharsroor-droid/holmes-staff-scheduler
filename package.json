@@ -13,7 +13,8 @@
     "validate:schema": "node scripts/validate-supabase-schema.mjs",
     "test:e2e:production": "playwright test -c playwright.production.config.ts",
     "backup:database": "node scripts/backup-database.mjs",
-    "restore:database": "node scripts/restore-database.mjs"
+    "restore:database": "node scripts/restore-database.mjs",
+    "seed:demo": "node scripts/seed-demo-environment.mjs"
   },
   "dependencies": {
     "@hebcal/core": "^6.9.2",
