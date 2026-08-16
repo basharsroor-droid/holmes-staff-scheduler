@@ -4657,6 +4657,12 @@ html.si-lock, html.si-lock body {
   padding: 0;
   overflow: hidden;
 }
+.support-filter-tabs { display: flex; gap: 6px; padding: 14px 25px 0; overflow-x: auto; }
+.support-filter-tab { display: inline-flex; align-items: center; gap: 7px; padding: 8px 16px; border: 1px solid var(--border); border-radius: 999px; background: #fff; color: var(--muted); font-size: 0.85rem; font-weight: 700; white-space: nowrap; cursor: pointer; transition: border-color .15s ease, color .15s ease, background .15s ease; }
+.support-filter-tab:hover { border-color: #c7d6f5; color: var(--ink); }
+.support-filter-tab.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+.support-filter-count { font-size: 0.76rem; font-weight: 800; padding: 1px 7px; border-radius: 999px; background: rgba(0, 0, 0, 0.06); }
+.support-filter-tab.active .support-filter-count { background: rgba(255, 255, 255, 0.22); }
 .notifications-heading,
 .notification-preferences-heading,
 .audit-heading,
