@@ -16,10 +16,20 @@ type Ticket = { id: string; organization_id: string; organization_name: string; 
 const categories: Record<Category, string> = { technical: "תקלה טכנית", account: "חשבון והרשאות", billing: "חיוב ותשלום", feature: "הצעה לשיפור", other: "נושא אחר" };
 const priorities: Record<Priority, string> = { normal: "רגילה", high: "גבוהה", urgent: "דחופה" };
 const statuses: Record<TicketStatus, string> = { open: "חדשה", in_progress: "בטיפול", waiting_customer: "ממתינה ללקוח", resolved: "נפתרה", closed: "נסגרה" };
+const unresolvedStatuses: TicketStatus[] = ["open", "in_progress", "waiting_customer"];
+
+type TicketFilter = "all" | "open" | "resolved";
+const filterLabels: Record<TicketFilter, string> = { all: "כל הפניות", open: "ממתינות לטיפול", resolved: "טופלו" };
+function matchesFilter(ticket: Ticket, filter: TicketFilter) {
+  if (filter === "open") return unresolvedStatuses.includes(ticket.status);
+  if (filter === "resolved") return !unresolvedStatuses.includes(ticket.status);
+  return true;
+}
 
 export function SupportClient({ organizationId, currentUserId, canManage, initialTickets, showCreateForm = true }: { organizationId: string; currentUserId: string; canManage: boolean; initialTickets: Ticket[]; showCreateForm?: boolean }) {
   const supabase = useMemo(() => createSupabaseBrowserClient(), []);
   const [tickets, setTickets] = useState(initialTickets);
+  const [filter, setFilter] = useState<TicketFilter>("open");
   const [category, setCategory] = useState<Category>("technical");
   const [priority, setPriority] = useState<Priority>("normal");
   const [subject, setSubject] = useState("");
@@ -63,13 +73,24 @@ export function SupportClient({ organizationId, currentUserId, canManage, initia
       <StatusMessage message={message} kind={kind} />
     </section> : null}
     <section className="template-list-card support-tickets-panel">
-      <div className="template-list-heading support-list-heading"><div><p className="eyebrow">מעקב שקוף</p><h2>{canManage ? "פניות העסק" : "הפניות שלי"}</h2></div><span className="badge warning"><Clock3 size={15} /> {tickets.filter((ticket) => !["resolved", "closed"].includes(ticket.status)).length} פתוחות</span></div>
-      <div className="template-list support-ticket-list">{tickets.map((ticket) => <article className={`card support-ticket priority-${ticket.priority} status-${ticket.status}`} key={ticket.id}>
+      <div className="template-list-heading support-list-heading"><div><p className="eyebrow">מעקב שקוף</p><h2>{canManage ? "פניות העסק" : "הפניות שלי"}</h2></div><span className="badge warning"><Clock3 size={15} /> {tickets.filter((ticket) => unresolvedStatuses.includes(ticket.status)).length} פתוחות</span></div>
+      <div className="support-filter-tabs" role="tablist">
+        {(Object.keys(filterLabels) as TicketFilter[]).map((key) => <button
+          key={key} type="button" role="tab" aria-selected={filter === key}
+          className={`support-filter-tab${filter === key ? " active" : ""}`}
+          onClick={() => setFilter(key)}
+        >{filterLabels[key]}<span className="support-filter-count">{tickets.filter((ticket) => matchesFilter(ticket, key)).length}</span></button>)}
+      </div>
+      <div className="template-list support-ticket-list">{tickets.filter((ticket) => matchesFilter(ticket, filter)).map((ticket) => <article className={`card support-ticket priority-${ticket.priority} status-${ticket.status}`} key={ticket.id}>
         <div className="support-ticket-head"><span><strong>{ticket.subject}</strong><small>{canManage ? `${ticket.organization_name} · ` : ""}{categories[ticket.category]} · דחיפות {priorities[ticket.priority]} · {new Date(ticket.created_at).toLocaleDateString("he-IL")}</small></span><span className={`badge ${["resolved", "closed"].includes(ticket.status) ? "success" : ticket.priority === "urgent" ? "critical" : "warning"}`}>{statuses[ticket.status]}</span></div>
         <p className="card-muted">{ticket.description}</p>{ticket.resolution_note ? <p><strong>עדכון טיפול:</strong> {ticket.resolution_note}</p> : null}
         {canManage ? <div className="support-manager-controls"><label className="field"><span>עדכון ללקוח</span><textarea className="textarea" value={notes[ticket.id] ?? ""} onChange={(event) => setNotes((current) => ({ ...current, [ticket.id]: event.target.value }))} placeholder="מה בוצע או איזה מידע נוסף דרוש?" /></label><div className="actions"><button className="button" disabled={!!busy} onClick={() => void updateTicket(ticket, "in_progress")}>קבלה לטיפול</button><button className="button" disabled={!!busy} onClick={() => void updateTicket(ticket, "waiting_customer")}>ממתינה ללקוח</button><button className="button primary" disabled={!!busy} onClick={() => void updateTicket(ticket, "resolved")}>{busy === ticket.id ? <Loader2 className="spin" size={16} /> : <CheckCircle2 size={16} />} סימון כנפתרה</button><button className="button danger" disabled={!!busy} onClick={() => void updateTicket(ticket, "closed")}><Archive size={16} /> סגירת פנייה</button></div></div> : null}
       </article>)}</div>
-      {!tickets.length ? <div className="empty-template-state"><LifeBuoy size={40} /><h2>עדיין אין פניות</h2><p>פנייה חדשה שתפתחו תופיע כאן עם סטטוס הטיפול.</p></div> : null}
+      {!tickets.filter((ticket) => matchesFilter(ticket, filter)).length ? <div className="empty-template-state"><LifeBuoy size={40} />
+        {!tickets.length
+          ? <><h2>עדיין אין פניות</h2><p>פנייה חדשה שתפתחו תופיע כאן עם סטטוס הטיפול.</p></>
+          : <><h2>{filter === "open" ? "אין פניות שממתינות לטיפול" : "אין פניות שטופלו עדיין"}</h2><p>אפשר לעבור ל&quot;{filterLabels.all}&quot; כדי לראות את כל הפניות.</p></>}
+      </div> : null}
     </section>
   </div>;
 }
