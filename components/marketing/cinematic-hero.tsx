@@ -129,24 +129,32 @@ const INJECTED_STYLES = `
      scroll-jacked sequence. It's covered by the opaque card once that
      grows to fill the screen, so it's only visible bookending the
      experience (opening + closing), never competing with the mid-sequence
-     content. */
+     content.
+     First pass faded the fill to fully transparent by 72% of the letter
+     height, which on the light hero background read as barely-there /
+     broken rather than a wordmark -- reported live, with a screenshot.
+     Rebuilt with an actually-opaque blue-to-white diagonal fill (the same
+     brand blue as --primary/--primary-dark) and a low element-level
+     opacity instead, so the color combination itself stays crisp and only
+     its overall presence is dialed down to stay a background accent. */
   @keyframes ch-bg-loop {
-    0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.55; }
-    50% { transform: translate(-50%, -50%) scale(1.06); opacity: 0.85; }
+    0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.14; }
+    50% { transform: translate(-50%, -50%) scale(1.045); opacity: 0.26; }
   }
   .ch-bg-wordmark {
     position: absolute; top: 50%; left: 50%; z-index: 0;
     transform: translate(-50%, -50%);
-    font-size: clamp(64px, 13vw, 230px);
+    font-size: clamp(72px, 15vw, 260px);
     font-weight: 900; letter-spacing: -0.04em; line-height: 1; white-space: nowrap;
     color: transparent;
-    background: linear-gradient(180deg, color-mix(in srgb, var(--primary) 12%, transparent) 0%, transparent 72%);
+    background: linear-gradient(120deg, var(--primary-dark) 0%, var(--primary) 38%, #eaf1ff 55%, #ffffff 68%, var(--primary) 100%);
     -webkit-background-clip: text; background-clip: text;
+    filter: drop-shadow(0 18px 44px rgba(33,88,201,0.25));
     pointer-events: none; user-select: none;
     animation: ch-bg-loop 9s ease-in-out infinite;
   }
   @media (prefers-reduced-motion: reduce) {
-    .ch-bg-wordmark { animation: none; opacity: 0.6; }
+    .ch-bg-wordmark { animation: none; opacity: 0.18; }
   }
 
   /* Plain CSS fade-in, deliberately NOT GSAP/rAF-driven like the rest of the
