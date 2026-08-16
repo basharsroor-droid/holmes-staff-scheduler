@@ -9,6 +9,10 @@ const swapHardeningMigrationUrl = new URL(
   "../supabase/migrations/20260807175000_harden_shift_swap_transitions.sql",
   import.meta.url
 );
+const pendingInvitationUniquenessMigrationUrl = new URL(
+  "../supabase/migrations/20260816121707_pending_invitation_email_uniqueness.sql",
+  import.meta.url
+);
 const availabilityHardeningMigrationUrl = new URL(
   "../supabase/migrations/20260807181000_harden_availability_windows.sql",
   import.meta.url
@@ -296,6 +300,18 @@ if (!existsSync(hardeningMigrationUrl)) {
 
   if (!hardeningMigration.includes("from public, anon")) {
     failures.push("privileged auth RPCs are not explicitly revoked from anonymous callers");
+  }
+}
+
+if (!existsSync(pendingInvitationUniquenessMigrationUrl)) {
+  failures.push("pending-invitation email uniqueness migration is missing");
+} else {
+  const pendingInvitationMigration = readFileSync(pendingInvitationUniquenessMigrationUrl, "utf8");
+  if (!pendingInvitationMigration.includes("create unique index if not exists organization_invitations_pending_email_idx")) {
+    failures.push("pending-invitation email uniqueness index is missing -- create_organization_invitation()'s update-then-insert-if-not-found pattern has a TOCTOU race without it (two concurrent invites to the same email can both insert)");
+  }
+  if (!pendingInvitationMigration.includes("where status = 'pending'")) {
+    failures.push("pending-invitation email uniqueness index must be scoped to status = 'pending' (a resent/re-invited email after acceptance or revocation must be allowed a new pending row)");
   }
 }
 
@@ -727,5 +743,5 @@ if (failures.length) {
 }
 
 console.log(
-  `Validated ${tenantTables.length + 2} RLS-protected ShiftPilot tables with authorization, department-scoped access, workflow integrity, privacy, atomic operations, audit, deduplicated notification, scheduling-overlap, last-owner protection, ownership transfer, manager/target swap-transition protection, schedule unpublishing, automatic future-shift release on suspension, invitation resend rate-limiting, previous-month schedule duplication, self-service leave requests, per-employee weekly hour limits, minimum rest time between shifts, bulk shift cancellation by day, and correct expired-invitation handling, and a resettable demo-sales-environment guard.`
+  `Validated ${tenantTables.length + 2} RLS-protected ShiftPilot tables with authorization, department-scoped access, workflow integrity, privacy, atomic operations, audit, deduplicated notification, scheduling-overlap, last-owner protection, ownership transfer, manager/target swap-transition protection, schedule unpublishing, automatic future-shift release on suspension, invitation resend rate-limiting, previous-month schedule duplication, self-service leave requests, per-employee weekly hour limits, minimum rest time between shifts, bulk shift cancellation by day, and correct expired-invitation handling, a resettable demo-sales-environment guard, and concurrent-invitation race protection.`
 );
