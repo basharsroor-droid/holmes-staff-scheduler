@@ -178,8 +178,14 @@ export function CinematicHero() {
         .to(".ch-text-line2", { duration: 1.4, clipPath: "inset(0 0 0 0%)", ease: "power4.inOut" }, "-=1.0")
         .to(".ch-scroll-cue", { duration: 0.8, autoAlpha: 1, y: 0, ease: "power2.out" }, "-=0.5");
 
+      // +=4000, not the earlier +=3600 -- reported live by a user scrolling
+      // the real site: with scrub:1, playback speed is tied directly to
+      // physical scroll speed, and at a normal fast scroll the closing CTA
+      // ("הגיע הזמן להפסיק לרדוף...") flew by unreadably fast. The extra
+      // ~400px goes specifically to that beat's hold time below, not spread
+      // evenly, so the rest of the sequence keeps its existing pace.
       const scrollTl = gsap.timeline({
-        scrollTrigger: { trigger: containerRef.current, start: "top top", end: "+=3600", pin: true, scrub: 1, anticipatePin: 1 }
+        scrollTrigger: { trigger: containerRef.current, start: "top top", end: "+=4000", pin: true, scrub: 1, anticipatePin: 1 }
       });
 
       // The card growing to fill the screen and its content (mockup, badges,
@@ -203,11 +209,24 @@ export function CinematicHero() {
         .fromTo(".ch-card-left-text", { x: -50, autoAlpha: 0, scale: 0.8 }, { x: 0, autoAlpha: 1, scale: 1, ease: "expo.out", duration: 1.2 }, "<")
         .to({}, { duration: 1.5 })
         .set(".ch-hero-text-wrapper", { autoAlpha: 0 })
-        .set(".ch-cta-wrapper", { autoAlpha: 1 })
-        .to({}, { duration: 1 })
+        // Previously just .set(".ch-cta-wrapper", { autoAlpha: 1 }) -- that
+        // made the closing CTA *visible* but left it at its initial
+        // scale:0.8 / blur:30px (set when hidden, further up), which only
+        // got cleared much later during the "pullback" tween below. Net
+        // effect: the text everyone actually needs to read
+        // ("הגיע הזמן להפסיק לרדוף...") was on-screen but blurred and
+        // shrunk for its entire hold, only sharpening as the card started
+        // shrinking away -- reported live by a user as "can't read it
+        // because of the speed", and confirmed here it's not just scroll
+        // speed, the text is genuinely out of focus during its own hold.
+        // Now it reaches full clarity the moment it appears (0.6s reveal),
+        // and the redundant unblur tween that used to live in the
+        // "pullback" section below has been removed since there's nothing
+        // left for it to do.
+        .to(".ch-cta-wrapper", { autoAlpha: 1, scale: 1, filter: "blur(0px)", duration: 0.6, ease: "power2.out" })
+        .to({}, { duration: 2 })
         .to([".ch-mockup-wrapper", ".ch-floating-badge", ".ch-card-left-text", ".ch-card-right-text"], { scale: 0.9, y: -40, z: -200, autoAlpha: 0, ease: "power3.in", duration: 1, stagger: 0.05 })
         .to(".ch-main-card", { width: isMobile ? "92vw" : "85vw", height: isMobile ? "92vh" : "85vh", borderRadius: isMobile ? "32px" : "40px", ease: "expo.inOut", duration: 1.5 }, "pullback")
-        .to(".ch-cta-wrapper", { scale: 1, filter: "blur(0px)", ease: "expo.inOut", duration: 1.5 }, "pullback")
         .to(".ch-main-card", { y: -window.innerHeight - 300, ease: "power3.in", duration: 1.2 });
     }, containerRef);
 
