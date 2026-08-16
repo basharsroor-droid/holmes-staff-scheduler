@@ -2210,7 +2210,7 @@ a:focus-visible {
 .pro-footer-top{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:40px}
 .pro-footer-brand p{margin:14px 0 0;max-width:280px;line-height:1.7}
 .pro-footer-col{display:flex;flex-direction:column;gap:12px}
-.pro-footer-col h4{margin:0 0 4px;font-size:12px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:#8891a6}
+.pro-footer-col h4{margin:0 0 4px;font-size:12px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:#59657c}
 .pro-footer a{color:#4d5b73;text-decoration:none;font-size:14px;transition:color .15s ease}
 .pro-footer a:hover{color:var(--primary)}
 .pro-footer-wordmark{position:relative;z-index:0;margin:12px 0 -4px;font-size:clamp(48px,11vw,128px);font-weight:800;letter-spacing:-.04em;line-height:1;text-align:center;color:transparent;background:linear-gradient(180deg,#e7ecf4,transparent);-webkit-background-clip:text;background-clip:text;user-select:none;pointer-events:none}
