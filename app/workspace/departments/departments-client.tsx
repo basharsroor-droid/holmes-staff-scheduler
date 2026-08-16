@@ -63,8 +63,8 @@ export function DepartmentsClient({ organizationId, callerRole, callerBranchId, 
     setMessage("שיוך המחלקות נשמר.");
   }
 
-  return <div className="departments-workbench">
-    <section className="template-form-card departments-sidebar">
+  return <div className="departments-workbench business-setup-workbench">
+    <section className="template-form-card departments-sidebar setup-sidebar">
       <div><p className="eyebrow">מבנה העסק</p><h2>בחירת סניף</h2></div>
       <label className="field"><span>סניף פעיל</span><select className="input" value={branchId} onChange={(event) => setBranchId(event.target.value)}>{permittedBranches.map((branch) => <option key={branch.id} value={branch.id}>{branch.name}</option>)}</select></label>
       <div className="scope-explainer"><ShieldCheck /><span><strong>גישה לפי תפקיד</strong><small>בעלים רואה הכול, מנהל סניף רואה את הסניף, ומנהל מחלקה רואה רק מחלקות ששויכו אליו.</small></span></div>
@@ -72,12 +72,12 @@ export function DepartmentsClient({ organizationId, callerRole, callerBranchId, 
       <StatusMessage message={message} kind={kind} />
     </section>
     <div className="departments-content">
-      <section className="template-list-card">
-        <div className="template-list-heading"><div><p className="eyebrow">{permittedBranches.find((branch) => branch.id === branchId)?.name}</p><h2>{branchDepartments.length} מחלקות</h2></div><span className="status-chip active"><Building2 size={14} /> סניף פעיל</span></div>
+      <section className="template-list-card departments-panel">
+        <div className="template-list-heading setup-list-heading"><div><p className="eyebrow">{permittedBranches.find((branch) => branch.id === branchId)?.name}</p><h2>{branchDepartments.length} מחלקות</h2></div><span className="status-chip active"><Building2 size={14} /> סניף פעיל</span></div>
         <div className="department-grid">{branchDepartments.map((department) => <article className={`department-card ${department.active ? "" : "inactive"}`} key={department.id}><span className="template-icon"><Network /></span><span><strong>{department.name}</strong><small>{department.active ? "פעילה וניתנת לשיוך" : "מושבתת — ההיסטוריה נשמרת"}</small></span>{canCreate ? <button className="button" aria-pressed={department.active} disabled={busyId === department.id} onClick={() => void toggleDepartment(department)}>{busyId === department.id ? <Loader2 className="spin" size={16} /> : <Power size={16} />}{department.active ? "פעילה" : "כבויה"}</button> : <span className="status-chip active"><Check size={14} /> פעילה</span>}</article>)}</div>
       </section>
-      <section className="template-list-card">
-        <div className="template-list-heading"><div><p className="eyebrow">הרשאות הצוות</p><h2>שיוך למחלקות</h2></div><span className="status-chip active"><ShieldCheck size={14} /> מוגן ב־RLS</span></div>
+      <section className="template-list-card department-access-panel">
+        <div className="template-list-heading setup-list-heading"><div><p className="eyebrow">הרשאות הצוות</p><h2>שיוך למחלקות</h2></div><span className="status-chip active"><ShieldCheck size={14} /> מוגן ב־RLS</span></div>
         <div className="department-members">{branchMembers.map((member) => {
           const memberAssignments = new Set(assignments.filter((item) => item.membership_id === member.id).map((item) => item.department_id));
           const displayName = member.profile ? `${member.profile.first_name} ${member.profile.last_name}`.trim() : "חבר/ת צוות";

@@ -129,9 +129,9 @@ export function ShiftSwapsClient({ organizationId, currentUserId, isManager, shi
     setMessage("ההחלפה אושרה והסידור עודכן.");
   }
 
-  return <div className="grid">
-    {!isManager ? <section className="template-list-card">
-      <div className="template-list-heading"><div><p className="eyebrow">בקשה חדשה</p><h2>החלפת משמרת</h2></div><Repeat2 /></div>
+  return <div className={`grid swap-workbench ${isManager ? "manager" : "employee"}`}>
+    {!isManager ? <section className="template-list-card swap-request-form">
+      <div className="template-list-heading swap-form-heading"><div><p className="eyebrow">בקשה חדשה</p><h2>החלפת משמרת</h2></div><Repeat2 /></div>
       <label className="field"><span>המשמרת שלי</span><select className="input" value={originalAssignmentId} onChange={(event) => setOriginalAssignmentId(event.target.value)}><option value="">בחירת משמרת</option>{myAssignments.map((assignment) => <option value={assignment.id} key={assignment.id}>{shiftLabel(shiftForAssignment(assignment.id))}</option>)}</select></label>
       <label className="field"><span>המשמרת המבוקשת</span><select className="input" value={targetAssignmentId} onChange={(event) => setTargetAssignmentId(event.target.value)}><option value="">בחירת עובד ומשמרת</option>{targetAssignments.map((assignment) => <option value={assignment.id} key={assignment.id}>{name(assignment.user_id)} · {shiftLabel(shiftForAssignment(assignment.id))}</option>)}</select></label>
       <label className="field"><span>סיבת ההחלפה</span><textarea className="textarea" value={reason} onChange={(event) => setReason(event.target.value)} placeholder="למשל: מבחן באוניברסיטה" /></label>
@@ -139,17 +139,17 @@ export function ShiftSwapsClient({ organizationId, currentUserId, isManager, shi
       {!myAssignments.length ? <p className="card-muted">אין כרגע משמרות עתידיות שניתן להחליף.</p> : null}
     </section> : null}
 
-    <section className="template-list-card">
-      <div className="template-list-heading"><div><p className="eyebrow">{isManager ? "אישור מנהל" : "מעקב"}</p><h2>{isManager ? "בקשות החלפה" : "הבקשות שלי"}</h2></div><span className="badge warning"><Clock3 size={15} /> {visibleRequests.filter((item) => item.status.startsWith("pending")).length} ממתינות</span></div>
-      <div className="template-list">{visibleRequests.map((request) => {
+    <section className="template-list-card swap-requests-panel">
+      <div className="template-list-heading swap-list-heading"><div><p className="eyebrow">{isManager ? "אישור מנהל" : "מעקב"}</p><h2>{isManager ? "בקשות החלפה" : "הבקשות שלי"}</h2></div><span className="badge warning"><Clock3 size={15} /> {visibleRequests.filter((item) => item.status.startsWith("pending")).length} ממתינות</span></div>
+      <div className="template-list swap-request-list">{visibleRequests.map((request) => {
         const original = shiftForAssignment(request.original_assignment_id);
         const target = shifts.find((item) => item.id === request.target_shift_id);
         const canEmployeeDecide = request.target_user_id === currentUserId && request.status === "pending_employee";
-        return <article className="card" key={request.id}><div className="mini-row" style={{ border: 0, padding: 0 }}><div className="template-icon"><Repeat2 /></div><span><strong>{name(request.requested_by)} ↔ {name(request.target_user_id)}</strong><small>{shiftLabel(original)}<br />מול {shiftLabel(target)}</small></span><span className={`badge ${request.status === "approved" ? "success" : request.status === "rejected" || request.status === "cancelled" ? "critical" : "warning"}`}>{statusLabels[request.status]}</span></div><p className="card-muted" style={{ marginTop: 12 }}>{request.reason}</p>
+        return <article className={`card swap-request-card status-${request.status}`} key={request.id}><div className="mini-row swap-request-head"><div className="template-icon"><Repeat2 /></div><span><strong>{name(request.requested_by)} ↔ {name(request.target_user_id)}</strong><small>{shiftLabel(original)}<br />מול {shiftLabel(target)}</small></span><span className={`badge ${request.status === "approved" ? "success" : request.status === "rejected" || request.status === "cancelled" ? "critical" : "warning"}`}>{statusLabels[request.status]}</span></div><p className="card-muted swap-reason">{request.reason}</p>
           {request.manager_note ? <p><strong>הערת מנהל:</strong> {request.manager_note}</p> : null}
           {canEmployeeDecide ? <div className="actions"><button className="button primary" disabled={!!busy} onClick={() => void updateStatus(request, "pending_manager")}><Check size={16} /> אישור והעברה למנהל</button><button className="button" disabled={!!busy} onClick={() => void updateStatus(request, "rejected")}><X size={16} /> דחייה</button></div> : null}
           {request.requested_by === currentUserId && request.status.startsWith("pending") ? <button className="button" disabled={!!busy} onClick={() => void updateStatus(request, "cancelled")}><X size={16} /> ביטול בקשה</button> : null}
-          {isManager && request.status === "pending_manager" ? <div className="grid"><label className="field"><span>הערת מנהל אופציונלית</span><textarea className="textarea" value={managerNotes[request.id] ?? ""} onChange={(event) => setManagerNotes((current) => ({ ...current, [request.id]: event.target.value }))} /></label><div className="actions"><button className="button primary" disabled={!!busy} onClick={() => void approve(request)}>{busy === request.id ? <Loader2 className="spin" size={16} /> : <Check size={16} />} אישור והחלפה</button><button className="button" disabled={!!busy} onClick={() => void updateStatus(request, "rejected", managerNotes[request.id]?.trim() || null)}><X size={16} /> דחייה</button></div></div> : null}
+          {isManager && request.status === "pending_manager" ? <div className="grid swap-manager-decision"><label className="field"><span>הערת מנהל אופציונלית</span><textarea className="textarea" value={managerNotes[request.id] ?? ""} onChange={(event) => setManagerNotes((current) => ({ ...current, [request.id]: event.target.value }))} /></label><div className="actions"><button className="button primary" disabled={!!busy} onClick={() => void approve(request)}>{busy === request.id ? <Loader2 className="spin" size={16} /> : <Check size={16} />} אישור והחלפה</button><button className="button" disabled={!!busy} onClick={() => void updateStatus(request, "rejected", managerNotes[request.id]?.trim() || null)}><X size={16} /> דחייה</button></div></div> : null}
         </article>;
       })}</div>
       {!visibleRequests.length ? <div className="empty-template-state"><Repeat2 size={38} /><p>אין כרגע בקשות החלפה.</p></div> : null}

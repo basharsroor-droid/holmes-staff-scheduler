@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { CheckCircle2, KeyRound, Loader2, Mail } from "lucide-react";
 
+import { BrandLogo } from "@/components/brand/brand-logo";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 
 export default function ForgotPasswordPage() {
@@ -38,14 +39,14 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <main className="onboarding-page" dir="rtl">
-      <section className="onboarding-intro">
-        <div className="brand-mark">SP</div>
+    <main className="onboarding-page auth-flow auth-recovery" dir="rtl">
+      <section className="onboarding-intro auth-flow-intro">
+        <BrandLogo href="/" light />
         <p className="eyebrow">שחזור גישה מאובטח</p>
         <h1>חוזרים לחשבון בכמה צעדים.</h1>
         <p className="lead">נשלח קישור חד־פעמי לכתובת המייל של החשבון. הקישור מיועד רק להגדרת סיסמה חדשה.</p>
       </section>
-      <section className="auth-card onboarding-card">
+      <section className="auth-card onboarding-card auth-flow-card">
         {sent ? (
           <div className="onboarding-state">
             <CheckCircle2 size={48} />

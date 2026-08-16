@@ -83,6 +83,7 @@ export function ScheduleBuilderClient({ organizationId, currentUserId, callerRol
     [period?.year, period?.month]
   );
   const filled = periodShifts.filter((shift) => assignments.filter((item) => item.shift_id === shift.id).length >= shift.required_employees).length;
+  const completion = periodShifts.length ? Math.round((filled / periodShifts.length) * 100) : 0;
 
   function workerName(userId: string) {
     const profile = periodWorkers.find((item) => item.user_id === userId)?.profile;
@@ -332,13 +333,13 @@ export function ScheduleBuilderClient({ organizationId, currentUserId, callerRol
 
   if (!periods.length) return <section className="template-list-card"><div className="empty-template-state"><CalendarRange size={42} /><h2>אין עדיין חודש עבודה</h2><p>פתח חודש עבודה לפני בניית הסידור.</p></div></section>;
 
-  return <section className="template-list-card">
+  return <section className="template-list-card schedule-workbench">
     <div className="no-print">
-    <div className="template-list-heading"><div><p className="eyebrow">חודש, סניף ומחלקה</p><h2>{period ? `${monthNames[period.month - 1]} ${period.year}` : ""}</h2></div><select className="input" style={{ maxWidth: 360 }} aria-label="בחירת חודש, סניף ומחלקה" value={selectedPeriodId} onChange={(event) => setSelectedPeriodId(event.target.value)}>{periods.map((item) => <option value={item.id} key={item.id}>{monthNames[item.month - 1]} {item.year} · {branches.find((branch) => branch.id === item.branch_id)?.name ?? "סניף"} · {departments.find((department) => department.id === item.department_id)?.name ?? "מחלקה"}</option>)}</select></div>
-    <div className="workspace-stats" style={{ margin: "0 0 20px" }}><article><CalendarRange /><span><strong>{periodShifts.length}</strong><small>משמרות בחודש</small></span></article><article><CheckCircle2 /><span><strong>{filled}</strong><small>משמרות מאוישות</small></span></article><article><UserPlus /><span><strong>{periodWorkers.length}</strong><small>עובדים לשיבוץ</small></span></article></div>
-    <div className="actions" style={{ marginBottom: 18 }}><button className="button primary" disabled={!!busy || !periodTemplates.length} onClick={() => void generateMonth()}>{busy === "generate" ? <Loader2 className="spin" size={16} /> : <Sparkles size={16} />} {periodShifts.length ? "סנכרון משמרות החודש" : "יצירת משמרות החודש"}</button>{periodStatus === "published" ? <button className="button" disabled={!!busy} onClick={() => void unpublish()}>{busy === "unpublish" ? <Loader2 className="spin" size={16} /> : <Undo2 size={16} />} ביטול פרסום</button> : <button className="button" disabled={!!busy || !periodShifts.length} onClick={() => void publish()}>{busy === "publish" ? <Loader2 className="spin" size={16} /> : <Send size={16} />} פרסום הסידור</button>}{periodShifts.length ? <button className="button" onClick={exportCsv}><FileDown size={16} /> ייצוא ל-Excel</button> : null}{periodShifts.length ? <button className="button" onClick={() => window.print()}><Printer size={16} /> הדפסה / PDF</button> : null}</div>
+    <div className="template-list-heading schedule-toolbar"><div><p className="eyebrow">חודש, סניף ומחלקה</p><h2>{period ? `${monthNames[period.month - 1]} ${period.year}` : ""}</h2><span className={`schedule-state ${periodStatus === "published" ? "published" : "draft"}`}>{periodStatus === "published" ? "פורסם לצוות" : "טיוטה בעבודה"}</span></div><select className="input schedule-period-select" aria-label="בחירת חודש, סניף ומחלקה" value={selectedPeriodId} onChange={(event) => setSelectedPeriodId(event.target.value)}>{periods.map((item) => <option value={item.id} key={item.id}>{monthNames[item.month - 1]} {item.year} · {branches.find((branch) => branch.id === item.branch_id)?.name ?? "סניף"} · {departments.find((department) => department.id === item.department_id)?.name ?? "מחלקה"}</option>)}</select></div>
+    <div className="workspace-stats schedule-stats"><article><CalendarRange /><span><strong>{periodShifts.length}</strong><small>משמרות בחודש</small></span></article><article><CheckCircle2 /><span><strong>{filled}</strong><small>משמרות מאוישות · {completion}%</small></span></article><article><UserPlus /><span><strong>{periodWorkers.length}</strong><small>עובדים לשיבוץ</small></span></article></div>
+    <div className="actions schedule-primary-actions"><button className="button primary" disabled={!!busy || !periodTemplates.length} onClick={() => void generateMonth()}>{busy === "generate" ? <Loader2 className="spin" size={16} /> : <Sparkles size={16} />} {periodShifts.length ? "סנכרון משמרות החודש" : "יצירת משמרות החודש"}</button>{periodStatus === "published" ? <button className="button" disabled={!!busy} onClick={() => void unpublish()}>{busy === "unpublish" ? <Loader2 className="spin" size={16} /> : <Undo2 size={16} />} ביטול פרסום</button> : <button className="button" disabled={!!busy || !periodShifts.length} onClick={() => void publish()}>{busy === "publish" ? <Loader2 className="spin" size={16} /> : <Send size={16} />} פרסום הסידור</button>}{periodShifts.length ? <button className="button" onClick={exportCsv}><FileDown size={16} /> ייצוא ל-Excel</button> : null}{periodShifts.length ? <button className="button" onClick={() => window.print()}><Printer size={16} /> הדפסה / PDF</button> : null}</div>
     {!periodShifts.length && duplicateCandidates.length
-      ? <div className="actions" style={{ marginBottom: 18 }}>
+      ? <div className="actions schedule-duplicate-actions">
           <select className="input" style={{ maxWidth: 260 }} aria-label="שכפול משמרות ושיבוצים מחודש קודם" value={duplicateSourceId} onChange={(event) => setDuplicateSourceId(event.target.value)}>
             <option value="">שכפול מחודש קודם...</option>
             {duplicateCandidates.map((item) => <option value={item.id} key={item.id}>{monthNames[item.month - 1]} {item.year}</option>)}
@@ -347,16 +348,16 @@ export function ScheduleBuilderClient({ organizationId, currentUserId, callerRol
         </div>
       : null}
     {callerRole === "owner" || callerRole === "admin"
-      ? <label className="field" style={{ maxWidth: 260, marginBottom: 18 }}><span>מגבלת שעות מנוחה מינימלית בין משמרות</span><input className="input" type="number" min={1} placeholder="ללא הגבלה" value={minRestDraft} onChange={(event) => setMinRestDraft(event.target.value)} onBlur={() => void saveMinRestHours()} /></label>
+      ? <label className="field schedule-rest-field"><span>מגבלת שעות מנוחה מינימלית בין משמרות</span><input className="input" type="number" min={1} placeholder="ללא הגבלה" value={minRestDraft} onChange={(event) => setMinRestDraft(event.target.value)} onBlur={() => void saveMinRestHours()} /></label>
       : null}
     {!periodTemplates.length ? <div className="submission-banner closed"><AlertTriangle /><div><strong>אין סוגי משמרות פעילים בסניף</strong><span>יש להגדיר סוגי משמרות לפני יצירת הסידור.</span></div></div> : null}
-    <div className="availability-board">{days.map((date) => {
+    <div className="availability-board schedule-board">{days.map((date) => {
       const dayShifts = periodShifts.filter((shift) => shift.shift_date === date);
       if (!dayShifts.length) return null;
       const holiday = holidaysByDate.get(date);
-      return <article className="availability-card" key={date}>
-        <div className="shift-title">
-          <span style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+      return <article className="availability-card schedule-day-card" key={date}>
+        <div className="shift-title schedule-day-head">
+          <span className="schedule-day-label">
             <strong>{new Date(`${date}T12:00:00`).toLocaleDateString("he-IL", { weekday: "long", day: "numeric", month: "numeric" })}</strong>
             {holiday ? <span className={`badge ${holidayBadgeClass[holiday.kind]}`}>{holiday.label}</span> : null}
           </span>
@@ -364,11 +365,11 @@ export function ScheduleBuilderClient({ organizationId, currentUserId, callerRol
         </div>
         {dayShifts.map((shift) => {
         const assigned = assignments.filter((item) => item.shift_id === shift.id);
-        return <div className="card-muted" key={shift.id}><div className="shift-title"><span>{shift.name}</span><small>{shift.start_time.slice(0,5)}–{shift.end_time.slice(0,5)} · {assigned.length}/{shift.required_employees}</small></div><div className="grid">{periodWorkers.map((worker) => {
+        return <div className="card-muted schedule-shift-card" key={shift.id}><div className="shift-title"><span>{shift.name}</span><small>{shift.start_time.slice(0,5)}–{shift.end_time.slice(0,5)} · {assigned.length}/{shift.required_employees}</small></div><div className="grid schedule-worker-grid">{periodWorkers.map((worker) => {
           const selected = assigned.some((item) => item.user_id === worker.user_id);
           const availabilityStatus = workerAvailability(worker.user_id, shift);
           const leave = workerLeave(worker.user_id, shift);
-          return <button type="button" className={`button ${selected ? "primary" : ""}`} aria-pressed={selected} disabled={!!busy || periodStatus === "published" || availabilityStatus === "unavailable" || !!leave} onClick={() => void assign(shift, worker.user_id)} key={worker.user_id}><span>{workerName(worker.user_id)}</span><small>{leave ? leaveTypeLabels[leave.leave_type] : availabilityStatus ? availabilityLabels[availabilityStatus] : "לא הוגשה זמינות"}</small></button>;
+          return <button type="button" className={`button schedule-worker ${selected ? "primary" : ""}`} aria-pressed={selected} disabled={!!busy || periodStatus === "published" || availabilityStatus === "unavailable" || !!leave} onClick={() => void assign(shift, worker.user_id)} key={worker.user_id}><span>{workerName(worker.user_id)}</span><small>{leave ? leaveTypeLabels[leave.leave_type] : availabilityStatus ? availabilityLabels[availabilityStatus] : "לא הוגשה זמינות"}</small></button>;
         })}</div></div>;
       })}</article>;
     })}</div>

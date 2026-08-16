@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { CheckCircle2, KeyRound, Loader2, ShieldCheck } from "lucide-react";
 
+import { BrandLogo } from "@/components/brand/brand-logo";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 
 type Stage = "checking" | "form" | "expired" | "done";
@@ -60,14 +61,14 @@ export default function ResetPasswordPage() {
   }
 
   return (
-    <main className="onboarding-page" dir="rtl">
-      <section className="onboarding-intro">
-        <div className="brand-mark">SP</div>
+    <main className="onboarding-page auth-flow auth-recovery" dir="rtl">
+      <section className="onboarding-intro auth-flow-intro">
+        <BrandLogo href="/" light />
         <p className="eyebrow">SHIFT PILOT</p>
         <h1>בחירת סיסמה חדשה.</h1>
         <p className="lead">הסיסמה נשמרת באופן מאובטח ב־Supabase ואינה נחשפת למנהלים או לעובדי ShiftPilot.</p>
       </section>
-      <section className="auth-card onboarding-card">
+      <section className="auth-card onboarding-card auth-flow-card">
         {stage === "checking" ? <div className="onboarding-state"><Loader2 className="spin" size={38} /><p>בודקים את קישור האיפוס...</p></div> : null}
         {stage === "expired" ? (
           <div className="onboarding-state">

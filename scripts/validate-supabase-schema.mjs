@@ -117,6 +117,10 @@ const platformSupportConsoleMigrationUrl = new URL(
   "../supabase/migrations/20260814203000_platform_support_console.sql",
   import.meta.url
 );
+const advisorHardeningMigrationUrl = new URL(
+  "../supabase/migrations/20260815210000_advisor_hardening_indexes.sql",
+  import.meta.url
+);
 
 const tenantTables = [
   "organizations",
@@ -136,6 +140,30 @@ const tenantTables = [
 ];
 
 const failures = [];
+
+if (!existsSync(advisorHardeningMigrationUrl)) {
+  failures.push("Supabase advisor hardening migration is missing");
+} else {
+  const advisorMigration = readFileSync(advisorHardeningMigrationUrl, "utf8");
+  for (const requiredRule of [
+    "email_delivery_queue_deny_authenticated",
+    "using (false)",
+    "with check (false)",
+    "departments_branch_org_fk_idx",
+    "department_memberships_department_scope_idx",
+    "department_memberships_membership_scope_idx",
+    "schedule_periods_department_scope_fk_idx",
+    "shift_templates_department_scope_fk_idx",
+    "email_delivery_queue_organization_idx",
+    "email_delivery_queue_user_idx",
+    "notification_preferences_user_idx",
+    "support_tickets_assigned_to_idx"
+  ]) {
+    if (!advisorMigration.includes(requiredRule)) {
+      failures.push(`Supabase advisor hardening rule is missing: ${requiredRule}`);
+    }
+  }
+}
 
 if (!existsSync(platformSupportConsoleMigrationUrl)) {
   failures.push("platform support console migration is missing");

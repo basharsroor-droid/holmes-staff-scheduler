@@ -11,6 +11,7 @@
     "test:e2e": "playwright test",
     "test:unit": "node --experimental-strip-types --test tests/unit/**/*.test.mjs",
     "validate:schema": "node scripts/validate-supabase-schema.mjs",
+    "test:e2e:production": "playwright test -c playwright.production.config.ts",
     "backup:database": "node scripts/backup-database.mjs",
     "restore:database": "node scripts/restore-database.mjs"
   },

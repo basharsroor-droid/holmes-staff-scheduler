@@ -166,7 +166,7 @@ export function EmployeesClient({
 
   return (
     <div className="template-workbench employees-workbench">
-      <section className="template-form-card">
+      <section className="template-form-card employee-invite-panel">
         <div><p className="eyebrow">עובד חדש</p><h2>שליחת הזמנה במייל</h2></div>
         <div className="form-pair">
           <label className="field"><span>שם פרטי</span><input className="input" value={form.firstName} onChange={(e) => setForm((c) => ({ ...c, firstName: e.target.value }))} /></label>
@@ -185,7 +185,7 @@ export function EmployeesClient({
             // the fix_dead_expired_invitation_update migration) -- expiry
             // is derived here from the date rather than a stored status.
             const isExpired = invitation.status === "pending" && new Date(invitation.expires_at) <= new Date();
-            return <article className={`template-item ${invitation.status !== "pending" ? "inactive" : ""}`} key={invitation.id}>
+            return <article className={`template-item invitation-item ${invitation.status !== "pending" ? "inactive" : ""}`} key={invitation.id}>
               <div className="template-main"><strong>{invitation.first_name} {invitation.last_name}</strong><span>{invitation.email}</span></div>
               <span className="status-chip">{invitation.status !== "pending" ? (invitation.status === "accepted" ? "התקבל" : "בוטל") : isExpired ? "פג תוקף" : "ממתין"}</span>
               {invitation.status === "pending" ? <div className="actions"><button className="button" disabled={busyId === invitation.id} onClick={() => void resendInvitation(invitation)}><RotateCw size={15} /> שליחה חוזרת</button><button className="button danger" disabled={busyId === invitation.id} onClick={() => void revokeInvitation(invitation)}><UserX size={15} /> ביטול</button></div> : null}
@@ -194,9 +194,9 @@ export function EmployeesClient({
         </div></div>
       </section>
 
-      <section className="template-list-card">
-        <div className="template-list-heading"><div><p className="eyebrow">הצוות של העסק</p><h2>{employees.length} חברי צוות</h2></div><span className="status-chip active"><ShieldCheck size={14} /> הרשאות מאובטחות</span></div>
-        <div className="template-list">
+      <section className="template-list-card employee-directory">
+        <div className="template-list-heading employee-directory-heading"><div><p className="eyebrow">הצוות של העסק</p><h2>{employees.length} חברי צוות</h2></div><span className="status-chip active"><ShieldCheck size={14} /> הרשאות מאובטחות</span></div>
+        <div className="template-list employee-directory-list">
           {employees.map((employee) => {
             const isSelf = employee.user_id === currentUserId;
             const name = employee.profile ? `${employee.profile.first_name} ${employee.profile.last_name}`.trim() : "משתמש";
