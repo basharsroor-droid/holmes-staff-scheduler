@@ -41,6 +41,27 @@
 
 Supabase Dashboard → SQL Editor, או `execute_sql` דרך ה-MCP tools אם עובדים מתוך סשן Claude. תמיד `select` לפני `update`/`delete` כדי לוודא scope.
 
+## גיבוי ושחזור
+
+הפרויקט ב-Supabase Free — אין גיבויים יומיים מנוהלים אוטומטית (זה פיצ'ר של תוכנית Pro, כ-$25/ח׳). עד שנשדרג, יש גיבוי DIY:
+
+**איך זה עובד:** `.github/workflows/database-backup.yml` רץ כל לילה (02:17 UTC), מריץ את `scripts/backup-database.mjs` שמייצא את כל השורות מכל 21 הטבלאות דרך ה-API (לא `pg_dump` — הסכימה עצמה כבר מתועדת במלואה ב-`supabase/migrations/`, רק הנתונים חסרים משם), מצפין את הכל עם [age](https://age-encryption.org) ומעלה כ-workflow artifact (שמירה של 90 יום, מקסימום שGitHub מאפשר).
+
+**ההצפנה חד-כיוונית מכוונת:** ל-CI יש רק את המפתח הציבורי (מוטבע ב-YAML, לא סוד — הצפנה איתו לא מאפשרת פענוח). המפתח הפרטי לא נשמר בשום מקום בריפו או ב-secrets — הוא אצל בשאר בלבד. גם אם ה-workflow או ה-repo ייחשפו, אי אפשר לפענח גיבוי ישן או עתידי בלעדיו.
+
+**מה עוד חסר להפעלה:** ה-secret `SUPABASE_SECRET_KEY` (ה-service_role key) חייב להיות מוגדר ב-GitHub Actions secrets (Settings → Secrets and variables → Actions) — זה היחיד שדורש הזנה ידנית, כי אי אפשר למשוך אותו דרך שום API. `gh secret set SUPABASE_SECRET_KEY` מהטרמינל, ולהדביק את הערך מ-Supabase Dashboard → Settings → API → `service_role`.
+
+**שחזור (Restore):**
+```bash
+RESTORE_SUPABASE_URL=<פרויקט יעד — לעולם לא production>
+RESTORE_SUPABASE_SECRET_KEY=<של פרויקט היעד>
+BACKUP_AGE_PRIVATE_KEY=<המפתח הפרטי, אצל בשאר>
+node scripts/restore-database.mjs backups/shiftpilot-backup.json.age
+```
+הסקריפט מסרב לרוץ אם `RESTORE_SUPABASE_URL` מצביע על פרויקט הפרודקשן (`forstsmvakpsreffdiwb`) — בדיקת בטיחות אחרונה, לא תחליף לכוון בזהירות מלכתחילה. יעד הגיוני: [Supabase branch](https://supabase.com/docs/guides/deployment/branching) חדש (`create_branch`), שם מריצים קודם את כל המיגרציות ואז את השחזור.
+
+**Restore test:** לא בוצע עדיין באופן מלא — כשיש גיבוי אמיתי ראשון (אחרי שה-secret יוגדר), הצעד הבא הוא ליצור Supabase branch, להריץ עליו שחזור, ולוודא שכל 21 הטבלאות חזרו עם מספרי השורות הנכונים.
+
 ## אנשי קשר / בעלות
 
 Project owner: bashar.sroor@gmail.com — Supabase project `ShiftPilot` (`forstsmvakpsreffdiwb`), Vercel project `shiftpilot-demo`, GitHub `basharsroor-droid/holmes-staff-scheduler`.
