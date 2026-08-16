@@ -1,6 +1,6 @@
 # Runbook — תקלות ושחזור
 
-מדריך פעולה מהיר למקרה שמשהו נשבר. ראו גם [ARCHITECTURE.md](./ARCHITECTURE.md) להבנת המבנה.
+מדריך פעולה מהיר למקרה שמשהו נשבר. ראו גם [ARCHITECTURE.md](./ARCHITECTURE.md) להבנת המבנה, ו-[INCIDENT_RESPONSE.md](./INCIDENT_RESPONSE.md) לתוכנית התגובה הפורמלית (חומרת אירועים, בעל ההחלטה, ומתי כל נוהל למטה רלוונטי).
 
 ## Deploy גרוע ב-Production
 
@@ -45,7 +45,7 @@ Supabase Dashboard → SQL Editor, או `execute_sql` דרך ה-MCP tools אם �
 
 הפרויקט ב-Supabase Free — אין גיבויים יומיים מנוהלים אוטומטית (זה פיצ'ר של תוכנית Pro, כ-$25/ח׳). עד שנשדרג, יש גיבוי DIY:
 
-**איך זה עובד:** `.github/workflows/database-backup.yml` רץ כל לילה (02:17 UTC), מריץ את `scripts/backup-database.mjs` שמייצא את כל השורות מכל 21 הטבלאות דרך ה-API (לא `pg_dump` — הסכימה עצמה כבר מתועדת במלואה ב-`supabase/migrations/`, רק הנתונים חסרים משם), מצפין את הכל עם [age](https://age-encryption.org) ומעלה כ-workflow artifact (שמירה של 90 יום, מקסימום שGitHub מאפשר).
+**איך זה עובד:** `.github/workflows/database-backup.yml` רץ כל לילה (02:17 UTC), מריץ את `scripts/backup-database.mjs` שמייצא את כל השורות מכל 22 הטבלאות דרך ה-API (לא `pg_dump` — הסכימה עצמה כבר מתועדת במלואה ב-`supabase/migrations/`, רק הנתונים חסרים משם), מצפין את הכל עם [age](https://age-encryption.org) ומעלה כ-workflow artifact (שמירה של 90 יום, מקסימום שGitHub מאפשר).
 
 **ההצפנה חד-כיוונית מכוונת:** ל-CI יש רק את המפתח הציבורי (מוטבע ב-YAML, לא סוד — הצפנה איתו לא מאפשרת פענוח). המפתח הפרטי לא נשמר בשום מקום בריפו או ב-secrets — הוא אצל בשאר בלבד. גם אם ה-workflow או ה-repo ייחשפו, אי אפשר לפענח גיבוי ישן או עתידי בלעדיו.
 
@@ -60,7 +60,9 @@ node scripts/restore-database.mjs backups/shiftpilot-backup.json.age
 ```
 הסקריפט מסרב לרוץ אם `RESTORE_SUPABASE_URL` מצביע על פרויקט הפרודקשן (`forstsmvakpsreffdiwb`) — בדיקת בטיחות אחרונה, לא תחליף לכוון בזהירות מלכתחילה. יעד הגיוני: [Supabase branch](https://supabase.com/docs/guides/deployment/branching) חדש (`create_branch`), שם מריצים קודם את כל המיגרציות ואז את השחזור.
 
-**Restore test:** לא בוצע עדיין באופן מלא — כשיש גיבוי אמיתי ראשון (אחרי שה-secret יוגדר), הצעד הבא הוא ליצור Supabase branch, להריץ עליו שחזור, ולוודא שכל 21 הטבלאות חזרו עם מספרי השורות הנכונים.
+**הרצה ראשונה:** בוצעה בהצלחה ב-16.8.2026 (`workflow_dispatch`, run `31944745577`) — ייצוא 22 טבלאות, הצפנה, וארטיפקט אמיתי (127KB) אומת ידנית (כותרת `AGE ENCRYPTED FILE` תקינה). בדרך נתפס ותוקן secret שגוי (`NEXT_PUBLIC_SUPABASE_URL` ב-GitHub Actions גרם ל-`fetch failed`).
+
+**Restore test:** לא בוצע עדיין. `create_branch` (Supabase branching) חסום — דורש תוכנית Pro. הניסיון החלופי — פרויקט Supabase חינמי שלישי ייעודי לבדיקה — נחסם גם הוא: ה-org כבר במגבלת 2 פרויקטים חינמיים (יש פרויקט לא-קשור בשם `mshro3` מאפריל 2026 שתופס את המקום השני). הוחלט (16.8.2026) לדלג על restore test בפועל כרגע ולא לגעת ב-`mshro3` בלי לבדוק קודם מה הוא. לביצוע בעתיד: להשהות/למחוק את `mshro3` אם אינו בשימוש, או לשדרג את ה-org ל-Pro.
 
 ## אנשי קשר / בעלות
 
