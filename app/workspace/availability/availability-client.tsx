@@ -58,12 +58,28 @@ export function AvailabilityClient({ organizationId, userId, periods, templates,
     if (!period) return null;
     const existing = submissions.find((item) => item.schedule_period_id === period.id);
     if (existing) return existing.id;
-    const { data, error } = await supabase.from("availability_submissions").insert({
+    const { data } = await supabase.from("availability_submissions").insert({
       organization_id: organizationId, schedule_period_id: period.id, user_id: userId
     }).select("id").single();
-    if (error || !data) return null;
-    submissions.push({ id: data.id, schedule_period_id: period.id, submitted_at: null, manager_note: null });
-    return data.id;
+    if (data) {
+      submissions.push({ id: data.id, schedule_period_id: period.id, submitted_at: null, manager_note: null });
+      return data.id;
+    }
+    // A genuine race (e.g. the same form open in two tabs) can lose here:
+    // the DB's unique constraint on (schedule_period_id, user_id) correctly
+    // rejects a second insert, but that just means a submission already
+    // exists -- fall back to fetching it instead of failing outright, so
+    // the user's save still succeeds instead of silently doing nothing
+    // until they reload the page.
+    const { data: existingRow } = await supabase
+      .from("availability_submissions")
+      .select("id, submitted_at, manager_note")
+      .eq("schedule_period_id", period.id)
+      .eq("user_id", userId)
+      .maybeSingle();
+    if (!existingRow) return null;
+    submissions.push({ id: existingRow.id, schedule_period_id: period.id, submitted_at: existingRow.submitted_at, manager_note: existingRow.manager_note });
+    return existingRow.id;
   }
 
   async function save(finalSubmit: boolean) {
