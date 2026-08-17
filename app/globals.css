@@ -4710,6 +4710,13 @@ html.si-lock, html.si-lock body {
 .support-filter-tab.active { background: var(--primary); border-color: var(--primary); color: #fff; }
 .support-filter-count { font-size: 0.76rem; font-weight: 800; padding: 1px 7px; border-radius: 999px; background: rgba(0, 0, 0, 0.06); }
 .support-filter-tab.active .support-filter-count { background: rgba(255, 255, 255, 0.22); }
+.support-metrics-panel { max-width: 1180px; margin: 0 auto 20px; }
+.support-metrics-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 16px; }
+.support-metric-card { display: grid; gap: 6px; padding: 18px 20px; border: 1px solid var(--line); border-radius: 14px; background: #f8fafc; }
+.support-metric-card svg { color: var(--primary); }
+.support-metric-card strong { font-size: 1.4rem; }
+.support-metric-card small { color: var(--muted); line-height: 1.5; }
+@media (max-width: 760px) { .support-metrics-grid { grid-template-columns: 1fr; } }
 .notifications-heading,
 .notification-preferences-heading,
 .audit-heading,
