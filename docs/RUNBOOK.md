@@ -1,6 +1,6 @@
 # Runbook — תקלות ושחזור
 
-מדריך פעולה מהיר למקרה שמשהו נשבר. ראו גם [ARCHITECTURE.md](./ARCHITECTURE.md) להבנת המבנה, ו-[INCIDENT_RESPONSE.md](./INCIDENT_RESPONSE.md) לתוכנית התגובה הפורמלית (חומרת אירועים, בעל ההחלטה, ומתי כל נוהל למטה רלוונטי).
+מדריך פעולה מהיר למקרה שמשהו נשבר. ראו גם [ARCHITECTURE.md](./ARCHITECTURE.md) להבנת המבנה, ו-[INCIDENT_RESPONSE.md](./INCIDENT_RESPONSE.md) לתוכנית התגובה הפורמלית (חומרת אירועים, בעל ההחלטה, ומתי כל נוהל למטה רלוונטי). ה-Checklist למטה מכסה את מנגנון ה-**deploy** עצמו — ל-checklist נפרד שמכסה את **חוויית** הדמו/הפיילוט (לא רק שהקוד עלה בהצלחה, אלא שהמסלול המרכזי עובד נקי מקצה לקצה) ראו [QA_CHECKLIST.md](./QA_CHECKLIST.md).
 
 ## Checklist לפני כל Deploy (חובה, לא רשות)
 
