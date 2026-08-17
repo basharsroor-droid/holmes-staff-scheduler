@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Headphones, ShieldCheck } from "lucide-react";
 
@@ -22,7 +23,7 @@ export default async function PlatformSupportPage() {
     .order("created_at", { ascending: false }).limit(250);
 
   return <main className="workspace-home" dir="rtl">
-    <header className="workspace-home-header"><BrandLogo href="/support" /><LogoutButton /></header>
+    <header className="workspace-home-header"><BrandLogo href="/support" /><span className="support-header-actions"><Link href="/support/security" className="back-link"><ShieldCheck size={15} /> אבטחת חשבון</Link><LogoutButton /></span></header>
     <section className="workspace-welcome support-console-hero"><div><p className="eyebrow">SHIFT PILOT OPERATIONS</p><h1><Headphones /> מסוף התמיכה</h1><p>טיפול מרוכז בפניות של כלל העסקים, ללא גישה לסידורים, לעובדים או לנתונים שאינם נחוצים לפנייה.</p></div><div className="role-pill"><ShieldCheck size={16} /> צוות התמיכה</div></section>
     <section className="workspace-subheader"><div><p className="eyebrow">תור פניות מרכזי</p><h2>{tickets?.length ?? 0} פניות במערכת</h2></div></section>
     <SupportClient organizationId="" currentUserId={user.id} canManage initialTickets={tickets ?? []} showCreateForm={false} />
