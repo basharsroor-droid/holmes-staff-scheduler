@@ -5,6 +5,8 @@ import { Headphones, ShieldCheck } from "lucide-react";
 import { LogoutButton } from "@/app/workspace/logout-button";
 import { SupportClient } from "@/app/workspace/support/support-client";
 import { BrandLogo } from "@/components/brand/brand-logo";
+import { SupportMetricsPanel } from "@/components/workspace/support-metrics-panel";
+import { computeSupportMetrics } from "@/lib/support-metrics";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
@@ -19,13 +21,15 @@ export default async function PlatformSupportPage() {
   if (!supportAgent) redirect("/workspace");
 
   const { data: tickets } = await supabase.from("support_tickets")
-    .select("id, organization_id, organization_name, created_by, category, priority, subject, description, status, resolution_note, assigned_to, created_at, updated_at")
+    .select("id, organization_id, organization_name, created_by, category, priority, subject, description, status, resolution_note, assigned_to, created_at, updated_at, first_responded_at, resolved_at, reopened_count")
     .order("created_at", { ascending: false }).limit(250);
+  const metrics = computeSupportMetrics(tickets ?? []);
 
   return <main className="workspace-home" dir="rtl">
     <header className="workspace-home-header"><BrandLogo href="/support" /><span className="support-header-actions"><Link href="/support/security" className="back-link"><ShieldCheck size={15} /> אבטחת חשבון</Link><LogoutButton /></span></header>
     <section className="workspace-welcome support-console-hero"><div><p className="eyebrow">SHIFT PILOT OPERATIONS</p><h1><Headphones /> מסוף התמיכה</h1><p>טיפול מרוכז בפניות של כלל העסקים, ללא גישה לסידורים, לעובדים או לנתונים שאינם נחוצים לפנייה.</p></div><div className="role-pill"><ShieldCheck size={16} /> צוות התמיכה</div></section>
     <section className="workspace-subheader"><div><p className="eyebrow">תור פניות מרכזי</p><h2>{tickets?.length ?? 0} פניות במערכת</h2></div></section>
+    <SupportMetricsPanel metrics={metrics} />
     <SupportClient organizationId="" currentUserId={user.id} canManage initialTickets={tickets ?? []} showCreateForm={false} />
   </main>;
 }

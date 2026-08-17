@@ -22,7 +22,7 @@ export default async function SupportPage() {
   ]);
   if (!organization) redirect("/workspace");
   const ticketsQuery = supabase.from("support_tickets")
-    .select("id, organization_id, organization_name, created_by, category, priority, subject, description, status, resolution_note, assigned_to, created_at, updated_at")
+    .select("id, organization_id, organization_name, created_by, category, priority, subject, description, status, resolution_note, assigned_to, created_at, updated_at, first_responded_at, resolved_at, reopened_count")
     .order("created_at", { ascending: false }).limit(100);
   const { data: tickets } = supportAgent ? await ticketsQuery : await ticketsQuery.eq("created_by", user.id);
 

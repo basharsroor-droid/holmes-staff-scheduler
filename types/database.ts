@@ -199,6 +199,179 @@ export type Database = {
           },
         ]
       }
+      department_memberships: {
+        Row: {
+          branch_id: string
+          created_at: string
+          department_id: string
+          is_primary: boolean
+          membership_id: string
+          organization_id: string
+        }
+        Insert: {
+          branch_id: string
+          created_at?: string
+          department_id: string
+          is_primary?: boolean
+          membership_id: string
+          organization_id: string
+        }
+        Update: {
+          branch_id?: string
+          created_at?: string
+          department_id?: string
+          is_primary?: boolean
+          membership_id?: string
+          organization_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "department_memberships_branch_id_organization_id_fkey"
+            columns: ["branch_id", "organization_id"]
+            isOneToOne: false
+            referencedRelation: "branches"
+            referencedColumns: ["id", "organization_id"]
+          },
+          {
+            foreignKeyName: "department_memberships_department_id_organization_id_branc_fkey"
+            columns: ["department_id", "organization_id", "branch_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
+            referencedColumns: ["id", "organization_id", "branch_id"]
+          },
+          {
+            foreignKeyName: "department_memberships_membership_id_fkey"
+            columns: ["membership_id"]
+            isOneToOne: false
+            referencedRelation: "organization_memberships"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "department_memberships_membership_id_organization_id_branc_fkey"
+            columns: ["membership_id", "organization_id", "branch_id"]
+            isOneToOne: false
+            referencedRelation: "organization_memberships"
+            referencedColumns: ["id", "organization_id", "branch_id"]
+          },
+          {
+            foreignKeyName: "department_memberships_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      departments: {
+        Row: {
+          active: boolean
+          branch_id: string
+          created_at: string
+          id: string
+          name: string
+          organization_id: string
+          updated_at: string
+        }
+        Insert: {
+          active?: boolean
+          branch_id: string
+          created_at?: string
+          id?: string
+          name: string
+          organization_id: string
+          updated_at?: string
+        }
+        Update: {
+          active?: boolean
+          branch_id?: string
+          created_at?: string
+          id?: string
+          name?: string
+          organization_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "departments_branch_id_organization_id_fkey"
+            columns: ["branch_id", "organization_id"]
+            isOneToOne: false
+            referencedRelation: "branches"
+            referencedColumns: ["id", "organization_id"]
+          },
+          {
+            foreignKeyName: "departments_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      email_delivery_queue: {
+        Row: {
+          attempts: number
+          created_at: string
+          id: string
+          idempotency_key: string
+          last_error: string | null
+          locked_at: string | null
+          organization_id: string
+          payload: Json
+          provider_message_id: string | null
+          recipient: string
+          scheduled_for: string
+          sent_at: string | null
+          status: string
+          template_key: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          attempts?: number
+          created_at?: string
+          id?: string
+          idempotency_key: string
+          last_error?: string | null
+          locked_at?: string | null
+          organization_id: string
+          payload?: Json
+          provider_message_id?: string | null
+          recipient: string
+          scheduled_for?: string
+          sent_at?: string | null
+          status?: string
+          template_key: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          attempts?: number
+          created_at?: string
+          id?: string
+          idempotency_key?: string
+          last_error?: string | null
+          locked_at?: string | null
+          organization_id?: string
+          payload?: Json
+          provider_message_id?: string | null
+          recipient?: string
+          scheduled_for?: string
+          sent_at?: string | null
+          status?: string
+          template_key?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_delivery_queue_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       leave_requests: {
         Row: {
           created_at: string
@@ -236,6 +409,50 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "leave_requests_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notification_preferences: {
+        Row: {
+          availability_reminders: boolean
+          created_at: string
+          organization_id: string
+          schedule_published: boolean
+          shift_changes: boolean
+          shift_reminders: boolean
+          swap_updates: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          availability_reminders?: boolean
+          created_at?: string
+          organization_id: string
+          schedule_published?: boolean
+          shift_changes?: boolean
+          shift_reminders?: boolean
+          swap_updates?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          availability_reminders?: boolean
+          created_at?: string
+          organization_id?: string
+          schedule_published?: boolean
+          shift_changes?: boolean
+          shift_reminders?: boolean
+          swap_updates?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notification_preferences_organization_id_fkey"
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
@@ -295,18 +512,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
-      }
-      notification_preferences: {
-        Row: { organization_id: string; user_id: string; schedule_published: boolean; shift_changes: boolean; shift_reminders: boolean; availability_reminders: boolean; swap_updates: boolean; created_at: string; updated_at: string }
-        Insert: { organization_id: string; user_id: string; schedule_published?: boolean; shift_changes?: boolean; shift_reminders?: boolean; availability_reminders?: boolean; swap_updates?: boolean; created_at?: string; updated_at?: string }
-        Update: { organization_id?: string; user_id?: string; schedule_published?: boolean; shift_changes?: boolean; shift_reminders?: boolean; availability_reminders?: boolean; swap_updates?: boolean; created_at?: string; updated_at?: string }
-        Relationships: [{ foreignKeyName: "notification_preferences_organization_id_fkey"; columns: ["organization_id"]; isOneToOne: false; referencedRelation: "organizations"; referencedColumns: ["id"] }]
-      }
-      email_delivery_queue: {
-        Row: { id: string; organization_id: string; user_id: string | null; recipient: string; template_key: string; payload: Json; idempotency_key: string; status: string; attempts: number; scheduled_for: string; locked_at: string | null; sent_at: string | null; provider_message_id: string | null; last_error: string | null; created_at: string; updated_at: string }
-        Insert: { id?: string; organization_id: string; user_id?: string | null; recipient: string; template_key: string; payload?: Json; idempotency_key: string; status?: string; attempts?: number; scheduled_for?: string; locked_at?: string | null; sent_at?: string | null; provider_message_id?: string | null; last_error?: string | null; created_at?: string; updated_at?: string }
-        Update: { id?: string; organization_id?: string; user_id?: string | null; recipient?: string; template_key?: string; payload?: Json; idempotency_key?: string; status?: string; attempts?: number; scheduled_for?: string; locked_at?: string | null; sent_at?: string | null; provider_message_id?: string | null; last_error?: string | null; created_at?: string; updated_at?: string }
-        Relationships: [{ foreignKeyName: "email_delivery_queue_organization_id_fkey"; columns: ["organization_id"]; isOneToOne: false; referencedRelation: "organizations"; referencedColumns: ["id"] }]
       }
       organization_invitations: {
         Row: {
@@ -380,93 +585,6 @@ export type Database = {
           },
         ]
       }
-      departments: {
-        Row: {
-          active: boolean
-          branch_id: string
-          created_at: string
-          id: string
-          name: string
-          organization_id: string
-          updated_at: string
-        }
-        Insert: {
-          active?: boolean
-          branch_id: string
-          created_at?: string
-          id?: string
-          name: string
-          organization_id: string
-          updated_at?: string
-        }
-        Update: {
-          active?: boolean
-          branch_id?: string
-          created_at?: string
-          id?: string
-          name?: string
-          organization_id?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "departments_branch_id_organization_id_fkey"
-            columns: ["branch_id", "organization_id"]
-            isOneToOne: false
-            referencedRelation: "branches"
-            referencedColumns: ["id", "organization_id"]
-          },
-          {
-            foreignKeyName: "departments_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
-            referencedRelation: "organizations"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      department_memberships: {
-        Row: {
-          branch_id: string
-          created_at: string
-          department_id: string
-          is_primary: boolean
-          membership_id: string
-          organization_id: string
-        }
-        Insert: {
-          branch_id: string
-          created_at?: string
-          department_id: string
-          is_primary?: boolean
-          membership_id: string
-          organization_id: string
-        }
-        Update: {
-          branch_id?: string
-          created_at?: string
-          department_id?: string
-          is_primary?: boolean
-          membership_id?: string
-          organization_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "department_memberships_department_id_organization_id_branch_id_fkey"
-            columns: ["department_id", "organization_id", "branch_id"]
-            isOneToOne: false
-            referencedRelation: "departments"
-            referencedColumns: ["id", "organization_id", "branch_id"]
-          },
-          {
-            foreignKeyName: "department_memberships_membership_id_fkey"
-            columns: ["membership_id"]
-            isOneToOne: false
-            referencedRelation: "organization_memberships"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       organization_memberships: {
         Row: {
           access_scope: string
@@ -536,76 +654,12 @@ export type Database = {
           },
         ]
       }
-      platform_support_agents: {
-        Row: { created_at: string; user_id: string }
-        Insert: { created_at?: string; user_id: string }
-        Update: { created_at?: string; user_id?: string }
-        Relationships: []
-      }
-      support_tickets: {
-        Row: {
-          assigned_to: string | null
-          category: Database["public"]["Enums"]["support_ticket_category"]
-          created_at: string
-          created_by: string
-          description: string
-          id: string
-          organization_id: string
-          organization_name: string
-          priority: Database["public"]["Enums"]["support_ticket_priority"]
-          resolution_note: string | null
-          resolved_at: string | null
-          status: Database["public"]["Enums"]["support_ticket_status"]
-          subject: string
-          updated_at: string
-        }
-        Insert: {
-          assigned_to?: string | null
-          category: Database["public"]["Enums"]["support_ticket_category"]
-          created_at?: string
-          created_by: string
-          description: string
-          id?: string
-          organization_id: string
-          organization_name?: string
-          priority?: Database["public"]["Enums"]["support_ticket_priority"]
-          resolution_note?: string | null
-          resolved_at?: string | null
-          status?: Database["public"]["Enums"]["support_ticket_status"]
-          subject: string
-          updated_at?: string
-        }
-        Update: {
-          assigned_to?: string | null
-          category?: Database["public"]["Enums"]["support_ticket_category"]
-          created_at?: string
-          created_by?: string
-          description?: string
-          id?: string
-          organization_id?: string
-          organization_name?: string
-          priority?: Database["public"]["Enums"]["support_ticket_priority"]
-          resolution_note?: string | null
-          resolved_at?: string | null
-          status?: Database["public"]["Enums"]["support_ticket_status"]
-          subject?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "support_tickets_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
-            referencedRelation: "organizations"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       organizations: {
         Row: {
           active: boolean
           created_at: string
           id: string
+          is_demo: boolean
           min_rest_hours: number | null
           name: string
           slug: string
@@ -616,6 +670,7 @@ export type Database = {
           active?: boolean
           created_at?: string
           id?: string
+          is_demo?: boolean
           min_rest_hours?: number | null
           name: string
           slug: string
@@ -626,11 +681,27 @@ export type Database = {
           active?: boolean
           created_at?: string
           id?: string
+          is_demo?: boolean
           min_rest_hours?: number | null
           name?: string
           slug?: string
           timezone?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      platform_support_agents: {
+        Row: {
+          created_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -717,6 +788,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "branches"
             referencedColumns: ["id", "organization_id"]
+          },
+          {
+            foreignKeyName: "schedule_periods_department_scope_fkey"
+            columns: ["department_id", "organization_id", "branch_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
+            referencedColumns: ["id", "organization_id", "branch_id"]
           },
           {
             foreignKeyName: "schedule_periods_organization_id_fkey"
@@ -824,6 +902,13 @@ export type Database = {
             referencedColumns: ["id", "organization_id"]
           },
           {
+            foreignKeyName: "shift_templates_department_scope_fkey"
+            columns: ["department_id", "organization_id", "branch_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
+            referencedColumns: ["id", "organization_id", "branch_id"]
+          },
+          {
             foreignKeyName: "shift_templates_organization_id_fkey"
             columns: ["organization_id"]
             isOneToOne: false
@@ -899,6 +984,71 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "shift_templates"
             referencedColumns: ["id", "organization_id"]
+          },
+        ]
+      }
+      support_tickets: {
+        Row: {
+          assigned_to: string | null
+          category: Database["public"]["Enums"]["support_ticket_category"]
+          created_at: string
+          created_by: string
+          description: string
+          first_responded_at: string | null
+          id: string
+          organization_id: string
+          organization_name: string
+          priority: Database["public"]["Enums"]["support_ticket_priority"]
+          reopened_count: number
+          resolution_note: string | null
+          resolved_at: string | null
+          status: Database["public"]["Enums"]["support_ticket_status"]
+          subject: string
+          updated_at: string
+        }
+        Insert: {
+          assigned_to?: string | null
+          category: Database["public"]["Enums"]["support_ticket_category"]
+          created_at?: string
+          created_by: string
+          description: string
+          first_responded_at?: string | null
+          id?: string
+          organization_id: string
+          organization_name: string
+          priority?: Database["public"]["Enums"]["support_ticket_priority"]
+          reopened_count?: number
+          resolution_note?: string | null
+          resolved_at?: string | null
+          status?: Database["public"]["Enums"]["support_ticket_status"]
+          subject: string
+          updated_at?: string
+        }
+        Update: {
+          assigned_to?: string | null
+          category?: Database["public"]["Enums"]["support_ticket_category"]
+          created_at?: string
+          created_by?: string
+          description?: string
+          first_responded_at?: string | null
+          id?: string
+          organization_id?: string
+          organization_name?: string
+          priority?: Database["public"]["Enums"]["support_ticket_priority"]
+          reopened_count?: number
+          resolution_note?: string | null
+          resolved_at?: string | null
+          status?: Database["public"]["Enums"]["support_ticket_status"]
+          subject?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "support_tickets_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -1022,14 +1172,6 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      claim_email_delivery_jobs: {
-        Args: { batch_size?: number }
-        Returns: Database["public"]["Tables"]["email_delivery_queue"]["Row"][]
-      }
-      enqueue_scheduled_notifications: {
-        Args: { run_at?: string }
-        Returns: number
-      }
       accept_organization_invitation: {
         Args: { invitation_token: string }
         Returns: string
@@ -1044,6 +1186,33 @@ export type Database = {
           assignments_removed: number
           shifts_cancelled: number
         }[]
+      }
+      claim_email_delivery_jobs: {
+        Args: { batch_size?: number }
+        Returns: {
+          attempts: number
+          created_at: string
+          id: string
+          idempotency_key: string
+          last_error: string | null
+          locked_at: string | null
+          organization_id: string
+          payload: Json
+          provider_message_id: string | null
+          recipient: string
+          scheduled_for: string
+          sent_at: string | null
+          status: string
+          template_key: string
+          updated_at: string
+          user_id: string | null
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "email_delivery_queue"
+          isOneToOne: false
+          isSetofReturn: true
+        }
       }
       create_organization_invitation: {
         Args: {
@@ -1074,10 +1243,18 @@ export type Database = {
           shifts_created: number
         }[]
       }
+      enqueue_scheduled_notifications: {
+        Args: { run_at?: string }
+        Returns: number
+      }
       mark_my_notifications_read: { Args: never; Returns: number }
       publish_schedule_period: {
         Args: { target_period_id: string }
         Returns: number
+      }
+      reset_demo_environment: {
+        Args: { target_organization_id: string }
+        Returns: undefined
       }
       revoke_organization_invitation: {
         Args: { invitation_token: string }
@@ -1108,15 +1285,25 @@ export type Database = {
       notification_status: "pending" | "sent" | "failed" | "cancelled"
       schedule_status: "collecting" | "draft" | "published" | "archived"
       shift_status: "draft" | "published" | "cancelled"
+      support_ticket_category:
+        | "technical"
+        | "account"
+        | "billing"
+        | "feature"
+        | "other"
+      support_ticket_priority: "normal" | "high" | "urgent"
+      support_ticket_status:
+        | "open"
+        | "in_progress"
+        | "waiting_customer"
+        | "resolved"
+        | "closed"
       swap_status:
         | "pending_employee"
         | "pending_manager"
         | "approved"
         | "rejected"
         | "cancelled"
-      support_ticket_category: "technical" | "account" | "billing" | "feature" | "other"
-      support_ticket_priority: "normal" | "high" | "urgent"
-      support_ticket_status: "open" | "in_progress" | "waiting_customer" | "resolved" | "closed"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1256,6 +1443,21 @@ export const Constants = {
       notification_status: ["pending", "sent", "failed", "cancelled"],
       schedule_status: ["collecting", "draft", "published", "archived"],
       shift_status: ["draft", "published", "cancelled"],
+      support_ticket_category: [
+        "technical",
+        "account",
+        "billing",
+        "feature",
+        "other",
+      ],
+      support_ticket_priority: ["normal", "high", "urgent"],
+      support_ticket_status: [
+        "open",
+        "in_progress",
+        "waiting_customer",
+        "resolved",
+        "closed",
+      ],
       swap_status: [
         "pending_employee",
         "pending_manager",
@@ -1263,9 +1465,6 @@ export const Constants = {
         "rejected",
         "cancelled",
       ],
-      support_ticket_category: ["technical", "account", "billing", "feature", "other"],
-      support_ticket_priority: ["normal", "high", "urgent"],
-      support_ticket_status: ["open", "in_progress", "waiting_customer", "resolved", "closed"],
     },
   },
 } as const
