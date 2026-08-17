@@ -5372,6 +5372,18 @@ html.si-lock, html.si-lock body {
   width: 220px;
   max-width: min(220px, 64vw);
 }
+/* .shiftpilot-logo forces direction:ltr internally (it's a Latin
+   wordmark), which also happens to push it to flex-start = the LEFT
+   when it's stretched to full width as a grid row here. Everything
+   else in this column (the paragraph text, the "demo active" chip)
+   naturally hugs the RIGHT edge under the page's RTL flow, so the logo
+   ended up the one element floating on the wrong side -- confirmed by
+   measuring both: logo occupied 915-1135px of a 915-1465px box while
+   the paragraph and chip both ended flush at 1465px. Right-aligning it
+   here matches its siblings instead of contradicting them. */
+.demo-auth-intro .shiftpilot-logo {
+  justify-content: flex-end;
+}
 .demo-auth-intro p {
   color: #d5e4f6;
   font-size: 16px;
