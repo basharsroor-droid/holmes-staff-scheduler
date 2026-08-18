@@ -85,6 +85,16 @@ body {
   overflow-x: hidden;
 }
 
+body {
+  /* The Capacitor iOS wrapper's WKWebView (and an installed iOS PWA in
+     standalone mode) renders edge-to-edge under the notch/status bar
+     by default -- viewport-fit=cover (see app/layout.tsx) makes this
+     resolve to the real inset instead of 0, so every page's header
+     clears the notch without each one needing its own fix. On a
+     normal browser tab this is always 0, so nothing changes there. */
+  padding-top: env(safe-area-inset-top);
+}
+
 .onboarding-page {
   position: relative;
   min-height: 100vh;

@@ -23,7 +23,14 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#2158c9" // matches --primary in app/globals.css
+  themeColor: "#2158c9", // matches --primary in app/globals.css
+  // Lets the page draw under the notch/status bar/home indicator (the
+  // Capacitor iOS wrapper's WKWebView renders edge-to-edge by default,
+  // same as an installed iOS PWA in standalone mode) so CSS can react
+  // via env(safe-area-inset-*) instead of just being covered by it --
+  // see the safe-area padding on .topbar / .marketing-navbar-shell /
+  // .demo-auth-flow in app/globals.css.
+  viewportFit: "cover"
 };
 
 export default function RootLayout({
