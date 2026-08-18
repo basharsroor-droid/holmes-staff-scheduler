@@ -1348,6 +1348,14 @@ a:focus-visible {
   border-color: rgba(53, 120, 245, 0.35);
   background: var(--primary-soft);
 }
+/* --muted (#667085) is tuned for the default white/light --surface
+   background used everywhere else .big-action small appears -- against
+   this card's own soft-blue fill it drops to 4.16:1, under the 4.5:1
+   normal-text minimum (axe-core caught it once WCAG scanning was
+   extended to these demo routes for the first time). */
+.big-action.priority small {
+  color: #4d5568;
+}
 
 .big-action svg {
   flex: 0 0 auto;

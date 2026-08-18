@@ -17,11 +17,19 @@ export const demoMonth = {
   year: 2026
 };
 
+// Every color below was darkened just enough to clear 5:1 contrast against
+// the schedule view's background (#fbfdff) with real margin -- axe-core
+// caught the original #0ea5e9 failing even the relaxed 3:1 large-text
+// threshold (2.72:1) once automated WCAG scanning was extended to these
+// demo routes for the first time (track P1/P2-12); the rest of the
+// palette was audited and fixed together rather than patching just the
+// one flagged color, since these are reused per-employee across the demo
+// UI at varying sizes, not only in the large-text context that failed.
 export const employees: Employee[] = [
   {
     id: "emp-demo-worker",
     fullName: "עובד דמו",
-    color: "#0ea5e9",
+    color: "#0a75a6",
     role: "employee",
     seniorityLevel: "regular",
     canOpen: true,
@@ -31,7 +39,7 @@ export const employees: Employee[] = [
   {
     id: "emp-1",
     fullName: "עובדת 1",
-    color: "#8a6f12",
+    color: "#856b11",
     role: "employee",
     seniorityLevel: "regular",
     canOpen: true,
@@ -41,7 +49,7 @@ export const employees: Employee[] = [
   {
     id: "emp-2",
     fullName: "עובד 2",
-    color: "#ec4899",
+    color: "#d21673",
     role: "employee",
     seniorityLevel: "regular",
     canOpen: true,
@@ -51,7 +59,7 @@ export const employees: Employee[] = [
   {
     id: "emp-3",
     fullName: "עובדת 3",
-    color: "#a78bfa",
+    color: "#7347f7",
     role: "employee",
     seniorityLevel: "regular",
     canOpen: true,
@@ -61,7 +69,7 @@ export const employees: Employee[] = [
   {
     id: "emp-4",
     fullName: "עובד 4",
-    color: "#dc2626",
+    color: "#d52222",
     role: "employee",
     seniorityLevel: "regular",
     canOpen: true,
@@ -71,7 +79,7 @@ export const employees: Employee[] = [
   {
     id: "emp-5",
     fullName: "עובדת 5",
-    color: "#b08900",
+    color: "#876900",
     role: "employee",
     seniorityLevel: "regular",
     canOpen: true,
@@ -91,7 +99,7 @@ export const employees: Employee[] = [
   {
     id: "emp-7",
     fullName: "עובדת 7",
-    color: "#ef4444",
+    color: "#d91313",
     role: "employee",
     seniorityLevel: "senior",
     canOpen: true,
@@ -101,7 +109,7 @@ export const employees: Employee[] = [
   {
     id: managerEmployeeId,
     fullName: "מנהלת דמו",
-    color: "#059669",
+    color: "#047d58",
     role: "manager",
     seniorityLevel: "shift_lead",
     canOpen: true,

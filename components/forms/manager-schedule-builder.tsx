@@ -175,7 +175,7 @@ export function ManagerScheduleBuilder({
             </p>
           </div>
           <div className="actions">
-            <select className="select" defaultValue="summer" style={{ width: 150 }}>
+            <select className="select" aria-label="עונת סידור" defaultValue="summer" style={{ width: 150 }}>
               <option value="regular">רגיל</option>
               <option value="june">יוני</option>
               <option value="summer">קיץ</option>
@@ -217,6 +217,7 @@ export function ManagerScheduleBuilder({
                   </div>
                   <select
                     className="select"
+                    aria-label="סוג משמרת"
                     value={shift.shiftTemplateId}
                     onChange={(event) => changeTemplate(shift.id, event.target.value)}
                     style={{ maxWidth: 210 }}
@@ -231,8 +232,9 @@ export function ManagerScheduleBuilder({
 
                 <div className="shift-time-editor">
                   <div className="field">
-                    <label>שעת התחלה</label>
+                    <label htmlFor={`shift-start-time-${shift.id}`}>שעת התחלה</label>
                     <input
+                      id={`shift-start-time-${shift.id}`}
                       className="input"
                       type="time"
                       value={startTime}
@@ -242,8 +244,9 @@ export function ManagerScheduleBuilder({
                     />
                   </div>
                   <div className="field">
-                    <label>שעת סיום</label>
+                    <label htmlFor={`shift-end-time-${shift.id}`}>שעת סיום</label>
                     <input
+                      id={`shift-end-time-${shift.id}`}
                       className="input"
                       type="time"
                       value={endTime}
