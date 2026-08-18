@@ -121,3 +121,42 @@ test("employee demo routes remain responsive", async ({ page }) => {
     await expectNoPageOverflow(page);
   }
 });
+
+// Track P1/P2-12 (accessibility plan) asks for a dedicated Zoom 200%
+// check, distinct from the mobile-viewport tests above: a person zooming
+// their desktop browser to 200% is not a phone user (no touch, same
+// input devices, same expectations of a desktop-oriented admin table),
+// they just have half the effective CSS viewport. Playwright has no
+// direct "browser zoom" API, so the standard approximation is halving a
+// normal desktop viewport (1280x800 -> 640x400) -- same technique used
+// to test this across the industry, not a shortcut specific to this repo.
+test.describe("Zoom 200% (desktop viewport halved, not a phone)", () => {
+  test.use({ viewport: { width: 640, height: 400 } });
+
+  test("public and demo-login routes stay usable at 200% zoom", async ({ page }) => {
+    for (const route of ["/", "/login", "/demo", "/onboarding"]) {
+      await page.goto(route);
+      await expectNoPageOverflow(page);
+    }
+  });
+
+  test("manager demo routes stay usable at 200% zoom", async ({ page }) => {
+    await loginToDemo(page, "manager", "Admin-1234");
+    await expect(page).toHaveURL(/\/pilot$/);
+    for (const route of ["/pilot", "/manager/schedule", "/admin/employees", "/admin/shift-templates"]) {
+      await page.goto(route);
+      await expect(page.locator(".app-shell")).toBeVisible();
+      await expectNoPageOverflow(page);
+    }
+  });
+
+  test("employee demo routes stay usable at 200% zoom", async ({ page }) => {
+    await loginToDemo(page, "employee", "Demo-1234");
+    await expect(page).toHaveURL(/\/employee$/);
+    for (const route of ["/employee", "/availability", "/my-shifts", "/swap-requests"]) {
+      await page.goto(route);
+      await expect(page.locator(".app-shell")).toBeVisible();
+      await expectNoPageOverflow(page);
+    }
+  });
+});
