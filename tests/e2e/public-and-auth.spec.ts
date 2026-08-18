@@ -68,3 +68,27 @@ test("demo remains available without a SaaS session", async ({ page }) => {
   await expect(page).toHaveURL(/\/demo$/);
   await expect(page.locator("body")).toContainText(/ShiftPilot/i);
 });
+
+// PWA foundation (roadmap phase 7, step 1). Two things caught real bugs
+// during manual verification and are worth locking in as regression
+// tests: the /offline route needs to be reachable without a session
+// (it was silently redirected home by AppShell's route allowlist, the
+// same class of bug PR #136 fixed for /about), and the manifest needs
+// to actually resolve and carry the fields a browser's install
+// criteria check for.
+test("PWA manifest is served with the expected installability fields", async ({ request }) => {
+  const response = await request.get("/manifest.webmanifest");
+  expect(response.ok()).toBe(true);
+  const manifest = await response.json();
+  expect(manifest.name).toBe("ShiftPilot");
+  expect(manifest.display).toBe("standalone");
+  expect(manifest.start_url).toBe("/");
+  expect(manifest.icons.some((icon: { purpose?: string }) => icon.purpose === "maskable")).toBe(true);
+});
+
+test("the offline fallback page is reachable without a session", async ({ page }) => {
+  await page.goto("/offline");
+
+  await expect(page).toHaveURL(/\/offline$/);
+  await expect(page.getByRole("heading", { name: "אי אפשר להתחבר כרגע." })).toBeVisible();
+});
