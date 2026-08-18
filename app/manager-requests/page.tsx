@@ -13,24 +13,24 @@ export default function ManagerRequestsPage() {
         <h2>בקשה חדשה</h2>
         <div className="grid grid-2">
           <div className="field">
-            <label>סוג בקשה</label>
-            <select className="select" defaultValue="schedule">
+            <label htmlFor="manager-request-type">סוג בקשה</label>
+            <select id="manager-request-type" className="select" defaultValue="schedule">
               <option value="schedule">בקשה לגבי הסידור</option>
               <option value="availability">שינוי זמינות</option>
               <option value="personal">בקשה אישית</option>
             </select>
           </div>
           <div className="field">
-            <label>דחיפות</label>
-            <select className="select" defaultValue="normal">
+            <label htmlFor="manager-request-urgency">דחיפות</label>
+            <select id="manager-request-urgency" className="select" defaultValue="normal">
               <option value="normal">רגיל</option>
               <option value="urgent">דחוף</option>
             </select>
           </div>
         </div>
         <div className="field" style={{ marginTop: 14 }}>
-          <label>פירוט</label>
-          <textarea className="textarea" placeholder="כתבו כאן את הבקשה למנהל/ת" />
+          <label htmlFor="manager-request-details">פירוט</label>
+          <textarea id="manager-request-details" className="textarea" placeholder="כתבו כאן את הבקשה למנהל/ת" />
         </div>
         <button className="button primary" style={{ marginTop: 14 }}>
           שליחה במצב דמו

@@ -68,6 +68,7 @@ export function ShiftTemplatesClient({
                 <td>
                   <input
                     className="input"
+                    aria-label="שם סוג המשמרת"
                     value={template.name}
                     onChange={(event) =>
                       updateTemplate(template.id, { name: event.target.value })
@@ -79,6 +80,7 @@ export function ShiftTemplatesClient({
                     <ShiftTypeBadge type={template.type} />
                     <select
                       className="select"
+                      aria-label={`סוג — ${template.name}`}
                       value={template.type}
                       onChange={(event) =>
                         updateTemplate(template.id, {
@@ -98,6 +100,7 @@ export function ShiftTemplatesClient({
                   <input
                     className="input"
                     type="time"
+                    aria-label={`שעת התחלה — ${template.name}`}
                     value={template.startTime}
                     onChange={(event) =>
                       updateTemplate(template.id, { startTime: event.target.value })
@@ -108,6 +111,7 @@ export function ShiftTemplatesClient({
                   <input
                     className="input"
                     type="time"
+                    aria-label={`שעת סיום — ${template.name}`}
                     value={template.endTime}
                     onChange={(event) =>
                       updateTemplate(template.id, { endTime: event.target.value })
@@ -119,6 +123,7 @@ export function ShiftTemplatesClient({
                     className="input"
                     min={1}
                     type="number"
+                    aria-label={`מספר עובדים נדרש — ${template.name}`}
                     value={template.requiredEmployees}
                     onChange={(event) =>
                       updateTemplate(template.id, {
@@ -131,6 +136,7 @@ export function ShiftTemplatesClient({
                   <input
                     checked={template.requiresSeniorEmployee}
                     type="checkbox"
+                    aria-label={`חובה ותיק — ${template.name}`}
                     onChange={(event) =>
                       updateTemplate(template.id, {
                         requiresSeniorEmployee: event.target.checked

@@ -1,5 +1,42 @@
 import AxeBuilder from "@axe-core/playwright";
-import { expect, test } from "@playwright/test";
+import { expect, type Page, test } from "@playwright/test";
+
+// Track P1/P2-12 (accessibility plan): automated WCAG coverage below this
+// point had only ever run against public/unauthenticated pages. Every
+// authenticated route (the demo dashboards, and by extension the same
+// component patterns used in the real /workspace -- real SaaS pages need
+// a live Supabase session, which CI doesn't have credentials for, but the
+// demo routes are reachable with the local mock auth and are the site's
+// actual promoted "try it" experience, not internal-only scaffolding) had
+// zero automatic scanning on every push, only the one-off manual audit
+// from PR #81.
+async function loginToDemo(page: Page, username: string, password: string) {
+  await page.goto("/demo");
+  await page.getByLabel("ת.ז / שם משתמש").fill(username);
+  await page.getByLabel("סיסמה").fill(password);
+  await page.getByRole("button", { name: "כניסה", exact: true }).click();
+  const destination = username === "manager" ? "/pilot" : "/employee";
+  await expect(page).toHaveURL(new RegExp(`${destination}$`));
+}
+
+async function scanForViolations(page: Page) {
+  await page.addStyleTag({
+    content: `
+      *, *::before, *::after { animation: none !important; transition: none !important; }
+      .scroll-reveal { opacity: 1 !important; transform: none !important; }
+    `
+  });
+  const results = await new AxeBuilder({ page })
+    .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
+    .analyze();
+  if (process.env.A11Y_DEBUG && results.violations.length) {
+    console.log(JSON.stringify(results.violations.map((violation) => ({
+      id: violation.id,
+      nodes: violation.nodes.map((node) => ({ target: node.target, html: node.html }))
+    }))));
+  }
+  return results.violations;
+}
 
 const publicPages = [
   { path: "/", name: "marketing" },
@@ -28,24 +65,29 @@ for (const publicPage of publicPages) {
     if (publicPage.path.startsWith("/auth/accept-invite")) {
       await expect(page.getByRole("heading", { name: "ההזמנה אינה זמינה" })).toBeVisible();
     }
-    await page.addStyleTag({
-      content: `
-        *, *::before, *::after { animation: none !important; transition: none !important; }
-        .scroll-reveal { opacity: 1 !important; transform: none !important; }
-      `
-    });
-
-    const results = await new AxeBuilder({ page })
-      .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa"])
-      .analyze();
-
-    if (process.env.A11Y_DEBUG && results.violations.length) {
-      console.log(JSON.stringify(results.violations.map((violation) => ({
-        id: violation.id,
-        nodes: violation.nodes.map((node) => ({ target: node.target, html: node.html }))
-      }))));
-    }
-
-    expect(results.violations).toEqual([]);
+    expect(await scanForViolations(page)).toEqual([]);
   });
 }
+
+const managerDemoRoutes = ["/pilot", "/manager", "/manager/schedule", "/schedule", "/admin/employees", "/admin/shift-templates"];
+const employeeDemoRoutes = ["/employee", "/availability", "/my-shifts", "/schedule", "/swap-requests", "/manager-requests"];
+
+test("manager demo routes have no automatic WCAG A/AA violations", async ({ page }) => {
+  await loginToDemo(page, "manager", "Admin-1234");
+  for (const route of managerDemoRoutes) {
+    await page.goto(route);
+    await expect(page.locator(".app-shell")).toBeVisible();
+    const violations = await scanForViolations(page);
+    expect(violations, `${route}: ${JSON.stringify(violations.map((v) => v.id))}`).toEqual([]);
+  }
+});
+
+test("employee demo routes have no automatic WCAG A/AA violations", async ({ page }) => {
+  await loginToDemo(page, "employee", "Demo-1234");
+  for (const route of employeeDemoRoutes) {
+    await page.goto(route);
+    await expect(page.locator(".app-shell")).toBeVisible();
+    const violations = await scanForViolations(page);
+    expect(violations, `${route}: ${JSON.stringify(violations.map((v) => v.id))}`).toEqual([]);
+  }
+});

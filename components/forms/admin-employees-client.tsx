@@ -115,8 +115,9 @@ export function AdminEmployeesClient({ initialEmployees }: { initialEmployees: E
 
         <div className="grid grid-3">
           <div className="field">
-            <label>שם</label>
+            <label htmlFor="new-user-first-name">שם</label>
             <input
+              id="new-user-first-name"
               className="input"
               value={newUser.firstName}
               onChange={(event) =>
@@ -125,8 +126,9 @@ export function AdminEmployeesClient({ initialEmployees }: { initialEmployees: E
             />
           </div>
           <div className="field">
-            <label>משפחה</label>
+            <label htmlFor="new-user-last-name">משפחה</label>
             <input
+              id="new-user-last-name"
               className="input"
               value={newUser.lastName}
               onChange={(event) =>
@@ -135,8 +137,9 @@ export function AdminEmployeesClient({ initialEmployees }: { initialEmployees: E
             />
           </div>
           <div className="field">
-            <label>תפקיד</label>
+            <label htmlFor="new-user-role">תפקיד</label>
             <select
+              id="new-user-role"
               className="select"
               value={newUser.role}
               onChange={(event) =>
@@ -151,8 +154,9 @@ export function AdminEmployeesClient({ initialEmployees }: { initialEmployees: E
             </select>
           </div>
           <div className="field">
-            <label>עסק / סניף</label>
+            <label htmlFor="new-user-org-branch">עסק / סניף</label>
             <select
+              id="new-user-org-branch"
               className="select"
               value={`${newUser.organizationId}:${newUser.branchId}`}
               onChange={(event) => {
@@ -175,8 +179,9 @@ export function AdminEmployeesClient({ initialEmployees }: { initialEmployees: E
             </select>
           </div>
           <div className="field">
-            <label>ת.ז / שם משתמש</label>
+            <label htmlFor="new-user-national-id">ת.ז / שם משתמש</label>
             <input
+              id="new-user-national-id"
               className="input"
               inputMode="numeric"
               value={newUser.nationalId}
@@ -186,8 +191,9 @@ export function AdminEmployeesClient({ initialEmployees }: { initialEmployees: E
             />
           </div>
           <div className="field">
-            <label>שם משתמש לכניסה</label>
+            <label htmlFor="new-user-username">שם משתמש לכניסה</label>
             <input
+              id="new-user-username"
               className="input"
               value={newUser.username}
               onChange={(event) =>
@@ -196,8 +202,9 @@ export function AdminEmployeesClient({ initialEmployees }: { initialEmployees: E
             />
           </div>
           <div className="field">
-            <label>מייל</label>
+            <label htmlFor="new-user-email">מייל</label>
             <input
+              id="new-user-email"
               className="input"
               type="email"
               value={newUser.email}
@@ -207,8 +214,9 @@ export function AdminEmployeesClient({ initialEmployees }: { initialEmployees: E
             />
           </div>
           <div className="field">
-            <label>סיסמה ראשונית</label>
+            <label htmlFor="new-user-password">סיסמה ראשונית</label>
             <input
+              id="new-user-password"
               className="input"
               type="password"
               value={newUser.password}
@@ -341,6 +349,7 @@ export function AdminEmployeesClient({ initialEmployees }: { initialEmployees: E
                 <td>
                   <input
                     className="input"
+                    aria-label="שם העובד/ת"
                     value={employee.fullName}
                     onChange={(event) =>
                       updateEmployee(employee.id, { fullName: event.target.value })
@@ -352,6 +361,7 @@ export function AdminEmployeesClient({ initialEmployees }: { initialEmployees: E
                     <SeniorityBadge level={employee.seniorityLevel} />
                     <select
                       className="select"
+                      aria-label={`ותק — ${employee.fullName}`}
                       value={employee.seniorityLevel}
                       onChange={(event) =>
                         updateEmployee(employee.id, {
@@ -371,6 +381,7 @@ export function AdminEmployeesClient({ initialEmployees }: { initialEmployees: E
                   <input
                     checked={employee.canOpen}
                     type="checkbox"
+                    aria-label={`הרשאת פתיחה — ${employee.fullName}`}
                     onChange={(event) =>
                       updateEmployee(employee.id, { canOpen: event.target.checked })
                     }
@@ -380,6 +391,7 @@ export function AdminEmployeesClient({ initialEmployees }: { initialEmployees: E
                   <input
                     checked={employee.canClose}
                     type="checkbox"
+                    aria-label={`הרשאת סגירה — ${employee.fullName}`}
                     onChange={(event) =>
                       updateEmployee(employee.id, { canClose: event.target.checked })
                     }
@@ -389,6 +401,7 @@ export function AdminEmployeesClient({ initialEmployees }: { initialEmployees: E
                   <input
                     checked={employee.active}
                     type="checkbox"
+                    aria-label={`עובד/ת פעיל/ה — ${employee.fullName}`}
                     onChange={(event) =>
                       updateEmployee(employee.id, { active: event.target.checked })
                     }

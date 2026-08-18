@@ -88,8 +88,9 @@ export function SwapRequestsClient({
           <h2>יצירת בקשת החלפה</h2>
           <div className="grid">
             <div className="field">
-              <label>המשמרת שלי</label>
+              <label htmlFor="swap-original-shift">המשמרת שלי</label>
               <select
+                id="swap-original-shift"
                 className="select"
                 value={originalShiftId}
                 onChange={(event) => setOriginalShiftId(event.target.value)}
@@ -109,8 +110,9 @@ export function SwapRequestsClient({
               </select>
             </div>
             <div className="field">
-              <label>עובד יעד</label>
+              <label htmlFor="swap-target-employee">עובד יעד</label>
               <select
+                id="swap-target-employee"
                 className="select"
                 value={targetEmployeeId}
                 onChange={(event) => setTargetEmployeeId(event.target.value)}
@@ -125,8 +127,9 @@ export function SwapRequestsClient({
               </select>
             </div>
             <div className="field">
-              <label>סיבה</label>
+              <label htmlFor="swap-reason">סיבה</label>
               <textarea
+                id="swap-reason"
                 className="textarea"
                 value={reason}
                 onChange={(event) => setReason(event.target.value)}
