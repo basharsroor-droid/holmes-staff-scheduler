@@ -2569,7 +2569,15 @@ html.si-lock, html.si-lock body {
 @media (max-width: 820px) {
   .marketing-navbar-shell {
     position: absolute !important;
-    inset: 0 0 auto !important;
+    /* Split out of the `inset` shorthand so `top` can carry the
+       safe-area inset -- body's own padding-top (see the safe-area
+       rule near the top of this file) doesn't reach this element: it's
+       position:absolute within the hero section, pulled out of normal
+       flow, so it needs its own offset rather than inheriting one. */
+    top: env(safe-area-inset-top) !important;
+    right: 0 !important;
+    left: 0 !important;
+    bottom: auto !important;
     z-index: 1000 !important;
   }
   .marketing-navbar-shell > div { padding: 9px 12px; }
