@@ -17,6 +17,9 @@
     "seed:demo": "node scripts/seed-demo-environment.mjs"
   },
   "dependencies": {
+    "@capacitor/cli": "^8.5.0",
+    "@capacitor/core": "^8.5.0",
+    "@capacitor/ios": "^8.5.0",
     "@hebcal/core": "^6.9.2",
     "@radix-ui/react-slot": "^1.2.4",
     "@supabase/ssr": "0.12.4",
