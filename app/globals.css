@@ -2724,6 +2724,50 @@ html.si-lock, html.si-lock body {
   }
   .ch-hero-ctas { width: min(100%, 350px); margin-top: 22px !important; }
   .ch-hero-ctas a { min-height: 52px; border-radius: 15px; }
+
+  /* On mobile the hero content is top-anchored (justify-content:
+     flex-start, right above) instead of centered like desktop, so all
+     the vertical space the headline/CTAs don't use collects below them
+     as a plain gap -- reported live via screenshot as looking empty.
+     The desktop hero already fills exactly this kind of space with the
+     giant .ch-bg-wordmark (defined in cinematic-hero.tsx) bleeding off
+     the bottom edge; measured it directly on mobile via
+     getBoundingClientRect() and it's technically present but nearly
+     invisible there -- opacity animates only up to 0.30, and `bottom:
+     -5%` pushes roughly 40 of its 96px height below the viewport
+     entirely on a 812px-tall screen (more on shorter ones). Both
+     fixed here for mobile specifically, not changed for desktop where
+     the current look already works.
+     !important throughout: .ch-bg-wordmark's base rule lives in
+     cinematic-hero.tsx's own injected <style> tag, which renders later
+     in the DOM than this stylesheet, so it wins equal-specificity ties
+     without it -- same reason the other rules in this block already
+     use !important.
+     `top` in fixed px, not `bottom` in %: the content above (kicker +
+     clamp()'d headline + lead + CTAs) is fixed-height regardless of
+     device -- only the *empty* zone below it grows or shrinks with
+     viewport height. A percentage-of-container `bottom` offset moves
+     by a different pixel amount than that fixed content height does,
+     so on a shorter phone the two can overlap outright (measured:
+     36px of the wordmark sat behind the CTA buttons at 812px tall,
+     switching to bottom:6% from the earlier bottom:-5%). Anchoring
+     from `top` instead at a fixed offset keeps a constant ~20px gap
+     below the CTAs on any device -- on a very short screen the mark
+     may run past the fold (fine, the hero has overflow:hidden), on a
+     tall one it just leaves more room below it, never overlap above. */
+  .ch-bg-wordmark {
+    top: 730px !important;
+    bottom: auto !important;
+    font-size: clamp(64px, 24vw, 120px) !important;
+    animation-name: ch-bg-loop-mobile !important;
+  }
+  @keyframes ch-bg-loop-mobile {
+    0%, 100% { transform: translateX(-50%) scale(1); opacity: 0.34; }
+    50% { transform: translateX(-50%) scale(1.04); opacity: 0.46; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .ch-bg-wordmark { animation: none !important; opacity: 0.4 !important; }
+  }
 }
 
 @media (max-width: 820px) {
