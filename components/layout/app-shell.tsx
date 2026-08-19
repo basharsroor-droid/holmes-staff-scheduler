@@ -37,8 +37,8 @@ const employeeNav = [
 ];
 
 const managerNav = [
-  { href: "/pilot", label: "מצב הצגה", icon: MonitorPlay },
-  { href: "/manager", label: "שולחן ניהול", icon: CalendarCheck },
+  { href: "/pilot", label: "סביבת ניסיון", icon: MonitorPlay },
+  { href: "/manager", label: "מרכז הניהול", icon: CalendarCheck },
   { href: "/manager/schedule", label: "סידור עבודה", icon: Wand2 },
   { href: "/schedule", label: "לוח עבודה סופי", icon: CalendarCheck },
   { href: "/swap-requests", label: "החלפות", icon: Repeat2 },

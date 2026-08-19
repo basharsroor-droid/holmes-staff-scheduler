@@ -70,7 +70,7 @@ export default function PilotPage() {
   return (
     <>
       <PageHeader
-        eyebrow="מצב הצגה"
+        eyebrow="סביבת ניסיון"
         title={`${productConfig.name} לעסקים עם עובדים במשמרות`}
         description={`מסך אחד להצגה מול מנהל/ת: מה העובדים עושים, מה ההנהלה מקבלת, ואיך נראה תהליך העבודה החודשי. הדמו כרגע מוצג על ${demoOrganization.branchName}.`}
         actions={

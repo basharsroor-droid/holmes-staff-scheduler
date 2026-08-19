@@ -145,8 +145,8 @@ export function AuthGate() {
       <section className="auth-hero demo-auth-intro">
         <BrandLogo light />
         <p>
-          {productConfig.tagline}. זה אזור פרטי לעובדים ולמנהלים, עם משתמשים
-          שנוצרים מראש וכניסה ראשונה עם החלפת סיסמה חובה.
+          {productConfig.tagline}. אזור פרטי לעובדים ולמנהלים, בדיוק כמו
+          שהמערכת האמיתית עובדת — כולל החלפת סיסמה אישית בכניסה הראשונה.
         </p>
         <div className="card-muted">
           דמו פעיל: {demoOrganization.businessName} · {demoOrganization.branchName}
