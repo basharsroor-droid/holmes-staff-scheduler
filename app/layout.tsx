@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 
 import "@/app/globals.css";
 
-import { SiteIntro } from "@/components/brand/site-intro";
+import { introPrebootScript, SiteIntro } from "@/components/brand/site-intro";
 import { AppShell } from "@/components/layout/app-shell";
 import { ServiceWorkerRegister } from "@/components/pwa/sw-register";
 import { productConfig } from "@/lib/app-config";
@@ -41,6 +41,11 @@ export default function RootLayout({
   return (
     <html lang="he" dir="rtl">
       <body>
+        {/* Must be the literal first thing in <body> -- it runs
+            synchronously as the browser parses past it, before any of the
+            real page markup below gets painted. See introPrebootScript's
+            own comment in site-intro.tsx for why this exists. */}
+        <script dangerouslySetInnerHTML={{ __html: introPrebootScript }} />
         <SiteIntro />
         <AppShell>{children}</AppShell>
         <ServiceWorkerRegister />
