@@ -60,6 +60,16 @@ test("login validates empty credentials without contacting auth", async ({ page 
   );
 });
 
+// The native (Capacitor) app's entry point -- capacitor.config.ts points
+// server.url here instead of at "/" so opening the app skips marketing
+// content entirely, even for a brand-new user with no ShiftPilot account.
+test("the native app entry route redirects straight to login, not marketing", async ({ page }) => {
+  await page.goto("/app");
+
+  await expect(page).toHaveURL(/\/login$/);
+  await expect(page.getByRole("heading", { name: "כניסה למערכת" })).toBeVisible();
+});
+
 test("anonymous visitors cannot enter the workspace", async ({ page }) => {
   await page.goto("/workspace");
 

@@ -1,16 +1,25 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { KeyRound, Loader2, LogIn, ShieldCheck } from "lucide-react";
 
 import { BrandLogo } from "@/components/brand/brand-logo";
+import { isNativeApp } from "@/lib/native-app";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 
 export default function LoginPage() {
   const router = useRouter();
   const supabase = useMemo(() => createSupabaseBrowserClient(), []);
+  // Inside the wrapped app this screen IS the front door (see app/app/page.tsx)
+  // -- the logo shouldn't link back to "/" there, since that's the full
+  // marketing site the app is explicitly built to skip. Checked client-side
+  // only (see lib/native-app.ts) so regular browser visitors are completely
+  // unaffected; starts false to match the server-rendered markup exactly,
+  // then flips after mount once navigator.userAgent is available.
+  const [nativeApp, setNativeApp] = useState(false);
+  useEffect(() => setNativeApp(isNativeApp()), []);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
@@ -85,7 +94,7 @@ export default function LoginPage() {
   return (
     <main className="onboarding-page auth-flow auth-login" dir="rtl">
       <section className="onboarding-intro auth-flow-intro">
-        <BrandLogo href="/" light />
+        <BrandLogo href={nativeApp ? undefined : "/"} light />
         <p className="eyebrow">SHIFT PILOT לעסקים</p>
         <h1>טוב לראות אותך שוב.</h1>
         <p className="lead">כניסה מאובטחת לסביבת העסק, הצוות וסידורי העבודה.</p>

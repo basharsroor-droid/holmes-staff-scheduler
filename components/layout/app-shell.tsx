@@ -76,6 +76,7 @@ function normalizeAuthUser(user: AuthUser): AuthUser {
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const isSaasRoute =
+    pathname === "/app" ||
     pathname === "/onboarding" ||
     pathname === "/login" ||
     pathname === "/demo" ||

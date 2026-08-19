@@ -18,14 +18,26 @@ const config: CapacitorConfig = {
   appName: "ShiftPilot",
   webDir: "capacitor-www",
   server: {
-    url: "https://www.shiftpilothq.com",
+    // /app is a dedicated native-entry route (app/app/page.tsx), not the
+    // marketing homepage -- it redirects straight to /login, so opening the
+    // app never shows marketing content, matching what was asked for
+    // explicitly (login-first, no homepage detour, app-only -- the regular
+    // website at "/" is completely unaffected).
+    url: "https://www.shiftpilothq.com/app",
     // https-only everywhere, including Android's WebView origin --
     // this app sets Supabase session cookies and security headers
     // (HSTS, CSP-adjacent) that assume https, and cleartext http
     // would break both silently.
     cleartext: false,
     androidScheme: "https"
-  }
+  },
+  // Tags every request from the wrapped app's WebView so the site can tell
+  // "running inside the native shell" apart from a regular mobile browser --
+  // see lib/native-app.ts, used to stop the one real leak back into
+  // marketing content (the brand logo's home link) on the app's login-first
+  // screens. A top-level CapacitorConfig option, not nested under `server`.
+  // Scoped narrowly on purpose.
+  appendUserAgent: "ShiftPilotNativeApp"
 };
 
 export default config;

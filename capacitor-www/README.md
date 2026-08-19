@@ -2,8 +2,10 @@
 
 Capacitor's CLI requires `webDir` to point at a real directory even
 though this project doesn't use it to load content -- `capacitor.config.ts`
-sets `server.url` to the live production site, so the native WebView
-loads `https://www.shiftpilothq.com` directly, not anything from here.
+sets `server.url` to `https://www.shiftpilothq.com/app`, a dedicated
+native-entry route (`app/app/page.tsx`) that redirects straight to
+`/login`, not the marketing homepage -- so the native WebView never
+shows marketing content, not anything from here.
 
 This directory holds a single placeholder `index.html` only because
 `npx cap sync` refuses to run against an empty one. If you ever need a

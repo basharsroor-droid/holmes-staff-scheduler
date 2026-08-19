@@ -5,12 +5,17 @@ import Link from "next/link";
 import { Building2, CheckCircle2, Loader2, ShieldCheck, Users } from "lucide-react";
 
 import { BrandLogo } from "@/components/brand/brand-logo";
+import { isNativeApp } from "@/lib/native-app";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 
 type Stage = "loading" | "account" | "verify" | "workspace" | "done";
 
 export default function OnboardingPage() {
   const supabase = useMemo(() => createSupabaseBrowserClient(), []);
+  // See app/login/page.tsx for why: inside the wrapped app the logo
+  // shouldn't link back to the marketing site at "/".
+  const [nativeApp, setNativeApp] = useState(false);
+  useEffect(() => setNativeApp(isNativeApp()), []);
   const [stage, setStage] = useState<Stage>("loading");
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
@@ -93,7 +98,7 @@ export default function OnboardingPage() {
       <div className="section-glow violet" style={{ width: 340, height: 340, bottom: -140, insetInlineStart: -60 }} aria-hidden="true" />
 
       <section className="onboarding-intro business-onboarding-intro">
-        <BrandLogo href="/" light />
+        <BrandLogo href={nativeApp ? undefined : "/"} light />
         <p className="eyebrow">SHIFT PILOT לעסקים</p>
         <h1>סביבת העבודה של העסק שלך, מוכנה תוך כמה דקות.</h1>
         <p className="lead">פותחים חשבון עסקי מאובטח, מגדירים את הסניף הראשון ואז מזמינים מנהלים ועובדים.</p>
