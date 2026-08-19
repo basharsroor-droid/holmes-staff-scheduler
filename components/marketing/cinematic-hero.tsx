@@ -338,7 +338,7 @@ export function CinematicHero() {
       {/* closing CTA layer */}
       <div className="ch-cta-wrapper ch-reveal pointer-events-auto absolute z-10 flex w-screen flex-col items-center justify-center px-4 text-center will-change-transform">
         <h2 className="ch-text-brand mb-6 text-3xl font-bold tracking-tight sm:text-5xl md:text-6xl">
-          הגיע הזמן להפסיק לרדוף אחרי המשמרות.
+          פחות הודעות. פחות בלבול. יותר שליטה בסידור.
         </h2>
         <p className="mx-auto mb-12 max-w-xl text-base font-light leading-relaxed text-muted-foreground sm:text-lg md:text-xl">
           פתחו סביבת עבודה, הגדירו את הסניף הראשון והכינו את הסידור הבא בצורה מסודרת.

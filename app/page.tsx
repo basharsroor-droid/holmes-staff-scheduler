@@ -9,12 +9,12 @@ import { ScrollToTop } from "@/components/marketing/scroll-to-top";
 import { SiteNavbar } from "@/components/marketing/site-navbar";
 
 const capabilities = [
-  { icon: CalendarCheck, title: "כל הזמינות במקום אחד", text: "כל עובד מסמן מועדפת, זמין, רק אם צריך או לא זמין — והמנהל מקבל תמונה מסודרת לחודש." },
-  { icon: CalendarRange, title: "שיבוץ לפי מה שהוגש", text: "רואים את זמינות העובדים לצד המשמרות והתקנים, ומשבצים על בסיס מידע עדכני." },
-  { icon: Repeat2, title: "החלפות בתהליך ברור", text: "העובד השני מאשר, המנהל נותן אישור סופי וכל שינוי נשמר ומתועד במערכת." },
-  { icon: UserPlus, title: "צוות, סניפים ומחלקות", text: "מזמינים עובדים במייל ומשייכים כל אחד לסניף, למחלקה, לתפקיד ולהרשאות המתאימות." },
-  { icon: BarChart3, title: "תמונה ברורה לפני הפרסום", text: "רואים מי הגיש, מי עדיין חסר, אילו משמרות דורשות שיבוץ ומה מצב הסידור לפני שמפרסמים." },
-  { icon: ShieldCheck, title: "גישה לפי עסק ותפקיד", text: "כל עסק פועל בסביבה נפרדת, וכל משתמש מקבל גישה לפי הארגון, הסניף והתפקיד שלו." }
+  { icon: CalendarCheck, title: "כל הזמינות במקום אחד", text: "כל עובד מסמן את הזמינות שלו בקלות מהטלפון — והמנהל מקבל תמונה מסודרת לכל החודש." },
+  { icon: CalendarRange, title: "בונים סידור עם התמונה המלאה", text: "הזמינות של כל עובד נמצאת מולכם בזמן השיבוץ, כדי לקבל החלטות מהר יותר ולצמצם טעויות." },
+  { icon: Repeat2, title: "החלפות בתהליך ברור", text: "כל בקשת החלפה עוברת אישור מסודר — ותמיד יודעים בדיוק מי אישר ומתי." },
+  { icon: UserPlus, title: "מוכן לעסק שגדל", text: "מזמינים כל עובד במייל, ומגדירים בדיוק לאיזה סניף, מחלקה ותפקיד הוא שייך." },
+  { icon: BarChart3, title: "יודעים בדיוק מה חסר לפני שמפרסמים", text: "מי כבר הגיש, מי עדיין חסר, איפה נשארו משמרות פתוחות ומה דורש טיפול." },
+  { icon: ShieldCheck, title: "המידע שלכם נשאר פרטי", text: "כל עסק פועל בסביבה נפרדת משלו, וכל עובד רואה רק את מה שרלוונטי לתפקיד שלו." }
 ];
 
 const setupSteps = [
@@ -54,7 +54,7 @@ export default function HomePage() {
 
     <section className="pro-section problem-section">
       <div className="section-glow blue" style={{ width: 420, height: 420, top: -140, left: -80 }} aria-hidden="true" />
-      <ScrollReveal className="section-heading"><p className="pro-kicker dark">למה ShiftPilot?</p><h2>הבעיה היא לא הסידור. הבעיה היא קבוצת הוואטסאפ, האקסל הישן וההודעות שאף אחד לא זוכר אם ענה עליהן.</h2><p>כל שינוי הופך לשרשור הודעות חדש. כל גרסה של הסידור מתחרה בגרסה הקודמת. ואף אחד לא בטוח איזו מהן הנכונה.</p></ScrollReveal>
+      <ScrollReveal className="section-heading"><p className="pro-kicker dark">למה ShiftPilot?</p><h2>הסידור עצמו הוא רק חצי מהעבודה.</h2><p>הבעיה מתחילה כשזמינות מגיעה בוואטסאפ, שינויים נשלחים בפרטי, הסידור יושב באקסל והחלפות נסגרות בין הודעה לשיחת טלפון. <strong>ShiftPilot מרכזת את כל התהליך במקום אחד — כדי שהמנהל יוכל לנהל, במקום לרדוף אחרי מידע.</strong></p></ScrollReveal>
       <div className="comparison-grid">
         <ScrollReveal className="comparison-card old"><small>היום</small><h3>וואטסאפ, אקסל וזיכרון</h3><ul><li>עשרות הודעות זמינות מפוזרות בקבוצות וואטסאפ, SMS ושיחות טלפון</li><li>העתקה ידנית לאקסל, ללוח מחיק או לדף מודפס</li><li>התנגשויות וחוסרים שמתגלים רק כשהעובד כבר לא הגיע</li><li>החלפות משמרת בלי תיעוד — מי בעצם אישר את זה?</li></ul></ScrollReveal>
         <ScrollReveal className="comparison-card new" delay={120}><small>עם ShiftPilot</small><h3>כל הזמינות, במקום אחד</h3><ul><li>טופס אחד לכל העובדים — בלי קבוצות וואטסאפ נפרדות</li><li>תמונת מצב מיידית: מי הגיש, מי חסר, איפה יש חור בסידור</li><li>שיבוץ לפי זמינות ותקנים, לא לפי מי שהתקשר אחרון</li><li>כל החלפה עוברת אישור מתועד — תמיד יודעים מי אישר מה</li></ul></ScrollReveal>
@@ -80,20 +80,20 @@ export default function HomePage() {
     </section>
 
     <section className="pro-section security-section" id="security">
-      <ScrollReveal className="security-copy"><p className="pro-kicker">הרשאות והפרדת מידע</p><h2>הגישה למידע נקבעת לפי העסק והתפקיד.</h2><p>כל משתמש מקבל גישה בהתאם לארגון, לסניף ולתפקיד שלו. העובדים רואים את המידע הנדרש להם, המנהלים פועלים בתוך תחומי האחריות שלהם ובעל העסק שולט בהרשאות.</p><div><span><LockKeyhole /> כניסה מאובטחת ואימות מייל</span><span><ShieldCheck /> הרשאות לפי תפקיד וסניף</span><span><Building2 /> הפרדה בין סביבות עבודה</span></div></ScrollReveal>
-      <ScrollReveal className="security-visual" delay={120}><ShieldCheck /><span><b>RLS</b><small>Row Level Security</small></span><i /><span><b>Roles</b><small>Owner · Manager · Employee</small></span><i /><span><b>Audit</b><small>פעולות והחלטות מתועדות</small></span></ScrollReveal>
+      <ScrollReveal className="security-copy"><p className="pro-kicker">הרשאות והפרדת מידע</p><h2>המידע של העסק שלכם נשאר פרטי, תמיד.</h2><p>כל משתמש רואה בדיוק את מה שנוגע אליו — לא פחות, ולא יותר. העובדים רואים את המשמרות שלהם, המנהלים פועלים בתוך תחומי האחריות שלהם, ובעל העסק שולט בהכל.</p><div><span><LockKeyhole /> כניסה מאובטחת ואימות מייל</span><span><ShieldCheck /> הרשאות לפי תפקיד וסניף</span><span><Building2 /> הפרדה בין סביבות עבודה</span></div></ScrollReveal>
+      <ScrollReveal className="security-visual" delay={120}><ShieldCheck /><span><b>בידוד מלא</b><small>המידע שלכם לא נגיש לאף עסק אחר</small></span><i /><span><b>הרשאות לפי תפקיד</b><small>כל אחד רואה רק את מה שנוגע אליו</small></span><i /><span><b>תיעוד מלא</b><small>כל פעולה ניהולית נשמרת ומתועדת</small></span></ScrollReveal>
     </section>
 
     <section className="pro-section faq-section"><ScrollReveal className="section-heading"><p className="pro-kicker dark">שאלות נפוצות</p><h2>לפני שמתחילים</h2></ScrollReveal><div className="faq-grid"><details open><summary>האם צריך להוריד אפליקציה?</summary><p>לא. ShiftPilot פועלת ישירות בדפדפן בטלפון ובמחשב, וכל משתמש נכנס לסביבה שלו באמצעות חשבון מאובטח.</p></details><details><summary>אפשר להתאים את המשמרות לכל עסק?</summary><p>כן. אפשר להגדיר שמות, שעות, מספר עובדים ודרישות מיוחדות בהתאם לסניף, לעונה ולאופן העבודה של העסק.</p></details><details><summary>איך מתבצעת החלפת משמרת?</summary><p>העובד שולח בקשה, העובד המחליף מאשר והמנהל נותן אישור סופי. הסידור מתעדכן רק לאחר השלמת התהליך.</p></details><details><summary>אפשר לנהל כמה סניפים ומחלקות?</summary><p>כן. אפשר לשייך עובדים, מנהלים ומשמרות לסניפים ולמחלקות, ולהגדיר לכל משתמש את תחומי הגישה המתאימים לו.</p></details></div></section>
 
-    <section className="final-cta"><ScrollReveal><BrandLogo light /><h2>את הסידור הבא אפשר להתחיל אחרת.</h2><p>פתחו סביבת עבודה לעסק, הזמינו את הצוות ורכזו את הזמינות, השיבוצים וההחלפות במקום אחד.</p><div><Link className="button brand-button large" href="/onboarding">פתיחת עסק חדש <ArrowLeft size={18} /></Link><Link className="button glass-button large" href="/demo">צפייה בדמו</Link></div></ScrollReveal></section>
+    <section className="final-cta"><ScrollReveal><BrandLogo light /><h2>את הסידור הבא אפשר להתחיל אחרת.</h2><p>פתחו סביבת עבודה לעסק, הזמינו את הצוות ורכזו את הזמינות, השיבוצים וההחלפות במקום אחד.</p><div><Link className="button brand-button large" href="/onboarding">פתיחת סביבת עבודה <ArrowLeft size={18} /></Link><Link className="button glass-button large" href="/demo">צפייה בדמו</Link></div></ScrollReveal></section>
 
-    <div className="mobile-sticky-actions"><Link href="/demo">דמו</Link><Link href="/onboarding">פתיחת עסק <ArrowLeft size={16} /></Link></div>
+    <div className="mobile-sticky-actions"><Link href="/demo">דמו</Link><Link href="/onboarding">פתיחת סביבת עבודה <ArrowLeft size={16} /></Link></div>
 
     <footer className="pro-footer">
       <div className="pro-footer-top">
         <div className="pro-footer-brand"><BrandLogo href="/" /><p>זמינות, סידורי עבודה והחלפות משמרת — במקום אחד.</p></div>
-        <nav className="pro-footer-col" aria-label="גישה למערכת"><h4>גישה למערכת</h4><Link href="/login">כניסה למערכת</Link><Link href="/onboarding">פתיחת עסק</Link><Link href="/demo">סביבת הדמו</Link></nav>
+        <nav className="pro-footer-col" aria-label="גישה למערכת"><h4>גישה למערכת</h4><Link href="/login">כניסה למערכת</Link><Link href="/onboarding">פתיחת סביבת עבודה</Link><Link href="/demo">סביבת הדמו</Link></nav>
         <nav className="pro-footer-col" aria-label="מידע ותמיכה"><h4>מידע ותמיכה</h4><Link href="/about">מי אנחנו</Link><Link href="/support">תמיכה</Link><a href="mailto:support@shiftpilothq.com">support@shiftpilothq.com</a><Link href="/terms">תנאי שימוש</Link><Link href="/privacy">מדיניות פרטיות</Link></nav>
       </div>
       <div className="pro-footer-wordmark" aria-hidden="true">ShiftPilot</div>
