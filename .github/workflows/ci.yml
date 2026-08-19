@@ -51,7 +51,21 @@ jobs:
         run: npm run build
 
       - name: Install Playwright Chromium
-        run: npx playwright install --with-deps chromium
+        # --with-deps was dropped deliberately: it runs `apt-get update`
+        # against Ubuntu's package mirrors before installing the browser,
+        # and that step hung for the full 15-minute job timeout five times
+        # in a row today (both here and on an earlier PR this session) --
+        # confirmed from the raw log, it wasn't the Chromium download
+        # itself that stalled, it was apt sitting on
+        # archive.ubuntu.com/azure.archive.ubuntu.com InRelease fetches.
+        # GitHub's ubuntu-latest runner image already ships the shared
+        # libraries Chromium needs (it's a general-purpose desktop-ish
+        # image, not a minimal container), so the OS package step this
+        # flag adds is redundant here, not load-bearing -- if that
+        # assumption ever turns out wrong, the browser launch itself in
+        # the next step will fail with a clear missing-library error
+        # instead of silently hanging.
+        run: npx playwright install chromium
 
       - name: Run browser smoke tests
         run: npm run test:e2e
