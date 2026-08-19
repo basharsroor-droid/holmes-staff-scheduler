@@ -150,7 +150,7 @@ export function AvailabilityForm({
           <strong>{availableDays}</strong>
         </div>
         <div className="summary-pill">
-          <span className="badge warning">רק אם חייבים</span>
+          <span className="badge warning">רק אם צריך</span>
           <strong>{onlyIfNeededDays}</strong>
         </div>
       </div>
@@ -213,7 +213,7 @@ export function AvailabilityForm({
                     })
                   }
                 />
-                רק אם חייבים
+                רק אם צריך
               </label>
 
               <textarea

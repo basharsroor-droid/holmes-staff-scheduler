@@ -14,7 +14,7 @@ export default function AvailabilityPage() {
       <PageHeader
         eyebrow="הגשת זמינות"
         title={`זמינות לחודש ${demoOrganization.scheduleMonthLabel}`}
-        description="העובד מסמן זמינות, אי זמינות, העדפה או רק אם חייבים. המנהל/ת יראו את הנתונים בזמן השיבוץ."
+        description="העובד מסמן זמינות, אי זמינות, העדפה או רק אם צריך. המנהל/ת יראו את הנתונים בזמן השיבוץ."
       />
       <AvailabilityForm
         days={monthDays}

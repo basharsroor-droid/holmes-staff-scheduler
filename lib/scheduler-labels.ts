@@ -24,7 +24,7 @@ export const availabilityLabels: Record<AvailabilityStatus, string> = {
   available: "זמין",
   unavailable: "לא זמין",
   preferred: "מועדף",
-  only_if_needed: "רק אם חייבים"
+  only_if_needed: "רק אם צריך"
 };
 
 export const shiftStatusLabels: Record<ShiftStatus, string> = {

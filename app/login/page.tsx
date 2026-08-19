@@ -123,7 +123,7 @@ export default function LoginPage() {
             <div className="auth-forgot-link"><Link className="auth-secondary" href="/auth/forgot-password">שכחתי סיסמה</Link></div>
             <button className="button primary" disabled={busy} onClick={login}>{busy ? <Loader2 className="spin" size={17} /> : <LogIn size={17} />} כניסה מאובטחת</button>
             {message ? <p className="auth-message" role="alert">{message}</p> : null}
-            <p className="auth-secondary">עדיין אין לך חשבון? <Link href="/onboarding">פתיחת עסק חדש</Link></p>
+            <p className="auth-secondary">עדיין אין לך חשבון? <Link href="/onboarding">פתיחת סביבת עבודה</Link></p>
             <p className="auth-legal"><Link href="/terms">תנאי שימוש</Link><span>·</span><Link href="/privacy">מדיניות פרטיות</Link></p>
           </div>
         )}
