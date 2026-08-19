@@ -5,8 +5,13 @@ test("marketing page exposes the primary product journeys", async ({ page }) => 
 
   await expect(page).toHaveTitle(/ShiftPilot/i);
   await expect(page.getByRole("heading", { level: 1 })).toContainText("כל המשמרות");
-  await expect(page.getByRole("link", { name: /פתיחת סביבת עבודה/ })).toBeVisible();
-  await expect(page.getByRole("link", { name: /לצפייה בדמו/ })).toBeVisible();
+  // "פתיחת סביבת עבודה" is now the one consistent open-account CTA copy
+  // sitewide (hero, closing CTA, mobile sticky bar, footer -- unified
+  // from "פתיחת עסק"/"פתיחת עסק חדש" during the copy pass), so it
+  // legitimately matches more than one link on this page now -- .first()
+  // still proves the primary journey is present and visible.
+  await expect(page.getByRole("link", { name: /פתיחת סביבת עבודה/ }).first()).toBeVisible();
+  await expect(page.getByRole("link", { name: /לצפייה בדמו/ }).first()).toBeVisible();
 });
 
 test("production responses include browser security headers", async ({ request }) => {

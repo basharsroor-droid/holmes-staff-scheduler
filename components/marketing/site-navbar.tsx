@@ -93,7 +93,7 @@ export function SiteNavbar() {
               href="/onboarding"
               className="inline-flex items-center justify-center whitespace-nowrap rounded-full bg-[var(--primary)] px-5 py-2 text-sm font-semibold text-white shadow-[0_10px_24px_rgba(19,111,99,0.35)] transition-colors hover:bg-[var(--primary-dark)]"
             >
-              פתיחת עסק
+              פתיחת סביבת עבודה
             </Link>
           </motion.div>
         </motion.div>
@@ -169,7 +169,7 @@ export function SiteNavbar() {
                   onClick={() => setIsOpen(false)}
                   className="rounded-full bg-[var(--primary)] px-5 py-3 text-center text-base font-semibold text-white"
                 >
-                  פתיחת עסק
+                  פתיחת סביבת עבודה
                 </Link>
               </motion.div>
             </div>
