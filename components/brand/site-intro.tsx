@@ -5,6 +5,38 @@ import { useEffect, useRef, useState } from "react";
 const INTRO_KEY = "shiftpilot_code_intro_seen_v1";
 const tagline = "THE EASY WAY TO YOUR NEXT SHIFT".split(" ");
 
+// Reported live (2026-08-19): the site/app was visible for a beat before
+// the intro appeared, instead of the intro covering the screen from the
+// very first frame. Root cause -- this is a plain SSR/hydration fact, not
+// something React-side logic can fix on its own: the browser paints the
+// server-rendered HTML before ANY JavaScript runs, including this
+// component's own mount effect below. `visible` has to start `false` here
+// (sessionStorage/matchMedia aren't available during SSR, so there's no
+// way to know the right answer yet without a hydration mismatch) -- which
+// means the underlying page is guaranteed to paint first no matter how
+// fast the effect fires afterward.
+//
+// Fixed the standard way real "no-flash" scripts do it (same idea as a
+// dark-mode preboot script): introPrebootScript below runs as the literal
+// first thing inside <body> (see app/layout.tsx), synchronously, before
+// the browser paints anything that comes after it in the HTML. If the
+// intro should show, it inserts a plain, non-React placeholder covering
+// the screen with the exact same background the real overlay uses, so by
+// the time this component hydrates and takes over, there's nothing to
+// visibly hand off -- the placeholder and the real overlay look
+// identical. The mount effect below removes the placeholder the instant
+// React's own overlay is ready to take its place.
+export const introPrebootScript = `(function(){try{
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  if (sessionStorage.getItem("${INTRO_KEY}")) return;
+  document.documentElement.classList.add("si-lock");
+  var el = document.createElement("div");
+  el.id = "si-preboot";
+  el.setAttribute("aria-hidden", "true");
+  el.style.cssText = "position:fixed;inset:0;z-index:999999;background:radial-gradient(120% 120% at 50% 40%, var(--intro-bg-end) 0%, var(--intro-bg-start) 70%)";
+  document.body.appendChild(el);
+}catch(e){}})();`;
+
 export function SiteIntro() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [visible, setVisible] = useState(false);
@@ -14,6 +46,10 @@ export function SiteIntro() {
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches || window.sessionStorage.getItem(INTRO_KEY)) return;
     document.documentElement.classList.add("si-lock");
+    // Hand off from the preboot placeholder (see introPrebootScript above)
+    // to this real, interactive overlay -- same background, so removing
+    // it right as `visible` flips true is visually seamless.
+    document.getElementById("si-preboot")?.remove();
     setVisible(true);
     const frame = window.requestAnimationFrame(() => window.requestAnimationFrame(() => setStarted(true)));
     return () => window.cancelAnimationFrame(frame);
