@@ -78,8 +78,8 @@ export default function ManagerWorkspacePage() {
     <>
       <PageHeader
         eyebrow="גרסת מנהל/ת"
-        title="שולחן ניהול לפיילוט"
-        description="מסך החלטות אחד: איפה הסידור עומד, מה חסר לפני פרסום, ומה הפעולה הבאה שכדאי לעשות."
+        title="מרכז הניהול"
+        description="כל מה שדורש את תשומת הלב שלכם, במסך אחד. מצב הסידור, זמינות העובדים, משמרות פתוחות, בקשות החלפה והפעולות שצריך להשלים לפני הפרסום."
         actions={
           <>
             <Link className="button primary" href="/manager/schedule">

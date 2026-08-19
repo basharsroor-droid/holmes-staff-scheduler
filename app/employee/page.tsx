@@ -32,7 +32,7 @@ export default function EmployeeWorkspacePage() {
       <PageHeader
         eyebrow="גרסת עובד"
         title={`שלום ${currentEmployee?.fullName ?? "עובד"}`}
-        description="שולחן עבודה פשוט: הגשת זמינות, צפייה במשמרות האישיות ובקשות החלפה בלי מסכי ניהול מיותרים."
+        description="כל מה שצריך למשמרות שלך, במקום אחד. הגשת זמינות, צפייה במשמרות ובקשות החלפה — בצורה פשוטה וברורה."
         actions={
           <>
             <Link className="button primary" href="/availability">
