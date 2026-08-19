@@ -124,12 +124,12 @@ export default function OnboardingPage() {
         ) : null}
 
         {stage === "verify" ? (
-          <div className="onboarding-state"><CheckCircle2 size={46} /><h2>שלחנו לך מייל אימות</h2><p>יש לאשר את כתובת המייל. לאחר האישור תחזור לכאן כדי להגדיר את העסק.</p><Link className="button" href="/login">כבר אישרתי — כניסה</Link></div>
+          <div className="onboarding-state"><CheckCircle2 size={46} /><h2>שלחנו לך מייל אימות</h2><p>יש לאשר את כתובת המייל. לאחר האישור תחזור לכאן כדי להקים את העסק.</p><Link className="button" href="/login">כבר אישרתי — כניסה</Link></div>
         ) : null}
 
         {stage === "workspace" ? (
           <div className="grid">
-            <div><p className="eyebrow">שלב 2 מתוך 2</p><h2>הגדרת סביבת העבודה</h2><p className="lead">הפרטים ישמשו ליצירת החשבון הפרטי של העסק.</p></div>
+            <div><p className="eyebrow">שלב 2 מתוך 2</p><h2>הקמת סביבת העסק</h2><p className="lead">הפרטים האלה ישמשו להקמת סביבת העבודה הפרטית של העסק.</p></div>
             <label className="field"><span>שם העסק</span><input className="input" placeholder="לדוגמה: קפה נובה" value={businessName} onChange={(e) => setBusinessName(e.target.value)} /></label>
             <label className="field"><span>שם הסניף הראשון</span><input className="input" value={branchName} onChange={(e) => setBranchName(e.target.value)} /></label>
             <button className="button primary" disabled={busy} onClick={createWorkspace}>{busy ? <Loader2 className="spin" size={17} /> : null} יצירת סביבת העבודה</button>

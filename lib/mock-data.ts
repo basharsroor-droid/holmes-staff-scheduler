@@ -270,7 +270,7 @@ export const availability: Availability[] = monthDays.flatMap((day, dayIndex) =>
         availableShiftTemplateIds: assignedTemplateIds.length
           ? assignedTemplateIds
           : fallbackTemplates,
-        note: (dayIndex + employeeIndex) % 9 === 0 ? "אפשרי רק אם חייבים" : undefined
+        note: (dayIndex + employeeIndex) % 9 === 0 ? "אפשרי רק אם צריך" : undefined
       };
     });
 });
