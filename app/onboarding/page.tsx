@@ -99,7 +99,6 @@ export default function OnboardingPage() {
 
       <section className="onboarding-intro business-onboarding-intro">
         <BrandLogo href={nativeApp ? undefined : "/"} light />
-        <p className="eyebrow">SHIFT PILOT לעסקים</p>
         <h1>סביבת העבודה של העסק שלך, מוכנה תוך כמה דקות.</h1>
         <p className="lead">פותחים חשבון עסקי מאובטח, מגדירים את הסניף הראשון ואז מזמינים מנהלים ועובדים.</p>
         <p className="auth-secondary">כבר פתחת חשבון? <Link href="/login">כניסה למערכת</Link></p>

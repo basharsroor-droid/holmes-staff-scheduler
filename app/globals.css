@@ -5134,12 +5134,21 @@ html.si-lock, html.si-lock body {
 .auth-flow-intro .shiftpilot-logo-link,
 .business-onboarding-intro .shiftpilot-logo-link {
   width: fit-content;
-  margin-bottom: 30px;
+  /* Explicitly zeroed so nothing stacks on top of the logo's own margin
+     below, now that the spacing has moved off this wrapper. */
+  margin-bottom: 0;
 }
+/* The gap under the logo lives on the logo itself, not on the <Link> that
+   sometimes wraps it. BrandLogo only renders that link when it gets an href,
+   and the native app deliberately passes none (PR #154, so the logo cannot
+   navigate out to the marketing site) -- so a margin on .shiftpilot-logo-link
+   silently disappeared inside the app and left the wordmark sitting on top of
+   the headline. Same spacing both ways now. */
 .auth-flow-intro .shiftpilot-logo.original.light,
 .business-onboarding-intro .shiftpilot-logo.original.light {
   display: block;
   width: fit-content;
+  margin-bottom: 30px;
 }
 .auth-flow-intro .shiftpilot-logo.original.light img,
 .business-onboarding-intro .shiftpilot-logo.original.light img {
@@ -5267,10 +5276,17 @@ html.si-lock, html.si-lock body {
 .business-onboarding > .section-glow {
   display: none;
 }
+/* The dark-panel treatment below was written for the onboarding intro only,
+   but the login intro (.auth-flow-intro) has the exact same navy background --
+   without it, .onboarding-benefits fell back to the light-background base
+   styles (color: var(--primary-dark)) and the heading rendered dark blue on
+   dark blue, effectively invisible. Both panels share it now. */
+.auth-flow-intro .onboarding-benefits,
 .business-onboarding-intro .onboarding-benefits {
   gap: 9px;
   margin-top: 27px;
 }
+.auth-flow-intro .onboarding-benefits > div,
 .business-onboarding-intro .onboarding-benefits > div {
   min-height: 68px;
   padding: 11px 13px;
@@ -5279,11 +5295,13 @@ html.si-lock, html.si-lock body {
   color: #fff;
   background: rgba(255,255,255,.07);
 }
+.auth-flow-intro .onboarding-benefits svg,
 .business-onboarding-intro .onboarding-benefits svg {
   flex: 0 0 auto;
   color: #9bcaff;
   background: rgba(255,255,255,.10);
 }
+.auth-flow-intro .onboarding-benefits small,
 .business-onboarding-intro .onboarding-benefits small {
   color: #cbdcf1;
 }
@@ -5358,8 +5376,12 @@ html.si-lock, html.si-lock body {
   .business-onboarding-intro {
     padding: 31px 24px 29px;
   }
-  .auth-flow-intro .shiftpilot-logo-link,
-  .business-onboarding-intro .shiftpilot-logo-link {
+  /* Same reasoning as the desktop rule above: the spacing has to sit on the
+     logo, because the link wrapper does not exist inside the native app --
+     and the app renders at exactly this width, so this is the rule that
+     governs there. */
+  .auth-flow-intro .shiftpilot-logo.original.light,
+  .business-onboarding-intro .shiftpilot-logo.original.light {
     margin-bottom: 20px;
   }
   .auth-flow-intro .shiftpilot-logo.original.light img,
@@ -5385,10 +5407,12 @@ html.si-lock, html.si-lock body {
   .business-onboarding-card .onboarding-state {
     min-height: 270px;
   }
+  .auth-flow-intro .onboarding-benefits,
   .business-onboarding-intro .onboarding-benefits {
     grid-template-columns: 1fr;
     margin-top: 20px;
   }
+  .auth-flow-intro .onboarding-benefits > div,
   .business-onboarding-intro .onboarding-benefits > div {
     min-height: 58px;
     padding: 9px 11px;
