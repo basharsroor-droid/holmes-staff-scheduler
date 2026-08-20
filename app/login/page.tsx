@@ -8,6 +8,7 @@ import { KeyRound, Loader2, LogIn, ShieldCheck } from "lucide-react";
 import { BrandLogo } from "@/components/brand/brand-logo";
 import { isNativeApp } from "@/lib/native-app";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
+import { resolveLoginEmail } from "@/lib/auth-config";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -50,7 +51,7 @@ export default function LoginPage() {
     }
 
     setBusy(true);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { error } = await supabase.auth.signInWithPassword({ email: resolveLoginEmail(email), password });
 
     if (error) {
       setBusy(false);
