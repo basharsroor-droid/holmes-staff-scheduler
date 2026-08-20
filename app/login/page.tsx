@@ -95,7 +95,6 @@ export default function LoginPage() {
     <main className="onboarding-page auth-flow auth-login" dir="rtl">
       <section className="onboarding-intro auth-flow-intro">
         <BrandLogo href={nativeApp ? undefined : "/"} light />
-        <p className="eyebrow">SHIFT PILOT לעסקים</p>
         <h1>טוב לראות אותך שוב.</h1>
         <p className="lead">כניסה מאובטחת לסביבת העסק, הצוות וסידורי העבודה.</p>
         <div className="onboarding-benefits">
@@ -126,7 +125,7 @@ export default function LoginPage() {
           </div>
         ) : (
           <div className="grid">
-            <div><p className="eyebrow">כניסת בעלי עסק ומנהלים</p><h2>כניסה למערכת</h2></div>
+            <div><h2>כניסה למערכת</h2></div>
             <label className="field"><span>כתובת מייל</span><input className="input" type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} /></label>
             <label className="field"><span>סיסמה</span><input className="input" type="password" autoComplete="current-password" value={password} onChange={(event) => setPassword(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter") void login(); }} /></label>
             <div className="auth-forgot-link"><Link className="auth-secondary" href="/auth/forgot-password">שכחתי סיסמה</Link></div>
