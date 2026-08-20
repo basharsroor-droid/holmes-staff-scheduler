@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- Export settings for App Store Connect uploads. Kept in the repo so a
+	     release build is one command and not a series of Organizer clicks
+	     remembered differently each time. -->
+	<key>method</key>
+	<string>app-store-connect</string>
+	<key>teamID</key>
+	<string>TZZC48LJDV</string>
+	<key>signingStyle</key>
+	<string>automatic</string>
+	<!-- Symbols let App Store Connect symbolicate crash reports from
+	     TestFlight and the store; without them crashes arrive as raw
+	     addresses. -->
+	<key>uploadSymbols</key>
+	<true/>
+	<!-- Bitcode has been dead since Xcode 14; stating it avoids a warning on
+	     every export. -->
+	<key>compileBitcode</key>
+	<false/>
+</dict>
+</plist>
