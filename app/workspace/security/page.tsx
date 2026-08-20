@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { ArrowRight, ShieldCheck } from "lucide-react";
 
+import { DeleteAccount } from "@/components/auth/delete-account";
 import { SecuritySettings } from "@/components/auth/security-settings";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -31,5 +32,6 @@ export default async function WorkspaceSecurityPage() {
       </div>
     </header>
     <SecuritySettings />
+    <DeleteAccount />
   </main>;
 }
