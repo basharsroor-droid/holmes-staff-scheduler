@@ -1,11 +1,9 @@
 import { expect, type Page, test } from "@playwright/test";
 
-async function loginToDemo(page: Page, username: string, password: string) {
+async function loginToDemo(page: Page, role: "manager" | "employee") {
   await page.goto("/demo");
-  await page.getByLabel("ת.ז / שם משתמש").fill(username);
-  await page.getByLabel("סיסמה").fill(password);
-  await page.getByRole("button", { name: "כניסה", exact: true }).click();
-  const destination = username === "manager" ? "/pilot" : "/employee";
+  await page.getByRole("button", { name: role === "manager" ? "כניסה לדמו כמנהל/ת" : "כניסה לדמו כעובד/ת" }).click();
+  const destination = role === "manager" ? "/pilot" : "/employee";
   await expect(page).toHaveURL(new RegExp(`${destination}$`));
 }
 
@@ -13,7 +11,7 @@ test("employee can update and save monthly availability", async ({ page }) => {
   await page.addInitScript(() => {
     window.localStorage.setItem("scheduler-submission-access", "open");
   });
-  await loginToDemo(page, "employee", "Demo-1234");
+  await loginToDemo(page, "employee");
   await page.goto("/availability");
 
   await expect(page.getByText("ההגשה פתוחה", { exact: true })).toBeVisible();
@@ -30,7 +28,7 @@ test("employee can update and save monthly availability", async ({ page }) => {
 });
 
 test("employee can create a shift swap request", async ({ page }) => {
-  await loginToDemo(page, "employee", "Demo-1234");
+  await loginToDemo(page, "employee");
   await page.goto("/swap-requests");
 
   const reason = "בדיקת החלפה אוטומטית";
@@ -44,7 +42,7 @@ test("employee can create a shift swap request", async ({ page }) => {
 });
 
 test("manager can edit a shift and save the schedule draft", async ({ page }) => {
-  await loginToDemo(page, "manager", "Admin-1234");
+  await loginToDemo(page, "manager");
   await page.goto("/manager/schedule");
 
   const firstShift = page.locator(".large-shift-card").first();
@@ -59,7 +57,7 @@ test("manager can edit a shift and save the schedule draft", async ({ page }) =>
 });
 
 test("manager can approve a pending shift swap request", async ({ page }) => {
-  await loginToDemo(page, "manager", "Admin-1234");
+  await loginToDemo(page, "manager");
   await page.goto("/swap-requests");
 
   await expect(page.getByRole("heading", { name: "בקשות החלפה לאישור" })).toBeVisible();
