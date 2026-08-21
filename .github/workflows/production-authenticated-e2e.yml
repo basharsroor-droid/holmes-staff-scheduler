@@ -2,9 +2,6 @@ name: ShiftPilot Authenticated Production E2E
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - ops/run-authenticated-production-e2e
 
 permissions:
   contents: read
