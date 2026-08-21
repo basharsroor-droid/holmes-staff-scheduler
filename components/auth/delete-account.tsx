@@ -21,6 +21,7 @@ type OrphanedOrganization = { id: string; name: string; memberCount: number };
 export function DeleteAccount() {
   const [email, setEmail] = useState("");
   const [organizations, setOrganizations] = useState<OrphanedOrganization[]>([]);
+  const [deletionBlocked, setDeletionBlocked] = useState(false);
   const [loading, setLoading] = useState(true);
   const [confirming, setConfirming] = useState(false);
   const [confirmation, setConfirmation] = useState("");
@@ -41,6 +42,7 @@ export function DeleteAccount() {
       const data = await response.json();
       setEmail(data.email ?? "");
       setOrganizations(data.organizationsToDelete ?? []);
+      setDeletionBlocked(data.deletionBlocked === true);
     })();
     return () => {
       active = false;
@@ -103,6 +105,15 @@ export function DeleteAccount() {
         <p className="card-muted">טוענים את פרטי החשבון...</p>
       ) : (
         <>
+          {deletionBlocked ? (
+            <div className="danger-zone-warning" role="status">
+              <p>
+                <AlertTriangle size={16} aria-hidden="true" />{" "}
+                <strong>זהו חשבון בסביבת ההדגמה המשותפת.</strong>
+              </p>
+              <p>כדי שההדגמה תישאר זמינה ובטוחה, לא ניתן למחוק את החשבון או את סביבת ההדגמה.</p>
+            </div>
+          ) : null}
           {organizations.length > 0 ? (
             <div className="danger-zone-warning" role="alert">
               <p>
@@ -128,7 +139,7 @@ export function DeleteAccount() {
             </div>
           ) : null}
 
-          {confirming ? (
+          {deletionBlocked ? null : confirming ? (
             <div className="danger-zone-confirm">
               {organizations.length > 0 ? (
                 <label className="checkbox-row danger-zone-acknowledge">

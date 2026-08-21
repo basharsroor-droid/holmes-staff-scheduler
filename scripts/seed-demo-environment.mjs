@@ -9,7 +9,9 @@
 // (email, slug, name) before creating anything, so running this twice
 // does not create duplicates or new accounts with different passwords.
 //
-// Requires NEXT_PUBLIC_SUPABASE_URL + SUPABASE_SECRET_KEY (service_role).
+// Requires NEXT_PUBLIC_SUPABASE_URL + SUPABASE_SECRET_KEY (service_role), plus
+// DEMO_OWNER_PASSWORD, DEMO_MANAGER_PASSWORD and DEMO_EMPLOYEE_PASSWORD. Keep
+// those passwords in the deployment secret store; they are never committed.
 //
 // Usage: node scripts/seed-demo-environment.mjs
 
@@ -31,9 +33,8 @@ const supabase = createClient(requireEnv("NEXT_PUBLIC_SUPABASE_URL"), requireEnv
 const ORG_SLUG = "fitzone-demo";
 const ORG_NAME = "פיט־זון";
 
-// Published, intentionally-shared demo credentials -- the same pattern
-// already shipped for the /demo Holmes Place environment (visible on the
-// login page). Not a real person's password.
+// Dedicated, externally-managed demo credentials. The email addresses are
+// public aliases, but the passwords live only in the deployment secret store.
 //
 // Access model, deliberately distinct per account so the demo actually
 // shows off department-scoped permissions rather than having every login
@@ -48,16 +49,18 @@ const ORG_NAME = "פיט־זון";
 //   - employee: access_scope "department", linked to that same one
 //               department -- ordinary staff-level access.
 const ACCOUNTS = [
-  { key: "owner", email: "owner-demo@shiftpilothq.com", password: "FitZoneDemo2026!", role: "owner", firstName: "מיכל", lastName: "בעלים", accessScope: "organization" },
-  { key: "manager", email: "manager-demo@shiftpilothq.com", password: "FitZoneDemo2026!", role: "manager", firstName: "רון", lastName: "מנהל", accessScope: "department" },
-  { key: "employee", email: "employee-demo@shiftpilothq.com", password: "FitZoneDemo2026!", role: "employee", firstName: "דנה", lastName: "עובדת", accessScope: "department" }
+  { key: "owner", email: "owner-demo@shiftpilothq.com", password: requireEnv("DEMO_OWNER_PASSWORD"), role: "owner", firstName: "מיכל", lastName: "בעלים", accessScope: "organization" },
+  { key: "manager", email: "manager-demo@shiftpilothq.com", password: requireEnv("DEMO_MANAGER_PASSWORD"), role: "manager", firstName: "רון", lastName: "מנהל", accessScope: "department" },
+  { key: "employee", email: "employee-demo@shiftpilothq.com", password: requireEnv("DEMO_EMPLOYEE_PASSWORD"), role: "employee", firstName: "דנה", lastName: "עובדת", accessScope: "department" }
 ];
 
 async function ensureUser(account) {
   const { data: existing } = await supabase.auth.admin.listUsers({ page: 1, perPage: 200 });
   const found = existing?.users.find((user) => user.email === account.email);
   if (found) {
-    console.log(`  user ${account.email} already exists (${found.id})`);
+    const { error } = await supabase.auth.admin.updateUserById(found.id, { password: account.password });
+    if (error) throw new Error(`Failed to update demo password for ${account.email}: ${error.message}`);
+    console.log(`  user ${account.email} already exists; password synchronized (${found.id})`);
     return found.id;
   }
   const { data, error } = await supabase.auth.admin.createUser({

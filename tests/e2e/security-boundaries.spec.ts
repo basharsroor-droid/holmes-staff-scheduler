@@ -38,22 +38,10 @@ test("health endpoint is cache-safe and exposes only operational metadata", asyn
   expect(JSON.stringify(payload)).not.toMatch(/password|secret|key|token|supabase/i);
 });
 
-test("authentication APIs reject invalid input without echoing credentials", async ({ request }) => {
-  const invalidPassword = "NeverEchoThisPassword!";
-
-  const loginResponse = await request.post("/api/auth/login", {
-    data: { nationalId: "unknown-user", password: invalidPassword }
-  });
-  expect(loginResponse.status()).toBe(401);
-  const loginBody = await loginResponse.text();
-  expect(loginBody).not.toContain(invalidPassword);
-  expect(loginBody).not.toContain("unknown-user");
-
-  const registrationResponse = await request.post("/api/auth/register", {
-    data: { email: "not-an-email", password: invalidPassword }
-  });
-  expect(registrationResponse.status()).toBe(400);
-  const registrationBody = await registrationResponse.text();
-  expect(registrationBody).not.toContain(invalidPassword);
-  expect(registrationBody).not.toContain("verificationCode");
+test("retired mock authentication APIs are not exposed", async ({ request }) => {
+  for (const route of ["/api/auth/login", "/api/auth/register"]) {
+    const response = await request.post(route, { data: { probe: "must-not-be-processed" } });
+    expect([404, 405]).toContain(response.status());
+    expect(await response.text()).not.toContain("verificationCode");
+  }
 });
