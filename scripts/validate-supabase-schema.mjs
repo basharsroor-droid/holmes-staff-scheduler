@@ -894,6 +894,10 @@ const accountDeletionComponentSource = readFileSync(
   new URL("../components/auth/delete-account.tsx", import.meta.url),
   "utf8"
 );
+const legalPageSource = readFileSync(
+  new URL("../components/legal/legal-page.tsx", import.meta.url),
+  "utf8"
+);
 for (const requiredRule of [
   "verifyCurrentPassword",
   "signInWithPassword",
@@ -913,6 +917,17 @@ for (const requiredRule of [
 ]) {
   if (!accountDeletionComponentSource.includes(requiredRule)) {
     failures.push(`account deletion UI reauthentication is missing: ${requiredRule}`);
+  }
+}
+
+for (const requiredRule of [
+  "createSupabaseServerClient",
+  "supabase.auth.getUser()",
+  'user ? "/workspace" : "/"',
+  'user ? "חזרה למערכת" : "חזרה לאתר"'
+]) {
+  if (!legalPageSource.includes(requiredRule)) {
+    failures.push(`authenticated legal-page return navigation is missing: ${requiredRule}`);
   }
 }
 
