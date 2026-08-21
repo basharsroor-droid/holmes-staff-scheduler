@@ -886,6 +886,36 @@ if (!existsSync(supportTicketResponseMetricsMigrationUrl)) {
   }
 }
 
+const accountDeletionRouteSource = readFileSync(
+  new URL("../app/api/account/delete/route.ts", import.meta.url),
+  "utf8"
+);
+const accountDeletionComponentSource = readFileSync(
+  new URL("../components/auth/delete-account.tsx", import.meta.url),
+  "utf8"
+);
+for (const requiredRule of [
+  "verifyCurrentPassword",
+  "signInWithPassword",
+  "data.user?.id === userId",
+  'signOut({ scope: "local" })',
+  "REAUTHENTICATION_FAILED"
+]) {
+  if (!accountDeletionRouteSource.includes(requiredRule)) {
+    failures.push(`account deletion reauthentication is missing: ${requiredRule}`);
+  }
+}
+for (const requiredRule of [
+  'type="password"',
+  'autoComplete="current-password"',
+  "JSON.stringify({ confirmation, password",
+  'data.errorCode === "REAUTHENTICATION_FAILED"'
+]) {
+  if (!accountDeletionComponentSource.includes(requiredRule)) {
+    failures.push(`account deletion UI reauthentication is missing: ${requiredRule}`);
+  }
+}
+
 if (failures.length) {
   console.error(failures.join("\n"));
   process.exit(1);
