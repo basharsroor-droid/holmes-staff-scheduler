@@ -61,6 +61,32 @@ test("manager can manage schedules but cannot open the owner audit log", async (
   await expect(page).toHaveURL(/\/workspace$/);
 });
 
+test("department manager never sees a forbidden department or employee", async ({ page }) => {
+  const manager = requiredCredentials("MANAGER");
+  const allowedDepartment = process.env.E2E_MANAGER_ALLOWED_DEPARTMENT;
+  const forbiddenDepartment = process.env.E2E_MANAGER_FORBIDDEN_DEPARTMENT;
+  const allowedEmployee = process.env.E2E_MANAGER_ALLOWED_EMPLOYEE;
+  const forbiddenEmployee = process.env.E2E_MANAGER_FORBIDDEN_EMPLOYEE;
+
+  test.skip(
+    !allowedDepartment || !forbiddenDepartment || !allowedEmployee || !forbiddenEmployee,
+    "Department-boundary production fixtures are not configured."
+  );
+
+  await login(page, manager);
+
+  await page.goto("/workspace/departments");
+  await expect(page.locator("body")).toContainText(allowedDepartment!);
+  await expect(page.locator("body")).not.toContainText(forbiddenDepartment!);
+
+  await page.goto("/workspace/employees");
+  await expect(page.locator("body")).toContainText(allowedEmployee!);
+  await expect(page.locator("body")).not.toContainText(forbiddenEmployee!);
+
+  await page.goto("/workspace/shift-swaps");
+  await expect(page.locator("body")).not.toContainText(forbiddenEmployee!);
+});
+
 test("employee sees employee tools and is blocked from management routes", async ({ page }) => {
   const employee = requiredCredentials("EMPLOYEE");
   await login(page, employee);

@@ -31,6 +31,7 @@ export function EmployeesClient({
   branches: Branch[]; selectedBranchId: string; callerRole: Role;
 }) {
   const supabase = useMemo(() => createSupabaseBrowserClient(), []);
+  const canEditEmployees = callerRole === "owner" || callerRole === "admin";
   const [employees, setEmployees] = useState(initialEmployees);
   const [invitations, setInvitations] = useState(initialInvitations);
   const [busyId, setBusyId] = useState<string | null>(null);
@@ -204,17 +205,17 @@ export function EmployeesClient({
               <div className="template-icon" style={{ color: employee.profile?.color }}><UserRound /></div>
               <div className="template-main"><strong>{name}{isSelf ? " (אתה)" : ""}</strong><span>{employee.employee_number ? `מספר עובד ${employee.employee_number}` : roleLabels[employee.role]}</span></div>
               <div className="actions">
-                <button className="button" disabled={isSelf || busyId === employee.id || employee.role === "owner"} onClick={() => void updateEmployee(employee.id, { status: employee.status === "suspended" ? "active" : "suspended" })}>{busyId === employee.id ? <Loader2 className="spin" size={16} /> : <Power size={16} />}{employee.status === "suspended" ? "הפעלה" : "השבתה"}</button>
+                {canEditEmployees ? <button className="button" disabled={isSelf || busyId === employee.id || employee.role === "owner"} onClick={() => void updateEmployee(employee.id, { status: employee.status === "suspended" ? "active" : "suspended" })}>{busyId === employee.id ? <Loader2 className="spin" size={16} /> : <Power size={16} />}{employee.status === "suspended" ? "הפעלה" : "השבתה"}</button> : null}
                 {callerRole === "owner" && !isSelf && employee.role !== "owner" && employee.status === "active"
                   ? <button className="button" disabled={busyId === employee.id} onClick={() => void transferOwnership(employee)}>{busyId === employee.id ? <Loader2 className="spin" size={16} /> : <Crown size={16} />} העברת בעלות</button>
                   : null}
               </div>
-              <div className="employee-controls">
+              {canEditEmployees ? <div className="employee-controls">
                 <label className="field"><span>תפקיד</span><select className="input" disabled={isSelf || busyId === employee.id || employee.role === "owner"} value={employee.role} onChange={(e) => void updateEmployee(employee.id, { role: e.target.value as Role })}><option value="employee">עובד/ת</option><option value="manager">מנהל/ת</option><option value="admin">מנהל מערכת</option>{employee.role === "owner" ? <option value="owner">בעלים</option> : null}</select></label>
                 <label className="check-field"><input type="checkbox" checked={employee.can_open} disabled={busyId === employee.id} onChange={(e) => void updateEmployee(employee.id, { can_open: e.target.checked })} /><span><strong>פתיחה</strong></span></label>
                 <label className="check-field"><input type="checkbox" checked={employee.can_close} disabled={busyId === employee.id} onChange={(e) => void updateEmployee(employee.id, { can_close: e.target.checked })} /><span><strong>סגירה</strong></span></label>
                 <label className="field"><span>מגבלת שעות שבועית</span><input className="input" type="number" min={1} placeholder="ללא הגבלה" disabled={busyId === employee.id} value={hoursDraft[employee.id] ?? ""} onChange={(e) => setHoursDraft((current) => ({ ...current, [employee.id]: e.target.value }))} onBlur={() => void commitHoursLimit(employee)} /></label>
-              </div>
+              </div> : null}
             </article>;
           })}
           {!employees.length ? <div className="empty-template-state"><Users size={36} /><p>עדיין אין עובדים בסביבת העבודה.</p></div> : null}
