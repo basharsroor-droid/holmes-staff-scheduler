@@ -3,7 +3,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { useEffect, useMemo, useState } from "react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   CalendarCheck,
   Clock3,
@@ -75,6 +75,7 @@ function normalizeAuthUser(user: AuthUser): AuthUser {
 
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
   const isSaasRoute =
     pathname === "/app" ||
     pathname === "/onboarding" ||
@@ -105,16 +106,16 @@ export function AppShell({ children }: { children: ReactNode }) {
     if (storedAuth) {
       const parsedUser = normalizeAuthUser(JSON.parse(storedAuth) as AuthUser);
       if (parsedUser.role === "employee" && isManagerOnlyRoute(pathname)) {
-        window.location.replace("/employee");
+        router.replace("/employee");
         return;
       }
       setAuthUser(parsedUser);
       setSelectedEmployeeId(parsedUser.id);
     } else if (pathname !== "/" && !isSaasRoute) {
-      window.location.href = "/";
+      router.replace("/");
     }
     setAuthChecked(true);
-  }, [isSaasRoute, pathname]);
+  }, [isSaasRoute, pathname, router]);
 
   useEffect(() => setMobileNavOpen(false), [pathname]);
 
@@ -123,7 +124,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     window.localStorage.removeItem(DEMO_USER_KEY);
     window.sessionStorage.removeItem(AUTH_USER_KEY);
     window.sessionStorage.removeItem(DEMO_USER_KEY);
-    window.location.href = "/";
+    router.replace("/");
   }
 
   if (pathname === "/" || isSaasRoute) {

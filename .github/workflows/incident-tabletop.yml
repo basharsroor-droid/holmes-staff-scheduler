@@ -1,0 +1,34 @@
+name: ShiftPilot Incident Tabletop
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "23 6 1 * *"
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  tabletop:
+    name: Validate incident controls
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Run read-only incident drill
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SHIFTPILOT_PRODUCTION_URL: https://www.shiftpilothq.com
+        run: node scripts/run-incident-tabletop.mjs artifacts/incident-tabletop-report.md
+      - name: Upload drill report
+        uses: actions/upload-artifact@v4
+        with:
+          name: incident-tabletop-${{ github.run_id }}
+          path: artifacts/incident-tabletop-report.md
+          retention-days: 90

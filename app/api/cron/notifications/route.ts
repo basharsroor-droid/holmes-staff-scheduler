@@ -17,6 +17,8 @@ function authorized(request: Request) {
 export async function GET(request: Request) {
   if (!authorized(request)) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   const admin = createSupabaseAdminClient();
+  const { error: purgeError } = await admin.rpc("purge_expired_operational_events");
+  if (purgeError) return NextResponse.json({ error: "Could not purge expired operational events" }, { status: 500 });
   const { error: scheduleError } = await admin.rpc("enqueue_scheduled_notifications", { run_at: new Date().toISOString() });
   if (scheduleError) return NextResponse.json({ error: "Could not schedule notifications" }, { status: 500 });
   const { data, error } = await admin.rpc("claim_email_delivery_jobs", { batch_size: 25 });

@@ -20,6 +20,16 @@ import { createClient } from "@supabase/supabase-js";
 import * as age from "age-encryption";
 import { readFileSync } from "node:fs";
 
+import { validateBackupPayload } from "../lib/backup-format.mjs";
+
+const TABLES = [
+  "organizations", "branches", "profiles", "organization_memberships", "organization_invitations",
+  "departments", "department_memberships", "shift_templates", "schedule_periods",
+  "availability_submissions", "availability_entries", "leave_requests", "shifts", "shift_assignments",
+  "swap_requests", "swap_request_events", "notifications", "notification_preferences",
+  "email_delivery_queue", "audit_logs", "operational_events", "platform_support_agents", "support_tickets"
+];
+
 function requireEnv(name) {
   const value = process.env[name];
   if (!value) {
@@ -36,14 +46,15 @@ async function main() {
     process.exit(1);
   }
 
-  const supabaseUrl = requireEnv("RESTORE_SUPABASE_URL");
-  const serviceKey = requireEnv("RESTORE_SUPABASE_SECRET_KEY");
   const privateKey = requireEnv("BACKUP_AGE_PRIVATE_KEY");
+  const verifyOnly = process.argv.includes("--verify-only");
+  const supabaseUrl = verifyOnly ? null : requireEnv("RESTORE_SUPABASE_URL");
+  const serviceKey = verifyOnly ? null : requireEnv("RESTORE_SUPABASE_SECRET_KEY");
 
   // Refuse to run against what looks like the real production project as a
   // last-resort safety net -- this is not a substitute for pointing it at
   // the right place on purpose, just a guard against a copy-pasted env var.
-  if (supabaseUrl.includes("forstsmvakpsreffdiwb")) {
+  if (supabaseUrl?.includes("forstsmvakpsreffdiwb")) {
     console.error(
       "RESTORE_SUPABASE_URL points at the production project (forstsmvakpsreffdiwb). " +
         "Restores must target a Supabase branch or a separate project. Refusing to continue."
@@ -57,6 +68,14 @@ async function main() {
   const ciphertext = age.armor.decode(armored);
   const decrypted = await decrypter.decrypt(ciphertext, "text");
   const payload = JSON.parse(decrypted);
+  const verification = validateBackupPayload(payload, TABLES);
+
+  console.log(`Backup integrity: ${verification.integrity}`);
+  console.log("Row counts:", verification.rowCounts);
+  if (verifyOnly) {
+    console.log("Backup verification complete; no database writes were attempted.");
+    return;
+  }
 
   console.log(`Backup exported at ${payload.exported_at} from ${payload.supabase_project_url}`);
   console.log(`Restoring into ${supabaseUrl}...`);

@@ -654,6 +654,56 @@ export type Database = {
           },
         ]
       }
+      operational_events: {
+        Row: {
+          actor_user_id: string | null
+          created_at: string
+          event_name: string
+          event_type: string
+          fingerprint: string | null
+          id: string
+          metadata: Json
+          organization_id: string | null
+          release: string | null
+          route: string | null
+          severity: string
+        }
+        Insert: {
+          actor_user_id?: string | null
+          created_at?: string
+          event_name: string
+          event_type: string
+          fingerprint?: string | null
+          id?: string
+          metadata?: Json
+          organization_id?: string | null
+          release?: string | null
+          route?: string | null
+          severity?: string
+        }
+        Update: {
+          actor_user_id?: string | null
+          created_at?: string
+          event_name?: string
+          event_type?: string
+          fingerprint?: string | null
+          id?: string
+          metadata?: Json
+          organization_id?: string | null
+          release?: string | null
+          route?: string | null
+          severity?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "operational_events_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       organizations: {
         Row: {
           active: boolean
@@ -1248,6 +1298,7 @@ export type Database = {
         Returns: number
       }
       mark_my_notifications_read: { Args: never; Returns: number }
+      purge_expired_operational_events: { Args: never; Returns: number }
       publish_schedule_period: {
         Args: { target_period_id: string }
         Returns: number

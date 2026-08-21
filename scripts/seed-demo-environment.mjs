@@ -268,9 +268,9 @@ async function main() {
   const { error: resetError } = await supabase.rpc("reset_demo_environment", { target_organization_id: organizationId });
   if (resetError) throw new Error(`reset_demo_environment failed: ${resetError.message}`);
 
-  console.log("\nDone. Demo login credentials:");
+  console.log("\nDone. Demo accounts synchronized:");
   for (const account of ACCOUNTS) {
-    console.log(`  ${account.role.padEnd(8)} ${account.email}  /  ${account.password}`);
+    console.log(`  ${account.role.padEnd(8)} ${account.email}`);
   }
   console.log(`\nOrganization ID: ${organizationId} (is_demo=true)`);
   console.log("To reset the schedule back to this baseline at any time, run:");

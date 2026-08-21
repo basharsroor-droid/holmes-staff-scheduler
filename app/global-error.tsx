@@ -1,6 +1,14 @@
 "use client";
 
-export default function GlobalError({ reset }: { error: Error & { digest?: string }; reset: () => void }) {
+import { useEffect } from "react";
+
+import { reportClientError } from "@/lib/observability-client";
+
+export default function GlobalError({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
+  useEffect(() => {
+    reportClientError({ name: error.name, message: error.message, digest: error.digest, source: "global-boundary" });
+  }, [error]);
+
   return (
     <html lang="he" dir="rtl">
       <body>

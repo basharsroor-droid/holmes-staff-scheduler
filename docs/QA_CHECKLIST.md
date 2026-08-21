@@ -13,12 +13,12 @@
 | כניסת דמו | `/demo` | manager, employee | ✓ אוטומטי | ✓ אוטומטי (`responsive-layout`) | ✓ אוטומטי (`demo-roles`) |
 | מסלול מנהל בדמו | `/pilot`, `/manager`, `/manager-requests`, `/manager/schedule` | manager | ✓ אוטומטי (`responsive-layout`) | ✓ אוטומטי (`demo-workflows`) | ידני — success מכוסה, error/empty לא |
 | מסלול עובד בדמו | `/employee`, `/my-shifts`, `/availability`, `/swap-requests` | employee | ✓ אוטומטי (`responsive-layout`) | ✓ אוטומטי (`demo-workflows`) | ידני — success מכוסה, error/empty לא |
-| Workspace — ליבה | `/workspace`, `/workspace/schedule-builder`, `/workspace/departments`, `/workspace/employees` | owner/admin/manager (מסונן-מחלקה) | ידני | ידני (כוסה בביקורת נגישות/מובייל חד-פעמית, לא ב-CI רץ) | ידני |
-| Workspace — עובד | `/workspace/availability`, `/workspace/my-shifts`, `/workspace/shift-swaps`, `/workspace/submissions` | employee | ידני | ידני | ידני |
-| Workspace — תפעול | `/workspace/audit-log`, `/workspace/notifications`, `/workspace/shift-templates`, `/workspace/work-months` | owner/admin/manager | ידני | ידני | ידני |
+| Workspace — ליבה | `/workspace`, `/workspace/schedule-builder`, `/workspace/departments`, `/workspace/employees` | owner/admin/manager (מסונן-מחלקה) | ידני | ✓ אוטומטי לפי דרישה מול Production | הרשאות, מחלקות ובידוד tenant אוטומטיים; מצבי UI ידניים |
+| Workspace — עובד | `/workspace/availability`, `/workspace/my-shifts`, `/workspace/shift-swaps`, `/workspace/submissions` | employee | ידני | ✓ אוטומטי לפי דרישה מול Production | חסימת routes ניהוליים אוטומטית; מצבי UI ידניים |
+| Workspace — תפעול | `/workspace/audit-log`, `/workspace/notifications`, `/workspace/shift-templates`, `/workspace/work-months` | owner/admin/manager | ידני | ✓ אוטומטי לפי דרישה מול Production | owner/manager/employee boundaries אוטומטיים |
 | תמיכה | `/support`, `/workspace/support`, `/workspace/help` | support agent / כולם | ידני | ידני | ✓ חלקי — פילטרים נבדקו ידנית ב-PR #125 |
 
-**המסקנה מהמטריצה:** האזור הציבורי, האותנטיקציה והדמו (manager/employee) כבר עם כיסוי CI רציף. כל אזור ה-`/workspace` האמיתי (13 routes, מסונן-הרשאות ומסונן-מחלקה) עדיין נבדק רק ידנית, בביקורות חד-פעמיות (נגישות ב-PR #81, מובייל ב-PR #85–88) — לא בכל push. זו הפער המרכזי בין המצב היום לדרישת התוכנית.
+**המסקנה מהמטריצה:** האזור הציבורי, האותנטיקציה והדמו מכוסים בכל PR. בנוסף, `production-authenticated-e2e.yml` זמין להפעלה ידנית ומפורשת; הוא יוצר שני tenants זמניים וחשבונות owner/manager/employee, מאמת role boundaries, בידוד מחלקות ובידוד בין עסקים מול Production, ומוחק את כל ה־fixtures גם במקרה של כשל. בדיקות המצבים הוויזואליים המלאות של 13 routes אמיתיים עדיין נשארות ידניות כדי לא להפוך בדיקת Production בעלת הרשאות גבוהות לפעולה מחזורית.
 
 ## מסלול הבדיקה המרכזי (חייב להצליח 3 פעמים רצופות לפני דמו)
 
@@ -44,6 +44,6 @@
 
 ## מה עדיין חסר מול התוכנית (P0-01)
 
-- [ ] כיסוי E2E רציף (לא רק ביקורת חד-פעמית) לאזור `/workspace` האמיתי — 13 routes, כרגע לא ב-CI. זה דורש חשבון בדיקה אמיתי מחובר (Supabase Auth) בתוך CI, לא רק מסלול `/demo` — החלטת ארכיטקטורה/סיכון (סודות ב-CI מול הפרודקשן החי), לא רק כתיבת בדיקות.
+- [x] כיסוי E2E לפי דרישה לאזור `/workspace` האמיתי — נוסף workflow ידני עם fixtures מבודדים וזמניים. הוא משתמש ב־service role שכבר נדרש לגיבוי, מייצר סיסמה אקראית בזמן הריצה, אינו מדפיס אותה, וב־`finally` מוחק את שני הארגונים ואת כל המשתמשים. אין חשבון QA קבוע ואין secret סיסמה נוסף.
 - [x] הרצת ה-Regression checklist למעלה בפועל, לא רק כתיבתו. **בוצע 18.8.2026 — ראו הסימונים למעלה.**
 - [x] "3 הצלחות רצופות": בפועל כבר מתקיים באופן רציף — `demo-workflows.spec.ts` מריץ ומצליח על אותו מסלול (שלבים 4–7) בכל push, לא ריצה בודדת. נוספה עליו גם ריצה ידנית-חיה אחת ב-18.8.2026. **שלב 8 (עזרה/תמיכה) עדיין לא ניתן לבדיקה כלל דרך `/demo`** — דורש חשבון SaaS אמיתי, ראו ההערה במסלול המרכזי למעלה.

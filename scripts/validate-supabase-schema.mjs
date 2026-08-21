@@ -157,6 +157,10 @@ const organizationDeletionCascadeMigrationUrl = new URL(
   "../supabase/migrations/20260821133000_fix_organization_deletion_audit_cascades.sql",
   import.meta.url
 );
+const firstPartyObservabilityMigrationUrl = new URL(
+  "../supabase/migrations/20260821170000_first_party_observability.sql",
+  import.meta.url
+);
 
 const tenantTables = [
   "organizations",
@@ -176,6 +180,24 @@ const tenantTables = [
 ];
 
 const failures = [];
+
+if (!existsSync(firstPartyObservabilityMigrationUrl)) {
+  failures.push("first-party observability migration is missing");
+} else {
+  const observabilityMigration = readFileSync(firstPartyObservabilityMigrationUrl, "utf8");
+  for (const requiredRule of [
+    "create table public.operational_events",
+    "alter table public.operational_events enable row level security",
+    "operational_events_support_read",
+    "private.record_product_event",
+    "purge_expired_operational_events",
+    "revoke insert, update, delete on public.operational_events from authenticated, anon"
+  ]) {
+    if (!observabilityMigration.includes(requiredRule)) {
+      failures.push(`first-party observability rule is missing: ${requiredRule}`);
+    }
+  }
+}
 
 if (!existsSync(policyHelperExecutionMigrationUrl)) {
   failures.push("RLS policy helper execution migration is missing");
@@ -937,5 +959,5 @@ if (failures.length) {
 }
 
 console.log(
-  `Validated ${tenantTables.length + 2} RLS-protected ShiftPilot tables with authorization, department-scoped access, workflow integrity, privacy, atomic operations, audit, deduplicated notification, scheduling-overlap, last-owner protection, ownership transfer, manager/target swap-transition protection, schedule unpublishing, automatic future-shift release on suspension, invitation resend rate-limiting, previous-month schedule duplication, self-service leave requests, per-employee weekly hour limits, minimum rest time between shifts, bulk shift cancellation by day, and correct expired-invitation handling, a resettable and deletion-protected demo-sales environment, safe tenant-deletion cascades, concurrent-invitation race protection, active-only department-membership visibility, and support-ticket first-response/reopen tracking.`
+  `Validated ${tenantTables.length + 3} RLS-protected ShiftPilot tables with authorization, department-scoped access, workflow integrity, privacy, atomic operations, audit, privacy-safe first-party observability, allow-listed product analytics, deduplicated notification, scheduling-overlap, last-owner protection, ownership transfer, manager/target swap-transition protection, schedule unpublishing, automatic future-shift release on suspension, invitation resend rate-limiting, previous-month schedule duplication, self-service leave requests, per-employee weekly hour limits, minimum rest time between shifts, bulk shift cancellation by day, and correct expired-invitation handling, a resettable and deletion-protected demo-sales environment, safe tenant-deletion cascades, concurrent-invitation race protection, active-only department-membership visibility, and support-ticket first-response/reopen tracking.`
 );
