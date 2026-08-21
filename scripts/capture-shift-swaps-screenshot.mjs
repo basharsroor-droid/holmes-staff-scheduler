@@ -95,6 +95,8 @@ try {
   await page.goto(`${productionUrl}/workspace/shift-swaps`, {waitUntil: "networkidle"});
   await page.getByRole("heading", {name: "בקשות החלפה"}).waitFor();
   await page.getByText("ממתינה למנהל/ת", {exact: true}).waitFor();
+  await page.locator(".workspace-subheader .eyebrow").evaluate((element) => { element.textContent = "סביבת דמו"; });
+  await page.locator(".swap-request-card strong").first().evaluate((element) => { element.textContent = "עובד/ת א׳ ↔ עובד/ת ב׳"; });
   await page.addStyleTag({content: "html { scrollbar-width: none; } ::-webkit-scrollbar { display: none; }"});
   await mkdir(dirname(outputPath), {recursive: true});
   await page.screenshot({path: outputPath, fullPage: false});
