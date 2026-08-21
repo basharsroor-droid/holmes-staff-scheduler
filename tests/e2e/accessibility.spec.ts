@@ -10,12 +10,10 @@ import { expect, type Page, test } from "@playwright/test";
 // actual promoted "try it" experience, not internal-only scaffolding) had
 // zero automatic scanning on every push, only the one-off manual audit
 // from PR #81.
-async function loginToDemo(page: Page, username: string, password: string) {
+async function loginToDemo(page: Page, role: "manager" | "employee") {
   await page.goto("/demo");
-  await page.getByLabel("ת.ז / שם משתמש").fill(username);
-  await page.getByLabel("סיסמה").fill(password);
-  await page.getByRole("button", { name: "כניסה", exact: true }).click();
-  const destination = username === "manager" ? "/pilot" : "/employee";
+  await page.getByRole("button", { name: role === "manager" ? "כניסה לדמו כמנהל/ת" : "כניסה לדמו כעובד/ת" }).click();
+  const destination = role === "manager" ? "/pilot" : "/employee";
   await expect(page).toHaveURL(new RegExp(`${destination}$`));
 }
 
@@ -73,7 +71,7 @@ const managerDemoRoutes = ["/pilot", "/manager", "/manager/schedule", "/schedule
 const employeeDemoRoutes = ["/employee", "/availability", "/my-shifts", "/schedule", "/swap-requests", "/manager-requests"];
 
 test("manager demo routes have no automatic WCAG A/AA violations", async ({ page }) => {
-  await loginToDemo(page, "manager", "Admin-1234");
+  await loginToDemo(page, "manager");
   for (const route of managerDemoRoutes) {
     await page.goto(route);
     await expect(page.locator(".app-shell")).toBeVisible();
@@ -83,7 +81,7 @@ test("manager demo routes have no automatic WCAG A/AA violations", async ({ page
 });
 
 test("employee demo routes have no automatic WCAG A/AA violations", async ({ page }) => {
-  await loginToDemo(page, "employee", "Demo-1234");
+  await loginToDemo(page, "employee");
   for (const route of employeeDemoRoutes) {
     await page.goto(route);
     await expect(page.locator(".app-shell")).toBeVisible();
