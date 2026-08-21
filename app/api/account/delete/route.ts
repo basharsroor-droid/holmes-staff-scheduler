@@ -25,6 +25,33 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 // field scrub to maintain here -- one delete, and the FKs express the policy.
 
 type OrphanedOrganization = { id: string; name: string; memberCount: number };
+type DemoOrganization = { id: string; name: string };
+
+// Demo credentials are intentionally handed to reviewers and prospects. Even
+// though they authenticate like normal accounts, they must never be able to
+// destroy the shared demo tenant or delete one of its seeded identities.
+async function findDemoOrganizations(
+  admin: ReturnType<typeof createSupabaseAdminClient>,
+  userId: string
+): Promise<DemoOrganization[]> {
+  const { data: memberships, error: membershipsError } = await admin
+    .from("organization_memberships")
+    .select("organization_id")
+    .eq("user_id", userId);
+
+  if (membershipsError) throw new Error(membershipsError.message);
+  const organizationIds = [...new Set((memberships ?? []).map(({ organization_id }) => organization_id))];
+  if (!organizationIds.length) return [];
+
+  const { data: organizations, error: organizationsError } = await admin
+    .from("organizations")
+    .select("id, name")
+    .in("id", organizationIds)
+    .eq("is_demo", true);
+
+  if (organizationsError) throw new Error(organizationsError.message);
+  return organizations ?? [];
+}
 
 // An organization whose only active owner is the caller. Deleting just the
 // account would leave it with nobody able to manage it, so it has to go too --
@@ -85,9 +112,14 @@ export async function GET() {
 
   try {
     const admin = createSupabaseAdminClient();
+    const [organizationsToDelete, demoOrganizations] = await Promise.all([
+      findOrphanedOrganizations(admin, user.id),
+      findDemoOrganizations(admin, user.id)
+    ]);
     return NextResponse.json({
       email: user.email ?? "",
-      organizationsToDelete: await findOrphanedOrganizations(admin, user.id)
+      organizationsToDelete,
+      deletionBlocked: demoOrganizations.length > 0
     });
   } catch {
     return NextResponse.json({ error: "Could not load account details" }, { status: 500 });
@@ -116,6 +148,17 @@ export async function POST(request: Request) {
   }
 
   const admin = createSupabaseAdminClient();
+
+  try {
+    if ((await findDemoOrganizations(admin, user.id)).length) {
+      return NextResponse.json(
+        { error: "Demo accounts cannot be deleted" },
+        { status: 403 }
+      );
+    }
+  } catch {
+    return NextResponse.json({ error: "Could not verify account protections" }, { status: 500 });
+  }
 
   let orphaned: OrphanedOrganization[];
   try {
