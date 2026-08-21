@@ -17,7 +17,7 @@ env:
   # the private key that can actually decrypt these backups is held by a
   # human, never stored in this repo or in any CI secret, so a compromised
   # workflow run still can't read past or future backups.
-  BACKUP_AGE_PUBLIC_KEY: age1rl9ktrlzu6kwtaum4pylpymdhxh6wzzjfa5upjh27zyttl7hae6q6ktqws
+  BACKUP_AGE_PUBLIC_KEY: age19f3tjprap2fswyeppmxpfu6nn3jjaynqa5mwzn6r6mssgtaeuggq5h7amq
 
 jobs:
   backup:
