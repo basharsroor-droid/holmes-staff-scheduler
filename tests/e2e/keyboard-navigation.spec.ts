@@ -38,20 +38,11 @@ async function shiftTabUntilFocused(page: Page, locator: ReturnType<Page["locato
 test("demo login is fully operable with the keyboard alone", async ({ page }) => {
   await page.goto("/demo");
 
-  const usernameField = page.getByLabel("ת.ז / שם משתמש");
-  const passwordField = page.getByLabel("סיסמה");
-  const submitButton = page.getByRole("button", { name: "כניסה", exact: true });
+  const employeeDemoButton = page.getByRole("button", { name: "כניסה לדמו כעובד/ת" });
 
-  // Focusing the first field directly (not via Tab from body) mirrors
-  // how a real keyboard user actually starts: hitting Tab once to enter
-  // the page, landing on the first field. What matters for this test is
-  // everything *after* that -- can they reach and activate submit
-  // without ever touching a mouse.
-  await usernameField.focus();
-  await page.keyboard.type("employee");
-  await tabUntilFocused(page, passwordField);
-  await page.keyboard.type("Demo-1234");
-  await tabUntilFocused(page, submitButton);
+  // The role control is a native button, so keyboard users can enter the demo
+  // without passing through fake credential fields.
+  await employeeDemoButton.focus();
   await page.keyboard.press("Enter");
 
   await expect(page).toHaveURL(/\/employee$/);
@@ -62,9 +53,7 @@ test("submitting availability is fully operable with the keyboard alone", async 
     window.localStorage.setItem("scheduler-submission-access", "open");
   });
   await page.goto("/demo");
-  await page.getByLabel("ת.ז / שם משתמש").fill("employee");
-  await page.getByLabel("סיסמה").fill("Demo-1234");
-  await page.getByRole("button", { name: "כניסה", exact: true }).click();
+  await page.getByRole("button", { name: "כניסה לדמו כעובד/ת" }).click();
   await expect(page).toHaveURL(/\/employee$/);
 
   await page.goto("/availability");
