@@ -5,7 +5,7 @@ import Link from "next/link";
 import { ArrowRight, KeyRound, LockKeyhole, ShieldCheck } from "lucide-react";
 
 import { BrandLogo } from "@/components/brand/brand-logo";
-import { type AuthUser } from "@/lib/auth-config";
+import { LOCAL_DEMO_USERS, type AuthUser } from "@/lib/auth-config";
 import {
   defaultBranchId,
   defaultOrganizationId,
@@ -62,11 +62,11 @@ export function AuthGate() {
     window.location.href = user.role === "manager" ? "/pilot" : "/employee";
   }
 
-  async function login() {
+  function login() {
     setIsLoading(true);
     setMessage("");
     const localUsers = getLocalUsers();
-    const localUser = localUsers.find(
+    const localUser = [...localUsers, ...LOCAL_DEMO_USERS].find(
       (user) =>
         (user.nationalId === loginId || user.username === loginId) &&
         user.password === loginPassword
@@ -84,31 +84,8 @@ export function AuthGate() {
       return;
     }
 
-    try {
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ nationalId: loginId, password: loginPassword })
-      });
-      const data = await response.json();
-      setIsLoading(false);
-
-      if (!data.ok) {
-        setMessage(data.message ?? "לא הצלחנו להתחבר");
-        return;
-      }
-
-      const apiUser = normalizeAuthUser(data.user as AuthUser);
-      if (apiUser.mustChangePassword) {
-        setPasswordChangeUser({ ...apiUser, password: loginPassword });
-        setMessage("זו כניסה ראשונה. צריך להחליף סיסמה לפני שממשיכים.");
-        return;
-      }
-      enterSystem(apiUser);
-    } catch {
-      setIsLoading(false);
-      setMessage("לא הצלחנו להתחבר כרגע. נסו שוב.");
-    }
+    setIsLoading(false);
+    setMessage("ת.ז או סיסמה לא נכונים");
   }
 
   function changeInitialPassword() {
