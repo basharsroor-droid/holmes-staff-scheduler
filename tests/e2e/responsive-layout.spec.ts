@@ -22,11 +22,9 @@ async function expectPrimaryControlIsTouchable(page: Page) {
   }
 }
 
-async function loginToDemo(page: Page, username: string, password: string) {
+async function loginToDemo(page: Page, role: "manager" | "employee") {
   await page.goto("/demo");
-  await page.getByLabel("ת.ז / שם משתמש").fill(username);
-  await page.getByLabel("סיסמה").fill(password);
-  await page.getByRole("button", { name: "כניסה", exact: true }).click();
+  await page.getByRole("button", { name: role === "manager" ? "כניסה לדמו כמנהל/ת" : "כניסה לדמו כעובד/ת" }).click();
 }
 
 test.beforeEach(async ({ page }) => {
@@ -87,7 +85,7 @@ test("mobile onboarding fields and authentication panels stack", async ({ page }
 });
 
 test("manager demo routes remain responsive", async ({ page }) => {
-  await loginToDemo(page, "manager", "Admin-1234");
+  await loginToDemo(page, "manager");
   await expect(page).toHaveURL(/\/pilot$/);
 
   for (const route of [
@@ -105,7 +103,7 @@ test("manager demo routes remain responsive", async ({ page }) => {
 });
 
 test("employee demo routes remain responsive", async ({ page }) => {
-  await loginToDemo(page, "employee", "Demo-1234");
+  await loginToDemo(page, "employee");
   await expect(page).toHaveURL(/\/employee$/);
 
   for (const route of [
@@ -141,7 +139,7 @@ test.describe("Zoom 200% (desktop viewport halved, not a phone)", () => {
   });
 
   test("manager demo routes stay usable at 200% zoom", async ({ page }) => {
-    await loginToDemo(page, "manager", "Admin-1234");
+    await loginToDemo(page, "manager");
     await expect(page).toHaveURL(/\/pilot$/);
     for (const route of ["/pilot", "/manager/schedule", "/admin/employees", "/admin/shift-templates"]) {
       await page.goto(route);
@@ -151,7 +149,7 @@ test.describe("Zoom 200% (desktop viewport halved, not a phone)", () => {
   });
 
   test("employee demo routes stay usable at 200% zoom", async ({ page }) => {
-    await loginToDemo(page, "employee", "Demo-1234");
+    await loginToDemo(page, "employee");
     await expect(page).toHaveURL(/\/employee$/);
     for (const route of ["/employee", "/availability", "/my-shifts", "/swap-requests"]) {
       await page.goto(route);
