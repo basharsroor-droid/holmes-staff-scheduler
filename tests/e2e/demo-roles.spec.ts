@@ -1,10 +1,8 @@
 import { expect, type Page, test } from "@playwright/test";
 
-async function loginToDemo(page: Page, username: string, password: string) {
+async function loginToDemo(page: Page, role: "manager" | "employee") {
   await page.goto("/demo");
-  await page.getByLabel("ת.ז / שם משתמש").fill(username);
-  await page.getByLabel("סיסמה").fill(password);
-  await page.getByRole("button", { name: "כניסה", exact: true }).click();
+  await page.getByRole("button", { name: role === "manager" ? "כניסה לדמו כמנהל/ת" : "כניסה לדמו כעובד/ת" }).click();
 }
 
 async function openMobileNavigationIfNeeded(page: Page) {
@@ -13,7 +11,7 @@ async function openMobileNavigationIfNeeded(page: Page) {
 }
 
 test("manager demo login opens management tools", async ({ page }) => {
-  await loginToDemo(page, "manager", "Admin-1234");
+  await loginToDemo(page, "manager");
 
   await expect(page).toHaveURL(/\/pilot$/);
   await expect(page.getByRole("heading", { name: /ShiftPilot לעסקים/ })).toBeVisible();
@@ -25,7 +23,7 @@ test("manager demo login opens management tools", async ({ page }) => {
 });
 
 test("employee demo login exposes only employee navigation", async ({ page }) => {
-  await loginToDemo(page, "employee", "Demo-1234");
+  await loginToDemo(page, "employee");
 
   await expect(page).toHaveURL(/\/employee$/);
   await expect(page.getByRole("heading", { name: /שלום עובד דמו/ })).toBeVisible();
@@ -37,7 +35,7 @@ test("employee demo login exposes only employee navigation", async ({ page }) =>
 });
 
 test("employee cannot open a manager-only demo route directly", async ({ page }) => {
-  await loginToDemo(page, "employee", "Demo-1234");
+  await loginToDemo(page, "employee");
   await expect(page).toHaveURL(/\/employee$/);
 
   await page.goto("/admin/employees");
@@ -47,7 +45,7 @@ test("employee cannot open a manager-only demo route directly", async ({ page })
 });
 
 test("demo logout clears the role session", async ({ page }) => {
-  await loginToDemo(page, "manager", "Admin-1234");
+  await loginToDemo(page, "manager");
   await expect(page).toHaveURL(/\/pilot$/);
 
   await openMobileNavigationIfNeeded(page);
