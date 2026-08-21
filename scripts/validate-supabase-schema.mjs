@@ -137,6 +137,18 @@ const supportTicketResponseMetricsMigrationUrl = new URL(
   "../supabase/migrations/20260817182653_support_ticket_response_metrics.sql",
   import.meta.url
 );
+const departmentAuthorizationPoliciesMigrationUrl = new URL(
+  "../supabase/migrations/20260821123000_department_authorization_policies.sql",
+  import.meta.url
+);
+const departmentAuthorizationRpcsMigrationUrl = new URL(
+  "../supabase/migrations/20260821124000_department_authorization_rpcs.sql",
+  import.meta.url
+);
+const policyHelperExecutionMigrationUrl = new URL(
+  "../supabase/migrations/20260821125000_policy_helper_execution.sql",
+  import.meta.url
+);
 
 const tenantTables = [
   "organizations",
@@ -156,6 +168,65 @@ const tenantTables = [
 ];
 
 const failures = [];
+
+if (!existsSync(policyHelperExecutionMigrationUrl)) {
+  failures.push("RLS policy helper execution migration is missing");
+} else {
+  const helperExecutionMigration = readFileSync(policyHelperExecutionMigrationUrl, "utf8");
+  for (const helper of [
+    "private.can_access_branch(uuid)",
+    "private.can_access_membership(uuid)",
+    "private.can_manage_invitation_branch(uuid, uuid)",
+    "private.can_manage_swap_request(uuid)",
+    "private.can_access_schedule_period(uuid)",
+    "private.can_manage_schedule_period(uuid)"
+  ]) {
+    if (!helperExecutionMigration.includes(`grant execute on function ${helper} to authenticated`)) {
+      failures.push(`authenticated RLS helper grant is missing: ${helper}`);
+    }
+  }
+}
+
+if (!existsSync(departmentAuthorizationPoliciesMigrationUrl)) {
+  failures.push("department authorization policy migration is missing");
+} else {
+  const policyMigration = readFileSync(departmentAuthorizationPoliciesMigrationUrl, "utf8");
+  for (const requiredRule of [
+    "private.can_access_branch",
+    "private.can_access_membership",
+    "private.can_manage_invitation_branch",
+    "private.can_manage_swap_request",
+    "memberships_select_scoped",
+    "profiles_select_scoped",
+    "invitations_select_scoped",
+    "leave_requests_select_scoped",
+    "swaps_select_scoped",
+    "swap_events_select_scoped",
+    "notifications_select_self"
+  ]) {
+    if (!policyMigration.includes(requiredRule)) {
+      failures.push(`department authorization policy rule is missing: ${requiredRule}`);
+    }
+  }
+}
+
+if (!existsSync(departmentAuthorizationRpcsMigrationUrl)) {
+  failures.push("department authorization RPC migration is missing");
+} else {
+  const rpcMigration = readFileSync(departmentAuthorizationRpcsMigrationUrl, "utf8");
+  for (const requiredRule of [
+    "private.can_manage_schedule_period(period_value.id)",
+    "Source and target periods must be in the same department",
+    "private.can_manage_swap_request(request_value.id)",
+    "private.can_manage_invitation_branch(target_organization_id, target_branch_id)",
+    "department_membership.department_id = period_value.department_id",
+    "'department_id', period_value.department_id"
+  ]) {
+    if (!rpcMigration.includes(requiredRule)) {
+      failures.push(`department authorization RPC rule is missing: ${requiredRule}`);
+    }
+  }
+}
 
 if (!existsSync(advisorHardeningMigrationUrl)) {
   failures.push("Supabase advisor hardening migration is missing");
