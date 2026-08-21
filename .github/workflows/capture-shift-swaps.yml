@@ -1,0 +1,32 @@
+name: Capture shift-swaps screenshot
+
+on:
+  push:
+    branches: [docs/refresh-shift-swaps-screenshot]
+
+permissions:
+  contents: read
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx playwright install chromium
+      - name: Capture authenticated production screen
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+          SUPABASE_SECRET_KEY: ${{ secrets.SUPABASE_SECRET_KEY }}
+          SCREENSHOT_PATH: artifacts/iphone-6.9-shift-swaps.png
+        run: node scripts/capture-shift-swaps-screenshot.mjs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: iphone-6.9-shift-swaps
+          path: artifacts/iphone-6.9-shift-swaps.png
+          retention-days: 1
