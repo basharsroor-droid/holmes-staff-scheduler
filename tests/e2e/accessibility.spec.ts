@@ -67,8 +67,8 @@ for (const publicPage of publicPages) {
   });
 }
 
-const managerDemoRoutes = ["/pilot", "/manager", "/manager/schedule", "/schedule", "/admin/employees", "/admin/shift-templates"];
-const employeeDemoRoutes = ["/employee", "/availability", "/my-shifts", "/schedule", "/swap-requests", "/manager-requests"];
+const managerDemoRoutes = ["/pilot", "/manager", "/manager/schedule", "/schedule", "/admin/employees", "/admin/shift-templates", "/demo/help"];
+const employeeDemoRoutes = ["/employee", "/availability", "/my-shifts", "/schedule", "/swap-requests", "/manager-requests", "/demo/help"];
 
 test("manager demo routes have no automatic WCAG A/AA violations", async ({ page }) => {
   await loginToDemo(page, "manager");

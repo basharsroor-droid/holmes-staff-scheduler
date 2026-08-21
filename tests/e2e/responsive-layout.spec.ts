@@ -141,7 +141,7 @@ test.describe("Zoom 200% (desktop viewport halved, not a phone)", () => {
   test("manager demo routes stay usable at 200% zoom", async ({ page }) => {
     await loginToDemo(page, "manager");
     await expect(page).toHaveURL(/\/pilot$/);
-    for (const route of ["/pilot", "/manager/schedule", "/admin/employees", "/admin/shift-templates"]) {
+    for (const route of ["/pilot", "/manager/schedule", "/admin/employees", "/admin/shift-templates", "/demo/help"]) {
       await page.goto(route);
       await expect(page.locator(".app-shell")).toBeVisible();
       await expectNoPageOverflow(page);
@@ -151,7 +151,7 @@ test.describe("Zoom 200% (desktop viewport halved, not a phone)", () => {
   test("employee demo routes stay usable at 200% zoom", async ({ page }) => {
     await loginToDemo(page, "employee");
     await expect(page).toHaveURL(/\/employee$/);
-    for (const route of ["/employee", "/availability", "/my-shifts", "/swap-requests"]) {
+    for (const route of ["/employee", "/availability", "/my-shifts", "/swap-requests", "/demo/help"]) {
       await page.goto(route);
       await expect(page.locator(".app-shell")).toBeVisible();
       await expectNoPageOverflow(page);
