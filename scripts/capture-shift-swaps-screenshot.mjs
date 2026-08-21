@@ -61,10 +61,10 @@ try {
     organization_id: organization.id,
     branch_id: branch.id,
     user_id: userId,
-    role: "manager",
+    role: "owner",
     status: "active",
     joined_at: new Date().toISOString(),
-    access_scope: "department"
+    access_scope: "organization"
   }).select("id").single();
   if (membershipError) throw membershipError;
   const {error: departmentMembershipError} = await admin.from("department_memberships").insert({
