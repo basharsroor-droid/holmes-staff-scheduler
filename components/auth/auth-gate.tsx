@@ -66,7 +66,7 @@ export function AuthGate() {
     setIsLoading(true);
     setMessage("");
     const localUsers = getLocalUsers();
-    const localUser = [...localUsers, ...LOCAL_DEMO_USERS].find(
+    const localUser = localUsers.find(
       (user) =>
         (user.nationalId === loginId || user.username === loginId) &&
         user.password === loginPassword
@@ -86,6 +86,11 @@ export function AuthGate() {
 
     setIsLoading(false);
     setMessage("ת.ז או סיסמה לא נכונים");
+  }
+
+  function enterDemo(role: "manager" | "employee") {
+    const demoUser = LOCAL_DEMO_USERS.find((user) => user.role === role);
+    if (demoUser) enterSystem(demoUser);
   }
 
   function changeInitialPassword() {
@@ -123,7 +128,7 @@ export function AuthGate() {
         <BrandLogo light />
         <p>
           {productConfig.tagline}. אזור פרטי לעובדים ולמנהלים, בדיוק כמו
-          שהמערכת האמיתית עובדת — כולל החלפת סיסמה אישית בכניסה הראשונה.
+          שהמערכת האמיתית עובדת — בלי חיבור לנתוני לקוחות או לחשבון Production.
         </p>
         <div className="card-muted">
           דמו פעיל: {demoOrganization.businessName} · {demoOrganization.branchName}
@@ -174,8 +179,20 @@ export function AuthGate() {
           <div className="grid">
             <div className="auth-title-row">
               <LockKeyhole size={22} />
-              <h2>כניסה למערכת</h2>
+              <h2>בחירת תצוגת דמו</h2>
             </div>
+            <p className="lead">בחרו תפקיד כדי להתנסות בסביבת ההדגמה המקומית.</p>
+            <button className="button primary" onClick={() => enterDemo("manager")}>
+              <KeyRound size={16} /> כניסה לדמו כמנהל/ת
+            </button>
+            <button className="button" onClick={() => enterDemo("employee")}>
+              <KeyRound size={16} /> כניסה לדמו כעובד/ת
+            </button>
+            <div className="card-muted">
+              סביבת הדמו נשמרת בדפדפן בלבד ואינה מעניקה גישה ל־Supabase או לנתוני Production.
+            </div>
+            <details>
+                <summary>כניסה למשתמש מקומי שנוצר בדמו</summary>
             <div className="field">
               <label htmlFor="demo-login-id">ת.ז / שם משתמש</label>
               <input
@@ -210,9 +227,9 @@ export function AuthGate() {
               כניסה
             </button>
             <div className="card-muted">
-              פרטי הכניסה הראשוניים ניתנים לעובדים על ידי מנהל/ת העסק בלבד.
-              אחרי הכניסה הראשונה כל עובד יתבקש להחליף סיסמה אישית.
+              פרטי המשתמש המקומי נשמרים במכשיר הזה בלבד.
             </div>
+            </details>
           </div>
         )}
 
