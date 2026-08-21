@@ -7,6 +7,11 @@ async function loginToDemo(page: Page, role: "manager" | "employee") {
   await expect(page).toHaveURL(new RegExp(`${destination}$`));
 }
 
+async function openMobileNavigationIfNeeded(page: Page) {
+  const toggle = page.getByRole("button", { name: "פתיחת תפריט" });
+  if (await toggle.isVisible()) await toggle.click();
+}
+
 test("employee can update and save monthly availability", async ({ page }) => {
   await page.addInitScript(() => {
     window.localStorage.setItem("scheduler-submission-access", "open");
@@ -76,7 +81,10 @@ test("manager can approve a pending shift swap request", async ({ page }) => {
 test("both demo roles can reach help and support", async ({ page }) => {
   for (const role of ["manager", "employee"] as const) {
     await loginToDemo(page, role);
-    await page.getByRole("link", { name: "עזרה ותמיכה" }).click();
+    await openMobileNavigationIfNeeded(page);
+    await page.getByRole("navigation", { name: "ניווט ראשי" })
+      .getByRole("link", { name: "עזרה ותמיכה" })
+      .click();
     await expect(page).toHaveURL(/\/demo\/help$/);
     await expect(page.getByRole("heading", { name: "עזרה ותמיכה", level: 1 })).toBeVisible();
     await expect(page.getByRole("link", { name: "שליחת מייל לתמיכה" })).toHaveAttribute("href", "mailto:support@shiftpilothq.com");
