@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
+import { createClient } from "@supabase/supabase-js";
 
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { getSupabaseConfig } from "@/lib/supabase/config";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 // Self-service account deletion, required by App Store guideline 5.1.1(v):
@@ -26,6 +28,21 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 type OrphanedOrganization = { id: string; name: string; memberCount: number };
 type DemoOrganization = { id: string; name: string };
+
+async function verifyCurrentPassword(userId: string, email: string, password: string) {
+  const { supabaseUrl, supabasePublishableKey } = getSupabaseConfig();
+  const verifier = createClient(supabaseUrl, supabasePublishableKey, {
+    auth: { autoRefreshToken: false, persistSession: false }
+  });
+  const { data, error } = await verifier.auth.signInWithPassword({ email, password });
+  const verified = !error && data.user?.id === userId && Boolean(data.session);
+
+  // Password verification creates an isolated session. Revoke that refresh
+  // token immediately; the browser's original cookie session is a different
+  // session and remains available for the deletion operation.
+  if (data.session) await verifier.auth.signOut({ scope: "local" });
+  return verified;
+}
 
 // Demo credentials are intentionally handed to reviewers and prospects. Even
 // though they authenticate like normal accounts, they must never be able to
@@ -127,7 +144,7 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-  let body: { confirmation?: unknown; acknowledgeOrganizations?: unknown };
+  let body: { confirmation?: unknown; password?: unknown; acknowledgeOrganizations?: unknown };
   try {
     body = await request.json();
   } catch {
@@ -152,12 +169,25 @@ export async function POST(request: Request) {
   try {
     if ((await findDemoOrganizations(admin, user.id)).length) {
       return NextResponse.json(
-        { error: "Demo accounts cannot be deleted" },
+        { error: "Demo accounts cannot be deleted", errorCode: "DEMO_ACCOUNT_PROTECTED" },
         { status: 403 }
       );
     }
   } catch {
     return NextResponse.json({ error: "Could not verify account protections" }, { status: 500 });
+  }
+
+  // A valid session plus a typed email protects against stray clicks, but not
+  // against an unattended unlocked device or a stolen long-lived session.
+  // Require the account's current password immediately before the destructive
+  // operation. The password is sent only to Supabase Auth for verification and
+  // is never stored in application data or logs.
+  const password = typeof body.password === "string" ? body.password : "";
+  if (!password || !user.email || !(await verifyCurrentPassword(user.id, user.email, password))) {
+    return NextResponse.json(
+      { error: "Current password verification failed", errorCode: "REAUTHENTICATION_FAILED" },
+      { status: 403 }
+    );
   }
 
   let orphaned: OrphanedOrganization[];
