@@ -25,6 +25,7 @@ export function DeleteAccount() {
   const [loading, setLoading] = useState(true);
   const [confirming, setConfirming] = useState(false);
   const [confirmation, setConfirmation] = useState("");
+  const [password, setPassword] = useState("");
   const [acknowledged, setAcknowledged] = useState(false);
   const [busy, setBusy] = useState(false);
   const { message, kind, setMessage } = useStatusMessage();
@@ -60,7 +61,7 @@ export function DeleteAccount() {
     const response = await fetch("/api/account/delete", {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ confirmation, acknowledgeOrganizations: organizations.length > 0 })
+      body: JSON.stringify({ confirmation, password, acknowledgeOrganizations: organizations.length > 0 })
     });
 
     if (!response.ok) {
@@ -73,6 +74,11 @@ export function DeleteAccount() {
         setOrganizations(data.organizationsToDelete);
         setAcknowledged(false);
         setMessage("מצב הבעלות בעסק השתנה. בדוק שוב את הפרטים למטה לפני המחיקה.", "error");
+        return;
+      }
+      if (response.status === 403 && data.errorCode === "REAUTHENTICATION_FAILED") {
+        setPassword("");
+        setMessage("הסיסמה אינה נכונה. הזן את הסיסמה הנוכחית של החשבון ונסה שוב.", "error");
         return;
       }
       setMessage("מחיקת החשבון נכשלה. נסה שוב, ואם זה חוזר פנה לתמיכה.", "error");
@@ -165,15 +171,26 @@ export function DeleteAccount() {
                   onChange={(event) => setConfirmation(event.target.value)}
                 />
               </label>
+              <label className="field">
+                <span>לאימות שזה באמת אתה, הזן את הסיסמה הנוכחית של החשבון:</span>
+                <input
+                  className="input"
+                  type="password"
+                  dir="ltr"
+                  autoComplete="current-password"
+                  value={password}
+                  onChange={(event) => setPassword(event.target.value)}
+                />
+              </label>
               <div className="danger-zone-actions">
                 <button
                   className="button danger"
-                  disabled={busy || !confirmationMatches || blocked}
+                  disabled={busy || !confirmationMatches || !password || blocked}
                   onClick={() => void deleteAccount()}
                 >
                   <Trash2 size={15} /> {busy ? "מוחקים..." : "מחיקה סופית של החשבון"}
                 </button>
-                <button className="button" disabled={busy} onClick={() => { setConfirming(false); setConfirmation(""); setAcknowledged(false); }}>
+                <button className="button" disabled={busy} onClick={() => { setConfirming(false); setConfirmation(""); setPassword(""); setAcknowledged(false); }}>
                   ביטול
                 </button>
               </div>
