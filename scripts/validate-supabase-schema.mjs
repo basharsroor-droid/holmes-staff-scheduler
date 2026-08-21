@@ -153,6 +153,10 @@ const protectDemoOrganizationsMigrationUrl = new URL(
   "../supabase/migrations/20260821130000_protect_demo_organizations_from_deletion.sql",
   import.meta.url
 );
+const organizationDeletionCascadeMigrationUrl = new URL(
+  "../supabase/migrations/20260821133000_fix_organization_deletion_audit_cascades.sql",
+  import.meta.url
+);
 
 const tenantTables = [
   "organizations",
@@ -836,6 +840,24 @@ if (!existsSync(protectDemoOrganizationsMigrationUrl)) {
   }
 }
 
+if (!existsSync(organizationDeletionCascadeMigrationUrl)) {
+  failures.push("organization deletion cascade fix migration is missing");
+} else {
+  const organizationDeletionCascadeMigration = readFileSync(organizationDeletionCascadeMigrationUrl, "utf8");
+  for (const requiredRule of [
+    "create or replace function private.write_management_audit_log()",
+    "not exists (",
+    "from public.organizations organization_row",
+    "drop constraint if exists leave_requests_organization_id_fkey",
+    "on delete cascade",
+    "revoke all on function private.write_management_audit_log() from public, anon, authenticated"
+  ]) {
+    if (!organizationDeletionCascadeMigration.includes(requiredRule)) {
+      failures.push(`organization deletion cascade fix is missing: ${requiredRule}`);
+    }
+  }
+}
+
 if (!existsSync(departmentMembershipsActiveOnlyMigrationUrl)) {
   failures.push("department_memberships suspended-member SELECT fix migration is missing");
 } else {
@@ -870,5 +892,5 @@ if (failures.length) {
 }
 
 console.log(
-  `Validated ${tenantTables.length + 2} RLS-protected ShiftPilot tables with authorization, department-scoped access, workflow integrity, privacy, atomic operations, audit, deduplicated notification, scheduling-overlap, last-owner protection, ownership transfer, manager/target swap-transition protection, schedule unpublishing, automatic future-shift release on suspension, invitation resend rate-limiting, previous-month schedule duplication, self-service leave requests, per-employee weekly hour limits, minimum rest time between shifts, bulk shift cancellation by day, and correct expired-invitation handling, a resettable and deletion-protected demo-sales environment, concurrent-invitation race protection, active-only department-membership visibility, and support-ticket first-response/reopen tracking.`
+  `Validated ${tenantTables.length + 2} RLS-protected ShiftPilot tables with authorization, department-scoped access, workflow integrity, privacy, atomic operations, audit, deduplicated notification, scheduling-overlap, last-owner protection, ownership transfer, manager/target swap-transition protection, schedule unpublishing, automatic future-shift release on suspension, invitation resend rate-limiting, previous-month schedule duplication, self-service leave requests, per-employee weekly hour limits, minimum rest time between shifts, bulk shift cancellation by day, and correct expired-invitation handling, a resettable and deletion-protected demo-sales environment, safe tenant-deletion cascades, concurrent-invitation race protection, active-only department-membership visibility, and support-ticket first-response/reopen tracking.`
 );
