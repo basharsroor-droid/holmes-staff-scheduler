@@ -78,10 +78,7 @@ export function ScheduleBuilderClient({ organizationId, currentUserId, callerRol
     : [];
   const periodSubmissions = submissions.filter((item) => item.schedule_period_id === selectedPeriodId && item.submitted_at);
   const days = period ? Array.from({ length: new Date(period.year, period.month, 0).getDate() }, (_, index) => dateKey(period.year, period.month, index + 1)) : [];
-  const holidaysByDate = useMemo(
-    () => (period ? getIsraeliHolidaysForMonth(period.year, period.month) : new Map<string, IsraeliHoliday>()),
-    [period?.year, period?.month]
-  );
+  const holidaysByDate = period ? getIsraeliHolidaysForMonth(period.year, period.month) : new Map<string, IsraeliHoliday>();
   const filled = periodShifts.filter((shift) => assignments.filter((item) => item.shift_id === shift.id).length >= shift.required_employees).length;
   const completion = periodShifts.length ? Math.round((filled / periodShifts.length) * 100) : 0;
 

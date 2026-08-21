@@ -5,10 +5,12 @@ import { useEffect } from "react";
 import { AlertTriangle, RefreshCw } from "lucide-react";
 
 import { BrandLogo } from "@/components/brand/brand-logo";
+import { reportClientError } from "@/lib/observability-client";
 
 export default function ErrorPage({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
   useEffect(() => {
     console.error("ShiftPilot route error", error);
+    reportClientError({ name: error.name, message: error.message, digest: error.digest, source: "route-boundary" });
   }, [error]);
 
   return (

@@ -30,6 +30,8 @@ import * as age from "age-encryption";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname } from "node:path";
 
+import { createBackupPayload } from "../lib/backup-format.mjs";
+
 // Every table in the public schema as of 2026-08-16 (confirmed against the
 // live project via list_tables). Add new tables here when a migration adds
 // one -- this list is not derived automatically on purpose, so a forgotten
@@ -56,6 +58,7 @@ const TABLES = [
   "notification_preferences",
   "email_delivery_queue",
   "audit_logs",
+  "operational_events",
   "platform_support_agents",
   "support_tickets"
 ];
@@ -95,11 +98,11 @@ async function main() {
   const rowCounts = Object.fromEntries(Object.entries(tables).map(([name, rows]) => [name, rows.length]));
   console.log("Row counts:", rowCounts);
 
-  const payload = {
-    exported_at: new Date().toISOString(),
-    supabase_project_url: supabaseUrl,
+  const payload = createBackupPayload({
+    exportedAt: new Date().toISOString(),
+    projectUrl: supabaseUrl,
     tables
-  };
+  });
 
   const encrypter = new age.Encrypter();
   encrypter.addRecipient(recipient);

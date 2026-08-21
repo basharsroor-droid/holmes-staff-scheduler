@@ -2,15 +2,16 @@
 
 [![ShiftPilot CI](https://github.com/basharsroor-droid/holmes-staff-scheduler/actions/workflows/ci.yml/badge.svg)](https://github.com/basharsroor-droid/holmes-staff-scheduler/actions/workflows/ci.yml)
 [![Production Health](https://github.com/basharsroor-droid/holmes-staff-scheduler/actions/workflows/production-health.yml/badge.svg)](https://github.com/basharsroor-droid/holmes-staff-scheduler/actions/workflows/production-health.yml)
+[![Authenticated Production E2E](https://github.com/basharsroor-droid/holmes-staff-scheduler/actions/workflows/production-authenticated-e2e.yml/badge.svg)](https://github.com/basharsroor-droid/holmes-staff-scheduler/actions/workflows/production-authenticated-e2e.yml)
 
 ShiftPilot היא מערכת SaaS לניהול צוותים שעובדים במשמרות. עובדים מגישים זמינות חודשית, מנהלים בונים ומפרסמים סידור, והמערכת מרכזת החלפות, הרשאות והיסטוריה לפי עסק וסניף.
 
 ## כתובות
 
-- אתר ו-Production: https://shiftpilot-demo-eight.vercel.app
-- כניסה למערכת: https://shiftpilot-demo-eight.vercel.app/login
-- פתיחת עסק: https://shiftpilot-demo-eight.vercel.app/onboarding
-- סביבת הדגמה נפרדת: https://shiftpilot-demo-eight.vercel.app/demo
+- אתר ו-Production: https://www.shiftpilothq.com
+- כניסה למערכת: https://www.shiftpilothq.com/login
+- פתיחת עסק: https://www.shiftpilothq.com/onboarding
+- סביבת הדגמה נפרדת: https://www.shiftpilothq.com/demo
 
 פרטי הכניסה לדמו אינם נשמרים בתיעוד הציבורי. יש למסור אותם באופן פרטי בלבד. סביבת הדמו מופרדת מנתוני ה-SaaS האמיתיים.
 
@@ -86,11 +87,15 @@ npm run dev
 
 ```bash
 npm run validate:schema
+npm run test:unit
+npm run lint
+npm run typecheck
 npm run build
+npm run test:e2e
 npm run health:production
 ```
 
-GitHub Actions מריץ את שתי הבדיקות אוטומטית בכל Pull Request ל-`main` ובכל Push ל-`main`.
+GitHub Actions מריץ schema, unit, lint, typecheck, build ו־Playwright בכל Pull Request ל־`main` ובכל Push ל־`main`. בנוסף קיים E2E מאומת להפעלה ידנית מול Production עם tenants זמניים וניקוי מלא, כדי שכל הרצה בעלת הרשאות גבוהות תהיה החלטה מפורשת.
 
 ## תהליך פיתוח
 
@@ -106,9 +111,8 @@ GitHub Actions מריץ את שתי הבדיקות אוטומטית בכל Pull 
 המערכת נמצאת בשלב הכנה לפיילוט סגור. לפני שימוש בנתוני עובדים אמיתיים נדרשים:
 
 - פיילוט מלא עם מנהל ומספר עובדי בדיקה
-- SMTP מקצועי והתראות ממותגות
-- גיבוי ושחזור
+- תרגול שחזור כתיבה מלא בסביבת Staging מבודדת
 - בדיקה משפטית סופית של תנאי השימוש ומדיניות הפרטיות
-- דומיין מקצועי וניטור שגיאות מרכזי
+- הפעלת סביבת Staging נפרדת לאחר אישור העלות
 
-בדיקות E2E במחשב ובמובייל, Audit אבטחה בסיסי, מסמכים משפטיים ראשוניים וניטור זמינות אוטומטי כבר פעילים.
+בדיקות E2E במחשב ובמובייל, E2E מאומת מול Production, Audit אבטחה, גיבוי מוצפן עם checksum, ניטור שגיאות והתראות, Analytics מצומצם ומוגן פרטיות וניטור זמינות אוטומטי כבר פעילים.

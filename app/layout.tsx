@@ -5,6 +5,7 @@ import "@/app/globals.css";
 
 import { introPrebootScript, SiteIntro } from "@/components/brand/site-intro";
 import { AppShell } from "@/components/layout/app-shell";
+import { ClientObservability } from "@/components/observability/client-observability";
 import { ServiceWorkerRegister } from "@/components/pwa/sw-register";
 import { productConfig } from "@/lib/app-config";
 
@@ -48,6 +49,7 @@ export default function RootLayout({
         <script dangerouslySetInnerHTML={{ __html: introPrebootScript }} />
         <SiteIntro />
         <AppShell>{children}</AppShell>
+        <ClientObservability />
         <ServiceWorkerRegister />
       </body>
     </html>

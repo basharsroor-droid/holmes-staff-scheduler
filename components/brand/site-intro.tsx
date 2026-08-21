@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 const INTRO_KEY = "shiftpilot_code_intro_seen_v1";
 const tagline = "THE EASY WAY TO YOUR NEXT SHIFT".split(" ");
@@ -42,6 +42,18 @@ export function SiteIntro() {
   const [visible, setVisible] = useState(false);
   const [started, setStarted] = useState(false);
   const [leaving, setLeaving] = useState(false);
+  const leavingRef = useRef(false);
+
+  const finish = useCallback(() => {
+    if (leavingRef.current) return;
+    leavingRef.current = true;
+    setLeaving(true);
+    window.sessionStorage.setItem(INTRO_KEY, "1");
+    window.setTimeout(() => {
+      document.documentElement.classList.remove("si-lock");
+      setVisible(false);
+    }, 650);
+  }, []);
 
   useEffect(() => {
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches || window.sessionStorage.getItem(INTRO_KEY)) return;
@@ -103,17 +115,7 @@ export function SiteIntro() {
       window.cancelAnimationFrame(animationFrame);
       window.removeEventListener("resize", resize);
     };
-  }, [visible]);
-
-  function finish() {
-    if (leaving) return;
-    setLeaving(true);
-    window.sessionStorage.setItem(INTRO_KEY, "1");
-    window.setTimeout(() => {
-      document.documentElement.classList.remove("si-lock");
-      setVisible(false);
-    }, 650);
-  }
+  }, [finish, visible]);
 
   if (!visible) return null;
 

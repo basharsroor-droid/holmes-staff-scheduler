@@ -8,14 +8,14 @@
 דפדפן (משתמש)
    │
    ▼
-Next.js 14 App Router — Vercel (Edge + Serverless)
-   │  middleware.ts מגן על /workspace/*
+Next.js 16 App Router — Vercel (Edge + Serverless)
+   │  proxy.ts מרענן session; כל route מוגן בודק משתמש ותפקיד בצד השרת
    │  Server Components קוראים ישירות ל-Supabase (service/anon לפי הקשר)
    │
    ▼
 Supabase
    ├─ Auth (auth.users) — הרשמה, אימות מייל, סשן
-   ├─ Postgres (public schema) — 15 טבלאות, RLS על כולן
+   ├─ Postgres (public schema) — 23 טבלאות, RLS על כולן
    └─ RPC functions (SECURITY DEFINER) — כל פעולה עם לוגיקה עסקית/הרשאות
 ```
 
@@ -27,13 +27,13 @@ Supabase
 
 | שכבה | טכנולוגיה |
 |---|---|
-| Frontend/Backend | Next.js 14 (App Router), React 18, TypeScript |
+| Frontend/Backend | Next.js 16 (App Router), React 18, TypeScript |
 | עיצוב | Tailwind CSS, Radix UI, lucide-react |
 | ולידציה | Zod |
 | מסד נתונים | Supabase (Postgres 17), Row Level Security |
 | Auth | Supabase Auth |
 | Hosting | Vercel — Production מ-`main`, Preview לכל PR |
-| CI | GitHub Actions (`ShiftPilot CI`) — `npm run validate:schema` + `npm run build` על כל PR/push ל-main |
+| CI | GitHub Actions (`ShiftPilot CI`) — schema, unit, lint, typecheck, build ו־Playwright בכל PR/push ל־main |
 
 ## מודל הנתונים (multi-tenant)
 
@@ -54,9 +54,13 @@ Supabase
 
 רשימת הפונקציות הרגישות: `accept_organization_invitation`, `approve_shift_swap`, `create_organization_invitation`, `create_organization_workspace`, `mark_my_notifications_read`, `publish_schedule_period`. אלו עברו סקירה ידנית ב-8.8.2026 — ראו היסטוריית ה-PR-ים לפרטים.
 
-## Auth ו-`middleware.ts`
+## Auth ו-`proxy.ts`
 
-`middleware.ts` הוא קו ההגנה הראשון על `/workspace/*` — הוא בודק סשן Supabase ומפנה משתמש לא מחובר ל-`/login`. **חשוב:** הגנה זו לבדה לא מספיקה — RLS ב-Postgres היא קו ההגנה האמיתי והבלתי-ניתן-לעקיפה, כי גם אם ה-middleware ייעקף (למשל דרך קריאה ישירה ל-API), Postgres עדיין יחסום גישה חוצת-ארגון. זה הטעם שבגללו התיקון ל-CVE-2025-29927 (עקיפת middleware) הוגדר קריטי אך לא קטסטרופלי: השכבה השנייה (RLS) עדיין עמדה.
+`proxy.ts` מרענן את סשן Supabase. כל עמוד תחת `/workspace/*` בודק משתמש ותפקיד בצד השרת ומפנה ל־`/login` או ל־`/workspace` לפי הצורך. **חשוב:** הגנת ה־route לבדה לא מספיקה — RLS ב־Postgres היא קו ההגנה האמיתי והבלתי ניתן לעקיפה, כי גם קריאה ישירה ל־API עדיין מסוננת לפי הארגון, הסניף והמחלקה.
+
+## Observability ו־Analytics
+
+הטבלה `operational_events` מרכזת שגיאות client מסוננות ואירועי מוצר allow-listed. רק service role וטריגרים מוגנים כותבים אליה, ורק platform support agents קוראים אותה. פרטי הפרטיות, retention ומילון האירועים מתועדים ב־[OBSERVABILITY.md](./OBSERVABILITY.md).
 
 ## Deploy Pipeline
 
@@ -67,6 +71,6 @@ Supabase
 
 ## סביבות ומשתני סביבה
 
-ראו `.env.example`. שלושה משתנים:
+המשתנים העיקריים:
 - `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` — ציבוריים, מותר בצד לקוח.
 - `SUPABASE_SECRET_KEY` — **שרת בלבד**. אסור קידומת `NEXT_PUBLIC_`, אסור להדפיס ללוג, אסור לחשוף לדפדפן.

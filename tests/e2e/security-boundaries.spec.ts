@@ -64,3 +64,17 @@ test("retired mock authentication APIs are not exposed", async ({ request }) => 
     expect(await response.text()).not.toContain("verificationCode");
   }
 });
+
+test("observability ingestion rejects malformed or cross-origin reports", async ({ request }) => {
+  const malformed = await request.post("/api/observability/error", {
+    headers: { "Content-Type": "application/json" },
+    data: { message: "missing required fields" }
+  });
+  expect(malformed.status()).toBe(400);
+
+  const crossOrigin = await request.post("/api/observability/error", {
+    headers: { "Content-Type": "application/json", Origin: "https://attacker.example" },
+    data: { name: "Error", message: "probe", route: "/", source: "window-error" }
+  });
+  expect(crossOrigin.status()).toBe(403);
+});
