@@ -7,6 +7,7 @@ import { usePathname, useRouter } from "next/navigation";
 import {
   CalendarCheck,
   Clock3,
+  LifeBuoy,
   Menu,
   MessageSquareText,
   MonitorPlay,
@@ -33,7 +34,8 @@ const employeeNav = [
   { href: "/my-shifts", label: "המשמרות שלי", icon: Clock3 },
   { href: "/schedule", label: "לוח עבודה סופי", icon: CalendarCheck },
   { href: "/swap-requests", label: "החלפות", icon: Repeat2 },
-  { href: "/manager-requests", label: "בקשות להנהלה", icon: MessageSquareText }
+  { href: "/manager-requests", label: "בקשות להנהלה", icon: MessageSquareText },
+  { href: "/demo/help", label: "עזרה ותמיכה", icon: LifeBuoy }
 ];
 
 const managerNav = [
@@ -43,7 +45,8 @@ const managerNav = [
   { href: "/schedule", label: "לוח עבודה סופי", icon: CalendarCheck },
   { href: "/swap-requests", label: "החלפות", icon: Repeat2 },
   { href: "/admin/employees", label: "עובדים", icon: Users },
-  { href: "/admin/shift-templates", label: "תבניות", icon: Settings }
+  { href: "/admin/shift-templates", label: "תבניות", icon: Settings },
+  { href: "/demo/help", label: "עזרה ותמיכה", icon: LifeBuoy }
 ];
 
 const managerOnlyRoutes = ["/pilot", "/manager", "/admin"];

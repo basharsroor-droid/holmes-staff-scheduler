@@ -49,7 +49,7 @@ test("demo logout clears the role session", async ({ page }) => {
   await expect(page).toHaveURL(/\/pilot$/);
 
   await openMobileNavigationIfNeeded(page);
-  await page.getByRole("button", { name: "יציאה" }).click();
+  await page.locator("button:visible").filter({ hasText: /^יציאה$/ }).click();
 
   await expect(page).toHaveURL(/\/$/);
   await page.goto("/pilot");

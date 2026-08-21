@@ -72,3 +72,14 @@ test("manager can approve a pending shift swap request", async ({ page }) => {
   await expect(pendingRequest.getByText("אושר", { exact: true })).toBeVisible();
   await expect(pendingRequest.getByText("הערת מנהל: אושר לאחר בדיקת חוקים")).toBeVisible();
 });
+
+test("both demo roles can reach help and support", async ({ page }) => {
+  for (const role of ["manager", "employee"] as const) {
+    await loginToDemo(page, role);
+    await expect(page.locator('#private-navigation a[href="/demo/help"]')).toHaveCount(1);
+    await page.goto("/demo/help");
+    await expect(page).toHaveURL(/\/demo\/help$/);
+    await expect(page.getByRole("heading", { name: "עזרה ותמיכה", level: 1 })).toBeVisible();
+    await expect(page.getByRole("link", { name: "שליחת מייל לתמיכה" })).toHaveAttribute("href", "mailto:support@shiftpilothq.com");
+  }
+});
