@@ -24,6 +24,25 @@ test("all SaaS workspace routes require an authenticated session", async ({ page
   }
 });
 
+test("a malformed Supabase session cookie fails closed", async ({ context, page, baseURL }) => {
+  if (!baseURL) throw new Error("Playwright baseURL is required");
+
+  await context.addCookies([{
+    name: "sb-example-auth-token",
+    value: "base64-this-is-not-a-valid-session",
+    url: baseURL
+  }]);
+
+  await page.goto("/terms");
+  await expect(page.getByRole("link", { name: "חזרה לאתר" })).toHaveAttribute("href", "/");
+  await expect(page.getByRole("link", { name: "חזרה למערכת" })).toHaveCount(0);
+
+  await page.goto("/workspace");
+  await expect(page).toHaveURL(/\/login$/);
+  await expect(page.getByRole("heading", { name: "כניסה למערכת" })).toBeVisible();
+  await expect(page.getByText("שלום,", { exact: false })).toHaveCount(0);
+});
+
 test("health endpoint is cache-safe and exposes only operational metadata", async ({ request }) => {
   const response = await request.get("/api/health");
 
