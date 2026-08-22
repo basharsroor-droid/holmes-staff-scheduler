@@ -1028,14 +1028,17 @@ a:focus-visible {
 
 .password-reveal {
   position: absolute;
-  inset-inline-end: 4px;
+  inset-inline-end: 2px;
   top: 50%;
   transform: translateY(-50%);
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 38px;
-  height: 38px;
+  /* 40px is the repo's touch-target floor -- tests/e2e/responsive-layout.spec.ts
+     asserts it against the first visible button on every public route, and this
+     one now sorts first in the DOM on /login. */
+  width: 40px;
+  height: 40px;
   padding: 0;
   border: 0;
   border-radius: var(--radius);
