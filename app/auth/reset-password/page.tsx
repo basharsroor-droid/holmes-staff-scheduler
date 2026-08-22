@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { CheckCircle2, KeyRound, Loader2, ShieldCheck } from "lucide-react";
 
+import { PasswordField } from "@/components/auth/password-field";
 import { BrandLogo } from "@/components/brand/brand-logo";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 
@@ -80,8 +81,8 @@ export default function ResetPasswordPage() {
         {stage === "form" ? (
           <div className="grid">
             <div><p className="eyebrow"><ShieldCheck size={15} /> חיבור מאומת</p><h2>הגדרת סיסמה חדשה</h2></div>
-            <label className="field"><span>סיסמה חדשה</span><input className="input" type="password" autoComplete="new-password" value={password} onChange={(event) => setPassword(event.target.value)} /></label>
-            <label className="field"><span>אימות הסיסמה</span><input className="input" type="password" autoComplete="new-password" value={confirmation} onChange={(event) => setConfirmation(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter") void savePassword(); }} /></label>
+            <PasswordField label="סיסמה חדשה" autoComplete="new-password" value={password} onChange={setPassword} />
+            <PasswordField label="אימות הסיסמה" autoComplete="new-password" value={confirmation} onChange={setConfirmation} onEnter={() => void savePassword()} />
             <button className="button primary" disabled={busy} onClick={savePassword}>{busy ? <Loader2 className="spin" size={17} /> : <KeyRound size={17} />} שמירת הסיסמה</button>
             {message ? <p className="auth-message" role="alert">{message}</p> : null}
           </div>
