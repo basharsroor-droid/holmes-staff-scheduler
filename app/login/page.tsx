@@ -5,6 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { KeyRound, Loader2, LogIn, ShieldCheck } from "lucide-react";
 
+import { PasswordField } from "@/components/auth/password-field";
 import { BrandLogo } from "@/components/brand/brand-logo";
 import { isNativeApp } from "@/lib/native-app";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
@@ -128,7 +129,7 @@ export default function LoginPage() {
           <div className="grid">
             <div><h2>כניסה למערכת</h2></div>
             <label className="field"><span>כתובת מייל</span><input className="input" type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} /></label>
-            <label className="field"><span>סיסמה</span><input className="input" type="password" autoComplete="current-password" value={password} onChange={(event) => setPassword(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter") void login(); }} /></label>
+            <PasswordField label="סיסמה" autoComplete="current-password" value={password} onChange={setPassword} onEnter={() => void login()} />
             <div className="auth-forgot-link"><Link className="auth-secondary" href="/auth/forgot-password">שכחתי סיסמה</Link></div>
             <button className="button primary" disabled={busy} onClick={login}>{busy ? <Loader2 className="spin" size={17} /> : <LogIn size={17} />} כניסה מאובטחת</button>
             {message ? <p className="auth-message" role="alert">{message}</p> : null}

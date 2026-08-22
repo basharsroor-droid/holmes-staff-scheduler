@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { Building2, CheckCircle2, Loader2, ShieldCheck, Users } from "lucide-react";
 
+import { PasswordField } from "@/components/auth/password-field";
 import { BrandLogo } from "@/components/brand/brand-logo";
 import { isNativeApp } from "@/lib/native-app";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
@@ -121,7 +122,7 @@ export default function OnboardingPage() {
               <label className="field"><span>שם משפחה</span><input className="input" value={lastName} onChange={(e) => setLastName(e.target.value)} /></label>
             </div>
             <label className="field"><span>מייל עסקי</span><input className="input" type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} /></label>
-            <label className="field"><span>סיסמה</span><input className="input" type="password" autoComplete="new-password" value={password} onChange={(e) => setPassword(e.target.value)} /></label>
+            <PasswordField label="סיסמה" autoComplete="new-password" value={password} onChange={setPassword} />
             <label className="legal-consent"><input type="checkbox" checked={acceptedLegal} onChange={(event) => setAcceptedLegal(event.target.checked)} /><span>קראתי ואני מסכים/ה ל<Link href="/terms" target="_blank">תנאי השימוש</Link> ול<Link href="/privacy" target="_blank">מדיניות הפרטיות</Link>.</span></label>
             <button className="button primary" disabled={busy} onClick={createAccount}>{busy ? <Loader2 className="spin" size={17} /> : null} יצירת חשבון מאובטח</button>
           </div>

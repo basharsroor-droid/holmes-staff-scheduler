@@ -1013,6 +1013,52 @@ a:focus-visible {
   gap: 7px;
 }
 
+/* The reveal toggle sits inside the input's own box, at the end of the line --
+   inset-inline-end resolves to the left here, since these screens are RTL.
+   Without a way to read the password back, iOS autofills a saved one over an
+   empty-looking field and nothing on screen tells you it happened. */
+.password-field {
+  position: relative;
+  display: block;
+}
+
+.password-field .input {
+  padding-inline-end: 46px;
+}
+
+.password-reveal {
+  position: absolute;
+  inset-inline-end: 2px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  /* 40px is the repo's touch-target floor -- tests/e2e/responsive-layout.spec.ts
+     asserts it against the first visible button on every public route, and this
+     one now sorts first in the DOM on /login. */
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  transition: color 0.18s ease, background-color 0.18s ease;
+}
+
+.password-reveal:hover {
+  color: var(--ink);
+  background: #eef2f7;
+}
+
+.password-reveal:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+  color: var(--ink);
+}
+
 .field label {
   color: #344054;
   font-size: 13px;

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { CheckCircle2, Loader2, ShieldCheck, UserPlus } from "lucide-react";
 
+import { PasswordField } from "@/components/auth/password-field";
 import { BrandLogo } from "@/components/brand/brand-logo";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 
@@ -76,7 +77,7 @@ export default function AcceptInvitePage() {
     <section className="auth-card onboarding-card auth-flow-card">
       {stage === "checking" ? <div className="onboarding-state"><Loader2 className="spin" size={38} /><p>בודקים את ההזמנה...</p></div> : null}
       {stage === "invalid" ? <div className="onboarding-state"><UserPlus size={48} /><h2>ההזמנה אינה זמינה</h2><p>הקישור פג תוקף, בוטל או כבר נוצל. פנה למנהל כדי לקבל הזמנה חדשה.</p><Link className="button" href="/login">למסך הכניסה</Link></div> : null}
-      {stage === "form" ? <div className="grid"><div><p className="eyebrow"><ShieldCheck size={15} /> המייל אומת</p><h2>יצירת סיסמה והצטרפות</h2></div><label className="field"><span>סיסמה חדשה</span><input className="input" type="password" autoComplete="new-password" value={password} onChange={(e) => setPassword(e.target.value)} /></label><label className="field"><span>אימות הסיסמה</span><input className="input" type="password" autoComplete="new-password" value={confirmation} onChange={(e) => setConfirmation(e.target.value)} /></label><button className="button primary" disabled={busy} onClick={() => void acceptInvitation()}>{busy ? <Loader2 className="spin" size={17} /> : <UserPlus size={17} />} הצטרפות לצוות</button>{message ? <p className="auth-message" role="alert">{message}</p> : null}</div> : null}
+      {stage === "form" ? <div className="grid"><div><p className="eyebrow"><ShieldCheck size={15} /> המייל אומת</p><h2>יצירת סיסמה והצטרפות</h2></div><PasswordField label="סיסמה חדשה" autoComplete="new-password" value={password} onChange={setPassword} /><PasswordField label="אימות הסיסמה" autoComplete="new-password" value={confirmation} onChange={setConfirmation} /><button className="button primary" disabled={busy} onClick={() => void acceptInvitation()}>{busy ? <Loader2 className="spin" size={17} /> : <UserPlus size={17} />} הצטרפות לצוות</button>{message ? <p className="auth-message" role="alert">{message}</p> : null}</div> : null}
       {stage === "done" ? <div className="onboarding-state"><CheckCircle2 size={50} /><h2>הצטרפת בהצלחה</h2><p>החשבון מחובר לעסק ולסניף שלך.</p><Link className="button primary" href="/workspace">כניסה לסביבת העבודה</Link></div> : null}
     </section>
   </main>;
