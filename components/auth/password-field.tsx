@@ -1,7 +1,7 @@
 "use client";
 
 import { Eye, EyeOff } from "lucide-react";
-import { useState } from "react";
+import { forwardRef, useState } from "react";
 
 type PasswordFieldProps = {
   label: string;
@@ -18,7 +18,22 @@ type PasswordFieldProps = {
 // silently autofills a saved password over an empty-looking field and there's
 // no way to tell it apart from what you just typed -- which is exactly how a
 // demo account ends up locked out with "invalid login credentials".
-export function PasswordField({ label, value, onChange, autoComplete, onEnter }: PasswordFieldProps) {
+//
+// Forwards a ref to the underlying <input> so a caller's submit handler can
+// read event.target's live DOM value as a fallback. Password managers,
+// accessibility text-insertion, and some WebKit autofill paths can set the
+// native input value without dispatching the "input" event React listens on
+// -- when that happens the visible field is correct but the `value` prop
+// this component was given is stale, and reading only React state at submit
+// time silently sends the wrong password. Caught this via repeated
+// "invalid credentials" failures where the same string, re-typed through a
+// DOM-level input (a desktop browser's automation, not WebKit's native text
+// insertion), authenticated every time -- the field never lied, the state
+// closure did.
+export const PasswordField = forwardRef<HTMLInputElement, PasswordFieldProps>(function PasswordField(
+  { label, value, onChange, autoComplete, onEnter },
+  ref
+) {
   const [visible, setVisible] = useState(false);
 
   return (
@@ -26,6 +41,7 @@ export function PasswordField({ label, value, onChange, autoComplete, onEnter }:
       <span>{label}</span>
       <div className="password-field">
         <input
+          ref={ref}
           className="input"
           type={visible ? "text" : "password"}
           autoComplete={autoComplete}
@@ -50,4 +66,4 @@ export function PasswordField({ label, value, onChange, autoComplete, onEnter }:
       </div>
     </label>
   );
-}
+});

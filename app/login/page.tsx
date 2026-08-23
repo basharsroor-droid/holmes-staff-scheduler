@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { KeyRound, Loader2, LogIn, ShieldCheck } from "lucide-react";
 
@@ -24,6 +24,12 @@ export default function LoginPage() {
   useEffect(() => setNativeApp(isNativeApp()), []);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  // Fallback for signInWithPassword: reads the input's live DOM value at
+  // submit time, in case something set it without going through onChange
+  // (see the comment on PasswordField -- WebKit autofill and some
+  // accessibility-driven text insertion do this, leaving the visible field
+  // correct but this component's `password` state stale).
+  const passwordInputRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
   // MFA is per-user (supabase.auth.mfa), checked only after a password
@@ -46,13 +52,14 @@ export default function LoginPage() {
 
   async function login() {
     setMessage("");
-    if (!email || !password) {
+    const actualPassword = passwordInputRef.current?.value ?? password;
+    if (!email || !actualPassword) {
       setMessage("יש להזין כתובת מייל וסיסמה.");
       return;
     }
 
     setBusy(true);
-    const { error } = await supabase.auth.signInWithPassword({ email: resolveLoginEmail(email), password });
+    const { error } = await supabase.auth.signInWithPassword({ email: resolveLoginEmail(email), password: actualPassword });
 
     if (error) {
       setBusy(false);
@@ -129,7 +136,7 @@ export default function LoginPage() {
           <div className="grid">
             <div><h2>כניסה למערכת</h2></div>
             <label className="field"><span>כתובת מייל</span><input className="input" type="email" autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} /></label>
-            <PasswordField label="סיסמה" autoComplete="current-password" value={password} onChange={setPassword} onEnter={() => void login()} />
+            <PasswordField ref={passwordInputRef} label="סיסמה" autoComplete="current-password" value={password} onChange={setPassword} onEnter={() => void login()} />
             <div className="auth-forgot-link"><Link className="auth-secondary" href="/auth/forgot-password">שכחתי סיסמה</Link></div>
             <button className="button primary" disabled={busy} onClick={login}>{busy ? <Loader2 className="spin" size={17} /> : <LogIn size={17} />} כניסה מאובטחת</button>
             {message ? <p className="auth-message" role="alert">{message}</p> : null}
