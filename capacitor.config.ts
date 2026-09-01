@@ -60,7 +60,12 @@ const config: CapacitorConfig = {
   // marketing content (the brand logo's home link) on the app's login-first
   // screens. A top-level CapacitorConfig option, not nested under `server`.
   // Scoped narrowly on purpose.
-  appendUserAgent: "ShiftPilotNativeApp"
+  appendUserAgent: "ShiftPilotNativeApp",
+  plugins: {
+    LocalNotifications: {
+      presentationOptions: ["sound", "banner", "list"]
+    }
+  }
 };
 
 export default config;
