@@ -21,9 +21,9 @@
     "seed:demo": "node scripts/seed-demo-environment.mjs"
   },
   "dependencies": {
-    "@capacitor/cli": "^8.5.0",
     "@capacitor/core": "^8.5.0",
     "@capacitor/ios": "^8.5.0",
+    "@capacitor/local-notifications": "^8.3.1",
     "@hebcal/core": "^6.9.2",
     "@radix-ui/react-slot": "^1.2.4",
     "@supabase/ssr": "0.12.4",
@@ -42,6 +42,7 @@
   },
   "devDependencies": {
     "@axe-core/playwright": "^4.10.2",
+    "@capacitor/cli": "^8.5.0",
     "@playwright/test": "1.62.1",
     "@types/node": "^22.10.1",
     "@types/react": "^18.3.12",

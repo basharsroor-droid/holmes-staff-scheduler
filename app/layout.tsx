@@ -5,6 +5,7 @@ import "@/app/globals.css";
 
 import { introPrebootScript, SiteIntro } from "@/components/brand/site-intro";
 import { AppShell } from "@/components/layout/app-shell";
+import { NativeNotificationRouter } from "@/components/native/native-notification-router";
 import { ClientObservability } from "@/components/observability/client-observability";
 import { ServiceWorkerRegister } from "@/components/pwa/sw-register";
 import { productConfig } from "@/lib/app-config";
@@ -50,6 +51,7 @@ export default function RootLayout({
         <SiteIntro />
         <AppShell>{children}</AppShell>
         <ClientObservability />
+        <NativeNotificationRouter />
         <ServiceWorkerRegister />
       </body>
     </html>
