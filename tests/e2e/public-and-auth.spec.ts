@@ -42,6 +42,7 @@ test("public legal pages are available and linked from the marketing site", asyn
 
 test("business signup requires legal consent", async ({ page }) => {
   await page.goto("/onboarding");
+  await page.getByRole("button", { name: "יש לי עסק עם צוות אחד" }).click();
   await page.getByRole("button", { name: "יצירת חשבון מאובטח" }).click();
   await expect(page.getByText("יש לאשר את תנאי השימוש ומדיניות הפרטיות.")).toBeVisible();
   await expect(page.getByRole("checkbox")).not.toBeChecked();

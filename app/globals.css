@@ -542,6 +542,27 @@ button {
 .workspace-welcome .eyebrow { color: #71a9ff; }
 .workspace-welcome .role-pill { background: rgba(255, 255, 255, 0.12); color: white; }
 
+.trial-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 12px;
+  padding: 7px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.1);
+  font-size: 12px;
+  font-weight: 800;
+  color: #eaf1ff;
+}
+.trial-pill a { color: #a9c9ff; text-decoration: underline; }
+.trial-pill.warn {
+  border-color: rgba(255, 214, 140, 0.5);
+  background: rgba(255, 196, 92, 0.16);
+  color: #ffe2b0;
+}
+.trial-pill.warn a { color: #ffe2b0; }
+
 .workspace-stats,
 .workspace-next {
   max-width: 1180px;
@@ -2279,6 +2300,33 @@ a:focus-visible {
 .pro-footer a:hover{color:var(--primary)}
 .pro-footer-wordmark{position:relative;z-index:0;margin:12px 0 -4px;font-size:clamp(48px,11vw,128px);font-weight:800;letter-spacing:-.04em;line-height:1;text-align:center;color:transparent;background:linear-gradient(180deg,#e7ecf4,transparent);-webkit-background-clip:text;background-clip:text;user-select:none;pointer-events:none}
 .pro-footer>small{position:relative;z-index:1;display:block;margin-top:8px;border-top:1px solid #e2e7ef;padding-top:20px;font-size:12px}
+
+/* Pricing page (/pricing) -- plan cards, billing-cycle toggle and add-ons.
+   Marketing-scoped: reuses --primary / --msoft and the section shell. */
+.pricing-hero{padding-bottom:36px}
+.pricing-section{padding-top:16px}
+.pricing-block{display:grid;gap:26px}
+.pricing-cycle{display:flex;justify-content:center;gap:6px;margin:0 auto;padding:6px;border:1px solid #dfe6f0;border-radius:999px;background:#fff}
+.pricing-cycle button{border:0;border-radius:999px;padding:9px 18px;font:inherit;font-weight:800;font-size:13px;color:#5f6b81;background:transparent;cursor:pointer;transition:color .2s ease,background .2s ease}
+.pricing-cycle button.active{color:#fff;background:linear-gradient(135deg,var(--primary),#6947ff)}
+.pricing-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;align-items:stretch}
+.pricing-card{position:relative;display:flex;flex-direction:column;gap:14px;padding:26px 22px;border:1px solid #dfe6f0;border-radius:18px;background:#fff}
+.pricing-card.featured{border-color:var(--primary);box-shadow:0 24px 48px rgba(53,120,245,.16)}
+.pricing-badge{position:absolute;top:-11px;inset-inline-start:22px;padding:4px 12px;border-radius:999px;font-size:11px;font-weight:800;color:#fff;background:linear-gradient(135deg,var(--primary),#6947ff)}
+.pricing-head h3{margin:0 0 6px;font-size:20px}
+.pricing-head p{margin:0;color:var(--msoft);font-size:13px;line-height:1.6}
+.pricing-price{display:grid;gap:4px;padding:14px 0;border-block:1px solid #eef2f7}
+.pricing-price strong{font-size:30px;letter-spacing:-.03em}
+.pricing-price small{color:var(--msoft);font-size:12px;line-height:1.5}
+.pricing-quota{margin:0;font-size:12px;font-weight:800;color:#176bd9}
+.pricing-features{display:grid;gap:9px;margin:0;padding:0;list-style:none;flex:1}
+.pricing-features li{display:grid;grid-template-columns:auto 1fr;gap:8px;color:#5f6b81;font-size:13px;line-height:1.55}
+.pricing-features svg{margin-top:3px;color:var(--primary)}
+.pricing-card .button{justify-content:center}
+.pricing-fineprint{margin:0;text-align:center;color:var(--msoft);font-size:12px;line-height:1.7}
+@media(max-width:1050px){.pricing-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:620px){.pricing-grid{grid-template-columns:1fr}.pricing-cycle{width:100%}.pricing-cycle button{flex:1}}
+
 @media(max-width:1050px){.pro-nav-links{display:none}.pro-nav{grid-template-columns:1fr auto}.pro-hero{grid-template-columns:1fr;padding:70px 45px}.product-window{max-width:760px}.process-timeline{grid-template-columns:1fr 1fr}.process-timeline::before{display:none}.process-step{text-align:right;display:flex;gap:14px}.process-step>b{margin:0}.capability-grid{grid-template-columns:1fr 1fr}}
 @media(max-width:760px){.shiftpilot-logo.original img{width:180px}.pro-nav{width:min(calc(100% - 24px),1280px);min-height:80px}.pro-nav-actions .ghost-light{display:none}.pro-hero{width:100%;padding:58px 22px;border-radius:0;min-height:auto}.pro-hero h1{font-size:47px}.pro-hero-actions,.hero-assurances{align-items:stretch;flex-direction:column}.product-window{display:none}.proof-strip{padding:20px 0;justify-content:flex-start;overflow:auto}.proof-strip i{display:none}.proof-strip span{white-space:nowrap}.pro-section{padding:75px 0}.comparison-grid,.role-showcase,.security-section,.faq-section{grid-template-columns:1fr}.process-timeline,.capability-grid{grid-template-columns:1fr}.process-step{align-items:flex-start}.example-table-wrap{overflow-x:auto}.example-table{min-width:760px}.security-section{width:100%;margin:50px 0;padding:55px 22px;border-radius:0}.security-copy h2{font-size:37px}.final-cta>div>div:last-child{align-items:stretch;flex-direction:column}.pro-footer{grid-template-columns:1fr}.pro-footer>div{flex-wrap:wrap}.video-intro video{object-fit:contain;background:#071126}}
 
@@ -5352,8 +5400,7 @@ html.si-lock, html.si-lock body {
   color: #cbdcf1;
 }
 .onboarding-progress {
-  display: grid;
-  grid-template-columns: auto minmax(36px, 1fr) auto;
+  display: flex;
   align-items: center;
   gap: 10px;
   margin-bottom: 28px;
@@ -5381,6 +5428,8 @@ html.si-lock, html.si-lock body {
   font-weight: 850;
 }
 .onboarding-progress i {
+  flex: 1;
+  min-width: 20px;
   height: 2px;
   border-radius: 99px;
   background: #dce4ee;
@@ -5407,6 +5456,62 @@ html.si-lock, html.si-lock body {
 .business-onboarding-card .legal-consent:has(input:checked) {
   border-color: #9cc2ee;
   background: #f0f7ff;
+}
+
+/* Onboarding: "how will you use it?" choice list + plan-recommendation card. */
+.onboarding-choices {
+  display: grid;
+  gap: 10px;
+}
+.onboarding-choice {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  padding: 15px 16px;
+  border: 1px solid #dce5f0;
+  border-radius: 12px;
+  background: #fff;
+  font: inherit;
+  font-weight: 700;
+  color: #1b2536;
+  text-align: start;
+  cursor: pointer;
+  transition: border-color .18s ease, background .18s ease, transform .18s ease;
+}
+.onboarding-choice:hover {
+  border-color: #9cc2ee;
+  background: #f5f9ff;
+  transform: translateY(-1px);
+}
+.onboarding-choice[aria-pressed="true"] {
+  border-color: #2479df;
+  background: #eef6ff;
+}
+.onboarding-choice svg {
+  flex-shrink: 0;
+  color: #2479df;
+}
+.plan-reco {
+  display: grid;
+  gap: 6px;
+  padding: 18px;
+  border: 1px solid #9cc2ee;
+  border-radius: 14px;
+  background: #f0f7ff;
+}
+.plan-reco strong {
+  font-size: 18px;
+}
+.plan-reco .plan-reco-price {
+  font-size: 15px;
+  font-weight: 800;
+  color: #176fdc;
+}
+.plan-reco small {
+  color: #5a6b83;
+  line-height: 1.6;
 }
 
 @media (max-width: 850px) {

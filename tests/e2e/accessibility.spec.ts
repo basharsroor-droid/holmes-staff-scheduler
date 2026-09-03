@@ -55,6 +55,7 @@ for (const publicPage of publicPages) {
     });
     await page.goto(publicPage.path);
     if (publicPage.path === "/onboarding") {
+      await page.getByRole("button", { name: "יש לי עסק עם צוות אחד" }).click();
       await expect(page.getByRole("button", { name: "יצירת חשבון מאובטח" })).toBeVisible();
     }
     if (publicPage.path === "/auth/reset-password") {
