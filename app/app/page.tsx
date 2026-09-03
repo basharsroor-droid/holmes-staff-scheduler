@@ -7,10 +7,11 @@ import { redirect } from "next/navigation";
 // detour for anyone in-app). The site-wide intro animation (SiteIntro, wired
 // into app/layout.tsx) still plays automatically on this first load exactly
 // like it does everywhere else, so what a user actually sees is: intro ->
-// /login, with no marketing content in between. /login already doubles as
-// the signup entry point (its "פתיחת סביבת עבודה" link goes to /onboarding),
-// so this reuses the existing, already-tested auth flow instead of building
-// a second one.
+// /login, with no marketing content in between. For native visitors /login
+// also exposes a prominent "הקמת עסק חדש" link that opens the public website
+// in the system browser, while existing users keep signing in inside the app.
+// This reuses the existing, already-tested auth flow instead of building a
+// second one.
 export default function NativeAppEntryPage() {
   redirect("/login");
 }
