@@ -5329,6 +5329,40 @@ html.si-lock, html.si-lock body {
 .auth-flow-card .auth-legal {
   text-align: center;
 }
+.native-business-signup {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 8px 10px;
+  padding: 14px;
+  border: 1px solid rgba(37, 121, 223, .18);
+  border-radius: 14px;
+  color: var(--ink);
+  background: rgba(238, 246, 255, .78);
+}
+.native-business-signup > svg {
+  margin-top: 2px;
+  color: var(--primary);
+}
+.native-business-signup strong,
+.native-business-signup p {
+  display: block;
+  margin: 0;
+}
+.native-business-signup p {
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: .86rem;
+  line-height: 1.55;
+}
+.native-business-signup .native-business-signup-button {
+  grid-column: 1 / -1;
+  width: 100%;
+  min-height: 46px;
+  justify-content: center;
+  border-color: rgba(37, 121, 223, .28);
+  color: var(--primary-dark);
+  background: #fff;
+}
 .auth-flow-card .auth-message,
 .business-onboarding-card .auth-message {
   margin: 0;

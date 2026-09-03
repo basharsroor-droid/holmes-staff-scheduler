@@ -3,13 +3,15 @@
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { KeyRound, Loader2, LogIn, ShieldCheck } from "lucide-react";
+import { Building2, ExternalLink, KeyRound, Loader2, LogIn, ShieldCheck } from "lucide-react";
 
 import { PasswordField } from "@/components/auth/password-field";
 import { BrandLogo } from "@/components/brand/brand-logo";
 import { isNativeApp } from "@/lib/native-app";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { resolveLoginEmail } from "@/lib/auth-config";
+
+const BUSINESS_SIGNUP_URL = "https://www.shiftpilothq.com/onboarding";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -104,8 +106,12 @@ export default function LoginPage() {
     <main className="onboarding-page auth-flow auth-login" dir="rtl">
       <section className="onboarding-intro auth-flow-intro">
         <BrandLogo href={nativeApp ? undefined : "/"} light />
-        <h1>טוב לראות אותך שוב.</h1>
-        <p className="lead">כניסה מאובטחת לסביבת העסק, הצוות וסידורי העבודה.</p>
+        <h1>{nativeApp ? "כניסה ל־ShiftPilot." : "טוב לראות אותך שוב."}</h1>
+        <p className="lead">
+          {nativeApp
+            ? "האפליקציה פתוחה לעובדים, למנהלים ולבעלי עסקים מכל ארגון שנרשם לשירות."
+            : "כניסה מאובטחת לסביבת העסק, הצוות וסידורי העבודה."}
+        </p>
         <div className="onboarding-benefits">
           <div><ShieldCheck /><span><strong>המידע של העסק נשאר פרטי</strong><small>הרשאות וגישה נפרדות לכל ארגון</small></span></div>
         </div>
@@ -140,7 +146,25 @@ export default function LoginPage() {
             <div className="auth-forgot-link"><Link className="auth-secondary" href="/auth/forgot-password">שכחתי סיסמה</Link></div>
             <button className="button primary" disabled={busy} onClick={login}>{busy ? <Loader2 className="spin" size={17} /> : <LogIn size={17} />} כניסה מאובטחת</button>
             {message ? <p className="auth-message" role="alert">{message}</p> : null}
-            <p className="auth-secondary">עדיין אין לך חשבון? <Link href="/onboarding">פתיחת סביבת עבודה</Link></p>
+            {nativeApp ? (
+              <div className="native-business-signup">
+                <Building2 aria-hidden="true" />
+                <div>
+                  <strong>רוצה לצרף עסק חדש?</strong>
+                  <p>כל בעל עסק יכול להירשם ולהקים סביבת עבודה חדשה. ההרשמה תיפתח באתר ShiftPilot.</p>
+                </div>
+                <a
+                  className="button native-business-signup-button"
+                  href={BUSINESS_SIGNUP_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  הקמת עסק חדש <ExternalLink size={16} aria-hidden="true" />
+                </a>
+              </div>
+            ) : (
+              <p className="auth-secondary">עדיין אין לך חשבון? <Link href="/onboarding">פתיחת סביבת עבודה</Link></p>
+            )}
             <p className="auth-legal"><Link href="/terms">תנאי שימוש</Link><span>·</span><Link href="/privacy">מדיניות פרטיות</Link></p>
           </div>
         )}

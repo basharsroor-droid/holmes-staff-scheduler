@@ -65,10 +65,21 @@ test("login validates empty credentials without contacting auth", async ({ page 
 // server.url here instead of at "/" so opening the app skips marketing
 // content entirely, even for a brand-new user with no ShiftPilot account.
 test("the native app entry route redirects straight to login, not marketing", async ({ page }) => {
+  await page.addInitScript(() => {
+    Object.defineProperty(window.navigator, "userAgent", {
+      value: `${window.navigator.userAgent} ShiftPilotNativeApp`,
+      configurable: true
+    });
+  });
   await page.goto("/app");
 
   await expect(page).toHaveURL(/\/login$/);
   await expect(page.getByRole("heading", { name: "כניסה למערכת" })).toBeVisible();
+  await expect(page.getByText("האפליקציה פתוחה לעובדים, למנהלים ולבעלי עסקים מכל ארגון שנרשם לשירות.")).toBeVisible();
+  const signupLink = page.getByRole("link", { name: /הקמת עסק חדש/ });
+  await expect(signupLink).toBeVisible();
+  await expect(signupLink).toHaveAttribute("href", "https://www.shiftpilothq.com/onboarding");
+  await expect(signupLink).toHaveAttribute("target", "_blank");
 });
 
 test("anonymous visitors cannot enter the workspace", async ({ page }) => {
