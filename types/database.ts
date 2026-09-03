@@ -740,6 +740,99 @@ export type Database = {
         }
         Relationships: []
       }
+      plans: {
+        Row: {
+          annual_price_ils: number | null
+          created_at: string
+          id: string
+          is_public: boolean
+          max_active_employees: number | null
+          max_branches: number
+          max_departments: number | null
+          max_managers: number | null
+          monthly_price_ils: number | null
+          name: string
+          sort: number
+        }
+        Insert: {
+          annual_price_ils?: number | null
+          created_at?: string
+          id: string
+          is_public?: boolean
+          max_active_employees?: number | null
+          max_branches?: number
+          max_departments?: number | null
+          max_managers?: number | null
+          monthly_price_ils?: number | null
+          name: string
+          sort: number
+        }
+        Update: {
+          annual_price_ils?: number | null
+          created_at?: string
+          id?: string
+          is_public?: boolean
+          max_active_employees?: number | null
+          max_branches?: number
+          max_departments?: number | null
+          max_managers?: number | null
+          monthly_price_ils?: number | null
+          name?: string
+          sort?: number
+        }
+        Relationships: []
+      }
+      subscriptions: {
+        Row: {
+          billing_period: string
+          created_at: string
+          current_period_end: string | null
+          organization_id: string
+          plan_id: string
+          status: Database["public"]["Enums"]["subscription_status"]
+          trial_ends_at: string | null
+          trial_started_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          billing_period?: string
+          created_at?: string
+          current_period_end?: string | null
+          organization_id: string
+          plan_id: string
+          status?: Database["public"]["Enums"]["subscription_status"]
+          trial_ends_at?: string | null
+          trial_started_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          billing_period?: string
+          created_at?: string
+          current_period_end?: string | null
+          organization_id?: string
+          plan_id?: string
+          status?: Database["public"]["Enums"]["subscription_status"]
+          trial_ends_at?: string | null
+          trial_started_at?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscriptions_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: true
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "subscriptions_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       platform_support_agents: {
         Row: {
           created_at: string
@@ -1219,7 +1312,26 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      organization_usage: {
+        Row: {
+          active_branches: number
+          active_departments: number
+          active_employees: number
+          active_managers: number
+          max_active_employees: number | null
+          max_branches: number | null
+          max_departments: number | null
+          max_managers: number | null
+          organization_id: string | null
+          pending_invitations: number
+          plan_id: string | null
+          subscription_status:
+            | Database["public"]["Enums"]["subscription_status"]
+            | null
+          trial_ends_at: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       accept_organization_invitation: {
@@ -1282,6 +1394,7 @@ export type Database = {
           organization_slug: string
           owner_first_name: string
           owner_last_name?: string
+          selected_plan_id?: string
         }
         Returns: string
       }
@@ -1336,6 +1449,14 @@ export type Database = {
       notification_status: "pending" | "sent" | "failed" | "cancelled"
       schedule_status: "collecting" | "draft" | "published" | "archived"
       shift_status: "draft" | "published" | "cancelled"
+      subscription_status:
+        | "trialing"
+        | "active"
+        | "past_due"
+        | "grace_period"
+        | "read_only"
+        | "canceled"
+        | "suspended"
       support_ticket_category:
         | "technical"
         | "account"
@@ -1494,6 +1615,15 @@ export const Constants = {
       notification_status: ["pending", "sent", "failed", "cancelled"],
       schedule_status: ["collecting", "draft", "published", "archived"],
       shift_status: ["draft", "published", "cancelled"],
+      subscription_status: [
+        "trialing",
+        "active",
+        "past_due",
+        "grace_period",
+        "read_only",
+        "canceled",
+        "suspended",
+      ],
       support_ticket_category: [
         "technical",
         "account",

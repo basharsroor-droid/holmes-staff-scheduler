@@ -93,7 +93,7 @@ export default function HomePage() {
     <footer className="pro-footer">
       <div className="pro-footer-top">
         <div className="pro-footer-brand"><BrandLogo href="/" /><p>זמינות, סידורי עבודה והחלפות משמרת — במקום אחד.</p></div>
-        <nav className="pro-footer-col" aria-label="גישה למערכת"><h4>גישה למערכת</h4><Link href="/login">כניסה למערכת</Link><Link href="/onboarding">פתיחת סביבת עבודה</Link><Link href="/demo">סביבת הדמו</Link></nav>
+        <nav className="pro-footer-col" aria-label="גישה למערכת"><h4>גישה למערכת</h4><Link href="/pricing">תמחור</Link><Link href="/login">כניסה למערכת</Link><Link href="/onboarding">פתיחת סביבת עבודה</Link><Link href="/demo">סביבת הדמו</Link></nav>
         <nav className="pro-footer-col" aria-label="מידע ותמיכה"><h4>מידע ותמיכה</h4><Link href="/about">מי אנחנו</Link><Link href="/support">תמיכה</Link><a href="mailto:support@shiftpilothq.com">support@shiftpilothq.com</a><Link href="/terms">תנאי שימוש</Link><Link href="/privacy">מדיניות פרטיות</Link></nav>
       </div>
       <div className="pro-footer-wordmark" aria-hidden="true">ShiftPilot</div>

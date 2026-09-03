@@ -82,6 +82,9 @@ export function SiteNavbar() {
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.3, delay: 0.15 }}
         >
+          <Link href="/pricing" className="whitespace-nowrap rounded-full px-3.5 py-2 text-sm font-medium text-[var(--ink)] transition-colors hover:text-[var(--primary)]">
+            תמחור
+          </Link>
           <Link href="/demo" className="whitespace-nowrap rounded-full px-3.5 py-2 text-sm font-medium text-[var(--ink)] transition-colors hover:text-[var(--primary)]">
             צפייה בדמו
           </Link>
@@ -158,6 +161,9 @@ export function SiteNavbar() {
                 transition={{ delay: 0.4 }}
                 exit={{ opacity: 0, y: 16 }}
               >
+                <Link href="/pricing" onClick={() => setIsOpen(false)} className="rounded-full border border-[var(--line)] px-5 py-3 text-center text-base font-medium text-[var(--ink)]">
+                  תמחור
+                </Link>
                 <Link href="/demo" onClick={() => setIsOpen(false)} className="rounded-full border border-[var(--line)] px-5 py-3 text-center text-base font-medium text-[var(--ink)]">
                   צפייה בדמו
                 </Link>
