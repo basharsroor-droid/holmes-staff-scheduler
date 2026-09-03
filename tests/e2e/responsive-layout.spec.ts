@@ -65,6 +65,7 @@ test("mobile onboarding fields and authentication panels stack", async ({ page }
   test.skip(testInfo.project.name !== "mobile-chrome", "mobile-only layout assertion");
 
   await page.goto("/onboarding");
+  await page.getByRole("button", { name: "יש לי עסק עם צוות אחד" }).click();
   await expect(page.getByRole("button", { name: "יצירת חשבון מאובטח" })).toBeVisible();
   const nameFields = page.locator(".business-onboarding-card .form-pair .field");
   await expect(nameFields).toHaveCount(2);
