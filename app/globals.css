@@ -5804,3 +5804,18 @@ summary:focus-visible {
     scroll-behavior: auto !important;
   }
 }
+.native-shift-reminder {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.native-shift-reminder .button {
+  min-height: 40px;
+}
+
+.native-shift-reminder small {
+  color: var(--muted);
+}
