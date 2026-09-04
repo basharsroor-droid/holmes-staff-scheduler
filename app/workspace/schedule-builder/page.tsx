@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { ArrowRight, CalendarRange } from "lucide-react";
 
+import { CoverageRulesEnhancer } from "@/app/workspace/schedule-builder/coverage-rules-enhancer";
 import { EmployeePreferenceEnhancer } from "@/app/workspace/schedule-builder/employee-preference-enhancer";
 import { OpenShiftsManagerPanel } from "@/app/workspace/schedule-builder/open-shifts-manager-panel";
 import { ScheduleBuilderClient } from "@/app/workspace/schedule-builder/schedule-builder-client";
@@ -113,6 +114,16 @@ export default async function ScheduleBuilderPage() {
     };
   });
 
+  const coverageWorkers = workers.map((worker) => ({
+    user_id: worker.user_id,
+    seniority_level: worker.seniority_level,
+    profile: worker.profile ? { first_name: worker.profile.first_name, last_name: worker.profile.last_name } : null
+  }));
+  const coverageTemplates = (templatesResult.data ?? []).map((template) => ({
+    name: template.name,
+    requires_senior_employee: template.requires_senior_employee
+  }));
+
   return <main className="workspace-home" dir="rtl">
     <header className="workspace-subheader"><div>
       <Link href="/workspace" className="back-link"><ArrowRight size={17} /> חזרה לסביבת העסק</Link>
@@ -123,6 +134,7 @@ export default async function ScheduleBuilderPage() {
 
     <TimeOffApprovalPanel initialRequests={pendingTimeOff} />
     <OpenShiftsManagerPanel initialShifts={managerOpenShifts} initialRequests={managerOpenShiftRequests} />
+    <CoverageRulesEnhancer workers={coverageWorkers} templates={coverageTemplates} />
     <EmployeePreferenceEnhancer />
 
     <ScheduleBuilderClient
