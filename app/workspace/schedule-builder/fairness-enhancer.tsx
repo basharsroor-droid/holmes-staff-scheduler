@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { Balance, CheckCircle2, RefreshCw, Scale } from "lucide-react";
+import { CheckCircle2, RefreshCw, Scale } from "lucide-react";
 
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 
@@ -152,7 +152,7 @@ export function FairnessEnhancer({ periods, workers, submissions, availability }
     </div>
 
     {!checking && !findings.length ? <div className="submission-banner open"><CheckCircle2 size={18} /><div><strong>לא נמצאו פערים משמעותיים</strong><span>החלוקה הנוכחית לא חוצה את ספי האזהרה של Fairness.</span></div></div> : null}
-    {findings.length ? <div className="template-list" style={{ marginTop: 12 }}>{findings.map((finding) => <article className="card" key={finding.key}><div className="mini-row"><Balance size={17} /><span><strong>{finding.title}</strong><small>{finding.detail}</small></span><span className={`badge ${finding.severity === "warning" ? "warning" : "opening"}`}>{finding.severity === "warning" ? "לבדיקה" : "מידע"}</span></div></article>)}</div> : null}
+    {findings.length ? <div className="template-list" style={{ marginTop: 12 }}>{findings.map((finding) => <article className="card" key={finding.key}><div className="mini-row"><Scale size={17} /><span><strong>{finding.title}</strong><small>{finding.detail}</small></span><span className={`badge ${finding.severity === "warning" ? "warning" : "opening"}`}>{finding.severity === "warning" ? "לבדיקה" : "מידע"}</span></div></article>)}</div> : null}
 
     {metrics.length ? <div className="template-list" style={{ marginTop: 12 }}>
       {metrics.slice(0, 8).map((metric) => <article className="card" key={metric.userId}><div className="mini-row"><span><strong>{metric.name}</strong><small>{metric.assignedHours} שעות · {metric.preferredAssigned}/{metric.preferredOpportunities} העדפות מומשו · {metric.onlyIfNeededAssigned} ‘רק אם צריך’</small></span><span className="badge opening">{metric.eligibleOpportunities} הזדמנויות</span></div></article>)}
