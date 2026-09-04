@@ -32,7 +32,7 @@ export function ShiftReminderButton({
 }: ShiftReminderButtonProps) {
   // Start false to keep the server-rendered HTML identical to the first
   // client render. The iOS bridge is available only after hydration.
-  const [native, setNative] = useState(false);
+  const [notificationsAvailable, setNotificationsAvailable] = useState(false);
   const notificationId = useMemo(() => notificationIdForShift(shiftId), [shiftId]);
   const shiftStartsAt = useMemo(() => new Date(`${shiftDate}T${startTime}`), [shiftDate, startTime]);
   const reminderAt = useMemo(() => new Date(shiftStartsAt.getTime() - 60 * 60 * 1000), [shiftStartsAt]);
@@ -40,10 +40,14 @@ export function ShiftReminderButton({
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
 
-  useEffect(() => setNative(Capacitor.isNativePlatform()), []);
+  useEffect(() => {
+    setNotificationsAvailable(
+      Capacitor.isNativePlatform() && Capacitor.isPluginAvailable("LocalNotifications")
+    );
+  }, []);
 
   useEffect(() => {
-    if (!native) return;
+    if (!notificationsAvailable) return;
     let active = true;
     void LocalNotifications.getPending()
       .then(({ notifications }) => {
@@ -53,9 +57,9 @@ export function ShiftReminderButton({
         // A pending-state read is helpful but not required to render the shift.
       });
     return () => { active = false; };
-  }, [native, notificationId]);
+  }, [notificationsAvailable, notificationId]);
 
-  if (!native || reminderAt <= new Date()) return null;
+  if (!notificationsAvailable || reminderAt <= new Date()) return null;
 
   async function toggleReminder() {
     setBusy(true);
