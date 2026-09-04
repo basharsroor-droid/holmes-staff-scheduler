@@ -6,6 +6,7 @@ import { CoverageRulesEnhancer } from "@/app/workspace/schedule-builder/coverage
 import { EmployeePreferenceEnhancer } from "@/app/workspace/schedule-builder/employee-preference-enhancer";
 import { OpenShiftsManagerPanel } from "@/app/workspace/schedule-builder/open-shifts-manager-panel";
 import { ScheduleBuilderClient } from "@/app/workspace/schedule-builder/schedule-builder-client";
+import { ScheduleTemplatesPanel } from "@/app/workspace/schedule-builder/schedule-templates-panel";
 import { TimeOffApprovalPanel } from "@/app/workspace/schedule-builder/time-off-approval-panel";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -32,11 +33,10 @@ export default async function ScheduleBuilderPage() {
   if (!organizationResult.data) redirect("/workspace");
 
   const db = supabase as any;
-  const { data: leaveRequests } = await db
-    .from("leave_requests")
-    .select("id, user_id, leave_type, start_date, end_date, note, status")
-    .eq("organization_id", organizationId)
-    .order("start_date", { ascending: true });
+  const [{ data: leaveRequests }, { data: savedTemplates }] = await Promise.all([
+    db.from("leave_requests").select("id, user_id, leave_type, start_date, end_date, note, status").eq("organization_id", organizationId).order("start_date", { ascending: true }),
+    db.from("schedule_templates").select("id, branch_id, department_id, name, created_at").eq("organization_id", organizationId).order("created_at", { ascending: false })
+  ]);
 
   const userIds = (membershipsResult.data ?? []).map((item) => item.user_id);
   const periodIds = (periodsResult.data ?? []).map((item) => item.id);
@@ -47,10 +47,12 @@ export default async function ScheduleBuilderPage() {
   ]);
   const shiftIds = (shifts ?? []).map((item: any) => item.id);
   const submissionIds = (submissions ?? []).map((item) => item.id);
-  const [{ data: assignments }, { data: availability }, { data: openShiftRequests }] = await Promise.all([
+  const savedTemplateIds = (savedTemplates ?? []).map((item: any) => item.id);
+  const [{ data: assignments }, { data: availability }, { data: openShiftRequests }, { data: savedTemplateItems }] = await Promise.all([
     shiftIds.length ? supabase.from("shift_assignments").select("id, shift_id, user_id").in("shift_id", shiftIds) : Promise.resolve({ data: [] }),
     submissionIds.length ? supabase.from("availability_entries").select("submission_id, shift_template_id, shift_date, status").in("submission_id", submissionIds) : Promise.resolve({ data: [] }),
-    shiftIds.length ? db.from("open_shift_requests").select("id, shift_id, user_id, status, created_at").in("shift_id", shiftIds).eq("status", "pending").order("created_at") : Promise.resolve({ data: [] })
+    shiftIds.length ? db.from("open_shift_requests").select("id, shift_id, user_id, status, created_at").in("shift_id", shiftIds).eq("status", "pending").order("created_at") : Promise.resolve({ data: [] }),
+    savedTemplateIds.length ? db.from("schedule_template_items").select("schedule_template_id").in("schedule_template_id", savedTemplateIds) : Promise.resolve({ data: [] })
   ]);
 
   const profileMap = new Map((profiles ?? []).map((profile) => [profile.id, profile]));
@@ -124,6 +126,16 @@ export default async function ScheduleBuilderPage() {
     requires_senior_employee: template.requires_senior_employee
   }));
 
+  const shiftCountByPeriod = new Map<string, number>();
+  for (const shift of shifts ?? []) {
+    if ((shift as any).status === "cancelled") continue;
+    shiftCountByPeriod.set((shift as any).schedule_period_id, (shiftCountByPeriod.get((shift as any).schedule_period_id) ?? 0) + 1);
+  }
+  const templateItemCount = new Map<string, number>();
+  for (const item of savedTemplateItems ?? []) templateItemCount.set((item as any).schedule_template_id, (templateItemCount.get((item as any).schedule_template_id) ?? 0) + 1);
+  const templatePeriods = (periodsResult.data ?? []).map((period) => ({ ...period, shift_count: shiftCountByPeriod.get(period.id) ?? 0 }));
+  const reusableTemplates = (savedTemplates ?? []).map((template: any) => ({ ...template, item_count: templateItemCount.get(template.id) ?? 0 }));
+
   return <main className="workspace-home" dir="rtl">
     <header className="workspace-subheader"><div>
       <Link href="/workspace" className="back-link"><ArrowRight size={17} /> חזרה לסביבת העסק</Link>
@@ -135,6 +147,7 @@ export default async function ScheduleBuilderPage() {
     <TimeOffApprovalPanel initialRequests={pendingTimeOff} />
     <OpenShiftsManagerPanel initialShifts={managerOpenShifts} initialRequests={managerOpenShiftRequests} />
     <CoverageRulesEnhancer workers={coverageWorkers} templates={coverageTemplates} />
+    <ScheduleTemplatesPanel periods={templatePeriods} initialTemplates={reusableTemplates} />
     <EmployeePreferenceEnhancer />
 
     <ScheduleBuilderClient
