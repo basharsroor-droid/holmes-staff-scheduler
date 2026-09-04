@@ -2,15 +2,14 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { ArrowLeft, CalendarCheck, LayoutDashboard, Menu, ShieldCheck, Users, X } from "lucide-react";
+import { ArrowLeft, CalendarCheck, Menu, ShieldCheck, Tag, X } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 
 import { BrandLogo } from "@/components/brand/brand-logo";
 
 const navItems = [
   { href: "/#how", label: "איך זה עובד", detail: "מהרשמה ועד פרסום הסידור", icon: CalendarCheck },
-  { href: "/#roles", label: "למי זה מתאים", detail: "חוויה נפרדת למנהל ולעובד", icon: Users },
-  { href: "/#example", label: "המערכת בפעולה", detail: "דוגמה למבנה משמרות גמיש", icon: LayoutDashboard },
+  { href: "/pricing", label: "תמחור", detail: "מסלולים, מחירים ותקופת ניסיון", icon: Tag },
   { href: "/#security", label: "אבטחה והרשאות", detail: "גישה לפי עסק, סניף ותפקיד", icon: ShieldCheck }
 ];
 
@@ -60,12 +59,12 @@ export function SiteNavbar() {
             keeps real breathing room; the mobile hamburger menu below
             covers the whole range below that instead of a squeezed
             desktop layout. */}
-        <nav className="hidden items-center gap-5 xl:flex xl:gap-7">
+        <nav className="hidden items-center gap-6 xl:flex xl:gap-9">
           {navItems.map((item, index) => (
             <motion.a
               key={item.href}
               href={item.href}
-              className="whitespace-nowrap text-sm font-medium text-[var(--ink)] transition-colors hover:text-[var(--primary)]"
+              className="whitespace-nowrap text-[15px] font-semibold text-[var(--ink)] transition-colors hover:text-[var(--primary)]"
               initial={{ opacity: 0, y: -8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3, delay: index * 0.05 }}
@@ -77,18 +76,15 @@ export function SiteNavbar() {
         </nav>
 
         <motion.div
-          className="hidden items-center gap-2 xl:flex"
+          className="hidden items-center gap-3 xl:flex"
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.3, delay: 0.15 }}
         >
-          <Link href="/pricing" className="whitespace-nowrap rounded-full px-3.5 py-2 text-sm font-medium text-[var(--ink)] transition-colors hover:text-[var(--primary)]">
-            תמחור
-          </Link>
-          <Link href="/demo" className="whitespace-nowrap rounded-full px-3.5 py-2 text-sm font-medium text-[var(--ink)] transition-colors hover:text-[var(--primary)]">
+          <Link href="/demo" className="whitespace-nowrap rounded-full px-3 py-2 text-sm font-medium text-[var(--muted)] transition-colors hover:text-[var(--ink)]">
             צפייה בדמו
           </Link>
-          <Link href="/login" className="whitespace-nowrap rounded-full px-3.5 py-2 text-sm font-medium text-[var(--ink)] transition-colors hover:text-[var(--primary)]">
+          <Link href="/login" className="whitespace-nowrap rounded-full px-3.5 py-2 text-sm font-semibold text-[var(--ink)] transition-colors hover:text-[var(--primary)]">
             כניסה
           </Link>
           <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}>
@@ -161,10 +157,7 @@ export function SiteNavbar() {
                 transition={{ delay: 0.4 }}
                 exit={{ opacity: 0, y: 16 }}
               >
-                <Link href="/pricing" onClick={() => setIsOpen(false)} className="rounded-full border border-[var(--line)] px-5 py-3 text-center text-base font-medium text-[var(--ink)]">
-                  תמחור
-                </Link>
-                <Link href="/demo" onClick={() => setIsOpen(false)} className="rounded-full border border-[var(--line)] px-5 py-3 text-center text-base font-medium text-[var(--ink)]">
+                <Link href="/demo" onClick={() => setIsOpen(false)} className="rounded-full border border-[var(--line)] px-5 py-3 text-center text-base font-medium text-[var(--muted)]">
                   צפייה בדמו
                 </Link>
                 <Link href="/login" onClick={() => setIsOpen(false)} className="rounded-full border border-[var(--line)] px-5 py-3 text-center text-base font-medium text-[var(--ink)]">
