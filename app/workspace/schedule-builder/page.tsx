@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { ArrowRight, CalendarRange } from "lucide-react";
 
+import { EmployeePreferenceEnhancer } from "@/app/workspace/schedule-builder/employee-preference-enhancer";
 import { ScheduleBuilderClient } from "@/app/workspace/schedule-builder/schedule-builder-client";
 import { TimeOffApprovalPanel } from "@/app/workspace/schedule-builder/time-off-approval-panel";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -90,6 +91,7 @@ export default async function ScheduleBuilderPage() {
     </div></header>
 
     <TimeOffApprovalPanel initialRequests={pendingTimeOff} />
+    <EmployeePreferenceEnhancer />
 
     <ScheduleBuilderClient
       assignments={assignments ?? []}
