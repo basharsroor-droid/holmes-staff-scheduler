@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { CheckCircle2, Clock3, Loader2, Palmtree, XCircle } from "lucide-react";
 
 import { StatusMessage } from "@/components/workspace/status-message";
@@ -27,6 +28,7 @@ const leaveTypeLabels: Record<LeaveType, string> = {
 export function TimeOffApprovalPanel({ initialRequests }: { initialRequests: PendingRequest[] }) {
   const supabase = useMemo(() => createSupabaseBrowserClient(), []);
   const db = supabase as any;
+  const router = useRouter();
   const [requests, setRequests] = useState(initialRequests);
   const [notes, setNotes] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState("");
@@ -49,6 +51,11 @@ export function TimeOffApprovalPanel({ initialRequests }: { initialRequests: Pen
 
     setRequests((current) => current.filter((request) => request.id !== id));
     setMessage(decision === "approved" ? "בקשת החופשה אושרה והשיבוץ ייחסם בטווח התאריכים." : "בקשת החופשה נדחתה.");
+
+    // Refresh the server-rendered approved Time Off list immediately so the
+    // ScheduleBuilderClient receives the new hard constraint without requiring
+    // the manager to manually reload the page.
+    router.refresh();
   }
 
   return <section className="template-list-card" style={{ marginBottom: 20 }}>
