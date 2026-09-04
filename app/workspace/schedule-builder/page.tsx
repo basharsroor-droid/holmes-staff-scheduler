@@ -12,6 +12,7 @@ import { ScheduleBuilderClient } from "@/app/workspace/schedule-builder/schedule
 import { ScheduleTemplatesPanel } from "@/app/workspace/schedule-builder/schedule-templates-panel";
 import { ShiftPilotScore } from "@/app/workspace/schedule-builder/shiftpilot-score";
 import { SmartDraftPanel } from "@/app/workspace/schedule-builder/smart-draft-panel";
+import { SmartReplacementPanel } from "@/app/workspace/schedule-builder/smart-replacement-panel";
 import { TimeOffApprovalPanel } from "@/app/workspace/schedule-builder/time-off-approval-panel";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -177,6 +178,17 @@ export default async function ScheduleBuilderPage() {
       availability={availability ?? []}
     />
     <FixMySchedulePanel
+      organizationId={organizationId}
+      currentUserId={user.id}
+      periods={periodsResult.data ?? []}
+      workers={workers}
+      submissions={submissions ?? []}
+      availability={availability ?? []}
+      approvedLeave={approvedTimeOff}
+      templates={templatesResult.data ?? []}
+      minRestHours={organizationResult.data.min_rest_hours}
+    />
+    <SmartReplacementPanel
       organizationId={organizationId}
       currentUserId={user.id}
       periods={periodsResult.data ?? []}
