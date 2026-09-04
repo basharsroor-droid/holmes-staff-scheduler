@@ -7,6 +7,12 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
 
+type OpenShiftRequestSummary = {
+  id: string;
+  shift_id: string;
+  status: "pending" | "approved" | "rejected" | "cancelled";
+};
+
 export default async function OpenShiftsPage() {
   const supabase = await createSupabaseServerClient();
   const { data: { user } } = await supabase.auth.getUser();
@@ -55,7 +61,9 @@ export default async function OpenShiftsPage() {
   ]);
   const branchMap = new Map((branches ?? []).map((item) => [item.id, item.name]));
   const departmentMap = new Map((departments ?? []).map((item) => [item.id, item.name]));
-  const requestMap = new Map((requests ?? []).map((item: any) => [item.shift_id, item]));
+  const requestMap = new Map<string, OpenShiftRequestSummary>(
+    ((requests ?? []) as OpenShiftRequestSummary[]).map((item) => [item.shift_id, item])
+  );
   const assignmentCounts = new Map<string, number>();
   for (const assignment of assignments ?? []) assignmentCounts.set(assignment.shift_id, (assignmentCounts.get(assignment.shift_id) ?? 0) + 1);
 
