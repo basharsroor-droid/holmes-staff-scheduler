@@ -12,6 +12,7 @@ import { PLANS, TRIAL_DAYS, formatMonthlyPrice, getPlan, recommendPlan, type Pla
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 
 type Stage = "loading" | "use" | "account" | "verify" | "recommend" | "workspace" | "done";
+type ScheduleCadence = "weekly" | "biweekly" | "monthly" | "custom";
 
 const USE_OPTIONS = [
   { id: "solo", label: "אני מנהל/ת צוות באופן עצמאי", icon: UserRound },
@@ -47,6 +48,7 @@ export default function OnboardingPage() {
   const [employeeCount, setEmployeeCount] = useState("");
   const [branchCount, setBranchCount] = useState("1");
   const [departmentCount, setDepartmentCount] = useState("1");
+  const [scheduleCadence, setScheduleCadence] = useState<ScheduleCadence>("weekly");
   const [selectedPlanId, setSelectedPlanId] = useState<PlanId>("business");
   const [recommendedPlanId, setRecommendedPlanId] = useState<PlanId | null>(null);
 
@@ -150,7 +152,8 @@ export default function OnboardingPage() {
       first_branch_name: branchName.trim(),
       owner_first_name: firstName.trim() || "בעל העסק",
       owner_last_name: lastName.trim(),
-      selected_plan_id: selectedPlanId
+      selected_plan_id: selectedPlanId,
+      requested_schedule_cadence: scheduleCadence
     });
     setBusy(false);
 
@@ -250,6 +253,16 @@ export default function OnboardingPage() {
               <label className="field"><span>כמה סניפים?</span><input className="input" type="number" min={1} inputMode="numeric" value={branchCount} onChange={(e) => setBranchCount(e.target.value)} /></label>
             </div>
             <label className="field"><span>כמה מחלקות?</span><input className="input" type="number" min={1} inputMode="numeric" value={departmentCount} onChange={(e) => setDepartmentCount(e.target.value)} /></label>
+            <label className="field">
+              <span>באיזו תדירות אתם מכינים סידור?</span>
+              <select className="input" value={scheduleCadence} onChange={(e) => setScheduleCadence(e.target.value as ScheduleCadence)}>
+                <option value="weekly">כל שבוע</option>
+                <option value="biweekly">כל שבועיים</option>
+                <option value="monthly">כל חודש</option>
+                <option value="custom">תקופה מותאמת אישית</option>
+              </select>
+              <small>הבחירה מתאימה את סביבת העבודה ואינה משנה את מחיר המסלול.</small>
+            </label>
             <button className="button" onClick={computeRecommendation}>חישוב המלצה</button>
 
             {recommendedPlanId ? (

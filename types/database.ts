@@ -712,6 +712,7 @@ export type Database = {
           is_demo: boolean
           min_rest_hours: number | null
           name: string
+          schedule_cadence: string
           slug: string
           timezone: string
           updated_at: string
@@ -723,6 +724,7 @@ export type Database = {
           is_demo?: boolean
           min_rest_hours?: number | null
           name: string
+          schedule_cadence?: string
           slug: string
           timezone?: string
           updated_at?: string
@@ -734,6 +736,7 @@ export type Database = {
           is_demo?: boolean
           min_rest_hours?: number | null
           name?: string
+          schedule_cadence?: string
           slug?: string
           timezone?: string
           updated_at?: string
@@ -1394,6 +1397,7 @@ export type Database = {
           organization_slug: string
           owner_first_name: string
           owner_last_name?: string
+          requested_schedule_cadence: string
           selected_plan_id?: string
         }
         Returns: string
