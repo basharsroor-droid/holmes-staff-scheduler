@@ -161,25 +161,88 @@ export function SmartReplacementPanel({ organizationId, currentUserId, periods, 
   const apply = useCallback(async (candidate: Candidate) => {
     const period = periods.find((p) => p.id === selectedPeriodId);
     const shift = shifts.find((s) => s.id === selectedShiftId);
-    if (!period || !shift || !outgoingUserId || period.status === "published") return;
+    if (!period || !shift || !outgoingUserId) return;
+    if (period.status === "published") {
+      setCandidates([]); setMessage("לא ניתן לבצע Smart Replacement על סידור שפורסם. יש לבטל פרסום ולדרג מחדש."); return;
+    }
     if (!window.confirm(`להחליף את ${workerName(outgoingUserId)} ב-${candidate.name} במשמרת ${shift.shift_date} ${shift.name}? הפעולה אינה מפרסמת את הסידור.`)) return;
     setBusy("apply"); setMessage("");
     const db = supabase as any;
-    const { data: currentRows } = await db.from("shift_assignments").select("id, user_id").eq("shift_id", shift.id);
-    const current = (currentRows ?? []) as { id: string; user_id: string }[];
-    if (!current.some((a) => a.user_id === outgoingUserId) || current.some((a) => a.user_id === candidate.userId)) {
-      setBusy(""); setMessage("השיבוץ השתנה מאז הדירוג. לא בוצע שינוי; יש לחשב מועמדים מחדש."); return;
+
+    const [{ data: currentPeriod }, { data: allShiftRows }] = await Promise.all([
+      db.from("schedule_periods").select("id, status").eq("id", selectedPeriodId).single(),
+      db.from("shifts").select("id, schedule_period_id, shift_template_id, shift_date, name, start_time, end_time, required_employees, status").neq("status", "cancelled")
+    ]);
+    if (!currentPeriod || currentPeriod.status === "published") {
+      setBusy(""); setCandidates([]); setMessage("התקופה פורסמה מאז הדירוג. לא בוצע שינוי; בטל פרסום ודרג מחדש."); return;
     }
-    const { error: removeError } = await db.from("shift_assignments").delete().eq("shift_id", shift.id).eq("user_id", outgoingUserId);
+
+    const allShifts = (allShiftRows ?? []) as Shift[];
+    const currentShift = allShifts.find((s) => s.id === shift.id);
+    if (!currentShift || currentShift.schedule_period_id !== selectedPeriodId) {
+      setBusy(""); setCandidates([]); setMessage("המשמרת השתנתה מאז הדירוג. לא בוצע שינוי; יש לטעון ולדרג מחדש."); return;
+    }
+    const allIds = allShifts.map((s) => s.id);
+    const { data: allAssignmentRows } = allIds.length
+      ? await db.from("shift_assignments").select("id, shift_id, user_id").in("shift_id", allIds)
+      : { data: [] };
+    const allAssignments = (allAssignmentRows ?? []) as Assignment[];
+    const targetAssignments = allAssignments.filter((a) => a.shift_id === currentShift.id);
+    if (!targetAssignments.some((a) => a.user_id === outgoingUserId) || targetAssignments.some((a) => a.user_id === candidate.userId)) {
+      setBusy(""); setCandidates([]); setMessage("השיבוץ השתנה מאז הדירוג. לא בוצע שינוי; יש לחשב מועמדים מחדש."); return;
+    }
+
+    const candidateWorker = workers.find((w) => w.user_id === candidate.userId);
+    const periodWorkers = workers.filter((w) => w.department_ids.includes(period.department_id));
+    if (!candidateWorker || !candidateWorker.department_ids.includes(period.department_id)) {
+      setBusy(""); setCandidates([]); setMessage("המועמד כבר לא שייך למחלקה המתאימה. לא בוצע שינוי; יש לדרג מחדש."); return;
+    }
+    const sub = submissions.find((s) => s.schedule_period_id === selectedPeriodId && s.user_id === candidate.userId && s.submitted_at);
+    const status = sub && currentShift.shift_template_id
+      ? availability.find((a) => a.submission_id === sub.id && a.shift_date === currentShift.shift_date && a.shift_template_id === currentShift.shift_template_id)?.status ?? null
+      : null;
+    if (!status || status === "unavailable" || approvedLeave.some((l) => l.user_id === candidate.userId && currentShift.shift_date >= l.start_date && currentShift.shift_date <= l.end_date)) {
+      setBusy(""); setCandidates([]); setMessage("זמינות המועמד או Time Off כבר לא מאפשרים את ההחלפה. לא בוצע שינוי; יש לדרג מחדש."); return;
+    }
+    if (allShifts.some((other) => other.id !== currentShift.id && allAssignments.some((a) => a.shift_id === other.id && a.user_id === candidate.userId) && overlaps(other, currentShift))) {
+      setBusy(""); setCandidates([]); setMessage("למועמד נוצרה חפיפה מאז הדירוג. לא בוצע שינוי; יש לדרג מחדש."); return;
+    }
+    const week = weekStartKey(currentShift.shift_date);
+    const currentWeeklyHours = allShifts.filter((s) => weekStartKey(s.shift_date) === week && allAssignments.some((a) => a.shift_id === s.id && a.user_id === candidate.userId)).reduce((sum, s) => sum + shiftHours(s), 0);
+    if (candidateWorker.weekly_hours_limit && currentWeeklyHours + shiftHours(currentShift) > candidateWorker.weekly_hours_limit) {
+      setBusy(""); setCandidates([]); setMessage("החלפה תחרוג ממכסת השעות השבועית של המועמד. לא בוצע שינוי; יש לדרג מחדש."); return;
+    }
+    if (minRestHours) {
+      const c = bounds(currentShift); let gap = Infinity;
+      for (const other of allShifts) {
+        if (other.id === currentShift.id || !allAssignments.some((a) => a.shift_id === other.id && a.user_id === candidate.userId)) continue;
+        const b = bounds(other);
+        if (b.end <= c.start) gap = Math.min(gap, (c.start.getTime() - b.end.getTime()) / 3600000);
+        else if (b.start >= c.end) gap = Math.min(gap, (b.start.getTime() - c.end.getTime()) / 3600000);
+      }
+      if (gap < minRestHours) {
+        setBusy(""); setCandidates([]); setMessage("מנוחת המינימום של המועמד כבר לא נשמרת. לא בוצע שינוי; יש לדרג מחדש."); return;
+      }
+    }
+
+    const template = templates.find((t) => t.id === currentShift.shift_template_id);
+    const otherAssignedUserIds = targetAssignments.filter((a) => a.user_id !== outgoingUserId).map((a) => a.user_id);
+    const hasOtherSenior = otherAssignedUserIds.some((id) => periodWorkers.find((w) => w.user_id === id)?.seniority_level === "senior");
+    const outgoingIsSenior = periodWorkers.find((w) => w.user_id === outgoingUserId)?.seniority_level === "senior";
+    if (template?.requires_senior_employee && outgoingIsSenior && !hasOtherSenior && candidateWorker.seniority_level !== "senior") {
+      setBusy(""); setCandidates([]); setMessage("ההחלפה תפגע בכיסוי Senior שנדרש למשמרת. לא בוצע שינוי; יש לדרג מחדש."); return;
+    }
+
+    const { error: removeError } = await db.from("shift_assignments").delete().eq("shift_id", currentShift.id).eq("user_id", outgoingUserId);
     if (removeError) { setBusy(""); setMessage("ההחלפה נכשלה לפני הסרת העובד/ת המקורי/ת. לא פורסם שום שינוי."); return; }
-    const { error: addError } = await db.from("shift_assignments").insert({ organization_id: organizationId, shift_id: shift.id, user_id: candidate.userId, assigned_by: currentUserId });
+    const { error: addError } = await db.from("shift_assignments").insert({ organization_id: organizationId, shift_id: currentShift.id, user_id: candidate.userId, assigned_by: currentUserId });
     if (addError) {
-      await db.from("shift_assignments").insert({ organization_id: organizationId, shift_id: shift.id, user_id: outgoingUserId, assigned_by: currentUserId });
+      await db.from("shift_assignments").insert({ organization_id: organizationId, shift_id: currentShift.id, user_id: outgoingUserId, assigned_by: currentUserId });
       setBusy(""); setMessage("הוספת המחליף נכשלה. ניסיתי לשחזר את השיבוץ המקורי; יש לרענן ולבדוק את הטיוטה."); return;
     }
     setMessage("ההחלפה בוצעה בטיוטה. מרענן את הסידור...");
     window.location.reload();
-  }, [currentUserId, organizationId, outgoingUserId, periods, selectedPeriodId, selectedShiftId, shifts, supabase, workerName]);
+  }, [approvedLeave, availability, currentUserId, minRestHours, organizationId, outgoingUserId, periods, selectedPeriodId, selectedShiftId, shifts, submissions, supabase, templates, workerName, workers]);
 
   useEffect(() => {
     const sync = () => {
@@ -197,22 +260,23 @@ export function SmartReplacementPanel({ organizationId, currentUserId, periods, 
 
   const shiftAssignments = assignments.filter((a) => a.shift_id === selectedShiftId);
   const selectedPeriod = periods.find((p) => p.id === selectedPeriodId);
+  const published = selectedPeriod?.status === "published";
 
   return <section className="template-list-card no-print" aria-live="polite">
     <div className="template-list-heading">
       <div><p className="eyebrow">Phase 3 · WOW Features</p><h2><ArrowLeftRight size={20} /> Smart Replacement</h2><p className="card-muted">בחר/י עובד/ת משובץ/ת והמערכת תדרג מחליפים בטוחים עם הסבר ברור. שום החלפה לא מתבצעת בלי אישור מפורש.</p></div>
-      <button type="button" className="button" disabled={busy !== "" || !selectedShiftId || !outgoingUserId} onClick={() => void rank()}>{busy === "rank" ? <Loader2 size={15} /> : <RefreshCw size={15} />} דרג מחליפים</button>
+      <button type="button" className="button" disabled={busy !== "" || !selectedShiftId || !outgoingUserId || published} onClick={() => void rank()}>{busy === "rank" ? <Loader2 size={15} /> : <RefreshCw size={15} />} דרג מחליפים</button>
     </div>
 
     <div className="form-grid" style={{ marginTop: 12 }}>
-      <label>משמרת<select value={selectedShiftId} onChange={(e) => { setSelectedShiftId(e.target.value); setOutgoingUserId(""); setCandidates([]); setMessage(""); }} disabled={busy === "load"}><option value="">בחר משמרת</option>{shifts.map((s) => <option key={s.id} value={s.id}>{s.shift_date} · {s.name} · {s.start_time.slice(0,5)}-{s.end_time.slice(0,5)}</option>)}</select></label>
-      <label>עובד/ת להחלפה<select value={outgoingUserId} onChange={(e) => { setOutgoingUserId(e.target.value); setCandidates([]); setMessage(""); }} disabled={!selectedShiftId}><option value="">בחר עובד/ת</option>{shiftAssignments.map((a) => <option key={a.id} value={a.user_id}>{workerName(a.user_id)}</option>)}</select></label>
+      <label>משמרת<select value={selectedShiftId} onChange={(e) => { setSelectedShiftId(e.target.value); setOutgoingUserId(""); setCandidates([]); setMessage(""); }} disabled={busy === "load" || published}><option value="">בחר משמרת</option>{shifts.map((s) => <option key={s.id} value={s.id}>{s.shift_date} · {s.name} · {s.start_time.slice(0,5)}-{s.end_time.slice(0,5)}</option>)}</select></label>
+      <label>עובד/ת להחלפה<select value={outgoingUserId} onChange={(e) => { setOutgoingUserId(e.target.value); setCandidates([]); setMessage(""); }} disabled={!selectedShiftId || published}><option value="">בחר עובד/ת</option>{shiftAssignments.map((a) => <option key={a.id} value={a.user_id}>{workerName(a.user_id)}</option>)}</select></label>
     </div>
 
-    {selectedPeriod?.status === "published" ? <div className="submission-banner"><ShieldCheck size={18} /><div><strong>התקופה מפורסמת</strong><span>Smart Replacement לא משנה סידור שכבר פורסם. בטל/י פרסום לפני החלפה.</span></div></div> : null}
+    {published ? <div className="submission-banner"><ShieldCheck size={18} /><div><strong>התקופה מפורסמת</strong><span>Smart Replacement לא משנה סידור שכבר פורסם. בטל/י פרסום לפני החלפה.</span></div></div> : null}
     {message ? <div className="submission-banner open"><CheckCircle2 size={18} /><div><strong>{message}</strong></div></div> : null}
 
-    {candidates.length ? <div className="template-list" style={{ marginTop: 12 }}>{candidates.slice(0, 10).map((candidate, index) => <article className="card" key={candidate.userId}><div className="mini-row"><span><strong>#{index + 1} · {candidate.name} · ציון {candidate.score}</strong><small>{candidate.reasons.join(" · ")}</small></span><button type="button" className="button primary" disabled={busy !== ""} onClick={() => void apply(candidate)}>{busy === "apply" ? <Loader2 size={14} /> : <ArrowLeftRight size={14} />} החלף</button></div></article>)}</div> : null}
-    <p className="card-muted" style={{ marginTop: 10 }}>Smart Replacement מדרג רק מועמדים שעומדים במגבלות הקשות. ההחלפה נשמרת בטיוטה בלבד ולעולם אינה מפרסמת סידור אוטומטית.</p>
+    {candidates.length ? <div className="template-list" style={{ marginTop: 12 }}>{candidates.slice(0, 10).map((candidate, index) => <article className="card" key={candidate.userId}><div className="mini-row"><span><strong>#{index + 1} · {candidate.name} · ציון {candidate.score}</strong><small>{candidate.reasons.join(" · ")}</small></span><button type="button" className="button primary" disabled={busy !== "" || published} onClick={() => void apply(candidate)}>{busy === "apply" ? <Loader2 size={14} /> : <ArrowLeftRight size={14} />} החלף</button></div></article>)}</div> : null}
+    <p className="card-muted" style={{ marginTop: 10 }}>Smart Replacement מאמת מחדש לפני ההחלפה את סטטוס התקופה, השיבוצים, הכיסוי, המנוחה, השעות ודרישת Senior.</p>
   </section>;
 }
