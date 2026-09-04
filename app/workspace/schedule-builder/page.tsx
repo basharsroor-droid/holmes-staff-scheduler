@@ -8,6 +8,7 @@ import { EmployeePreferenceEnhancer } from "@/app/workspace/schedule-builder/emp
 import { OpenShiftsManagerPanel } from "@/app/workspace/schedule-builder/open-shifts-manager-panel";
 import { ScheduleBuilderClient } from "@/app/workspace/schedule-builder/schedule-builder-client";
 import { ScheduleTemplatesPanel } from "@/app/workspace/schedule-builder/schedule-templates-panel";
+import { ShiftPilotScore } from "@/app/workspace/schedule-builder/shiftpilot-score";
 import { TimeOffApprovalPanel } from "@/app/workspace/schedule-builder/time-off-approval-panel";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -151,6 +152,14 @@ export default async function ScheduleBuilderPage() {
     <ScheduleTemplatesPanel periods={templatePeriods} initialTemplates={reusableTemplates} />
     <EmployeePreferenceEnhancer />
     <ConflictDetectorEnhancer
+      periods={periodsResult.data ?? []}
+      workers={workers}
+      submissions={submissions ?? []}
+      availability={availability ?? []}
+      approvedLeave={approvedTimeOff}
+      minRestHours={organizationResult.data.min_rest_hours}
+    />
+    <ShiftPilotScore
       periods={periodsResult.data ?? []}
       workers={workers}
       submissions={submissions ?? []}
