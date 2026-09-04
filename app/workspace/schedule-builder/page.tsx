@@ -6,6 +6,7 @@ import { ConflictDetectorEnhancer } from "@/app/workspace/schedule-builder/confl
 import { CoverageRulesEnhancer } from "@/app/workspace/schedule-builder/coverage-rules-enhancer";
 import { EmployeePreferenceEnhancer } from "@/app/workspace/schedule-builder/employee-preference-enhancer";
 import { FairnessEnhancer } from "@/app/workspace/schedule-builder/fairness-enhancer";
+import { FixMySchedulePanel } from "@/app/workspace/schedule-builder/fix-my-schedule-panel";
 import { OpenShiftsManagerPanel } from "@/app/workspace/schedule-builder/open-shifts-manager-panel";
 import { ScheduleBuilderClient } from "@/app/workspace/schedule-builder/schedule-builder-client";
 import { ScheduleTemplatesPanel } from "@/app/workspace/schedule-builder/schedule-templates-panel";
@@ -174,6 +175,17 @@ export default async function ScheduleBuilderPage() {
       workers={workers}
       submissions={submissions ?? []}
       availability={availability ?? []}
+    />
+    <FixMySchedulePanel
+      organizationId={organizationId}
+      currentUserId={user.id}
+      periods={periodsResult.data ?? []}
+      workers={workers}
+      submissions={submissions ?? []}
+      availability={availability ?? []}
+      approvedLeave={approvedTimeOff}
+      templates={templatesResult.data ?? []}
+      minRestHours={organizationResult.data.min_rest_hours}
     />
     <SmartDraftPanel
       organizationId={organizationId}
