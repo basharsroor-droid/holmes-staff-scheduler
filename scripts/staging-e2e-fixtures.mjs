@@ -83,6 +83,22 @@ try {
   ]).select("id,shift_date"), "create shifts");
   const marketplaceShift = shifts.find((shift) => shift.shift_date === `${year}-01-10`);
   const leaveShift = shifts.find((shift) => shift.shift_date === `${year}-01-20`);
+  if (!marketplaceShift || !leaveShift) throw new Error("Expected staging shifts were not created");
+
+  const availabilitySubmission = await must(admin.from("availability_submissions").insert({
+    organization_id: organizationId,
+    schedule_period_id: period.id,
+    user_id: employeeId,
+    submitted_at: new Date().toISOString()
+  }).select("id").single(), "create submitted availability");
+  await must(admin.from("availability_entries").insert({
+    organization_id: organizationId,
+    submission_id: availabilitySubmission.id,
+    shift_template_id: template.id,
+    shift_date: `${year}-01-10`,
+    status: "available",
+    note: "E2E Marketplace availability"
+  }), "create Marketplace availability entry");
 
   const leave = await must(admin.from("leave_requests").insert({ organization_id: organizationId, user_id: employeeId, leave_type: "vacation", start_date: `${year}-01-20`, end_date: `${year}-01-20`, note: "E2E Time Off", status: "pending" }).select("id").single(), "create pending leave");
 
