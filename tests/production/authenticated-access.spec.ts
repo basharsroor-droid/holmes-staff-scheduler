@@ -48,7 +48,7 @@ test("owner sees owner-only management capabilities", async ({ page }) => {
   await expect(page.getByRole("link", { name: "יומן פעילות" })).toBeVisible();
 });
 
-test("manager can manage schedules but cannot open the owner audit log", async ({ page }) => {
+test("manager can access scheduling operations but cannot open the owner audit log", async ({ page }) => {
   const manager = requiredCredentials("MANAGER");
   await login(page, manager);
 
@@ -56,6 +56,16 @@ test("manager can manage schedules but cannot open the owner audit log", async (
   await expect(page.getByRole("link", { name: "ניהול עובדים" })).toBeVisible();
   await expect(page.getByRole("link", { name: "בניית סידור" })).toBeVisible();
   await expect(page.getByRole("link", { name: "יומן פעילות" })).toHaveCount(0);
+
+  for (const route of [
+    "/workspace/command-center",
+    "/workspace/open-shifts",
+    "/workspace/schedule-builder",
+    "/workspace/work-months"
+  ]) {
+    await page.goto(route);
+    await expect(page).toHaveURL(new RegExp(`${route}$`));
+  }
 
   await page.goto("/workspace/audit-log");
   await expect(page).toHaveURL(/\/workspace$/);
@@ -83,8 +93,16 @@ test("department manager never sees a forbidden department or employee", async (
   await expect(page.locator("body")).toContainText(allowedEmployee!);
   await expect(page.locator("body")).not.toContainText(forbiddenEmployee!);
 
-  await page.goto("/workspace/shift-swaps");
-  await expect(page.locator("body")).not.toContainText(forbiddenEmployee!);
+  for (const route of [
+    "/workspace/command-center",
+    "/workspace/open-shifts",
+    "/workspace/schedule-builder",
+    "/workspace/shift-swaps"
+  ]) {
+    await page.goto(route);
+    await expect(page.locator("body")).not.toContainText(forbiddenDepartment!);
+    await expect(page.locator("body")).not.toContainText(forbiddenEmployee!);
+  }
 });
 
 test("employee sees employee tools and is blocked from management routes", async ({ page }) => {
@@ -97,9 +115,11 @@ test("employee sees employee tools and is blocked from management routes", async
   await expect(page.getByRole("link", { name: "ניהול עובדים" })).toHaveCount(0);
 
   for (const route of [
+    "/workspace/command-center",
     "/workspace/employees",
     "/workspace/schedule-builder",
     "/workspace/submissions",
+    "/workspace/work-months",
     "/workspace/audit-log"
   ]) {
     await page.goto(route);
