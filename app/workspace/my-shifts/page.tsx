@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { ArrowRight, CalendarDays } from "lucide-react";
+import { ArrowRight, CalendarDays, CalendarPlus } from "lucide-react";
 
 import { MyShiftsClient } from "@/app/workspace/my-shifts/my-shifts-client";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -37,6 +37,7 @@ export default async function MyShiftsPage() {
       <p className="eyebrow">{organization.name}</p>
       <h1><CalendarDays /> המשמרות שלי</h1>
       <p>הסידור שפורסם, המשמרת הקרובה וכל שעות העבודה שלך במקום אחד.</p>
+      <div className="actions"><Link className="button" href="/workspace/open-shifts"><CalendarPlus size={16} /> צפייה במשמרות פתוחות</Link></div>
     </div></header>
     <MyShiftsClient branches={branches ?? []} periods={periods ?? []} shifts={shifts ?? []} />
   </main>;
