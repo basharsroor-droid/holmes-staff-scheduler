@@ -8,10 +8,10 @@ import { motion, AnimatePresence } from "motion/react";
 import { BrandLogo } from "@/components/brand/brand-logo";
 
 const navItems = [
-  { href: "#how", label: "איך זה עובד", detail: "מהרשמה ועד פרסום הסידור", icon: CalendarCheck },
-  { href: "#roles", label: "למי זה מתאים", detail: "חוויה נפרדת למנהל ולעובד", icon: Users },
-  { href: "#example", label: "המערכת בפעולה", detail: "דוגמה למבנה משמרות גמיש", icon: LayoutDashboard },
-  { href: "#security", label: "אבטחה והרשאות", detail: "גישה לפי עסק, סניף ותפקיד", icon: ShieldCheck }
+  { href: "/#how", label: "איך זה עובד", detail: "מהרשמה ועד פרסום הסידור", icon: CalendarCheck },
+  { href: "/#roles", label: "למי זה מתאים", detail: "חוויה נפרדת למנהל ולעובד", icon: Users },
+  { href: "/#example", label: "המערכת בפעולה", detail: "דוגמה למבנה משמרות גמיש", icon: LayoutDashboard },
+  { href: "/#security", label: "אבטחה והרשאות", detail: "גישה לפי עסק, סניף ותפקיד", icon: ShieldCheck }
 ];
 
 // Floating pill navbar for the marketing site. Adapted from a shadcn-style
