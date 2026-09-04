@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowLeft, BarChart3, Building2, CalendarCheck, CalendarRange, Clock3, LockKeyhole, Repeat2, ShieldCheck, UserPlus } from "lucide-react";
 
 import { BrandLogo } from "@/components/brand/brand-logo";
+import { PLANS } from "@/lib/plans";
 import { CinematicHero } from "@/components/marketing/cinematic-hero";
 import { RolesShowcase } from "@/components/marketing/roles-showcase";
 import { ScrollReveal } from "@/components/marketing/scroll-reveal";
@@ -77,6 +78,12 @@ export default function HomePage() {
       <div className="section-glow violet" style={{ width: 380, height: 380, top: -120, right: -60 }} aria-hidden="true" />
       <ScrollReveal className="section-heading centered"><p className="pro-kicker dark">יכולות המוצר</p><h2>כל מה שצריך, לאורך כל תהליך הסידור</h2></ScrollReveal>
       <div className="capability-grid">{capabilities.map((item,index)=><ScrollReveal className="capability-card" delay={(index%3)*70} key={item.title}><item.icon /><h3>{item.title}</h3><p>{item.text}</p></ScrollReveal>)}</div>
+    </section>
+
+    <section className="pro-section pricing-teaser-section" id="pricing">
+      <ScrollReveal className="section-heading centered"><p className="pro-kicker dark">תמחור</p><h2>מחיר פשוט, לפי הגודל של העסק</h2><p>30 ימי ניסיון ללא כרטיס אשראי, ואז מסלול חודשי לפי מספר העובדים, המחלקות והמנהלים — הכול במחירי השקה, לפני מע״מ.</p></ScrollReveal>
+      <div className="pricing-teaser-grid">{PLANS.filter((plan) => plan.monthlyIls !== null).map((plan, index) => <ScrollReveal className={`pricing-teaser-card${plan.badge ? " featured" : ""}`} delay={index * 70} key={plan.id}>{plan.badge ? <span className="pricing-teaser-badge">{plan.badge}</span> : null}<h3>{plan.name}</h3><strong>₪{plan.monthlyIls}<span>/ לחודש</span></strong><p>{plan.tagline}</p></ScrollReveal>)}</div>
+      <ScrollReveal className="pricing-teaser-cta"><Link className="button brand-button large" href="/pricing">לתמחור המלא ולהשוואת מסלולים <ArrowLeft size={18} /></Link></ScrollReveal>
     </section>
 
     <section className="pro-section security-section" id="security">
