@@ -22,6 +22,9 @@ alter table public.leave_requests
 create index leave_requests_org_status_dates_idx
   on public.leave_requests (organization_id, status, start_date, end_date);
 
+create index leave_requests_decided_by_idx
+  on public.leave_requests (decided_by);
+
 -- Employees may only create pending requests for themselves. This prevents a
 -- crafted client from inserting an already-approved request.
 drop policy if exists leave_requests_insert_self on public.leave_requests;
