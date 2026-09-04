@@ -1,30 +1,26 @@
 -- Phase 3: Shift Marketplace
 -- Harden employee requests and manager approvals with scheduling eligibility checks.
 
-create or replace function public.request_open_shift(
+create or replace function private.assert_shift_marketplace_eligibility(
   target_shift_id uuid,
-  request_note text default null
+  target_user_id uuid
 )
-returns public.open_shift_requests
+returns void
 language plpgsql
-security definer
+security invoker
 set search_path = public, private
 as $$
 declare
-  actor_id uuid := auth.uid();
   target_shift public.shifts%rowtype;
   target_period public.schedule_periods%rowtype;
-  actor_membership public.organization_memberships%rowtype;
+  employee_membership public.organization_memberships%rowtype;
   assigned_count integer;
   target_hours numeric;
   current_week_hours numeric;
   org_min_rest numeric;
   availability_status text;
-  result public.open_shift_requests%rowtype;
 begin
-  if actor_id is null then raise exception 'Authentication required'; end if;
-
-  select s.* into target_shift from public.shifts s where s.id = target_shift_id for share;
+  select s.* into target_shift from public.shifts s where s.id = target_shift_id;
   if not found or not target_shift.open_for_requests or target_shift.status <> 'published' then
     raise exception 'Shift is not open for requests';
   end if;
@@ -32,20 +28,20 @@ begin
   select * into target_period from public.schedule_periods sp
   where sp.id = target_shift.schedule_period_id and sp.organization_id = target_shift.organization_id;
 
-  select * into actor_membership from public.organization_memberships om
+  select * into employee_membership from public.organization_memberships om
   where om.organization_id = target_shift.organization_id
-    and om.user_id = actor_id and om.status = 'active' and om.role in ('employee','manager')
+    and om.user_id = target_user_id and om.status = 'active' and om.role in ('employee','manager')
   limit 1;
   if not found then raise exception 'Active employee membership required'; end if;
 
   if not exists (
     select 1 from public.department_memberships dm
-    where dm.membership_id = actor_membership.id
-      and dm.organization_id = actor_membership.organization_id
+    where dm.membership_id = employee_membership.id
+      and dm.organization_id = employee_membership.organization_id
       and dm.department_id = target_period.department_id
   ) then raise exception 'Employee is not eligible for this department'; end if;
 
-  if exists (select 1 from public.shift_assignments sa where sa.shift_id = target_shift.id and sa.user_id = actor_id) then
+  if exists (select 1 from public.shift_assignments sa where sa.shift_id = target_shift.id and sa.user_id = target_user_id) then
     raise exception 'Employee is already assigned to this shift';
   end if;
 
@@ -54,7 +50,7 @@ begin
 
   if exists (
     select 1 from public.leave_requests lr
-    where lr.organization_id = target_shift.organization_id and lr.user_id = actor_id
+    where lr.organization_id = target_shift.organization_id and lr.user_id = target_user_id
       and lr.status = 'approved' and target_shift.shift_date between lr.start_date and lr.end_date
   ) then raise exception 'Employee has approved time off'; end if;
 
@@ -62,7 +58,7 @@ begin
   from public.availability_submissions avs
   join public.availability_entries ae on ae.submission_id = avs.id
   where avs.schedule_period_id = target_shift.schedule_period_id
-    and avs.user_id = actor_id and avs.submitted_at is not null
+    and avs.user_id = target_user_id and avs.submitted_at is not null
     and ae.shift_date = target_shift.shift_date
     and ae.shift_template_id = target_shift.shift_template_id
   limit 1;
@@ -74,7 +70,7 @@ begin
     select 1
     from public.shift_assignments sa
     join public.shifts other on other.id = sa.shift_id
-    where sa.user_id = actor_id and other.organization_id = target_shift.organization_id
+    where sa.user_id = target_user_id and other.organization_id = target_shift.organization_id
       and other.id <> target_shift.id and other.status <> 'cancelled'
       and (other.shift_date + other.start_time::time) <
           ((target_shift.shift_date + target_shift.end_time::time) + case when target_shift.end_time::time <= target_shift.start_time::time then interval '1 day' else interval '0' end)
@@ -87,17 +83,17 @@ begin
     - (target_shift.shift_date + target_shift.start_time::time)
   )) / 3600.0;
 
-  if actor_membership.weekly_hours_limit is not null then
+  if employee_membership.weekly_hours_limit is not null then
     select coalesce(sum(extract(epoch from (
       ((s.shift_date + s.end_time::time) + case when s.end_time::time <= s.start_time::time then interval '1 day' else interval '0' end)
       - (s.shift_date + s.start_time::time)
     )) / 3600.0), 0)
     into current_week_hours
     from public.shift_assignments sa join public.shifts s on s.id = sa.shift_id
-    where sa.user_id = actor_id and s.organization_id = target_shift.organization_id
+    where sa.user_id = target_user_id and s.organization_id = target_shift.organization_id
       and date_trunc('week', s.shift_date::timestamp) = date_trunc('week', target_shift.shift_date::timestamp)
       and s.status <> 'cancelled';
-    if current_week_hours + target_hours > actor_membership.weekly_hours_limit then
+    if current_week_hours + target_hours > employee_membership.weekly_hours_limit then
       raise exception 'Weekly hours limit would be exceeded';
     end if;
   end if;
@@ -106,7 +102,7 @@ begin
   if org_min_rest > 0 and exists (
     select 1
     from public.shift_assignments sa join public.shifts other on other.id = sa.shift_id
-    where sa.user_id = actor_id and other.organization_id = target_shift.organization_id
+    where sa.user_id = target_user_id and other.organization_id = target_shift.organization_id
       and other.id <> target_shift.id and other.status <> 'cancelled'
       and (
         ((target_shift.shift_date + target_shift.start_time::time) >= ((other.shift_date + other.end_time::time) + case when other.end_time::time <= other.start_time::time then interval '1 day' else interval '0' end)
@@ -116,6 +112,29 @@ begin
           and (other.shift_date + other.start_time::time) - ((target_shift.shift_date + target_shift.end_time::time) + case when target_shift.end_time::time <= target_shift.start_time::time then interval '1 day' else interval '0' end) < make_interval(hours => org_min_rest::int))
       )
   ) then raise exception 'Minimum rest requirement would be violated'; end if;
+end;
+$$;
+
+create or replace function public.request_open_shift(
+  target_shift_id uuid,
+  request_note text default null
+)
+returns public.open_shift_requests
+language plpgsql
+security definer
+set search_path = public, private
+as $$
+declare
+  actor_id uuid := auth.uid();
+  target_shift public.shifts%rowtype;
+  result public.open_shift_requests%rowtype;
+begin
+  if actor_id is null then raise exception 'Authentication required'; end if;
+
+  select s.* into target_shift from public.shifts s where s.id = target_shift_id for share;
+  if not found then raise exception 'Shift not found'; end if;
+
+  perform private.assert_shift_marketplace_eligibility(target_shift_id, actor_id);
 
   insert into public.open_shift_requests (organization_id, shift_id, user_id, status, employee_note)
   values (target_shift.organization_id, target_shift.id, actor_id, 'pending', nullif(trim(request_note), ''))
@@ -142,7 +161,6 @@ declare
   req public.open_shift_requests%rowtype;
   target_shift public.shifts%rowtype;
   actor_membership public.organization_memberships%rowtype;
-  employee_membership public.organization_memberships%rowtype;
   target_department_id uuid;
   assigned_count integer;
   result public.open_shift_requests%rowtype;
@@ -166,14 +184,7 @@ begin
   ) then raise exception 'Department access required'; end if;
 
   if decision = 'approved' then
-    if target_shift.status <> 'published' or not target_shift.open_for_requests then raise exception 'Shift is no longer open'; end if;
-    select count(*) into assigned_count from public.shift_assignments sa where sa.shift_id = target_shift.id;
-    if assigned_count >= target_shift.required_employees then raise exception 'Shift is already fully staffed'; end if;
-
-    -- Re-run the employee-side eligibility checks immediately before assignment.
-    perform public.request_open_shift(target_shift.id, req.employee_note);
-    select * into req from public.open_shift_requests where id = target_request_id for update;
-
+    perform private.assert_shift_marketplace_eligibility(req.shift_id, req.user_id);
     insert into public.shift_assignments (organization_id, shift_id, user_id, assigned_by)
     values (req.organization_id, req.shift_id, req.user_id, actor_id);
   end if;
@@ -201,6 +212,7 @@ begin
 end;
 $$;
 
+revoke all on function private.assert_shift_marketplace_eligibility(uuid, uuid) from public, anon, authenticated;
 revoke all on function public.request_open_shift(uuid, text) from public, anon;
 revoke all on function public.decide_open_shift_request(uuid, public.open_shift_request_status, text) from public, anon;
 grant execute on function public.request_open_shift(uuid, text) to authenticated;
