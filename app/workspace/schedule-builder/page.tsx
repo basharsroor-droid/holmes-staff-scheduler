@@ -5,6 +5,7 @@ import { ArrowRight, CalendarRange } from "lucide-react";
 import { ConflictDetectorEnhancer } from "@/app/workspace/schedule-builder/conflict-detector-enhancer";
 import { CoverageRulesEnhancer } from "@/app/workspace/schedule-builder/coverage-rules-enhancer";
 import { EmployeePreferenceEnhancer } from "@/app/workspace/schedule-builder/employee-preference-enhancer";
+import { FairnessEnhancer } from "@/app/workspace/schedule-builder/fairness-enhancer";
 import { OpenShiftsManagerPanel } from "@/app/workspace/schedule-builder/open-shifts-manager-panel";
 import { ScheduleBuilderClient } from "@/app/workspace/schedule-builder/schedule-builder-client";
 import { ScheduleTemplatesPanel } from "@/app/workspace/schedule-builder/schedule-templates-panel";
@@ -166,6 +167,12 @@ export default async function ScheduleBuilderPage() {
       availability={availability ?? []}
       approvedLeave={approvedTimeOff}
       minRestHours={organizationResult.data.min_rest_hours}
+    />
+    <FairnessEnhancer
+      periods={periodsResult.data ?? []}
+      workers={workers}
+      submissions={submissions ?? []}
+      availability={availability ?? []}
     />
 
     <ScheduleBuilderClient
