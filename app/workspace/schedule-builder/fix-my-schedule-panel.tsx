@@ -69,6 +69,11 @@ export function FixMySchedulePanel({ organizationId, currentUserId, periods, wor
     setBusy("plan"); setMessage(""); setActions([]); setUnresolved(0);
     const period = periods.find((p) => p.id === periodId);
     if (!period) { setBusy(""); return; }
+    if (period.status === "published") {
+      setBusy("");
+      setMessage("Fix My Schedule עובד על טיוטה בלבד. יש לבטל פרסום לפני שינוי שיבוצים.");
+      return;
+    }
 
     const db = supabase as any;
     const { data: allShiftRows } = await db.from("shifts")
@@ -110,7 +115,6 @@ export function FixMySchedulePanel({ organizationId, currentUserId, periods, wor
       return gap;
     };
 
-    // First remove only assignments that violate hard, explainable constraints.
     for (const assignment of existing.filter((a) => periodShifts.some((s) => s.id === a.shift_id))) {
       const shift = periodShifts.find((s) => s.id === assignment.shift_id)!;
       const status = availabilityStatus(assignment.user_id, shift);
@@ -160,9 +164,51 @@ export function FixMySchedulePanel({ organizationId, currentUserId, periods, wor
 
   const apply = useCallback(async () => {
     if (!actions.length) return;
+    const period = periods.find((p) => p.id === selectedPeriodId);
+    if (!period || period.status === "published") {
+      setActions([]);
+      setMessage("לא ניתן להחיל Fix My Schedule על סידור שפורסם. יש לבטל פרסום ולבנות תוכנית מחדש.");
+      return;
+    }
     if (!window.confirm(`להחיל ${actions.length} פעולות תיקון על הטיוטה? הפעולה אינה מפרסמת את הסידור.`)) return;
     setBusy("apply"); setMessage("");
     const db = supabase as any;
+
+    const [{ data: currentPeriod }, { data: currentShiftRows }] = await Promise.all([
+      db.from("schedule_periods").select("id, status").eq("id", selectedPeriodId).single(),
+      db.from("shifts").select("id, required_employees, status").eq("schedule_period_id", selectedPeriodId).neq("status", "cancelled")
+    ]);
+    if (!currentPeriod || currentPeriod.status === "published") {
+      setBusy(""); setActions([]); setMessage("התקופה פורסמה מאז יצירת התוכנית. לא בוצע שינוי; בטל פרסום ובנה תוכנית מחדש."); return;
+    }
+
+    const currentShiftIds = (currentShiftRows ?? []).map((s: any) => s.id);
+    const { data: currentAssignmentRows } = currentShiftIds.length
+      ? await db.from("shift_assignments").select("id, shift_id, user_id").in("shift_id", currentShiftIds)
+      : { data: [] };
+    const currentAssignments = (currentAssignmentRows ?? []) as Assignment[];
+
+    for (const action of actions) {
+      const currentShift = (currentShiftRows ?? []).find((s: any) => s.id === action.shiftId);
+      if (!currentShift) {
+        setBusy(""); setActions([]); setMessage("אחת המשמרות השתנתה מאז יצירת התוכנית. לא בוצע שינוי; יש לבנות תוכנית מחדש."); return;
+      }
+      if (action.kind === "remove" && !currentAssignments.some((a) => a.shift_id === action.shiftId && a.user_id === action.userId)) {
+        setBusy(""); setActions([]); setMessage("השיבוצים השתנו מאז יצירת התוכנית. לא בוצע שינוי; יש לבנות תוכנית מחדש."); return;
+      }
+      if (action.kind === "add") {
+        if (currentAssignments.some((a) => a.shift_id === action.shiftId && a.user_id === action.userId)) {
+          setBusy(""); setActions([]); setMessage("השיבוצים השתנו מאז יצירת התוכנית. לא בוצע שינוי; יש לבנות תוכנית מחדש."); return;
+        }
+        const projectedCount = currentAssignments.filter((a) => a.shift_id === action.shiftId).length
+          - actions.filter((a) => a.kind === "remove" && a.shiftId === action.shiftId).length
+          + actions.filter((a) => a.kind === "add" && a.shiftId === action.shiftId).length;
+        if (projectedCount > currentShift.required_employees) {
+          setBusy(""); setActions([]); setMessage("הכיסוי במשמרת השתנה מאז יצירת התוכנית. לא בוצע שינוי; יש לבנות תוכנית מחדש."); return;
+        }
+      }
+    }
+
     const removals = actions.filter((a) => a.kind === "remove");
     const additions = actions.filter((a) => a.kind === "add");
     for (const action of removals) {
@@ -176,12 +222,13 @@ export function FixMySchedulePanel({ organizationId, currentUserId, periods, wor
     }
     setMessage("תוכנית התיקון הוחלה על הטיוטה. מרענן את הסידור...");
     window.location.reload();
-  }, [actions, currentUserId, organizationId, supabase]);
+  }, [actions, currentUserId, organizationId, periods, selectedPeriodId, supabase]);
 
   useEffect(() => {
     const sync = () => {
       const select = document.querySelector<HTMLSelectElement>(".schedule-period-select");
       setSelectedPeriodId(select?.value ?? periods[0]?.id ?? "");
+      setActions([]); setUnresolved(0);
     };
     sync();
     const root = document.querySelector(".schedule-workbench");
@@ -191,20 +238,23 @@ export function FixMySchedulePanel({ organizationId, currentUserId, periods, wor
 
   const removals = actions.filter((a) => a.kind === "remove").length;
   const additions = actions.filter((a) => a.kind === "add").length;
+  const selectedPeriod = periods.find((p) => p.id === selectedPeriodId);
+  const published = selectedPeriod?.status === "published";
 
   return <section className="template-list-card no-print" aria-live="polite">
     <div className="template-list-heading">
       <div><p className="eyebrow">Phase 3 · WOW Features</p><h2><Wrench size={20} /> Fix My Schedule</h2><p className="card-muted">מזהה בעיות בטיוטה ומציע את סט השינויים המינימלי שאפשר להסביר: הסרת שיבוצים לא בטוחים והשלמת חוסרים עם מועמדים שעומדים במגבלות.</p></div>
       <div className="button-row">
-        <button type="button" className="button" disabled={busy !== "" || !selectedPeriodId} onClick={() => void generate(selectedPeriodId)}>{busy === "plan" ? <Loader2 size={15} /> : <RefreshCw size={15} />} בנה תוכנית תיקון</button>
-        <button type="button" className="button primary" disabled={busy !== "" || !actions.length} onClick={() => void apply()}>{busy === "apply" ? <Loader2 size={15} /> : <ShieldCheck size={15} />} אשר והחל על הטיוטה</button>
+        <button type="button" className="button" disabled={busy !== "" || !selectedPeriodId || published} onClick={() => void generate(selectedPeriodId)}>{busy === "plan" ? <Loader2 size={15} /> : <RefreshCw size={15} />} בנה תוכנית תיקון</button>
+        <button type="button" className="button primary" disabled={busy !== "" || !actions.length || published} onClick={() => void apply()}>{busy === "apply" ? <Loader2 size={15} /> : <ShieldCheck size={15} />} אשר והחל על הטיוטה</button>
       </div>
     </div>
 
+    {published ? <div className="submission-banner"><div><strong>הסידור פורסם</strong><span>Fix My Schedule מושבת עד לביטול הפרסום כדי למנוע שינוי שיבוצים שכבר נשלחו לעובדים.</span></div></div> : null}
     {message ? <div className="submission-banner open"><CheckCircle2 size={18} /><div><strong>{message}</strong><span>{actions.length ? `${removals} הסרות · ${additions} הוספות${unresolved ? ` · ${unresolved} מקומות נשארו ללא פתרון בטוח` : ""}` : "שום שינוי לא בוצע אוטומטית."}</span></div></div> : null}
 
     {actions.length ? <div className="template-list" style={{ marginTop: 12 }}>{actions.slice(0, 30).map((action, index) => <article className="card" key={`${action.kind}-${action.shiftId}-${action.userId}-${index}`}><div className="mini-row"><span><strong>{action.shiftLabel}</strong><small>{action.workerName} · {action.reason}</small></span><span className={`badge ${action.kind === "remove" ? "closing" : "opening"}`}>{action.kind === "remove" ? "הסר" : "הוסף"}</span></div></article>)}</div> : null}
     {actions.length > 30 ? <p className="card-muted">מוצגות 30 הפעולות הראשונות מתוך {actions.length}.</p> : null}
-    <p className="card-muted" style={{ marginTop: 10 }}>Fix My Schedule לא מפרסם סידור ולעולם לא מחיל שינוי בלי אישור מפורש של המנהל.</p>
+    <p className="card-muted" style={{ marginTop: 10 }}>Fix My Schedule לא מפרסם סידור, ולפני Apply הוא מאמת מחדש שהתקופה והשיבוצים לא השתנו.</p>
   </section>;
 }
