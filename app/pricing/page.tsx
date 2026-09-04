@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Building2, CircleCheck, Clock3, CreditCard, ShieldCheck, UserRoundPlus, UsersRound } from "lucide-react";
 
 import { BrandLogo } from "@/components/brand/brand-logo";
 import { PricingPlans } from "@/components/marketing/pricing-plans";
@@ -15,10 +15,10 @@ export const metadata: Metadata = {
 };
 
 const trialSteps = [
-  { n: "01", title: "פותחים חשבון", text: "נרשמים עם שם ומייל ומאמתים את הכתובת. אין צורך בכרטיס אשראי." },
-  { n: "02", title: "בוחרים מסלול", text: "עונים על כמה שאלות קצרות ומקבלים המלצה. אפשר לשנות מסלול בהמשך." },
-  { n: "03", title: "מקימים את העסק", text: "מגדירים סניף ומחלקה, יוצרים סוגי משמרת ומזמינים את הצוות." },
-  { n: "04", title: "מתחילים לעבוד", text: "בונים סידור ראשון ומפרסמים אותו — 30 יום מלאים כדי להתרשם." }
+  { n: "01", icon: UserRoundPlus, title: "פותחים חשבון", text: "נרשמים עם שם ומייל ומאמתים את הכתובת. אין צורך בכרטיס אשראי." },
+  { n: "02", icon: CircleCheck, title: "בוחרים מסלול", text: "עונים על כמה שאלות קצרות ומקבלים המלצה. אפשר לשנות מסלול בהמשך." },
+  { n: "03", icon: Building2, title: "מקימים את העסק", text: "מגדירים סניף ומחלקה, יוצרים סוגי משמרת ומזמינים את הצוות." },
+  { n: "04", icon: UsersRound, title: "מתחילים לעבוד", text: "בונים סידור ראשון ומפרסמים אותו — 30 יום מלאים כדי להתרשם." }
 ];
 
 const faq = [
@@ -45,22 +45,36 @@ const faq = [
 ];
 
 export default function PricingPage() {
-  return <main className="marketing-site" dir="rtl">
+  return <main className="marketing-site pricing-page" dir="rtl">
     <div className="marketing-navbar-shell absolute inset-x-0 top-0 z-40">
       <SiteNavbar />
     </div>
     <ScrollToTop />
 
-    <section className="pro-section pricing-hero">
-      <div className="section-glow blue" style={{ width: 420, height: 420, top: -120, left: -80 }} aria-hidden="true" />
-      <ScrollReveal className="section-heading centered">
-        <p className="pro-kicker dark">מחיר השקה</p>
-        <h2>תמחור פשוט, לפי הגודל של העסק</h2>
-        <p>חבילה חודשית ברורה שכוללת מכסת עובדים, מחלקות ומנהלים, לצד תוספות פשוטות להתרחבות. מתחילים תמיד ב-30 יום ניסיון ללא כרטיס אשראי.</p>
+    <section className="pricing-hero">
+      <div className="pricing-hero-orb one" aria-hidden="true" />
+      <div className="pricing-hero-orb two" aria-hidden="true" />
+      <ScrollReveal className="pricing-hero-inner">
+        <p className="pricing-eyebrow"><span /> מחיר השקה לעסקים ראשונים</p>
+        <h1>המסלול שמתאים<br /><em>לקצב של העסק שלך.</em></h1>
+        <p className="pricing-hero-lead">תמחור ברור לפי גודל הצוות — עם כל הכלים לניהול זמינות, סידורים והחלפות משמרת במקום אחד.</p>
+        <div className="pricing-hero-actions">
+          <Link className="button brand-button large" href="/onboarding">התחלת 30 ימי ניסיון <ArrowLeft size={18} /></Link>
+          <a className="pricing-text-link" href="#plans">השוואת המסלולים</a>
+        </div>
+        <div className="pricing-trust-row">
+          <span><Clock3 /> 30 יום ניסיון מלאים</span>
+          <span><CreditCard /> ללא כרטיס אשראי</span>
+          <span><ShieldCheck /> אפשר לשנות מסלול</span>
+        </div>
       </ScrollReveal>
     </section>
 
     <section className="pro-section pricing-section" id="plans">
+      <ScrollReveal className="pricing-section-heading">
+        <div><p className="pro-kicker dark">המסלולים שלנו</p><h2>פשוט לבחור. קל להתחיל.</h2></div>
+        <p>כל המסלולים כוללים את הליבה המלאה של ShiftPilot. ההבדל הוא בכמות העובדים, המחלקות והמנהלים שהעסק צריך.</p>
+      </ScrollReveal>
       <PricingPlans />
     </section>
 
@@ -70,15 +84,13 @@ export default function PricingPage() {
         <h2>מרחיבים את החשבון כשצריך</h2>
         <p>אפשר להוסיף משאבים מעבר למכסת המסלול. לפני כל הגדלת חיוב מוצג המחיר החדש ונדרש אישור מפורש של בעל העסק.</p>
       </ScrollReveal>
-      <ScrollReveal className="example-table-wrap" tabIndex={0} role="region" aria-label="תוספות בתשלום">
-        <table className="example-table">
-          <thead><tr><th>תוספת</th><th>מחיר מומלץ</th></tr></thead>
-          <tbody>
-            {ADDONS.map((addon) => (
-              <tr key={addon.label}><td><b>{addon.label}</b></td><td>{addon.price}</td></tr>
-            ))}
-          </tbody>
-        </table>
+      <ScrollReveal className="pricing-addons-grid" role="list" aria-label="תוספות בתשלום">
+        {ADDONS.map((addon, index) => (
+          <article key={addon.label} role="listitem">
+            <span>0{index + 1}</span>
+            <div><h3>{addon.label}</h3><p>{addon.price}</p></div>
+          </article>
+        ))}
       </ScrollReveal>
     </section>
 
@@ -91,7 +103,7 @@ export default function PricingPage() {
       <div className="process-timeline">
         {trialSteps.map((step, index) => (
           <ScrollReveal className="process-step" delay={index * 70} key={step.n}>
-            <b>{step.n}</b>
+            <b><step.icon size={20} aria-hidden="true" /></b>
             <div><h3>{step.title}</h3><p>{step.text}</p></div>
           </ScrollReveal>
         ))}
