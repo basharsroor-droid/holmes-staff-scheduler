@@ -66,9 +66,14 @@ export function SmartDraftPanel({ organizationId, currentUserId, periods, worker
 
   const generate = useCallback(async (periodId: string) => {
     if (!periodId) return;
-    setBusy("plan"); setMessage("");
+    setBusy("plan"); setMessage(""); setSuggestions([]); setUnfilled(0);
     const period = periods.find((p) => p.id === periodId);
     if (!period) { setBusy(""); return; }
+    if (period.status === "published") {
+      setBusy("");
+      setMessage("Smart Draft עובד על טיוטה בלבד. יש לבטל פרסום לפני שינוי שיבוצים.");
+      return;
+    }
 
     const db = supabase as any;
     const { data: allShiftRows } = await db.from("shifts")
@@ -115,10 +120,15 @@ export function SmartDraftPanel({ organizationId, currentUserId, periods, worker
       const already = planned.filter((a) => a.shift_id === shift.id).length;
       let slots = Math.max(0, shift.required_employees - already);
       while (slots > 0) {
+        const template = templates.find((t) => t.id === shift.shift_template_id);
+        const alreadySenior = planned.some((a) => a.shift_id === shift.id && periodWorkers.find((w) => w.user_id === a.user_id)?.seniority_level === "senior");
+        const needSenior = !!template?.requires_senior_employee && !alreadySenior;
+
         const candidates = periodWorkers
           .filter((worker) => !planned.some((a) => a.shift_id === shift.id && a.user_id === worker.user_id))
           .map((worker) => {
             const reasons: string[] = [];
+            if (needSenior && worker.seniority_level !== "senior") return null;
             const status = availabilityStatus(worker.user_id, shift);
             if (status === "unavailable" || status === null) return null;
             if (approvedLeave.some((l) => l.user_id === worker.user_id && shift.shift_date >= l.start_date && shift.shift_date <= l.end_date)) return null;
@@ -129,9 +139,6 @@ export function SmartDraftPanel({ organizationId, currentUserId, periods, worker
             if (worker.weekly_hours_limit && projectedWeek > worker.weekly_hours_limit) return null;
             if (minRestHours && minGap(worker.user_id, shift) < minRestHours) return null;
 
-            const template = templates.find((t) => t.id === shift.shift_template_id);
-            if (template?.requires_senior_employee && worker.seniority_level !== "senior") return null;
-
             let score = 50;
             if (status === "preferred") { score += 30; reasons.push("משמרת מועדפת"); }
             else if (status === "available") { score += 20; reasons.push("זמין/ה"); }
@@ -141,6 +148,7 @@ export function SmartDraftPanel({ organizationId, currentUserId, periods, worker
             score -= Math.min(25, hours / 4);
             reasons.push(`${Math.round(hours * 10) / 10} שעות משובצות כרגע`);
             if (worker.seniority_level === "senior") score += 2;
+            if (needSenior) reasons.push("משלים/ה דרישת Senior למשמרת");
             return { worker, score, reasons };
           })
           .filter(Boolean)
@@ -167,20 +175,60 @@ export function SmartDraftPanel({ organizationId, currentUserId, periods, worker
 
   const apply = useCallback(async () => {
     if (!suggestions.length) return;
+    const period = periods.find((p) => p.id === selectedPeriodId);
+    if (!period || period.status === "published") {
+      setSuggestions([]);
+      setMessage("לא ניתן להחיל Smart Draft על סידור שפורסם. יש לבטל פרסום ולחשב הצעה מחדש.");
+      return;
+    }
     if (!window.confirm(`להחיל ${suggestions.length} שיבוצים מוצעים על הטיוטה? הפעולה לא מפרסמת את הסידור לצוות.`)) return;
+
     setBusy("apply"); setMessage("");
+    const db = supabase as any;
+
+    const [{ data: currentPeriod }, { data: periodShiftRows }] = await Promise.all([
+      db.from("schedule_periods").select("id, status").eq("id", selectedPeriodId).single(),
+      db.from("shifts").select("id, schedule_period_id, shift_template_id, shift_date, name, start_time, end_time, required_employees, status").eq("schedule_period_id", selectedPeriodId).neq("status", "cancelled")
+    ]);
+    if (!currentPeriod || currentPeriod.status === "published") {
+      setBusy(""); setSuggestions([]); setMessage("התקופה פורסמה מאז יצירת ההצעה. לא בוצע שינוי; בטל פרסום וחשב הצעה מחדש."); return;
+    }
+
+    const currentShifts = (periodShiftRows ?? []) as Shift[];
+    const currentIds = currentShifts.map((s) => s.id);
+    const { data: currentAssignmentsRows } = currentIds.length
+      ? await db.from("shift_assignments").select("shift_id, user_id").in("shift_id", currentIds)
+      : { data: [] };
+    const currentAssignments = (currentAssignmentsRows ?? []) as Assignment[];
+
+    for (const suggestion of suggestions) {
+      const shift = currentShifts.find((s) => s.id === suggestion.shiftId);
+      if (!shift || shift.status === "cancelled") {
+        setBusy(""); setSuggestions([]); setMessage("אחת המשמרות השתנתה מאז יצירת ההצעה. לא בוצע שינוי; יש לחשב Smart Draft מחדש."); return;
+      }
+      if (currentAssignments.some((a) => a.shift_id === suggestion.shiftId && a.user_id === suggestion.userId)) {
+        setBusy(""); setSuggestions([]); setMessage("השיבוצים השתנו מאז יצירת ההצעה. לא בוצע שינוי; יש לחשב Smart Draft מחדש."); return;
+      }
+      const currentCount = currentAssignments.filter((a) => a.shift_id === suggestion.shiftId).length;
+      if (currentCount >= shift.required_employees) {
+        setBusy(""); setSuggestions([]); setMessage("אחת המשמרות כבר מלאה. לא בוצע שינוי; יש לחשב Smart Draft מחדש."); return;
+      }
+    }
+
     const rows = suggestions.map((s) => ({ organization_id: organizationId, shift_id: s.shiftId, user_id: s.userId, assigned_by: currentUserId }));
-    const { error } = await supabase.from("shift_assignments").insert(rows as any);
+    const { error } = await db.from("shift_assignments").insert(rows);
     setBusy("");
-    if (error) { setMessage("החלת Smart Draft נכשלה. לא פורסם שום סידור."); return; }
+    if (error) { setMessage("החלת Smart Draft נכשלה. לא פורסם שום סידור; יש לרענן ולבדוק את הטיוטה."); return; }
     setMessage("Smart Draft הוחל על הטיוטה. מרענן את המסך...");
     window.location.reload();
-  }, [currentUserId, organizationId, suggestions, supabase]);
+  }, [currentUserId, organizationId, periods, selectedPeriodId, suggestions, supabase]);
 
   useEffect(() => {
     const sync = () => {
       const select = document.querySelector<HTMLSelectElement>(".schedule-period-select");
       setSelectedPeriodId(select?.value ?? periods[0]?.id ?? "");
+      setSuggestions([]);
+      setUnfilled(0);
     };
     sync();
     const root = document.querySelector(".schedule-workbench");
@@ -188,19 +236,23 @@ export function SmartDraftPanel({ organizationId, currentUserId, periods, worker
     return () => root?.removeEventListener("change", sync);
   }, [periods]);
 
+  const selectedPeriod = periods.find((p) => p.id === selectedPeriodId);
+  const published = selectedPeriod?.status === "published";
+
   return <section className="template-list-card no-print" aria-live="polite">
     <div className="template-list-heading">
       <div><p className="eyebrow">Phase 2 · Scheduling Intelligence</p><h2><WandSparkles size={20} /> Smart Draft</h2><p className="card-muted">מייצר הצעת שיבוץ מוסברת לפי זמינות, העדפות, מגבלות וכיסוי. שום דבר לא נשמר בלי אישור המנהל.</p></div>
       <div className="button-row">
-        <button type="button" className="button" disabled={busy !== "" || !selectedPeriodId} onClick={() => void generate(selectedPeriodId)}>{busy === "plan" ? <Loader2 size={15} /> : <RefreshCw size={15} />} חשב הצעה</button>
-        <button type="button" className="button primary" disabled={busy !== "" || !suggestions.length} onClick={() => void apply()}>{busy === "apply" ? <Loader2 size={15} /> : <Sparkles size={15} />} החל על הטיוטה</button>
+        <button type="button" className="button" disabled={busy !== "" || !selectedPeriodId || published} onClick={() => void generate(selectedPeriodId)}>{busy === "plan" ? <Loader2 size={15} /> : <RefreshCw size={15} />} חשב הצעה</button>
+        <button type="button" className="button primary" disabled={busy !== "" || !suggestions.length || published} onClick={() => void apply()}>{busy === "apply" ? <Loader2 size={15} /> : <Sparkles size={15} />} החל על הטיוטה</button>
       </div>
     </div>
 
+    {published ? <div className="submission-banner"><div><strong>הסידור פורסם</strong><span>Smart Draft מושבת עד לביטול הפרסום כדי למנוע שינוי שיבוצים שכבר נשלחו לעובדים.</span></div></div> : null}
     {message ? <div className="submission-banner open"><CheckCircle2 size={18} /><div><strong>{message}</strong>{unfilled ? <span>{unfilled} מקומות נשארו ללא מועמד שעומד בכל המגבלות.</span> : null}</div></div> : null}
 
     {suggestions.length ? <div className="template-list" style={{ marginTop: 12 }}>{suggestions.slice(0, 20).map((s, index) => <article className="card" key={`${s.shiftId}-${s.userId}-${index}`}><div className="mini-row"><span><strong>{s.shiftLabel}</strong><small>{s.workerName} · ציון התאמה {s.score} · {s.reasons.join(" · ")}</small></span><span className="badge opening">הצעה בלבד</span></div></article>)}</div> : null}
     {suggestions.length > 20 ? <p className="card-muted">מוצגות 20 ההצעות הראשונות מתוך {suggestions.length}.</p> : null}
-    <p className="card-muted" style={{ marginTop: 10 }}>Smart Draft לעולם לא מפרסם סידור. הוא רק מציע ומחיל שיבוצים לטיוטה לאחר אישור מפורש של המנהל.</p>
+    <p className="card-muted" style={{ marginTop: 10 }}>Smart Draft לעולם לא מפרסם סידור. לפני החלה הוא מאמת מחדש שהתקופה עדיין טיוטה ושהמשמרות לא השתנו.</p>
   </section>;
 }
