@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { ArrowRight, CalendarCheck } from "lucide-react";
 
 import { AvailabilityClient } from "@/app/workspace/availability/availability-client";
+import { TimeOffClient } from "@/app/workspace/availability/time-off-client";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
@@ -39,9 +40,11 @@ export default async function AvailabilityPage() {
   const { data: entries } = submissionIds.length
     ? await supabase.from("availability_entries").select("id, submission_id, shift_template_id, shift_date, status, note").in("submission_id", submissionIds)
     : { data: [] };
-  const { data: leaveRequests } = await supabase
+
+  const db = supabase as any;
+  const { data: leaveRequests } = await db
     .from("leave_requests")
-    .select("id, leave_type, start_date, end_date, note")
+    .select("id, leave_type, start_date, end_date, note, status, manager_note")
     .eq("user_id", user.id)
     .order("start_date", { ascending: false });
 
@@ -49,17 +52,28 @@ export default async function AvailabilityPage() {
     <header className="workspace-subheader"><div>
       <Link href="/workspace" className="back-link"><ArrowRight size={17} /> חזרה לסביבת העבודה</Link>
       <p className="eyebrow">{organizationResult.data.name} · {branchResult.data.name}</p>
-      <h1><CalendarCheck /> הגשת זמינות</h1>
-      <p>מסמנים אילו משמרות מתאימות בכל יום, שומרים טיוטה ושולחים למנהל עד הדדליין.</p>
+      <h1><CalendarCheck /> זמינות ו-Time Off</h1>
+      <p>מסמנים זמינות למשמרות ושולחים בקשות חופשה או מחלה לאישור המנהל.</p>
     </div></header>
-    <AvailabilityClient
-      entries={entries ?? []}
-      leaveRequests={leaveRequests ?? []}
+
+    <TimeOffClient
       organizationId={membership.organization_id}
-      periods={periodsResult.data ?? []}
-      submissions={submissions ?? []}
-      templates={templatesResult.data ?? []}
       userId={user.id}
+      initialRequests={leaveRequests ?? []}
     />
+
+    <div className="availability-form-only">
+      <AvailabilityClient
+        entries={entries ?? []}
+        leaveRequests={[]}
+        organizationId={membership.organization_id}
+        periods={periodsResult.data ?? []}
+        submissions={submissions ?? []}
+        templates={templatesResult.data ?? []}
+        userId={user.id}
+      />
+    </div>
+
+    <style>{`.availability-form-only .availability-leave-card { display: none; }`}</style>
   </main>;
 }
