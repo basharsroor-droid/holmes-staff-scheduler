@@ -9,9 +9,9 @@ comment on column public.organizations.schedule_cadence is
 
 -- Keep the existing six-argument function available during rollout so the
 -- currently deployed frontend remains compatible until the new build is live.
--- The new overload delegates workspace creation to the hardened function and
--- records the cadence in the same transaction.
-create function public.create_organization_workspace(
+-- The uniquely named wrapper avoids unsupported PostgREST function overloads,
+-- delegates creation to the hardened RPC, and records cadence atomically.
+create function public.create_organization_workspace_with_cadence(
   business_name text,
   organization_slug text,
   first_branch_name text,
@@ -50,10 +50,10 @@ begin
 end;
 $$;
 
-revoke all on function public.create_organization_workspace(text, text, text, text, text, text, text)
+revoke all on function public.create_organization_workspace_with_cadence(text, text, text, text, text, text, text)
   from public, anon;
-grant execute on function public.create_organization_workspace(text, text, text, text, text, text, text)
+grant execute on function public.create_organization_workspace_with_cadence(text, text, text, text, text, text, text)
   to authenticated;
 
-comment on function public.create_organization_workspace(text, text, text, text, text, text, text) is
+comment on function public.create_organization_workspace_with_cadence(text, text, text, text, text, text, text) is
   'Creates a workspace through the hardened six-argument RPC and atomically records its non-billing scheduling cadence.';

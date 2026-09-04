@@ -146,7 +146,7 @@ export default function OnboardingPage() {
 
     setBusy(true);
     const slug = `business-${crypto.randomUUID().slice(0, 12)}`;
-    const { error } = await supabase.rpc("create_organization_workspace", {
+    const { error } = await supabase.rpc("create_organization_workspace_with_cadence", {
       business_name: businessName.trim(),
       organization_slug: slug,
       first_branch_name: branchName.trim(),

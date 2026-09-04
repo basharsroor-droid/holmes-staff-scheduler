@@ -192,6 +192,7 @@ if (!existsSync(scheduleCadenceMigrationUrl)) {
   for (const requiredRule of [
     "add column schedule_cadence text not null default 'weekly'",
     "check (schedule_cadence in ('weekly', 'biweekly', 'monthly', 'custom'))",
+    "create function public.create_organization_workspace_with_cadence(",
     "requested_schedule_cadence text",
     "new_organization_id := public.create_organization_workspace(",
     "from public, anon",

@@ -1397,8 +1397,19 @@ export type Database = {
           organization_slug: string
           owner_first_name: string
           owner_last_name?: string
-          requested_schedule_cadence: string
           selected_plan_id?: string
+        }
+        Returns: string
+      }
+      create_organization_workspace_with_cadence: {
+        Args: {
+          business_name: string
+          first_branch_name: string
+          organization_slug: string
+          owner_first_name: string
+          owner_last_name: string
+          requested_schedule_cadence: string
+          selected_plan_id: string
         }
         Returns: string
       }
