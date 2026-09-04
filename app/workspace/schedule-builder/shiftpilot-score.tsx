@@ -109,14 +109,15 @@ export function ShiftPilotScore({ periods, workers, submissions, availability, a
       }
     }
 
-    const nextDrivers: Driver[] = [
+    const allDrivers: Driver[] = [
       { key: "coverage", label: "כיסוי חסר", count: understaffed, points: understaffed * 8, severity: "critical" },
       { key: "overlap", label: "משמרות חופפות", count: overlap, points: overlap * 15, severity: "critical" },
       { key: "leave", label: "שיבוץ בזמן Time Off", count: leaveConflict, points: leaveConflict * 15, severity: "critical" },
       { key: "availability", label: "שיבוץ בניגוד לזמינות", count: unavailable, points: unavailable * 12, severity: "critical" },
       { key: "rest", label: "מנוחה קצרה", count: restWarnings, points: restWarnings * 4, severity: "warning" },
       { key: "hours", label: "חריגה ממכסת שעות", count: weeklyOverruns, points: weeklyOverruns * 4, severity: "warning" }
-    ].filter((driver) => driver.count > 0);
+    ];
+    const nextDrivers = allDrivers.filter((driver) => driver.count > 0);
 
     const deductions = nextDrivers.reduce((sum, driver) => sum + driver.points, 0);
     setDrivers(nextDrivers);
