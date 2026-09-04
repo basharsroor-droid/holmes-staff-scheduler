@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { ArrowRight, CalendarRange } from "lucide-react";
 
 import { EmployeePreferenceEnhancer } from "@/app/workspace/schedule-builder/employee-preference-enhancer";
+import { OpenShiftsManagerPanel } from "@/app/workspace/schedule-builder/open-shifts-manager-panel";
 import { ScheduleBuilderClient } from "@/app/workspace/schedule-builder/schedule-builder-client";
 import { TimeOffApprovalPanel } from "@/app/workspace/schedule-builder/time-off-approval-panel";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -40,14 +41,15 @@ export default async function ScheduleBuilderPage() {
   const periodIds = (periodsResult.data ?? []).map((item) => item.id);
   const [{ data: profiles }, { data: shifts }, { data: submissions }] = await Promise.all([
     userIds.length ? supabase.from("profiles").select("id, first_name, last_name, color").in("id", userIds) : Promise.resolve({ data: [] }),
-    periodIds.length ? supabase.from("shifts").select("id, schedule_period_id, shift_template_id, shift_date, name, start_time, end_time, required_employees, status").in("schedule_period_id", periodIds).order("shift_date").order("start_time") : Promise.resolve({ data: [] }),
+    periodIds.length ? db.from("shifts").select("id, schedule_period_id, shift_template_id, shift_date, name, start_time, end_time, required_employees, status, open_for_requests").in("schedule_period_id", periodIds).order("shift_date").order("start_time") : Promise.resolve({ data: [] }),
     periodIds.length ? supabase.from("availability_submissions").select("id, schedule_period_id, user_id, submitted_at").in("schedule_period_id", periodIds) : Promise.resolve({ data: [] })
   ]);
-  const shiftIds = (shifts ?? []).map((item) => item.id);
+  const shiftIds = (shifts ?? []).map((item: any) => item.id);
   const submissionIds = (submissions ?? []).map((item) => item.id);
-  const [{ data: assignments }, { data: availability }] = await Promise.all([
+  const [{ data: assignments }, { data: availability }, { data: openShiftRequests }] = await Promise.all([
     shiftIds.length ? supabase.from("shift_assignments").select("id, shift_id, user_id").in("shift_id", shiftIds) : Promise.resolve({ data: [] }),
-    submissionIds.length ? supabase.from("availability_entries").select("submission_id, shift_template_id, shift_date, status").in("submission_id", submissionIds) : Promise.resolve({ data: [] })
+    submissionIds.length ? supabase.from("availability_entries").select("submission_id, shift_template_id, shift_date, status").in("submission_id", submissionIds) : Promise.resolve({ data: [] }),
+    shiftIds.length ? db.from("open_shift_requests").select("id, shift_id, user_id, status, created_at").in("shift_id", shiftIds).eq("status", "pending").order("created_at") : Promise.resolve({ data: [] })
   ]);
 
   const profileMap = new Map((profiles ?? []).map((profile) => [profile.id, profile]));
@@ -82,6 +84,35 @@ export default async function ScheduleBuilderPage() {
       end_date: request.end_date
     }));
 
+  const periodMap = new Map((periodsResult.data ?? []).map((item) => [item.id, item]));
+  const assignmentCountMap = new Map<string, number>();
+  for (const assignment of assignments ?? []) assignmentCountMap.set(assignment.shift_id, (assignmentCountMap.get(assignment.shift_id) ?? 0) + 1);
+  const managerOpenShifts = (shifts ?? [])
+    .filter((shift: any) => shift.status === "published" && (assignmentCountMap.get(shift.id) ?? 0) < shift.required_employees)
+    .map((shift: any) => {
+      const p = periodMap.get(shift.schedule_period_id);
+      return {
+        id: shift.id,
+        shift_date: shift.shift_date,
+        name: shift.name,
+        start_time: shift.start_time,
+        end_time: shift.end_time,
+        required_employees: shift.required_employees,
+        assigned_count: assignmentCountMap.get(shift.id) ?? 0,
+        open_for_requests: !!shift.open_for_requests,
+        period_label: p ? `${p.month}/${p.year}` : ""
+      };
+    });
+  const managerOpenShiftRequests = (openShiftRequests ?? []).map((request: any) => {
+    const profile = profileMap.get(request.user_id);
+    return {
+      id: request.id,
+      shift_id: request.shift_id,
+      employee_name: profile ? `${profile.first_name} ${profile.last_name}`.trim() : "עובד/ת",
+      created_at: request.created_at
+    };
+  });
+
   return <main className="workspace-home" dir="rtl">
     <header className="workspace-subheader"><div>
       <Link href="/workspace" className="back-link"><ArrowRight size={17} /> חזרה לסביבת העסק</Link>
@@ -91,6 +122,7 @@ export default async function ScheduleBuilderPage() {
     </div></header>
 
     <TimeOffApprovalPanel initialRequests={pendingTimeOff} />
+    <OpenShiftsManagerPanel initialShifts={managerOpenShifts} initialRequests={managerOpenShiftRequests} />
     <EmployeePreferenceEnhancer />
 
     <ScheduleBuilderClient
@@ -104,7 +136,17 @@ export default async function ScheduleBuilderPage() {
       leaveRequests={approvedTimeOff}
       organizationId={organizationId}
       periods={periodsResult.data ?? []}
-      shifts={shifts ?? []}
+      shifts={(shifts ?? []).map((shift: any) => ({
+        id: shift.id,
+        schedule_period_id: shift.schedule_period_id,
+        shift_template_id: shift.shift_template_id,
+        shift_date: shift.shift_date,
+        name: shift.name,
+        start_time: shift.start_time,
+        end_time: shift.end_time,
+        required_employees: shift.required_employees,
+        status: shift.status
+      }))}
       submissions={submissions ?? []}
       templates={templatesResult.data ?? []}
       workers={workers}
