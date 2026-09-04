@@ -45,7 +45,8 @@ const faq = [
 ];
 
 export default function PricingPage() {
-  return <main className="marketing-site" dir="rtl">
+  return <main className="marketing-site pricing-page" dir="rtl">
+    <div className="pricing-watermark" aria-hidden="true"><b>ShiftPilot</b></div>
     <div className="marketing-navbar-shell absolute inset-x-0 top-0 z-40">
       <SiteNavbar />
     </div>
