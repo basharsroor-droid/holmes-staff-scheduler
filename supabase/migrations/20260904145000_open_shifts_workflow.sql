@@ -1,6 +1,6 @@
 -- Phase 1: Open Shifts
--- Managers can expose an unfilled published shift to eligible employees.
--- Employees request the shift; only a manager approval creates an assignment.
+-- Managers expose an unfilled published shift to eligible employees.
+-- Employees request it; only manager approval creates an assignment.
 
 create type public.open_shift_request_status as enum ('pending', 'approved', 'rejected', 'cancelled');
 
@@ -12,7 +12,6 @@ alter table public.shifts
 create index shifts_open_for_requests_idx
   on public.shifts (organization_id, shift_date)
   where open_for_requests = true;
-
 create index shifts_opened_by_idx
   on public.shifts (opened_by)
   where opened_by is not null;
@@ -89,8 +88,10 @@ with check (
   and exists (
     select 1
     from public.shifts s
-    join public.schedule_periods sp on sp.id = s.schedule_period_id and sp.organization_id = s.organization_id
-    join public.organization_memberships om on om.organization_id = s.organization_id and om.user_id = auth.uid()
+    join public.schedule_periods sp
+      on sp.id = s.schedule_period_id and sp.organization_id = s.organization_id
+    join public.organization_memberships om
+      on om.organization_id = s.organization_id and om.user_id = auth.uid()
     where s.id = open_shift_requests.shift_id
       and s.organization_id = open_shift_requests.organization_id
       and s.open_for_requests = true
@@ -107,7 +108,7 @@ with check (
   )
 );
 
--- No direct UPDATE/DELETE policies: transitions go through guarded RPCs.
+-- No direct UPDATE/DELETE policies. State transitions use guarded RPCs.
 
 create or replace function public.set_shift_open_for_requests(
   target_shift_id uuid,
@@ -129,16 +130,19 @@ begin
     raise exception 'Authentication required';
   end if;
 
-  select s.*, sp.department_id
-  into target_shift, target_department_id
+  select s.* into target_shift
   from public.shifts s
-  join public.schedule_periods sp on sp.id = s.schedule_period_id and sp.organization_id = s.organization_id
   where s.id = target_shift_id
-  for update of s;
+  for update;
 
   if not found then
     raise exception 'Shift not found';
   end if;
+
+  select sp.department_id into target_department_id
+  from public.schedule_periods sp
+  where sp.id = target_shift.schedule_period_id
+    and sp.organization_id = target_shift.organization_id;
 
   select * into actor_membership
   from public.organization_memberships om
@@ -152,7 +156,8 @@ begin
   end if;
 
   if actor_membership.role = 'manager' and not exists (
-    select 1 from public.department_memberships dm
+    select 1
+    from public.department_memberships dm
     where dm.membership_id = actor_membership.id
       and dm.organization_id = actor_membership.organization_id
       and dm.department_id = target_department_id
@@ -218,16 +223,19 @@ begin
     raise exception 'Authentication required';
   end if;
 
-  select s.*, sp.department_id
-  into target_shift, target_department_id
+  select s.* into target_shift
   from public.shifts s
-  join public.schedule_periods sp on sp.id = s.schedule_period_id and sp.organization_id = s.organization_id
   where s.id = target_shift_id
-  for share of s;
+  for share;
 
   if not found or not target_shift.open_for_requests or target_shift.status <> 'published' then
     raise exception 'Shift is not open for requests';
   end if;
+
+  select sp.department_id into target_department_id
+  from public.schedule_periods sp
+  where sp.id = target_shift.schedule_period_id
+    and sp.organization_id = target_shift.organization_id;
 
   select * into actor_membership
   from public.organization_memberships om
@@ -242,7 +250,8 @@ begin
   end if;
 
   if not exists (
-    select 1 from public.department_memberships dm
+    select 1
+    from public.department_memberships dm
     where dm.membership_id = actor_membership.id
       and dm.organization_id = actor_membership.organization_id
       and dm.department_id = target_department_id
@@ -251,8 +260,10 @@ begin
   end if;
 
   if exists (
-    select 1 from public.shift_assignments sa
-    where sa.shift_id = target_shift.id and sa.user_id = actor_id
+    select 1
+    from public.shift_assignments sa
+    where sa.shift_id = target_shift.id
+      and sa.user_id = actor_id
   ) then
     raise exception 'Employee is already assigned to this shift';
   end if;
@@ -268,7 +279,11 @@ begin
   insert into public.open_shift_requests (
     organization_id, shift_id, user_id, status, employee_note
   ) values (
-    target_shift.organization_id, target_shift.id, actor_id, 'pending', nullif(trim(request_note), '')
+    target_shift.organization_id,
+    target_shift.id,
+    actor_id,
+    'pending',
+    nullif(trim(request_note), '')
   )
   on conflict (shift_id, user_id) do update
     set status = 'pending',
@@ -301,7 +316,9 @@ begin
   end if;
 
   update public.open_shift_requests
-  set status = 'cancelled', cancelled_at = now(), updated_at = now()
+  set status = 'cancelled',
+      cancelled_at = now(),
+      updated_at = now()
   where id = target_request_id
     and user_id = actor_id
     and status = 'pending'
@@ -337,6 +354,7 @@ begin
   if actor_id is null then
     raise exception 'Authentication required';
   end if;
+
   if decision not in ('approved', 'rejected') then
     raise exception 'Decision must be approved or rejected';
   end if;
@@ -350,12 +368,19 @@ begin
     raise exception 'Pending request not found';
   end if;
 
-  select s.*, sp.department_id
-  into target_shift, target_department_id
+  select s.* into target_shift
   from public.shifts s
-  join public.schedule_periods sp on sp.id = s.schedule_period_id and sp.organization_id = s.organization_id
   where s.id = req.shift_id
-  for update of s;
+  for update;
+
+  if not found then
+    raise exception 'Shift not found';
+  end if;
+
+  select sp.department_id into target_department_id
+  from public.schedule_periods sp
+  where sp.id = target_shift.schedule_period_id
+    and sp.organization_id = target_shift.organization_id;
 
   select * into actor_membership
   from public.organization_memberships om
@@ -369,7 +394,8 @@ begin
   end if;
 
   if actor_membership.role = 'manager' and not exists (
-    select 1 from public.department_memberships dm
+    select 1
+    from public.department_memberships dm
     where dm.membership_id = actor_membership.id
       and dm.organization_id = actor_membership.organization_id
       and dm.department_id = target_department_id
@@ -390,8 +416,11 @@ begin
       raise exception 'Shift is already fully staffed';
     end if;
 
-    insert into public.shift_assignments (organization_id, shift_id, user_id, assigned_by)
-    values (req.organization_id, req.shift_id, req.user_id, actor_id);
+    insert into public.shift_assignments (
+      organization_id, shift_id, user_id, assigned_by
+    ) values (
+      req.organization_id, req.shift_id, req.user_id, actor_id
+    );
   end if;
 
   update public.open_shift_requests
@@ -410,7 +439,10 @@ begin
 
     if assigned_count >= target_shift.required_employees then
       update public.shifts
-      set open_for_requests = false, opened_at = null, opened_by = null, updated_at = now()
+      set open_for_requests = false,
+          opened_at = null,
+          opened_by = null,
+          updated_at = now()
       where id = target_shift.id;
 
       update public.open_shift_requests
@@ -431,7 +463,10 @@ begin
     req.organization_id,
     req.user_id,
     'in_app',
-    case when decision = 'approved' then 'open_shift_request_approved' else 'open_shift_request_rejected' end,
+    case
+      when decision = 'approved' then 'open_shift_request_approved'
+      else 'open_shift_request_rejected'
+    end,
     jsonb_build_object('shift_id', req.shift_id, 'request_id', req.id),
     now()
   );
