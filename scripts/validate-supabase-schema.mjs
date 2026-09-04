@@ -161,6 +161,10 @@ const firstPartyObservabilityMigrationUrl = new URL(
   "../supabase/migrations/20260821170000_first_party_observability.sql",
   import.meta.url
 );
+const scheduleCadenceMigrationUrl = new URL(
+  "../supabase/migrations/20260904053000_add_schedule_cadence.sql",
+  import.meta.url
+);
 
 const tenantTables = [
   "organizations",
@@ -180,6 +184,25 @@ const tenantTables = [
 ];
 
 const failures = [];
+
+if (!existsSync(scheduleCadenceMigrationUrl)) {
+  failures.push("schedule cadence migration is missing");
+} else {
+  const scheduleCadenceMigration = readFileSync(scheduleCadenceMigrationUrl, "utf8");
+  for (const requiredRule of [
+    "add column schedule_cadence text not null default 'weekly'",
+    "check (schedule_cadence in ('weekly', 'biweekly', 'monthly', 'custom'))",
+    "create function public.create_organization_workspace_with_cadence(",
+    "requested_schedule_cadence text",
+    "new_organization_id := public.create_organization_workspace(",
+    "from public, anon",
+    "to authenticated"
+  ]) {
+    if (!scheduleCadenceMigration.includes(requiredRule)) {
+      failures.push(`schedule cadence rule is missing: ${requiredRule}`);
+    }
+  }
+}
 
 if (!existsSync(firstPartyObservabilityMigrationUrl)) {
   failures.push("first-party observability migration is missing");
