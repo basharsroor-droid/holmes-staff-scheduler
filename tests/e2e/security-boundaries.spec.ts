@@ -3,10 +3,12 @@ import { expect, test } from "@playwright/test";
 const protectedWorkspaceRoutes = [
   "/workspace",
   "/workspace/availability",
+  "/workspace/command-center",
   "/workspace/departments",
   "/workspace/employees",
   "/workspace/my-shifts",
   "/workspace/notifications",
+  "/workspace/open-shifts",
   "/workspace/schedule-builder",
   "/workspace/shift-swaps",
   "/workspace/shift-templates",
