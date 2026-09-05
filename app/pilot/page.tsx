@@ -3,7 +3,6 @@ import {
   CalendarCheck,
   CheckCircle2,
   Clock3,
-  Mail,
   MonitorSmartphone,
   ShieldCheck,
   Users,
@@ -12,7 +11,7 @@ import {
 
 import { PageHeader } from "@/components/dashboard/page-header";
 import { StatCard } from "@/components/dashboard/stat-card";
-import { demoOrganization, productConfig } from "@/lib/app-config";
+import { demoOrganization } from "@/lib/app-config";
 import {
   availability,
   employees,
@@ -24,33 +23,29 @@ import { validateSchedule } from "@/lib/shift-validation";
 
 const pilotSteps = [
   {
-    title: "22 לחודש",
-    body: "המערכת פותחת הגשת זמינות לחודש הבא ושולחת תזכורת לעובדים."
+    title: "העובדים מגישים זמינות",
+    body: "הגשה פשוטה מהטלפון, בלי לאסוף הודעות ידנית."
   },
   {
-    title: "22-28 לחודש",
-    body: "כל עובד מגיש זמינות מהטלפון לפי פתיחה, אמצע 1, אמצע 2 וסגירה."
+    title: "המנהל בונה את הסידור",
+    body: "עובדים זמינים מוצגים לפי המשמרת, עם בדיקות בסיסיות בזמן העבודה."
   },
   {
-    title: "28 לחודש",
-    body: "ההגשה ננעלת אוטומטית, עם אפשרות פתיחה ידנית למנהל/ת."
+    title: "בודקים ומפרסמים",
+    body: "עוברים על חוסרים או התנגשויות ומפרסמים רק כשהמנהל מאשר."
   },
   {
-    title: "בניית סידור",
-    body: "מנהל/ת רואים רק עובדים זמינים לכל משמרת ומקבלים אזהרות בזמן השיבוץ."
-  },
-  {
-    title: "פרסום",
-    body: "העובדים רואים לוח סופי נקי ואת המשמרות האישיות שלהם."
+    title: "מטפלים בשינויים",
+    body: "החלפות ובקשות נשארות בתוך אותו תהליך במקום להתפזר בין הודעות."
   }
 ];
 
 const demoChecklist = [
   "הגשת זמינות של עובד תוך פחות מדקה",
-  "שיבוץ יום עבודה לפי עובדים זמינים בלבד",
-  "אזהרות על משמרות פתוחות או שיבוץ בעייתי",
-  "פרסום סידור סופי והורדה לאקסל",
-  "בקשות החלפה ובקשות להנהלה"
+  "בניית סידור לפי זמינות אמיתית",
+  "זיהוי חוסרים ובעיות לפני הפרסום",
+  "פרסום סידור סופי לעובדים",
+  "טיפול בהחלפות ובקשות לאחר הפרסום"
 ];
 
 export default function PilotPage() {
@@ -70,45 +65,68 @@ export default function PilotPage() {
   return (
     <>
       <PageHeader
-        eyebrow="סביבת ניסיון"
-        title={`${productConfig.name} לעסקים עם עובדים במשמרות`}
-        description={`מסך אחד להצגה מול מנהל/ת: מה העובדים עושים, מה ההנהלה מקבלת, ואיך נראה תהליך העבודה החודשי. הדמו כרגע מוצג על ${demoOrganization.branchName}.`}
+        eyebrow="דמו עסקי"
+        title="ShiftPilot — מחזור הסידור במקום אחד"
+        description={`סביבת הדגמה ממוקדת שמציגה את המסלול האמיתי: הגשת זמינות, בניית סידור, פרסום וטיפול בשינויים. הנתונים בדמו מוצגים עבור ${demoOrganization.branchName}.`}
         actions={
           <>
             <Link className="button primary" href="/manager">
-              שולחן ניהול
+              מרכז הניהול
             </Link>
             <Link className="button" href="/employee">
-              גרסת עובד
+              תצוגת עובד
             </Link>
           </>
         }
       />
 
-      <div className="pilot-hero">
-        <section className="pilot-main-card">
-          <div className="brand-mark">{productConfig.shortName}</div>
-          <div>
-            <h2>מטרה לגרסת ניסיון</h2>
-            <p className="lead">
-              לבדוק במשך חודש האם המערכת חוסכת זמן למנהלים, מצמצמת טעויות
-              בשיבוץ, ומאפשרת לעובדים להגיש זמינות בצורה פשוטה מהטלפון.
-            </p>
+      <div className="template-workbench" style={{ marginTop: 8 }}>
+        <section className="template-list-card">
+          <div className="template-list-heading">
+            <div>
+              <p className="eyebrow">מסלול הדגמה מומלץ</p>
+              <h2>מה כדאי להראות קודם</h2>
+              <p style={{ color: "var(--muted)", marginBottom: 0 }}>
+                מתחילים מהליבה. אין צורך לעבור על כל יכולת במערכת כדי להבין את הערך.
+              </p>
+            </div>
           </div>
-          <div className="actions">
-            <Link className="button primary" href="/manager/schedule">
-              <Wand2 size={16} />
-              לפתוח שיבוץ
+
+          <div className="workspace-actions">
+            <Link href="/availability">
+              <CalendarCheck />
+              <span>
+                <strong>1. הגשת זמינות</strong>
+                <small>איך עובד מגיש את הזמינות שלו בצורה ברורה ומהירה.</small>
+              </span>
+              <span className="status-chip active">עובד</span>
             </Link>
-            <Link className="button" href="/availability">
-              <CalendarCheck size={16} />
-              הגשת עובד
+            <Link href="/manager/schedule">
+              <Wand2 />
+              <span>
+                <strong>2. בניית סידור</strong>
+                <small>איך המנהל עובר מזמינות לשיבוץ מסודר בלי לרדוף אחרי הודעות.</small>
+              </span>
+              <span className="status-chip">מנהל</span>
+            </Link>
+            <Link href="/schedule">
+              <CalendarCheck />
+              <span>
+                <strong>3. פרסום ותצוגה סופית</strong>
+                <small>הסידור המוכן כפי שהוא מוצג לצוות לאחר אישור המנהל.</small>
+              </span>
+              <span className="status-chip">צוות</span>
             </Link>
           </div>
         </section>
 
-        <section className="card">
-          <h2>מה מציגים בדמו</h2>
+        <section className="template-list-card">
+          <div className="template-list-heading">
+            <div>
+              <p className="eyebrow">הדגמה ממוקדת</p>
+              <h2>מה לבדוק בדמו</h2>
+            </div>
+          </div>
           <div className="warning-list">
             {demoChecklist.map((item) => (
               <div className="mini-row" key={item}>
@@ -120,16 +138,21 @@ export default function PilotPage() {
         </section>
       </div>
 
-      <div className="grid grid-4">
+      <div className="grid grid-4" style={{ marginTop: 18 }}>
         <StatCard icon={Users} label="עובדים בדמו" value={staffCount} />
         <StatCard icon={CalendarCheck} label="הגישו זמינות" value={availabilitySubmitters} />
-        <StatCard icon={ShieldCheck} label="אזהרות ניהול" value={warnings.length} />
+        <StatCard icon={ShieldCheck} label="אזהרות לבדיקה" value={warnings.length} />
         <StatCard icon={Clock3} label="משמרות פתוחות" value={openShifts} />
       </div>
 
-      <div className="pilot-grid">
-        <section className="card">
-          <h2>תהליך עבודה חודשי</h2>
+      <div className="template-workbench" style={{ marginTop: 18 }}>
+        <section className="template-list-card">
+          <div className="template-list-heading">
+            <div>
+              <p className="eyebrow">מחזור עבודה</p>
+              <h2>איך ShiftPilot נכנס לשגרה</h2>
+            </div>
+          </div>
           <div className="timeline-list">
             {pilotSteps.map((step, index) => (
               <article className="timeline-row" key={step.title}>
@@ -143,42 +166,29 @@ export default function PilotPage() {
           </div>
         </section>
 
-        <section className="card">
-          <h2>גרסת עובד</h2>
+        <section className="template-list-card">
+          <div className="template-list-heading">
+            <div>
+              <p className="eyebrow">שתי נקודות מבט</p>
+              <h2>עובד ומנהל</h2>
+            </div>
+          </div>
           <div className="feature-list">
             <div className="feature-row">
               <MonitorSmartphone size={20} />
-              <span>מותאם לטלפון: כניסה, הגשת זמינות, המשמרות שלי.</span>
+              <span>העובד מגיש זמינות, רואה את הסידור ומטפל בשינויים מהטלפון.</span>
             </div>
-            <div className="feature-row">
-              <CalendarCheck size={20} />
-              <span>בחירה ברורה לפי סוגי משמרות או פנוי כל היום.</span>
-            </div>
-            <div className="feature-row">
-              <Mail size={20} />
-              <span>תכנון למיילים: תזכורת הגשה, פרסום סידור ותזכורת משמרת.</span>
-            </div>
-          </div>
-        </section>
-
-        <section className="card">
-          <h2>גרסת מנהל/ת</h2>
-          <div className="feature-list">
             <div className="feature-row">
               <Wand2 size={20} />
-              <span>שיבוץ לפי יום ומשמרת, עם עובדים זמינים בלבד.</span>
+              <span>המנהל מרכז את ההגשות, בונה את הסידור ומחליט מתי לפרסם.</span>
             </div>
             <div className="feature-row">
               <ShieldCheck size={20} />
-              <span>אזהרות על משמרות חסרות, עומסים ובעיות זמינות.</span>
-            </div>
-            <div className="feature-row">
-              <Users size={20} />
-              <span>יצירת משתמשים מראש וחובת החלפת סיסמה ראשונית.</span>
+              <span>המערכת מסמנת בעיות לפני שהן מגיעות לעובדים.</span>
             </div>
           </div>
-          <div className="card-muted" style={{ marginTop: 14 }}>
-            בקשות החלפה ממתינות בדמו: <strong>{pendingSwaps}</strong>
+          <div className="card-muted" style={{ marginTop: 16 }}>
+            בקשות החלפה שממתינות כרגע בדמו: <strong>{pendingSwaps}</strong>
           </div>
         </section>
       </div>
