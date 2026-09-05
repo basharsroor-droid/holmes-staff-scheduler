@@ -14,11 +14,21 @@ async function expectNoPageOverflow(page: Page) {
 }
 
 async function expectPrimaryControlIsTouchable(page: Page) {
-  const control = page.locator("button:visible, a.button:visible").first();
+  const control = page.locator("button:visible:not(:disabled), a.button:visible").first();
   if (await control.count()) {
     const box = await control.boundingBox();
     expect(box).not.toBeNull();
     expect(box!.height).toBeGreaterThanOrEqual(40);
+  }
+}
+
+async function expectVisibleActionControlsAreTouchable(page: Page, minHeight = 40) {
+  const controls = page.locator("button:visible:not(:disabled), a.button:visible, .workspace-actions a:visible");
+  const count = await controls.count();
+  for (let index = 0; index < count; index += 1) {
+    const box = await controls.nth(index).boundingBox();
+    if (!box) continue;
+    expect(box.height, `visible enabled action control ${index + 1} is too short`).toBeGreaterThanOrEqual(minHeight);
   }
 }
 
@@ -94,12 +104,14 @@ test("manager demo routes remain responsive", async ({ page }) => {
     "/manager",
     "/manager/schedule",
     "/schedule",
+    "/swap-requests",
     "/admin/employees",
     "/admin/shift-templates"
   ]) {
     await page.goto(route);
     await expect(page.locator(".app-shell")).toBeVisible();
     await expectNoPageOverflow(page);
+    await expectVisibleActionControlsAreTouchable(page);
   }
 });
 
@@ -113,11 +125,31 @@ test("employee demo routes remain responsive", async ({ page }) => {
     "/my-shifts",
     "/schedule",
     "/swap-requests",
-    "/manager-requests"
+    "/manager-requests",
+    "/demo/help"
   ]) {
     await page.goto(route);
     await expect(page.locator(".app-shell")).toBeVisible();
     await expectNoPageOverflow(page);
+    await expectVisibleActionControlsAreTouchable(page);
+  }
+});
+
+test("mobile manager and employee actions keep touch-friendly targets", async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== "mobile-chrome", "mobile-only touch target assertion");
+
+  await loginToDemo(page, "manager");
+  for (const route of ["/pilot", "/manager/schedule", "/swap-requests", "/admin/employees", "/admin/shift-templates"]) {
+    await page.goto(route);
+    await expectNoPageOverflow(page);
+    await expectVisibleActionControlsAreTouchable(page, 44);
+  }
+
+  await loginToDemo(page, "employee");
+  for (const route of ["/employee", "/availability", "/my-shifts", "/swap-requests", "/manager-requests", "/demo/help"]) {
+    await page.goto(route);
+    await expectNoPageOverflow(page);
+    await expectVisibleActionControlsAreTouchable(page, 44);
   }
 });
 
@@ -142,20 +174,22 @@ test.describe("Zoom 200% (desktop viewport halved, not a phone)", () => {
   test("manager demo routes stay usable at 200% zoom", async ({ page }) => {
     await loginToDemo(page, "manager");
     await expect(page).toHaveURL(/\/pilot$/);
-    for (const route of ["/pilot", "/manager/schedule", "/admin/employees", "/admin/shift-templates", "/demo/help"]) {
+    for (const route of ["/pilot", "/manager/schedule", "/swap-requests", "/admin/employees", "/admin/shift-templates", "/demo/help"]) {
       await page.goto(route);
       await expect(page.locator(".app-shell")).toBeVisible();
       await expectNoPageOverflow(page);
+      await expectVisibleActionControlsAreTouchable(page);
     }
   });
 
   test("employee demo routes stay usable at 200% zoom", async ({ page }) => {
     await loginToDemo(page, "employee");
     await expect(page).toHaveURL(/\/employee$/);
-    for (const route of ["/employee", "/availability", "/my-shifts", "/swap-requests", "/demo/help"]) {
+    for (const route of ["/employee", "/availability", "/my-shifts", "/swap-requests", "/manager-requests", "/demo/help"]) {
       await page.goto(route);
       await expect(page.locator(".app-shell")).toBeVisible();
       await expectNoPageOverflow(page);
+      await expectVisibleActionControlsAreTouchable(page);
     }
   });
 });
