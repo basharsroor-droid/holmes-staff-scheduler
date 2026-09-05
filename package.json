@@ -11,6 +11,7 @@
     "verify:release": "npm run validate:schema && npm run test:unit && npm run lint && npm run typecheck && npm run build && npm run test:e2e",
     "incident:drill": "node scripts/run-incident-tabletop.mjs",
     "health:production": "node scripts/check-production-health.mjs",
+    "pilot:ready": "node scripts/check-pilot-readiness.mjs",
     "test:e2e": "playwright test",
     "test:unit": "node --experimental-strip-types --test tests/unit/**/*.test.mjs",
     "validate:schema": "node scripts/validate-supabase-schema.mjs",
