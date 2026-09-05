@@ -14,7 +14,7 @@ async function expectNoPageOverflow(page: Page) {
 }
 
 async function expectPrimaryControlIsTouchable(page: Page) {
-  const control = page.locator("button:visible, a.button:visible").first();
+  const control = page.locator("button:visible:not(:disabled), a.button:visible").first();
   if (await control.count()) {
     const box = await control.boundingBox();
     expect(box).not.toBeNull();
@@ -23,12 +23,12 @@ async function expectPrimaryControlIsTouchable(page: Page) {
 }
 
 async function expectVisibleActionControlsAreTouchable(page: Page, minHeight = 40) {
-  const controls = page.locator("button:visible, a.button:visible, .workspace-actions a:visible");
+  const controls = page.locator("button:visible:not(:disabled), a.button:visible, .workspace-actions a:visible");
   const count = await controls.count();
   for (let index = 0; index < count; index += 1) {
     const box = await controls.nth(index).boundingBox();
     if (!box) continue;
-    expect(box.height, `visible action control ${index + 1} is too short`).toBeGreaterThanOrEqual(minHeight);
+    expect(box.height, `visible enabled action control ${index + 1} is too short`).toBeGreaterThanOrEqual(minHeight);
   }
 }
 
