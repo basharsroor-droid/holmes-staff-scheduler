@@ -10,7 +10,6 @@ import {
   LifeBuoy,
   Menu,
   MessageSquareText,
-  MonitorPlay,
   Repeat2,
   Settings,
   Users,
@@ -38,8 +37,11 @@ const employeeNav = [
   { href: "/demo/help", label: "עזרה ותמיכה", icon: LifeBuoy }
 ];
 
+// Keep the demo shell focused on the same core jobs a manager sees in the
+// real product. /pilot remains the demo landing page (the logo links to it),
+// but it is deliberately not another top-level navigation item competing
+// with the actual work areas.
 const managerNav = [
-  { href: "/pilot", label: "סביבת ניסיון", icon: MonitorPlay },
   { href: "/manager", label: "מרכז הניהול", icon: CalendarCheck },
   { href: "/manager/schedule", label: "סידור עבודה", icon: Wand2 },
   { href: "/schedule", label: "לוח עבודה סופי", icon: CalendarCheck },
@@ -151,9 +153,19 @@ export function AppShell({ children }: { children: ReactNode }) {
 
   return (
     <div className="app-shell">
-      <header className="topbar">
-        <div className="topbar-inner">
-          <div className="demo-brand"><BrandLogo href="/demo" /><small>{organization.businessName} · {organization.branchName}</small></div>
+      <header
+        className="topbar"
+        style={{
+          background: "rgba(255,255,255,0.96)",
+          borderBottom: "1px solid #e7edf5",
+          boxShadow: "0 6px 22px rgba(15,23,42,0.035)"
+        }}
+      >
+        <div className="topbar-inner" style={{ paddingTop: 11, paddingBottom: 11, gap: 12 }}>
+          <div className="demo-brand">
+            <BrandLogo href="/pilot" />
+            <small style={{ color: "#7b8798" }}>{organization.businessName} · {organization.branchName}</small>
+          </div>
 
           <button
             type="button"
@@ -173,7 +185,15 @@ export function AppShell({ children }: { children: ReactNode }) {
               const isActive = pathname === item.href;
               return (
                 <Link
-                  className={`nav-link${isActive ? " active" : ""}`}
+                  className="nav-link"
+                  style={{
+                    borderRadius: 10,
+                    padding: "8px 10px",
+                    borderColor: isActive ? "#cfe0ff" : "transparent",
+                    background: isActive ? "#eef4ff" : "transparent",
+                    color: isActive ? "#173f86" : "#475467",
+                    fontWeight: isActive ? 800 : 650
+                  }}
                   href={item.href}
                   key={item.href}
                   aria-current={isActive ? "page" : undefined}
@@ -184,7 +204,10 @@ export function AppShell({ children }: { children: ReactNode }) {
               );
             })}
             <div className="mobile-user-panel">
-              <div className="role-pill">
+              <div
+                className="role-pill"
+                style={{ background: "#fff", borderColor: "#dde5ef", color: "#344054" }}
+              >
                 <span className="dot" style={{ background: selectedEmployee.color }} />
                 {displayName || selectedEmployee.fullName} · {roleLabel}
               </div>
@@ -193,7 +216,10 @@ export function AppShell({ children }: { children: ReactNode }) {
           </nav>
 
           <div className="user-switcher" aria-label="פרטי המשתמש המחובר">
-            <div className="role-pill">
+            <div
+              className="role-pill"
+              style={{ background: "#fff", borderColor: "#dde5ef", color: "#344054" }}
+            >
               <span className="dot" style={{ background: selectedEmployee.color }} />
               {displayName || selectedEmployee.fullName} · {roleLabel} ·{" "}
               {organization.businessName}
@@ -204,12 +230,21 @@ export function AppShell({ children }: { children: ReactNode }) {
           </div>
         </div>
       </header>
-      <div className="workspace-strip">
+      <div
+        className="workspace-strip"
+        style={{
+          marginTop: 10,
+          background: "rgba(255,255,255,0.78)",
+          borderColor: "#e1e8f0",
+          color: "#475467",
+          boxShadow: "0 4px 16px rgba(15,23,42,0.025)"
+        }}
+      >
         <div>
-          <strong>סביבת עבודה:</strong> {organization.businessName} ·{" "}
+          <strong style={{ color: "#172033" }}>סביבת עבודה:</strong> {organization.businessName} ·{" "}
           {organization.branchName}
         </div>
-        <span>{organization.industryLabel}</span>
+        <span style={{ color: "#7b8798" }}>{organization.industryLabel}</span>
       </div>
       <main className="page">{children}</main>
     </div>
