@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 
 import "@/app/globals.css";
+import "@/app/pilot-touch-targets.css";
 
 import { introPrebootScript, SiteIntro } from "@/components/brand/site-intro";
 import { AppShell } from "@/components/layout/app-shell";
