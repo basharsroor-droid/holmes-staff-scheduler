@@ -9,6 +9,7 @@ const protectedWorkspaceRoutes = [
   "/workspace/my-shifts",
   "/workspace/notifications",
   "/workspace/open-shifts",
+  "/workspace/pilot-launch",
   "/workspace/schedule-builder",
   "/workspace/shift-swaps",
   "/workspace/shift-templates",
