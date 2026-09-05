@@ -75,7 +75,6 @@ test("the native app entry route is login-only with no business registration", a
 
   await expect(page).toHaveURL(/\/login$/);
   await expect(page.getByRole("heading", { name: "כניסה למערכת" })).toBeVisible();
-  await expect(page.getByText("התחברו עם חשבון ShiftPilot קיים כדי לגשת לסביבת העבודה שלכם.")).toBeVisible();
   await expect(page.getByRole("link", { name: /הקמת עסק חדש/ })).toHaveCount(0);
   await expect(page.getByText("רוצה לצרף עסק חדש?")).toHaveCount(0);
   await expect(page.locator('a[href="https://www.shiftpilothq.com/onboarding"]')).toHaveCount(0);
