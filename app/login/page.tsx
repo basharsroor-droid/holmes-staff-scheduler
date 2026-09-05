@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Building2, ExternalLink, KeyRound, Loader2, LogIn, ShieldCheck } from "lucide-react";
+import { KeyRound, Loader2, LogIn, ShieldCheck } from "lucide-react";
 
 import { PasswordField } from "@/components/auth/password-field";
 import { BrandLogo } from "@/components/brand/brand-logo";
@@ -11,32 +11,19 @@ import { isNativeApp } from "@/lib/native-app";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { resolveLoginEmail } from "@/lib/auth-config";
 
-const BUSINESS_SIGNUP_URL = "https://www.shiftpilothq.com/onboarding";
-
 export default function LoginPage() {
   const router = useRouter();
   const supabase = useMemo(() => createSupabaseBrowserClient(), []);
-  // Inside the wrapped app this screen IS the front door (see app/app/page.tsx)
-  // -- the logo shouldn't link back to "/" there, since that's the full
-  // marketing site the app is explicitly built to skip. Checked client-side
-  // only (see lib/native-app.ts) so regular browser visitors are completely
-  // unaffected; starts false to match the server-rendered markup exactly,
-  // then flips after mount once navigator.userAgent is available.
+  // Inside the wrapped app this screen is the front door. Keep native users
+  // inside the authenticated product and do not expose business registration
+  // or external purchase/subscription acquisition paths from the iOS app.
   const [nativeApp, setNativeApp] = useState(false);
   useEffect(() => setNativeApp(isNativeApp()), []);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  // Fallback for signInWithPassword: reads the input's live DOM value at
-  // submit time, in case something set it without going through onChange
-  // (see the comment on PasswordField -- WebKit autofill and some
-  // accessibility-driven text insertion do this, leaving the visible field
-  // correct but this component's `password` state stale).
   const passwordInputRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
-  // MFA is per-user (supabase.auth.mfa), checked only after a password
-  // succeeds -- most accounts never enroll (see /workspace/security,
-  // /support/security), so this step stays invisible for them.
   const [mfaFactorId, setMfaFactorId] = useState<string | null>(null);
   const [mfaCode, setMfaCode] = useState("");
 
@@ -109,7 +96,7 @@ export default function LoginPage() {
         <h1>{nativeApp ? "כניסה ל־ShiftPilot." : "טוב לראות אותך שוב."}</h1>
         <p className="lead">
           {nativeApp
-            ? "האפליקציה פתוחה לעובדים, למנהלים ולבעלי עסקים מכל ארגון שנרשם לשירות."
+            ? "כניסה מאובטחת לחשבון ShiftPilot קיים."
             : "כניסה מאובטחת לסביבת העסק, הצוות וסידורי העבודה."}
         </p>
         <div className="onboarding-benefits">
@@ -146,25 +133,7 @@ export default function LoginPage() {
             <div className="auth-forgot-link"><Link className="auth-secondary" href="/auth/forgot-password">שכחתי סיסמה</Link></div>
             <button className="button primary" disabled={busy} onClick={login}>{busy ? <Loader2 className="spin" size={17} /> : <LogIn size={17} />} כניסה מאובטחת</button>
             {message ? <p className="auth-message" role="alert">{message}</p> : null}
-            {nativeApp ? (
-              <div className="native-business-signup">
-                <Building2 aria-hidden="true" />
-                <div>
-                  <strong>רוצה לצרף עסק חדש?</strong>
-                  <p>כל בעל עסק יכול להירשם ולהקים סביבת עבודה חדשה. ההרשמה תיפתח באתר ShiftPilot.</p>
-                </div>
-                <a
-                  className="button native-business-signup-button"
-                  href={BUSINESS_SIGNUP_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  הקמת עסק חדש <ExternalLink size={16} aria-hidden="true" />
-                </a>
-              </div>
-            ) : (
-              <p className="auth-secondary">עדיין אין לך חשבון? <Link href="/onboarding">פתיחת סביבת עבודה</Link></p>
-            )}
+            {!nativeApp ? <p className="auth-secondary">עדיין אין לך חשבון? <Link href="/onboarding">פתיחת סביבת עבודה</Link></p> : null}
             <p className="auth-legal"><Link href="/terms">תנאי שימוש</Link><span>·</span><Link href="/privacy">מדיניות פרטיות</Link></p>
           </div>
         )}

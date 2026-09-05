@@ -61,10 +61,10 @@ test("login validates empty credentials without contacting auth", async ({ page 
   );
 });
 
-// The native (Capacitor) app's entry point -- capacitor.config.ts points
-// server.url here instead of at "/" so opening the app skips marketing
-// content entirely, even for a brand-new user with no ShiftPilot account.
-test("the native app entry route redirects straight to login, not marketing", async ({ page }) => {
+// The native (Capacitor) app is an existing-account client only. Apple
+// Guideline 3.1.1 requires that business/organization registration not be
+// available from the native app. Public web registration remains available.
+test("the native app entry route is login-only with no business registration", async ({ page }) => {
   await page.addInitScript(() => {
     Object.defineProperty(window.navigator, "userAgent", {
       value: `${window.navigator.userAgent} ShiftPilotNativeApp`,
@@ -75,11 +75,12 @@ test("the native app entry route redirects straight to login, not marketing", as
 
   await expect(page).toHaveURL(/\/login$/);
   await expect(page.getByRole("heading", { name: "כניסה למערכת" })).toBeVisible();
-  await expect(page.getByText("האפליקציה פתוחה לעובדים, למנהלים ולבעלי עסקים מכל ארגון שנרשם לשירות.")).toBeVisible();
-  const signupLink = page.getByRole("link", { name: /הקמת עסק חדש/ });
-  await expect(signupLink).toBeVisible();
-  await expect(signupLink).toHaveAttribute("href", "https://www.shiftpilothq.com/onboarding");
-  await expect(signupLink).toHaveAttribute("target", "_blank");
+  await expect(page.getByRole("link", { name: /הקמת עסק חדש/ })).toHaveCount(0);
+  await expect(page.getByText("רוצה לצרף עסק חדש?")).toHaveCount(0);
+  await expect(page.locator('a[href="https://www.shiftpilothq.com/onboarding"]')).toHaveCount(0);
+  await expect(page.getByRole("link", { name: "שכחתי סיסמה" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "תנאי שימוש" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "מדיניות פרטיות" })).toBeVisible();
 });
 
 test("anonymous visitors cannot enter the workspace", async ({ page }) => {
