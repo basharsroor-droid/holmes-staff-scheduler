@@ -712,6 +712,7 @@ export type Database = {
           is_demo: boolean
           min_rest_hours: number | null
           name: string
+          pilot_mode: boolean
           schedule_cadence: string
           slug: string
           timezone: string
@@ -724,6 +725,7 @@ export type Database = {
           is_demo?: boolean
           min_rest_hours?: number | null
           name: string
+          pilot_mode?: boolean
           schedule_cadence?: string
           slug: string
           timezone?: string
@@ -736,6 +738,7 @@ export type Database = {
           is_demo?: boolean
           min_rest_hours?: number | null
           name?: string
+          pilot_mode?: boolean
           schedule_cadence?: string
           slug?: string
           timezone?: string

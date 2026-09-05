@@ -37,10 +37,13 @@ export default async function OpenShiftsPage() {
   }
 
   const [{ data: organization }, { data: periods }] = await Promise.all([
-    supabase.from("organizations").select("name").eq("id", membership.organization_id).single(),
+    supabase.from("organizations").select("name, pilot_mode").eq("id", membership.organization_id).single(),
     supabase.from("schedule_periods").select("id, branch_id, department_id").eq("organization_id", membership.organization_id).eq("status", "published").in("department_id", departmentIds)
   ]);
   if (!organization) redirect("/workspace");
+  if ((organization as any).pilot_mode) {
+    return <main className="workspace-home" dir="rtl"><header className="workspace-subheader"><div><Link href="/workspace" className="back-link"><ArrowRight size={17} /> חזרה לסביבת העבודה</Link><p className="eyebrow">{organization.name} · פיילוט ראשון</p><h1><CalendarPlus /> משמרות פתוחות</h1><p>Shift Marketplace עדיין לא פעיל בשלב הפיילוט. אם יש משמרת שצריך לאייש, פנו למנהל ישירות.</p></div></header></main>;
+  }
 
   const periodIds = (periods ?? []).map((item) => item.id);
   const { data: shifts } = periodIds.length
