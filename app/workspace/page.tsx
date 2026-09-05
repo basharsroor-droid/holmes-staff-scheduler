@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Activity, Bell, Building2, CalendarCheck, CalendarDays, CalendarRange, CheckCircle2, Circle, ClipboardCheck, Clock3, History, LifeBuoy, Network, Repeat2, Search, Settings, ShieldCheck, Users } from "lucide-react";
+import { Activity, Bell, Building2, CalendarCheck, CalendarDays, CalendarRange, CheckCircle2, Circle, ClipboardCheck, Clock3, History, LifeBuoy, Network, Repeat2, Rocket, Search, Settings, ShieldCheck, Users } from "lucide-react";
 
 import { LogoutButton } from "@/app/workspace/logout-button";
 import { BrandLogo } from "@/components/brand/brand-logo";
@@ -81,7 +81,7 @@ export default async function WorkspacePage() {
         <Link className="button primary" href="/workspace/submissions">מעקב הגשות</Link>
       </section>}
 
-      <section className="workspace-next workspace-next-compact"><div><p className="eyebrow">מרכז שליטה</p><h2>תמונת מצב ניהולית</h2></div><div className="workspace-actions"><Link href="/workspace/command-center"><Activity /><span><strong>Manager Command Center</strong><small>בריאות הסידור, חוסרים, בקשות ממתינות והמלצות פעולה במקום אחד.</small></span><span className="status-chip active">פתיחה</span></Link></div></section>
+      <section className="workspace-next workspace-next-compact"><div><p className="eyebrow">מרכז שליטה</p><h2>תמונת מצב ניהולית</h2></div><div className="workspace-actions"><Link href="/workspace/command-center"><Activity /><span><strong>מרכז שליטה למנהל</strong><small>בריאות הסידור, חוסרים, בקשות ממתינות והמלצות פעולה במקום אחד.</small></span><span className="status-chip active">פתיחה</span></Link><Link href="/workspace/pilot-launch"><Rocket /><span><strong>מרכז השקת הפיילוט</strong><small>התקדמות מהגדרת העסק ועד פרסום הסידור הראשון, כולל הגשות וכיסוי.</small></span><span className="status-chip active">פתיחה</span></Link></div></section>
 
       <section className="workspace-next workspace-next-compact"><div><p className="eyebrow">מבנה ארגוני</p><h2>סניפים ומחלקות</h2></div><div className="workspace-actions"><Link href="/workspace/departments"><Network /><span><strong>ניהול סניפים ומחלקות</strong><small>שיוך מנהלים ועובדים לאזור העבודה המדויק שלהם.</small></span><span className="status-chip active">פתיחה</span></Link></div></section>
 
