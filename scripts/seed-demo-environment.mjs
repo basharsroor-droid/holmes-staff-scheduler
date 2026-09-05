@@ -1,19 +1,13 @@
-// One-time (idempotent) setup for the dedicated sales-demo tenant --
-// "פיט־זון", a fictional two-branch gym chain, unrelated to any real
-// customer. Creates the login accounts, org/branch/department structure,
-// and shift templates, then calls reset_demo_environment() (see the
-// 20260816103122_demo_sales_environment.sql migration) to populate the
-// actual schedule data.
-//
-// Safe to re-run: every step checks for an existing row by a stable key
-// (email, slug, name) before creating anything, so running this twice
-// does not create duplicates or new accounts with different passwords.
+// Idempotent setup for the dedicated fictional sales-demo tenant.
+// By default this only synchronizes the demo structure/accounts. Operational
+// schedule data is reset only when --reset is passed explicitly.
 //
 // Requires NEXT_PUBLIC_SUPABASE_URL + SUPABASE_SECRET_KEY (service_role), plus
-// DEMO_OWNER_PASSWORD, DEMO_MANAGER_PASSWORD and DEMO_EMPLOYEE_PASSWORD. Keep
-// those passwords in the deployment secret store; they are never committed.
+// DEMO_OWNER_PASSWORD, DEMO_MANAGER_PASSWORD and DEMO_EMPLOYEE_PASSWORD.
 //
-// Usage: node scripts/seed-demo-environment.mjs
+// Usage:
+//   node scripts/seed-demo-environment.mjs
+//   node scripts/seed-demo-environment.mjs --reset
 
 import { createClient } from "@supabase/supabase-js";
 
@@ -26,6 +20,7 @@ function requireEnv(name) {
   return value;
 }
 
+const shouldReset = process.argv.includes("--reset");
 const supabase = createClient(requireEnv("NEXT_PUBLIC_SUPABASE_URL"), requireEnv("SUPABASE_SECRET_KEY"), {
   auth: { persistSession: false }
 });
@@ -33,21 +28,6 @@ const supabase = createClient(requireEnv("NEXT_PUBLIC_SUPABASE_URL"), requireEnv
 const ORG_SLUG = "fitzone-demo";
 const ORG_NAME = "פיט־זון";
 
-// Dedicated, externally-managed demo credentials. The email addresses are
-// public aliases, but the passwords live only in the deployment secret store.
-//
-// Access model, deliberately distinct per account so the demo actually
-// shows off department-scoped permissions rather than having every login
-// see the same thing:
-//   - owner:    access_scope "organization" -> sees every branch and every
-//               department. Represents the business owner (or, equally, a
-//               branch/site manager -- the schema gives both the same
-//               "sees everything" scope).
-//   - manager:  access_scope "department", linked to exactly ONE
-//               department (reception). Represents a department head, who
-//               must NOT see other departments' schedules/staff.
-//   - employee: access_scope "department", linked to that same one
-//               department -- ordinary staff-level access.
 const ACCOUNTS = [
   { key: "owner", email: "owner-demo@shiftpilothq.com", password: requireEnv("DEMO_OWNER_PASSWORD"), role: "owner", firstName: "מיכל", lastName: "בעלים", accessScope: "organization" },
   { key: "manager", email: "manager-demo@shiftpilothq.com", password: requireEnv("DEMO_MANAGER_PASSWORD"), role: "manager", firstName: "רון", lastName: "מנהל", accessScope: "department" },
@@ -81,13 +61,24 @@ async function ensureProfile(userId, account) {
 }
 
 async function ensureOrganization() {
-  const { data: existing } = await supabase.from("organizations").select("id").eq("slug", ORG_SLUG).maybeSingle();
+  const { data: existing, error: fetchError } = await supabase
+    .from("organizations")
+    .select("id,name,is_demo")
+    .eq("slug", ORG_SLUG)
+    .maybeSingle();
+  if (fetchError) throw new Error(`Failed to read demo organization: ${fetchError.message}`);
+
   if (existing) {
-    console.log(`  organization already exists (${existing.id})`);
-    // Make sure is_demo is set even if the row predates the migration.
-    await supabase.from("organizations").update({ is_demo: true }).eq("id", existing.id);
+    if (existing.is_demo !== true) {
+      throw new Error(`Refusing to reuse organization ${existing.id}: slug ${ORG_SLUG} exists but is_demo is false`);
+    }
+    if (existing.name !== ORG_NAME) {
+      throw new Error(`Refusing to reuse organization ${existing.id}: expected demo name ${ORG_NAME}`);
+    }
+    console.log(`  verified existing demo organization (${existing.id})`);
     return existing.id;
   }
+
   const { data, error } = await supabase
     .from("organizations")
     .insert({ name: ORG_NAME, slug: ORG_SLUG, is_demo: true })
@@ -99,130 +90,68 @@ async function ensureOrganization() {
 }
 
 async function ensureBranch(organizationId, name) {
-  const { data: existing } = await supabase
-    .from("branches")
-    .select("id")
-    .eq("organization_id", organizationId)
-    .eq("name", name)
-    .maybeSingle();
+  const { data: existing } = await supabase.from("branches").select("id").eq("organization_id", organizationId).eq("name", name).maybeSingle();
   if (existing) return existing.id;
-  const { data, error } = await supabase
-    .from("branches")
-    .insert({ organization_id: organizationId, name })
-    .select("id")
-    .single();
+  const { data, error } = await supabase.from("branches").insert({ organization_id: organizationId, name }).select("id").single();
   if (error) throw new Error(`Failed to create branch ${name}: ${error.message}`);
   return data.id;
 }
 
 async function ensureDepartment(organizationId, branchId, name) {
-  const { data: existing } = await supabase
-    .from("departments")
-    .select("id")
-    .eq("organization_id", organizationId)
-    .eq("branch_id", branchId)
-    .eq("name", name)
-    .maybeSingle();
+  const { data: existing } = await supabase.from("departments").select("id").eq("organization_id", organizationId).eq("branch_id", branchId).eq("name", name).maybeSingle();
   if (existing) return existing.id;
-  const { data, error } = await supabase
-    .from("departments")
-    .insert({ organization_id: organizationId, branch_id: branchId, name })
-    .select("id")
-    .single();
+  const { data, error } = await supabase.from("departments").insert({ organization_id: organizationId, branch_id: branchId, name }).select("id").single();
   if (error) throw new Error(`Failed to create department ${name}: ${error.message}`);
   return data.id;
 }
 
 async function ensureTemplate(organizationId, branchId, departmentId, name, shiftType, startTime, endTime, requiredEmployees) {
-  const { data: existing } = await supabase
-    .from("shift_templates")
-    .select("id")
-    .eq("organization_id", organizationId)
-    .eq("department_id", departmentId)
-    .eq("name", name)
-    .maybeSingle();
+  const { data: existing } = await supabase.from("shift_templates").select("id").eq("organization_id", organizationId).eq("department_id", departmentId).eq("name", name).maybeSingle();
   if (existing) return existing.id;
-  const { data, error } = await supabase
-    .from("shift_templates")
-    .insert({
-      organization_id: organizationId,
-      branch_id: branchId,
-      department_id: departmentId,
-      name,
-      shift_type: shiftType,
-      start_time: startTime,
-      end_time: endTime,
-      required_employees: requiredEmployees
-    })
-    .select("id")
-    .single();
+  const { data, error } = await supabase.from("shift_templates").insert({
+    organization_id: organizationId,
+    branch_id: branchId,
+    department_id: departmentId,
+    name,
+    shift_type: shiftType,
+    start_time: startTime,
+    end_time: endTime,
+    required_employees: requiredEmployees
+  }).select("id").single();
   if (error) throw new Error(`Failed to create shift template ${name}: ${error.message}`);
   return data.id;
 }
 
 async function ensureMembership(organizationId, branchId, userId, account) {
-  const { data: existing } = await supabase
-    .from("organization_memberships")
-    .select("id")
-    .eq("organization_id", organizationId)
-    .eq("user_id", userId)
-    .maybeSingle();
+  const { data: existing } = await supabase.from("organization_memberships").select("id").eq("organization_id", organizationId).eq("user_id", userId).maybeSingle();
   if (existing) return existing.id;
-  const { data, error } = await supabase
-    .from("organization_memberships")
-    .insert({
-      organization_id: organizationId,
-      branch_id: branchId,
-      user_id: userId,
-      role: account.role,
-      status: "active",
-      access_scope: account.accessScope
-    })
-    .select("id")
-    .single();
+  const { data, error } = await supabase.from("organization_memberships").insert({
+    organization_id: organizationId,
+    branch_id: branchId,
+    user_id: userId,
+    role: account.role,
+    status: "active",
+    access_scope: account.accessScope
+  }).select("id").single();
   if (error) throw new Error(`Failed to create membership for ${account.email}: ${error.message}`);
   return data.id;
 }
 
 async function ensureDepartmentMembership(organizationId, branchId, departmentId, membershipId, isPrimary) {
-  const { data: existing } = await supabase
-    .from("department_memberships")
-    .select("membership_id")
-    .eq("department_id", departmentId)
-    .eq("membership_id", membershipId)
-    .maybeSingle();
+  const { data: existing } = await supabase.from("department_memberships").select("membership_id").eq("department_id", departmentId).eq("membership_id", membershipId).maybeSingle();
   if (existing) return;
-  const { error } = await supabase
-    .from("department_memberships")
-    .insert({ organization_id: organizationId, branch_id: branchId, department_id: departmentId, membership_id: membershipId, is_primary: isPrimary });
+  const { error } = await supabase.from("department_memberships").insert({ organization_id: organizationId, branch_id: branchId, department_id: departmentId, membership_id: membershipId, is_primary: isPrimary });
   if (error) throw new Error(`Failed to link department membership: ${error.message}`);
 }
 
-// Convergent, not just additive: removes any department_memberships for this
-// membership that are NOT in the desired set. This matters specifically
-// because a previous version of this script over-granted the demo manager
-// access to every department in the branch (see below) -- without this
-// pruning step, re-running the corrected script would add the right rows
-// but leave the wrong one in place too.
 async function syncDepartmentMemberships(organizationId, branchId, membershipId, desired) {
-  for (const entry of desired) {
-    await ensureDepartmentMembership(organizationId, branchId, entry.departmentId, membershipId, entry.isPrimary);
-  }
+  for (const entry of desired) await ensureDepartmentMembership(organizationId, branchId, entry.departmentId, membershipId, entry.isPrimary);
   const desiredIds = new Set(desired.map((entry) => entry.departmentId));
-  const { data: current, error: fetchError } = await supabase
-    .from("department_memberships")
-    .select("department_id")
-    .eq("membership_id", membershipId);
+  const { data: current, error: fetchError } = await supabase.from("department_memberships").select("department_id").eq("membership_id", membershipId);
   if (fetchError) throw new Error(`Failed to read department memberships: ${fetchError.message}`);
-  const stale = (current ?? []).filter((row) => !desiredIds.has(row.department_id));
-  for (const row of stale) {
-    const { error: deleteError } = await supabase
-      .from("department_memberships")
-      .delete()
-      .eq("membership_id", membershipId)
-      .eq("department_id", row.department_id);
-    if (deleteError) throw new Error(`Failed to remove stale department membership: ${deleteError.message}`);
-    console.log(`  removed stale department membership (department ${row.department_id})`);
+  for (const row of (current ?? []).filter((entry) => !desiredIds.has(entry.department_id))) {
+    const { error } = await supabase.from("department_memberships").delete().eq("membership_id", membershipId).eq("department_id", row.department_id);
+    if (error) throw new Error(`Failed to remove stale department membership: ${error.message}`);
   }
 }
 
@@ -249,32 +178,24 @@ async function main() {
   for (const account of ACCOUNTS) {
     const userId = await ensureUser(account);
     await ensureProfile(userId, account);
-    const membershipId = await ensureMembership(organizationId, branchTlv, userId, account);
-    membershipByKey[account.key] = membershipId;
+    membershipByKey[account.key] = await ensureMembership(organizationId, branchTlv, userId, account);
   }
 
   console.log("Ensuring department assignments...");
-  // Manager is a department head: reception ONLY, never the trainers
-  // department too -- see the ACCOUNTS comment above. syncDepartmentMemberships
-  // also removes any extra department link left over from an earlier run.
-  await syncDepartmentMemberships(organizationId, branchTlv, membershipByKey.manager, [
-    { departmentId: deptReception, isPrimary: true }
-  ]);
-  await syncDepartmentMemberships(organizationId, branchTlv, membershipByKey.employee, [
-    { departmentId: deptReception, isPrimary: true }
-  ]);
+  await syncDepartmentMemberships(organizationId, branchTlv, membershipByKey.manager, [{ departmentId: deptReception, isPrimary: true }]);
+  await syncDepartmentMemberships(organizationId, branchTlv, membershipByKey.employee, [{ departmentId: deptReception, isPrimary: true }]);
 
-  console.log("Resetting operational data to baseline (schedule, shifts, availability, swap request, ticket)...");
-  const { error: resetError } = await supabase.rpc("reset_demo_environment", { target_organization_id: organizationId });
-  if (resetError) throw new Error(`reset_demo_environment failed: ${resetError.message}`);
+  if (shouldReset) {
+    console.log("Resetting demo operational data to baseline...");
+    const { error } = await supabase.rpc("reset_demo_environment", { target_organization_id: organizationId });
+    if (error) throw new Error(`reset_demo_environment failed: ${error.message}`);
+  } else {
+    console.log("Operational data not reset. Pass --reset explicitly to rebuild demo schedule data.");
+  }
 
   console.log("\nDone. Demo accounts synchronized:");
-  for (const account of ACCOUNTS) {
-    console.log(`  ${account.role.padEnd(8)} ${account.email}`);
-  }
-  console.log(`\nOrganization ID: ${organizationId} (is_demo=true)`);
-  console.log("To reset the schedule back to this baseline at any time, run:");
-  console.log(`  select reset_demo_environment('${organizationId}');`);
+  for (const account of ACCOUNTS) console.log(`  ${account.role.padEnd(8)} ${account.email}`);
+  console.log(`\nOrganization ID: ${organizationId} (verified is_demo=true)`);
 }
 
 main().catch((error) => {

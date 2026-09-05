@@ -11,6 +11,7 @@
     "verify:release": "npm run validate:schema && npm run test:unit && npm run lint && npm run typecheck && npm run build && npm run test:e2e",
     "incident:drill": "node scripts/run-incident-tabletop.mjs",
     "health:production": "node scripts/check-production-health.mjs",
+    "pilot:ready": "node scripts/check-pilot-readiness.mjs",
     "test:e2e": "playwright test",
     "test:unit": "node --experimental-strip-types --test tests/unit/**/*.test.mjs",
     "validate:schema": "node scripts/validate-supabase-schema.mjs",
@@ -18,7 +19,8 @@
     "test:e2e:production:isolated": "node scripts/run-production-authenticated-e2e.mjs",
     "backup:database": "node scripts/backup-database.mjs",
     "restore:database": "node scripts/restore-database.mjs",
-    "seed:demo": "node scripts/seed-demo-environment.mjs"
+    "seed:demo": "node scripts/seed-demo-environment.mjs",
+    "reset:demo": "node scripts/seed-demo-environment.mjs --reset"
   },
   "dependencies": {
     "@capacitor/core": "^8.5.0",
