@@ -1,0 +1,36 @@
+name: ShiftPilot Staging Support E2E
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: shiftpilot-staging-support-e2e
+  cancel-in-progress: false
+
+jobs:
+  support-lifecycle:
+    name: Verify support lifecycle in Staging
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    env:
+      STAGING_SUPABASE_URL: https://ctibuhkkbmyzawjhwujn.supabase.co
+      STAGING_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.STAGING_SUPABASE_PUBLISHABLE_KEY }}
+      STAGING_SUPABASE_SECRET_KEY: ${{ secrets.STAGING_SUPABASE_SECRET_KEY }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Run isolated support lifecycle E2E
+        run: node scripts/run-staging-support-e2e.mjs
