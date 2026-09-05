@@ -1,0 +1,18 @@
+/* Pilot-readiness interaction sizing.
+ * Scope this to the authenticated/demo app shell so marketing typography and
+ * compact non-action badges are unaffected. Disabled controls are intentionally
+ * excluded: they are not interactive targets until enabled.
+ */
+.app-shell button:not(:disabled),
+.app-shell a.button,
+.app-shell .workspace-actions a {
+  min-height: 40px;
+}
+
+@media (max-width: 760px) {
+  .app-shell button:not(:disabled),
+  .app-shell a.button,
+  .app-shell .workspace-actions a {
+    min-height: 44px;
+  }
+}
