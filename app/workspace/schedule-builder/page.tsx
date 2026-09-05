@@ -28,7 +28,7 @@ export default async function ScheduleBuilderPage() {
 
   const organizationId = membership.organization_id;
   const [organizationResult, branchesResult, departmentsResult, periodsResult, templatesResult, membershipsResult, departmentMembershipsResult] = await Promise.all([
-    supabase.from("organizations").select("name, min_rest_hours").eq("id", organizationId).single(),
+    supabase.from("organizations").select("name, min_rest_hours, pilot_mode").eq("id", organizationId).single(),
     supabase.from("branches").select("id, name").eq("organization_id", organizationId).eq("active", true).order("name"),
     supabase.from("departments").select("id, branch_id, name").eq("organization_id", organizationId).eq("active", true).order("name"),
     supabase.from("schedule_periods").select("id, branch_id, department_id, year, month, status, published_at").eq("organization_id", organizationId).order("year", { ascending: false }).order("month", { ascending: false }),
@@ -37,6 +37,7 @@ export default async function ScheduleBuilderPage() {
     supabase.from("department_memberships").select("membership_id, department_id").eq("organization_id", organizationId)
   ]);
   if (!organizationResult.data) redirect("/workspace");
+  const pilotMode = !!(organizationResult.data as any).pilot_mode;
 
   const db = supabase as any;
   const [{ data: leaveRequests }, { data: savedTemplates }] = await Promise.all([
@@ -151,7 +152,7 @@ export default async function ScheduleBuilderPage() {
     </div></header>
 
     <TimeOffApprovalPanel initialRequests={pendingTimeOff} />
-    <OpenShiftsManagerPanel initialShifts={managerOpenShifts} initialRequests={managerOpenShiftRequests} />
+    {!pilotMode && <OpenShiftsManagerPanel initialShifts={managerOpenShifts} initialRequests={managerOpenShiftRequests} />}
     <CoverageRulesEnhancer workers={coverageWorkers} templates={coverageTemplates} />
     <ScheduleTemplatesPanel periods={templatePeriods} initialTemplates={reusableTemplates} />
     <EmployeePreferenceEnhancer />
@@ -163,21 +164,22 @@ export default async function ScheduleBuilderPage() {
       approvedLeave={approvedTimeOff}
       minRestHours={organizationResult.data.min_rest_hours}
     />
-    <ShiftPilotScore
+    {pilotMode && <section className="template-list-card"><div className="empty-template-state"><CalendarRange size={32} /><h2>מצב פיילוט פעיל</h2><p>כדי לשמור על מחזור סידור פשוט וברור, כלי ה-Intelligence (ציון בריאות, הוגנות, טיוטה חכמה, תיקון סידור, החלפה חכמה ומשמרות פתוחות) מוסתרים בשלב זה. הם ייפתחו בהדרגה אחרי מחזור ראשון נקי.</p></div></section>}
+    {!pilotMode && <ShiftPilotScore
       periods={periodsResult.data ?? []}
       workers={workers}
       submissions={submissions ?? []}
       availability={availability ?? []}
       approvedLeave={approvedTimeOff}
       minRestHours={organizationResult.data.min_rest_hours}
-    />
-    <FairnessEnhancer
+    />}
+    {!pilotMode && <FairnessEnhancer
       periods={periodsResult.data ?? []}
       workers={workers}
       submissions={submissions ?? []}
       availability={availability ?? []}
-    />
-    <FixMySchedulePanel
+    />}
+    {!pilotMode && <FixMySchedulePanel
       organizationId={organizationId}
       currentUserId={user.id}
       periods={periodsResult.data ?? []}
@@ -187,8 +189,8 @@ export default async function ScheduleBuilderPage() {
       approvedLeave={approvedTimeOff}
       templates={templatesResult.data ?? []}
       minRestHours={organizationResult.data.min_rest_hours}
-    />
-    <SmartReplacementPanel
+    />}
+    {!pilotMode && <SmartReplacementPanel
       organizationId={organizationId}
       currentUserId={user.id}
       periods={periodsResult.data ?? []}
@@ -198,8 +200,8 @@ export default async function ScheduleBuilderPage() {
       approvedLeave={approvedTimeOff}
       templates={templatesResult.data ?? []}
       minRestHours={organizationResult.data.min_rest_hours}
-    />
-    <SmartDraftPanel
+    />}
+    {!pilotMode && <SmartDraftPanel
       organizationId={organizationId}
       currentUserId={user.id}
       periods={periodsResult.data ?? []}
@@ -209,7 +211,7 @@ export default async function ScheduleBuilderPage() {
       approvedLeave={approvedTimeOff}
       templates={templatesResult.data ?? []}
       minRestHours={organizationResult.data.min_rest_hours}
-    />
+    />}
 
     <ScheduleBuilderClient
       assignments={assignments ?? []}
