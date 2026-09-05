@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { Activity, AlertTriangle, ArrowRight, CalendarRange, CheckCircle2, ClipboardCheck, Gauge, Palmtree, Repeat2, Store, Users } from "lucide-react";
+import { Activity, AlertTriangle, ArrowRight, CalendarRange, CheckCircle2, ClipboardCheck, Gauge, Palmtree, PlusCircle, Repeat2, Store, Users } from "lucide-react";
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -94,7 +94,7 @@ export default async function ManagerCommandCenterPage() {
 
   const totalRequired = shifts.reduce((sum, shift) => sum + Math.max(0, shift.required_employees), 0);
   const totalAssigned = shifts.reduce((sum, shift) => sum + Math.min(shift.required_employees, assignmentCounts.get(shift.id) ?? 0), 0);
-  const coverage = totalRequired ? Math.round((totalAssigned / totalRequired) * 100) : 100;
+  const coverage = totalRequired ? Math.round((totalAssigned / totalRequired) * 100) : null;
   const understaffed = shifts.filter((shift) => (assignmentCounts.get(shift.id) ?? 0) < shift.required_employees).length;
   const openShifts = shifts.filter((shift) => shift.open_for_requests).length;
   const pendingMarketplace = marketplaceRequests?.length ?? 0;
@@ -104,7 +104,7 @@ export default async function ManagerCommandCenterPage() {
 
   const actions = [
     understaffed > 0 ? { href: "/workspace/schedule-builder", label: `לטפל ב-${understaffed} משמרות עם כיסוי חסר`, detail: "פתחו את Conflict Detector / Fix My Schedule וקבלו תוכנית תיקון מוסברת.", priority: "critical" } : null,
-    pendingMarketplace > 0 ? { href: "/workspace/schedule-builder", label: `להכריע ב-${pendingMarketplace} בקשות Marketplace`, detail: "אשרו רק לאחר בדיקת הזכאות המחודשת שמובנית בתהליך.", priority: "warning" } : null,
+    pendingMarketplace > 0 ? { href: "/workspace/open-shifts", label: `להכריע ב-${pendingMarketplace} בקשות Marketplace`, detail: "אשרו רק לאחר בדיקת הזכאות המחודשת שמובנית בתהליך.", priority: "warning" } : null,
     pendingLeave > 0 ? { href: "/workspace/schedule-builder", label: `לבדוק ${pendingLeave} בקשות Time Off`, detail: "אישור Time Off הופך מיד לאילוץ קשיח בסידור.", priority: "warning" } : null,
     pendingSwaps > 0 ? { href: "/workspace/shift-swaps", label: `להכריע ב-${pendingSwaps} בקשות החלפה`, detail: "החלפה לא מתבצעת לפני אישור מנהל סופי.", priority: "warning" } : null
   ].filter(Boolean) as Array<{ href: string; label: string; detail: string; priority: string }>;
@@ -117,30 +117,39 @@ export default async function ManagerCommandCenterPage() {
       <p>מסך תפעולי אחד שמראה מה דורש תשומת לב ומה הפעולה הבאה — בלי לפרסם או לשנות סידור אוטומטית.</p>
     </div></header>
 
-    <section className="template-list-card">
-      <div className="template-list-heading"><div><p className="eyebrow">תמונת מצב</p><h2>{activePeriod ? monthLabel(activePeriod.year, activePeriod.month) : "אין תקופת סידור פעילה"}</h2><p>{activePeriod ? `סטטוס: ${activePeriod.status}` : "פתחו תקופת עבודה כדי להתחיל לנהל את בריאות הסידור."}</p></div><Link className="button" href="/workspace/schedule-builder"><CalendarRange size={16} /> לסידור המלא</Link></div>
-      <div className="workspace-stats schedule-stats">
-        <article><Gauge /><span><strong>{coverage}%</strong><small>כיסוי תקנים</small></span></article>
-        <article><AlertTriangle /><span><strong>{understaffed}</strong><small>משמרות עם חוסר</small></span></article>
-        <article><ClipboardCheck /><span><strong>{pendingTotal}</strong><small>החלטות שממתינות למנהל</small></span></article>
+    {!activePeriod ? <section className="template-list-card">
+      <div className="empty-template-state">
+        <CalendarRange size={44} />
+        <h2>עדיין לא נפתחה תקופת עבודה</h2>
+        <p>כדי לקבל תמונת מצב אמיתית על כיסוי, בקשות והמלצות פעולה, פתחו קודם תקופת עבודה שבועית או חודשית.</p>
+        <Link className="button primary" href="/workspace/work-months"><PlusCircle size={16} /> פתיחת תקופת עבודה</Link>
       </div>
-    </section>
+    </section> : <>
+      <section className="template-list-card">
+        <div className="template-list-heading"><div><p className="eyebrow">תמונת מצב</p><h2>{monthLabel(activePeriod.year, activePeriod.month)}</h2><p>סטטוס: {activePeriod.status}</p></div><Link className="button" href="/workspace/schedule-builder"><CalendarRange size={16} /> לסידור המלא</Link></div>
+        <div className="workspace-stats schedule-stats">
+          <article><Gauge /><span><strong>{coverage ?? "—"}{coverage !== null ? "%" : ""}</strong><small>כיסוי תקנים</small></span></article>
+          <article><AlertTriangle /><span><strong>{understaffed}</strong><small>משמרות עם חוסר</small></span></article>
+          <article><ClipboardCheck /><span><strong>{pendingTotal}</strong><small>החלטות שממתינות למנהל</small></span></article>
+        </div>
+      </section>
 
-    <section className="workspace-next workspace-next-primary">
-      <div><p className="eyebrow">Operational Inbox</p><h2>מה מחכה להחלטה שלך</h2></div>
-      <div className="workspace-actions">
-        <Link href="/workspace/schedule-builder"><Store /><span><strong>Shift Marketplace</strong><small>{openShifts} משמרות פתוחות · {pendingMarketplace} בקשות ממתינות.</small></span><span className={`status-chip ${pendingMarketplace ? "warning" : "active"}`}>{pendingMarketplace}</span></Link>
-        <Link href="/workspace/schedule-builder"><Palmtree /><span><strong>Time Off</strong><small>בקשות חופשה/היעדרות שממתינות לאישור.</small></span><span className={`status-chip ${pendingLeave ? "warning" : "active"}`}>{pendingLeave}</span></Link>
-        <Link href="/workspace/shift-swaps"><Repeat2 /><span><strong>החלפות משמרת</strong><small>בקשות שכבר הגיעו לשלב אישור המנהל.</small></span><span className={`status-chip ${pendingSwaps ? "warning" : "active"}`}>{pendingSwaps}</span></Link>
-        <Link href="/workspace/employees"><Users /><span><strong>צוות והרשאות</strong><small>עברו לניהול עובדים כאשר נדרש שינוי תפעולי בצוות.</small></span><span className="status-chip active">פתיחה</span></Link>
-      </div>
-    </section>
+      <section className="workspace-next workspace-next-primary">
+        <div><p className="eyebrow">Operational Inbox</p><h2>מה מחכה להחלטה שלך</h2></div>
+        <div className="workspace-actions">
+          <Link href="/workspace/open-shifts"><Store /><span><strong>Shift Marketplace</strong><small>{openShifts} משמרות פתוחות · {pendingMarketplace} בקשות ממתינות.</small></span><span className={`status-chip ${pendingMarketplace ? "warning" : "active"}`}>{pendingMarketplace}</span></Link>
+          <Link href="/workspace/schedule-builder"><Palmtree /><span><strong>Time Off</strong><small>בקשות חופשה/היעדרות שממתינות לאישור.</small></span><span className={`status-chip ${pendingLeave ? "warning" : "active"}`}>{pendingLeave}</span></Link>
+          <Link href="/workspace/shift-swaps"><Repeat2 /><span><strong>החלפות משמרת</strong><small>בקשות שכבר הגיעו לשלב אישור המנהל.</small></span><span className={`status-chip ${pendingSwaps ? "warning" : "active"}`}>{pendingSwaps}</span></Link>
+          <Link href="/workspace/employees"><Users /><span><strong>צוות והרשאות</strong><small>עברו לניהול עובדים כאשר נדרש שינוי תפעולי בצוות.</small></span><span className="status-chip active">פתיחה</span></Link>
+        </div>
+      </section>
 
-    <section className="template-list-card">
-      <div className="template-list-heading"><div><p className="eyebrow">Recommended Actions</p><h2>הפעולות הבאות</h2><p>המלצות פעולה בלבד. כל שינוי משמעותי נשאר בשליטת המנהל.</p></div></div>
-      {actions.length ? <div className="template-list">{actions.map((action) => <Link className="template-item" href={action.href} key={action.label}><div className="template-main"><strong>{action.label}</strong><span>{action.detail}</span></div><span className={`badge ${action.priority}`}>לטיפול</span></Link>)}</div> : <div className="submission-banner open"><div><CheckCircle2 /><strong>אין כרגע פעולות דחופות</strong><span>הכיסוי מלא ואין בקשות שממתינות להחלטת מנהל.</span></div></div>}
-    </section>
+      <section className="template-list-card">
+        <div className="template-list-heading"><div><p className="eyebrow">Recommended Actions</p><h2>הפעולות הבאות</h2><p>המלצות פעולה בלבד. כל שינוי משמעותי נשאר בשליטת המנהל.</p></div></div>
+        {actions.length ? <div className="template-list">{actions.map((action) => <Link className="template-item" href={action.href} key={action.label}><div className="template-main"><strong>{action.label}</strong><span>{action.detail}</span></div><span className={`badge ${action.priority}`}>לטיפול</span></Link>)}</div> : <div className="submission-banner open"><div><CheckCircle2 /><strong>אין כרגע פעולות דחופות</strong><span>הכיסוי מלא ואין בקשות שממתינות להחלטת מנהל.</span></div></div>}
+      </section>
 
-    <section className="workspace-next workspace-next-compact"><div><p className="eyebrow">Scheduling Intelligence</p><h2>בדיקה עמוקה ותיקון</h2></div><div className="workspace-actions"><Link href="/workspace/schedule-builder"><Gauge /><span><strong>ShiftPilot Score + Conflict Detector</strong><small>ציון בריאות מלא, קונפליקטים, Fairness, Smart Draft, Fix My Schedule ו־Smart Replacement.</small></span><span className="status-chip active">פתיחה</span></Link></div></section>
+      <section className="workspace-next workspace-next-compact"><div><p className="eyebrow">Scheduling Intelligence</p><h2>בדיקה עמוקה ותיקון</h2></div><div className="workspace-actions"><Link href="/workspace/schedule-builder"><Gauge /><span><strong>ShiftPilot Score + Conflict Detector</strong><small>ציון בריאות מלא, קונפליקטים, Fairness, Smart Draft, Fix My Schedule ו־Smart Replacement.</small></span><span className="status-chip active">פתיחה</span></Link></div></section>
+    </>}
   </main>;
 }
