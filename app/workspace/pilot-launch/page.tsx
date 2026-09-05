@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { ArrowRight, CalendarCheck, CheckCircle2, Circle, ClipboardCheck, Flag, Gauge, Rocket, Users } from "lucide-react";
+import { ArrowRight, CalendarCheck, CheckCircle2, Circle, ClipboardCheck, Clock3, Flag, Gauge, MessageSquareText, Rocket, Users } from "lucide-react";
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -14,11 +14,20 @@ type Period = {
   month: number;
   status: string;
   published_at: string | null;
+  submission_closes_at: string | null;
 };
 
 function periodLabel(period: Period | null) {
   if (!period) return "אין תקופה פעילה";
   return new Intl.DateTimeFormat("he-IL", { month: "long", year: "numeric" }).format(new Date(period.year, period.month - 1, 1));
+}
+
+function durationLabel(minutes: number | null) {
+  if (minutes === null) return "—";
+  if (minutes < 60) return `${minutes} דק׳`;
+  const hours = Math.floor(minutes / 60);
+  const remainder = minutes % 60;
+  return remainder ? `${hours} ש׳ ${remainder} דק׳` : `${hours} ש׳`;
 }
 
 export default async function PilotLaunchPage() {
@@ -49,7 +58,7 @@ export default async function PilotLaunchPage() {
 
   let periodQuery = supabase
     .from("schedule_periods")
-    .select("id, department_id, branch_id, year, month, status, published_at")
+    .select("id, department_id, branch_id, year, month, status, published_at, submission_closes_at")
     .eq("organization_id", membership.organization_id)
     .order("year", { ascending: false })
     .order("month", { ascending: false });
@@ -57,10 +66,11 @@ export default async function PilotLaunchPage() {
   if (membership.branch_id) periodQuery = periodQuery.eq("branch_id", membership.branch_id);
   if (membership.role === "manager") periodQuery = periodQuery.in("department_id", departmentIds);
 
-  const [{ data: periodRows }, { count: templateCount }, { data: activeMemberships }] = await Promise.all([
+  const [{ data: periodRows }, { count: templateCount }, { data: activeMemberships }, { count: pilotFeedbackCount }] = await Promise.all([
     periodQuery,
     supabase.from("shift_templates").select("id", { count: "exact", head: true }).eq("organization_id", membership.organization_id).eq("active", true),
-    supabase.from("organization_memberships").select("id, role").eq("organization_id", membership.organization_id).eq("status", "active")
+    supabase.from("organization_memberships").select("id, role").eq("organization_id", membership.organization_id).eq("status", "active"),
+    supabase.from("support_tickets").select("id", { count: "exact", head: true }).eq("organization_id", membership.organization_id).like("subject", "[Pilot Feedback]%")
   ]);
 
   const periods = (periodRows ?? []) as Period[];
@@ -99,38 +109,16 @@ export default async function PilotLaunchPage() {
   const assignedCount = assignments?.length ?? 0;
   const coverage = requiredAssignments > 0 ? Math.min(100, Math.round((assignedCount / requiredAssignments) * 100)) : 0;
   const published = activePeriod?.status === "published" || Boolean(activePeriod?.published_at);
+  const timeToSchedule = activePeriod?.submission_closes_at && activePeriod?.published_at
+    ? Math.max(0, Math.round((new Date(activePeriod.published_at).getTime() - new Date(activePeriod.submission_closes_at).getTime()) / 60_000))
+    : null;
 
   const launchSteps = [
-    {
-      complete: (templateCount ?? 0) > 0,
-      href: "/workspace/shift-templates",
-      title: "סוגי משמרות הוגדרו",
-      description: "לפחות תבנית משמרת פעילה אחת מוכנה לשימוש."
-    },
-    {
-      complete: Boolean(activePeriod),
-      href: "/workspace/work-months",
-      title: "תקופת עבודה נפתחה",
-      description: "קיימת תקופה שבועית או חודשית שאפשר לעבוד עליה."
-    },
-    {
-      complete: employeeCount > 0,
-      href: "/workspace/employees",
-      title: "צוות הפיילוט מחובר",
-      description: "לפחות עובד אחד פעיל נמצא בתחום הניהול שלך."
-    },
-    {
-      complete: submittedCount > 0,
-      href: "/workspace/submissions",
-      title: "התקבלה הגשת זמינות אמיתית",
-      description: "לפחות עובד אחד שלח זמינות למחזור הנוכחי."
-    },
-    {
-      complete: published,
-      href: "/workspace/schedule-builder",
-      title: "הסידור הראשון פורסם",
-      description: "הפרסום נעשה במפורש על ידי מנהל לאחר בדיקה."
-    }
+    { complete: (templateCount ?? 0) > 0, href: "/workspace/shift-templates", title: "סוגי משמרות הוגדרו", description: "לפחות תבנית משמרת פעילה אחת מוכנה לשימוש." },
+    { complete: Boolean(activePeriod), href: "/workspace/work-months", title: "תקופת עבודה נפתחה", description: "קיימת תקופה שבועית או חודשית שאפשר לעבוד עליה." },
+    { complete: employeeCount > 0, href: "/workspace/employees", title: "צוות הפיילוט מחובר", description: "לפחות עובד אחד פעיל נמצא בתחום הניהול שלך." },
+    { complete: submittedCount > 0, href: "/workspace/submissions", title: "התקבלה הגשת זמינות אמיתית", description: "לפחות עובד אחד שלח זמינות למחזור הנוכחי." },
+    { complete: published, href: "/workspace/schedule-builder", title: "הסידור הראשון פורסם", description: "הפרסום נעשה במפורש על ידי מנהל לאחר בדיקה." }
   ];
 
   const completedSteps = launchSteps.filter((step) => step.complete).length;
@@ -154,6 +142,7 @@ export default async function PilotLaunchPage() {
         <article><Flag /><span><strong>{progress}%</strong><small>התקדמות להשקה</small></span></article>
         <article><CalendarCheck /><span><strong>{submissionCompletion}%</strong><small>השלמת הגשות</small></span></article>
         <article><Gauge /><span><strong>{coverage}%</strong><small>כיסוי שיבוצים</small></span></article>
+        <article><Clock3 /><span><strong>{durationLabel(timeToSchedule)}</strong><small>Time to Schedule</small></span></article>
       </div>
     </section>
 
@@ -177,8 +166,9 @@ export default async function PilotLaunchPage() {
       <Link href="/workspace/submissions"><ClipboardCheck /><span><strong>מעקב הגשות</strong><small>{submittedCount} עובדים הגישו מתוך {employeeCount} עובדים פעילים בתחום הניהול.</small></span><span className="status-chip active">פתיחה</span></Link>
       <Link href="/workspace/schedule-builder"><Gauge /><span><strong>בדיקה ובניית סידור</strong><small>כיסוי נוכחי {coverage}%. פרסום נשאר פעולה מפורשת של המנהל.</small></span><span className="status-chip active">פתיחה</span></Link>
       <Link href="/workspace/command-center"><Users /><span><strong>מרכז שליטה למנהל</strong><small>חוסרים, בקשות והחלטות שמחכות לטיפול.</small></span><span className="status-chip active">פתיחה</span></Link>
+      <Link href="/workspace/pilot-feedback"><MessageSquareText /><span><strong>משוב מהמחזור הראשון</strong><small>{pilotFeedbackCount ?? 0} משובי פיילוט נשמרו עד עכשיו. המשוב נכנס למרכז התמיכה למעקב.</small></span><span className="status-chip active">פתיחה</span></Link>
     </div></section>
 
-    {published ? <section className="submission-banner open"><div><CheckCircle2 /><strong>הסידור הראשון פורסם</strong><span>אפשר לעבור לבדיקת Day-1 ולאסוף משוב מהמחזור הראשון לפני הרחבת הפיילוט.</span></div></section> : null}
+    {published ? <section className="submission-banner open"><div><CheckCircle2 /><strong>הסידור הראשון פורסם</strong><span>עכשיו משלימים בדיקת Day-1 ואוספים משוב לפני הרחבת הפיילוט לעובדים או לעסק נוסף.</span></div></section> : null}
   </main>;
 }
