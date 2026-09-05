@@ -1,0 +1,48 @@
+name: ShiftPilot Staging Critical E2E
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: shiftpilot-staging-critical-e2e
+  cancel-in-progress: false
+
+jobs:
+  critical-mutations:
+    name: Verify staging mutation guardrails
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      STAGING_SUPABASE_URL: https://ctibuhkkbmyzawjhwujn.supabase.co
+      STAGING_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.STAGING_SUPABASE_PUBLISHABLE_KEY }}
+      STAGING_SUPABASE_SECRET_KEY: ${{ secrets.STAGING_SUPABASE_SECRET_KEY }}
+      STAGING_E2E_FIXTURE_PATH: .staging-e2e-fixture.json
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Seed isolated staging fixture
+        run: node scripts/staging-e2e-fixtures.mjs seed
+
+      - name: Run critical mutation checks
+        run: node scripts/run-staging-critical-mutations.mjs
+
+      - name: Cleanup isolated staging fixture
+        if: always()
+        run: |
+          if [ -f "$STAGING_E2E_FIXTURE_PATH" ]; then
+            node scripts/staging-e2e-fixtures.mjs cleanup
+          fi
