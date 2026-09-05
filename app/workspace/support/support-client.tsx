@@ -26,25 +26,45 @@ function matchesFilter(ticket: Ticket, filter: TicketFilter) {
   return true;
 }
 
-export function SupportClient({ organizationId, currentUserId, canManage, initialTickets, showCreateForm = true }: { organizationId: string; currentUserId: string; canManage: boolean; initialTickets: Ticket[]; showCreateForm?: boolean }) {
+export function SupportClient({
+  organizationId,
+  currentUserId,
+  canManage,
+  initialTickets,
+  showCreateForm = true,
+  initialCategory = "technical",
+  initialPriority = "normal",
+  initialSubject = "",
+  initialDescription = "",
+  createEyebrow = "פנייה חדשה",
+  createHeading = "איך אפשר לעזור?",
+  descriptionLabel = "תיאור הבעיה"
+}: {
+  organizationId: string;
+  currentUserId: string;
+  canManage: boolean;
+  initialTickets: Ticket[];
+  showCreateForm?: boolean;
+  initialCategory?: Category;
+  initialPriority?: Priority;
+  initialSubject?: string;
+  initialDescription?: string;
+  createEyebrow?: string;
+  createHeading?: string;
+  descriptionLabel?: string;
+}) {
   const supabase = useMemo(() => createSupabaseBrowserClient(), []);
   const [tickets, setTickets] = useState(initialTickets);
   const [filter, setFilter] = useState<TicketFilter>("open");
-  const [category, setCategory] = useState<Category>("technical");
-  const [priority, setPriority] = useState<Priority>("normal");
-  const [subject, setSubject] = useState("");
-  const [description, setDescription] = useState("");
+  const [category, setCategory] = useState<Category>(initialCategory);
+  const [priority, setPriority] = useState<Priority>(initialPriority);
+  const [subject, setSubject] = useState(initialSubject);
+  const [description, setDescription] = useState(initialDescription);
   const [includeTechnicalContext, setIncludeTechnicalContext] = useState(false);
   const [notes, setNotes] = useState<Record<string, string>>(() => Object.fromEntries(initialTickets.map((ticket) => [ticket.id, ticket.resolution_note ?? ""])));
   const [busy, setBusy] = useState("");
   const { message, kind, setMessage } = useStatusMessage();
 
-  // Opt-in only (support plan track P1-08's "report a problem" ask): a
-  // support agent diagnosing a bug usually has to ask "which page, which
-  // device, what time" as a slow back-and-forth before they can even start.
-  // This gathers the same four things automatically from the browser --
-  // never anything a token/secret/password scanner would flag -- and lets
-  // the reporter see exactly what would be attached before it's sent.
   async function buildTechnicalContext() {
     let version = "לא זמין";
     try {
@@ -52,7 +72,7 @@ export function SupportClient({ organizationId, currentUserId, canManage, initia
       const data = await response.json();
       if (typeof data.version === "string") version = data.version;
     } catch {
-      // best-effort only -- a failed health check shouldn't block the report
+      // Best-effort only: a failed health check must not block a support report.
     }
     const requestId = (globalThis.crypto?.randomUUID?.() ?? Math.random().toString(36).slice(2)).slice(0, 8);
     return [
@@ -71,18 +91,12 @@ export function SupportClient({ organizationId, currentUserId, canManage, initia
     setBusy("create"); setMessage("");
     const technicalContext = includeTechnicalContext ? await buildTechnicalContext() : "";
     const fullDescription = (description.trim() + technicalContext).slice(0, 4000);
-    // organization_name has no DB-level default -- it's filled by a
-    // before-insert trigger (set_support_ticket_organization_name) that
-    // unconditionally overwrites whatever is sent, using organization_id
-    // as the lookup key. The placeholder below is never actually stored;
-    // it only exists to satisfy the (correctly) non-optional Insert type,
-    // since Supabase's type generator only marks a column optional when
-    // Postgres itself has a stored DEFAULT, not when a trigger supplies it.
     const { data, error } = await supabase.from("support_tickets").insert({ organization_id: organizationId, organization_name: "", created_by: currentUserId, category, priority, subject: subject.trim(), description: fullDescription })
       .select("id, organization_id, organization_name, created_by, category, priority, subject, description, status, resolution_note, assigned_to, created_at, updated_at, first_responded_at, resolved_at, reopened_count").single();
     setBusy("");
     if (error || !data) { setMessage("פתיחת הפנייה נכשלה. נסו שוב בעוד רגע.", "error"); return; }
-    setTickets((current) => [data, ...current]); setSubject(""); setDescription(""); setPriority("normal"); setIncludeTechnicalContext(false);
+    setTickets((current) => [data, ...current]);
+    setSubject(initialSubject); setDescription(initialDescription); setCategory(initialCategory); setPriority(initialPriority); setIncludeTechnicalContext(false);
     setMessage("הפנייה נפתחה בהצלחה ונשמרה במרכז התמיכה.");
   }
 
@@ -102,10 +116,10 @@ export function SupportClient({ organizationId, currentUserId, canManage, initia
 
   return <div className={`template-workbench support-workbench support-experience${showCreateForm ? "" : " support-console-workbench"}`}>
     {showCreateForm ? <section className="template-form-card support-create-card">
-      <div><p className="eyebrow">פנייה חדשה</p><h2>איך אפשר לעזור?</h2></div>
+      <div><p className="eyebrow">{createEyebrow}</p><h2>{createHeading}</h2></div>
       <label className="field"><span>נושא</span><input className="input" maxLength={120} value={subject} onChange={(event) => setSubject(event.target.value)} placeholder="למשל: לא ניתן לפרסם את הסידור" /></label>
       <div className="form-grid two"><label className="field"><span>קטגוריה</span><select className="input" value={category} onChange={(event) => setCategory(event.target.value as Category)}>{Object.entries(categories).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label><label className="field"><span>דחיפות</span><select className="input" value={priority} onChange={(event) => setPriority(event.target.value as Priority)}>{Object.entries(priorities).map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label></div>
-      <label className="field"><span>תיאור הבעיה</span><textarea className="textarea" maxLength={4000} value={description} onChange={(event) => setDescription(event.target.value)} placeholder="מה ניסיתם לעשות, באיזה מסך ומה בדיוק הופיע? אין לכתוב סיסמאות או מפתחות API." /></label>
+      <label className="field"><span>{descriptionLabel}</span><textarea className="textarea" maxLength={4000} value={description} onChange={(event) => setDescription(event.target.value)} placeholder="מה ניסיתם לעשות, באיזה מסך ומה בדיוק הופיע? אין לכתוב סיסמאות או מפתחות API." /></label>
       <label className="checkbox-row">
         <input type="checkbox" checked={includeTechnicalContext} onChange={(event) => setIncludeTechnicalContext(event.target.checked)} />
         צירוף פרטים טכניים לאבחון מהיר (עמוד נוכחי, גרסת המערכת, סוג המכשיר, שעה) — לא כולל סיסמאות או מידע אישי
