@@ -24,9 +24,8 @@ export function SiteNavbar() {
 
         <motion.div
           className="flex w-full items-center justify-end gap-2 sm:w-auto sm:gap-2.5"
-          initial={{ opacity: 0, x: -10 }}
+          initial={false}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.25, delay: 0.08 }}
         >
           <Link
             href="/demo"
