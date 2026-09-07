@@ -79,7 +79,7 @@
   .my-shifts-selected-card .my-shift-card { padding: 12px; }
   .my-shifts-selected-card .my-shift-card .actions { gap: 8px; }
   .my-shifts-selected-card .my-shift-card .actions .button {
-    min-height: 42px;
+    min-height: 44px;
     padding-inline: 11px;
   }
 }

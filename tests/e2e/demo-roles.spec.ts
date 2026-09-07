@@ -51,11 +51,17 @@ test("employee cannot open a manager-only demo route directly", async ({ page })
 test("demo logout clears the role session", async ({ page }) => {
   await loginToDemo(page, "manager");
   await expect(page).toHaveURL(/\/pilot$/);
+  await expect(page.locator(".app-shell")).toBeVisible();
 
   const dock = page.getByRole("navigation", { name: "ניווט מהיר" });
+  const desktopNavigation = page.getByRole("navigation", { name: "ניווט ראשי" });
+  await expect(dock.or(desktopNavigation)).toBeVisible();
+
   if (await dock.isVisible()) {
     await dock.getByRole("button", { name: "עוד" }).click();
-    await page.getByRole("button", { name: "יציאה", exact: true }).click();
+    const logout = page.getByRole("button", { name: "יציאה", exact: true });
+    await expect(logout).toBeVisible();
+    await logout.click();
   } else {
     const toggle = page.getByRole("button", { name: "פתיחת תפריט" });
     if (await toggle.isVisible()) await toggle.click();
