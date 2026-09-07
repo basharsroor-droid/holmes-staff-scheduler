@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { format, parseISO } from "date-fns";
 import { he } from "date-fns/locale";
+import { ChevronDown } from "lucide-react";
 
 import type { ScheduledShift, ShiftTemplate, ShiftWarning } from "@/types/scheduler";
 import { WarningBadge } from "@/components/schedule/badges";
@@ -18,6 +19,7 @@ export function WarningsPanel({
 }) {
   const [openDates, setOpenDates] = useState<string[]>([]);
   const [offers, setOffers] = useState<string[]>([]);
+  const [panelOpen, setPanelOpen] = useState(false);
   const openShiftWarnings = warnings.filter((warning) =>
     warning.message.includes("אין עובד משובץ")
   );
@@ -49,9 +51,27 @@ export function WarningsPanel({
   }
 
   return (
-    <section className="card">
-      <h2>אזהרות פתוחות</h2>
-      <div className="warning-list">
+    <section className="card open-warnings-card">
+      <button
+        type="button"
+        className="open-warnings-toggle"
+        aria-expanded={panelOpen}
+        aria-controls="open-warnings-list"
+        onClick={() => setPanelOpen((open) => !open)}
+      >
+        <span>
+          <h2>אזהרות פתוחות</h2>
+          <span className={openShiftWarnings.length ? "badge critical" : "badge success"}>
+            {openShiftWarnings.length} משמרות חסרות
+          </span>
+        </span>
+        <ChevronDown
+          size={22}
+          aria-hidden="true"
+          className={panelOpen ? "open-warnings-chevron open" : "open-warnings-chevron"}
+        />
+      </button>
+      {panelOpen ? <div id="open-warnings-list" className="warning-list open-warnings-list">
         {dates.length ? (
           dates.map((date) => {
             const isOpen = openDates.includes(date);
@@ -93,7 +113,7 @@ export function WarningsPanel({
         ) : (
           <div className="metric-label">אין משמרות פתוחות כרגע</div>
         )}
-      </div>
+      </div> : null}
     </section>
   );
 }

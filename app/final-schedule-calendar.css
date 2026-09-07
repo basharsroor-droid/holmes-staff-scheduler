@@ -133,6 +133,50 @@
   cursor: not-allowed;
 }
 
+.open-warnings-card {
+  align-self: start;
+  overflow: hidden;
+}
+
+.open-warnings-toggle {
+  display: flex;
+  width: 100%;
+  min-height: 44px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-align: right;
+}
+
+.open-warnings-toggle > span {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 10px;
+}
+
+.open-warnings-toggle h2 {
+  margin: 0;
+}
+
+.open-warnings-chevron {
+  flex: 0 0 auto;
+  color: var(--primary);
+  transition: transform 180ms ease;
+}
+
+.open-warnings-chevron.open {
+  transform: rotate(180deg);
+}
+
+.open-warnings-list {
+  margin-top: 14px;
+}
+
 .selected-day-shifts { display: grid; }
 
 .selected-day-shift {
@@ -178,4 +222,8 @@
   .selected-day-heading small { font-size: 11px; }
   .selected-day-shift { min-height: 62px; padding: 11px 13px; gap: 8px; }
   .selected-day-shift > b { font-size: 15px; }
+  .open-warnings-card { padding: 12px 14px; }
+  .open-warnings-toggle > span { align-items: flex-start; flex-direction: column; gap: 6px; }
+  .open-warnings-toggle h2 { font-size: 20px; }
+  .open-warnings-list { margin-top: 10px; }
 }
