@@ -52,7 +52,7 @@ test("login validates empty credentials without contacting auth", async ({ page 
   await page.goto("/login");
   await page.getByRole("button", { name: /כניסה מאובטחת/ }).click();
 
-  await expect(page.locator(".auth-message[role='alert']")).toHaveText(
+  await expect(page.getByRole("alert").filter({ hasText: "יש להזין כתובת מייל וסיסמה." })).toHaveText(
     "יש להזין כתובת מייל וסיסמה."
   );
   await expect(page.getByRole("link", { name: "שכחתי סיסמה" })).toHaveAttribute(

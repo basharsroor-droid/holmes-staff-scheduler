@@ -28,7 +28,14 @@ async function expectVisibleActionControlsAreTouchable(page: Page, minHeight = 4
   for (let index = 0; index < count; index += 1) {
     const box = await controls.nth(index).boundingBox();
     if (!box) continue;
-    expect(box.height, `visible enabled action control ${index + 1} is too short`).toBeGreaterThanOrEqual(minHeight);
+    const description = await controls.nth(index).evaluate((element) => {
+      const label = element.getAttribute("aria-label") ?? element.textContent?.trim() ?? "";
+      return `${element.tagName.toLowerCase()} ${label}`.trim();
+    });
+    expect(
+      box.height,
+      `${page.url()}: visible enabled action control ${index + 1} (${description}) is too short`
+    ).toBeGreaterThanOrEqual(minHeight);
   }
 }
 
@@ -87,7 +94,11 @@ test("mobile onboarding fields and authentication panels stack", async ({ page }
 
   for (const route of ["/login", "/auth/forgot-password", "/demo"]) {
     await page.goto(route);
-    const panel = page.locator(route === "/demo" ? ".demo-auth-flow" : ".auth-flow");
+    const panel = route === "/demo"
+      ? page.locator(".demo-auth-flow")
+      : route === "/login"
+        ? page.getByRole("main").last()
+        : page.locator(".auth-flow");
     const box = await panel.boundingBox();
     expect(box).not.toBeNull();
     expect(box!.width).toBeLessThanOrEqual(await page.evaluate(() => window.innerWidth));

@@ -1,0 +1,181 @@
+/* Final schedule: compact month calendar + selected-day details. */
+.final-schedule-calendar {
+  display: grid;
+  gap: 18px;
+}
+
+.schedule-calendar-shell {
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: linear-gradient(180deg, #ffffff, #f8fbff);
+  padding: 16px;
+  box-shadow: 0 16px 38px rgba(31, 88, 201, 0.08);
+}
+
+.schedule-calendar-weekdays,
+.schedule-calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.schedule-calendar-weekdays {
+  margin-bottom: 8px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 850;
+  text-align: center;
+}
+
+.schedule-calendar-day,
+.schedule-calendar-empty {
+  min-width: 0;
+  aspect-ratio: 1 / 0.94;
+  border-radius: 14px;
+}
+
+.schedule-calendar-day {
+  position: relative;
+  display: grid;
+  align-content: space-between;
+  gap: 5px;
+  min-height: 74px;
+  padding: 9px;
+  border: 1px solid #dbe3ef;
+  background: #fff;
+  color: var(--ink);
+  text-align: right;
+  transition: border-color 160ms ease, background 160ms ease, transform 160ms ease, box-shadow 160ms ease;
+}
+
+.schedule-calendar-day:hover {
+  border-color: rgba(33, 88, 201, 0.42);
+  box-shadow: 0 9px 20px rgba(33, 88, 201, 0.1);
+}
+
+.schedule-calendar-day.selected {
+  border-color: var(--primary);
+  background: linear-gradient(145deg, #eef4ff, #fff);
+  box-shadow: 0 0 0 2px rgba(33, 88, 201, 0.12);
+}
+
+.schedule-calendar-number {
+  font-size: 16px;
+  font-weight: 850;
+}
+
+.schedule-calendar-day small {
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.2;
+}
+
+.schedule-calendar-dots {
+  display: flex;
+  gap: 5px;
+  min-height: 8px;
+}
+
+.schedule-calendar-dots i {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+}
+
+.schedule-calendar-dots .filled { background: #22a06b; }
+.schedule-calendar-dots .open { background: #e5484d; }
+
+.selected-day-schedule {
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  background: #fff;
+}
+
+.selected-day-schedule > header {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) 44px;
+  align-items: center;
+  gap: 12px;
+  padding: 15px 17px;
+  background: linear-gradient(135deg, #edf3ff, #f8fbff);
+  border-bottom: 1px solid var(--line);
+}
+
+.selected-day-heading {
+  display: grid;
+  justify-items: center;
+  gap: 3px;
+  text-align: center;
+}
+
+.selected-day-heading span {
+  color: var(--primary);
+  font-weight: 850;
+}
+
+.selected-day-heading strong { font-size: 18px; }
+.selected-day-heading small { color: var(--muted); font-weight: 750; }
+
+.selected-day-nav-button {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  background: #fff;
+  color: var(--primary);
+}
+
+.selected-day-nav-button:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.selected-day-shifts { display: grid; }
+
+.selected-day-shift {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  min-height: 70px;
+  padding: 13px 17px;
+  border-top: 1px solid #e8edf4;
+}
+
+.selected-day-shift:first-child { border-top: 0; }
+.selected-day-shift-main { display: grid; gap: 4px; }
+.selected-day-shift-main small { color: var(--muted); font-weight: 700; }
+.selected-day-shift > b { font-size: 17px; }
+.selected-day-shift > b.open { color: var(--red); }
+.selected-day-empty { padding: 26px; color: var(--muted); text-align: center; }
+
+@media (max-width: 720px) {
+  .schedule-calendar-shell { padding: 10px; border-radius: 16px; }
+  .schedule-calendar-weekdays,
+  .schedule-calendar-grid { gap: 5px; }
+  .schedule-calendar-day,
+  .schedule-calendar-empty { border-radius: 10px; }
+  .schedule-calendar-day { min-height: 52px; padding: 6px; }
+  .schedule-calendar-number { font-size: 14px; }
+  .schedule-calendar-day small { display: none; }
+  .schedule-calendar-dots { gap: 3px; }
+  .schedule-calendar-dots i { width: 6px; height: 6px; }
+  .selected-day-schedule { border-radius: 16px; }
+  .selected-day-schedule > header {
+    grid-template-columns: 40px minmax(0, 1fr) 40px;
+    gap: 8px;
+    padding: 10px 11px;
+  }
+  .selected-day-nav-button {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+  }
+  .selected-day-heading strong { font-size: 16px; }
+  .selected-day-heading small { font-size: 11px; }
+  .selected-day-shift { min-height: 62px; padding: 11px 13px; gap: 8px; }
+  .selected-day-shift > b { font-size: 15px; }
+}

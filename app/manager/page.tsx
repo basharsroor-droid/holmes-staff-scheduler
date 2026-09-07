@@ -1,8 +1,10 @@
 import Link from "next/link";
+import type { ReactNode } from "react";
 import {
   AlertTriangle,
   CalendarDays,
   CheckCircle2,
+  ChevronDown,
   Clock3,
   FileSpreadsheet,
   LockKeyhole,
@@ -24,6 +26,34 @@ import {
   swapRequests
 } from "@/lib/mock-data";
 import { calculateFairness, validateSchedule } from "@/lib/shift-validation";
+
+function CollapsibleManagerSection({
+  title,
+  icon,
+  summary,
+  children
+}: {
+  title: string;
+  icon?: ReactNode;
+  summary?: ReactNode;
+  children: ReactNode;
+}) {
+  return (
+    <details className="card manager-collapsible">
+      <summary className="manager-collapsible-summary">
+        <span className="manager-collapsible-title">
+          {icon}
+          <strong>{title}</strong>
+        </span>
+        <span className="manager-collapsible-meta">
+          {summary}
+          <ChevronDown className="manager-collapsible-chevron" size={20} />
+        </span>
+      </summary>
+      <div className="manager-collapsible-content">{children}</div>
+    </details>
+  );
+}
 
 export default function ManagerWorkspacePage() {
   const warnings = validateSchedule(
@@ -73,6 +103,7 @@ export default function ManagerWorkspacePage() {
     }
   ];
   const firstOpenShifts = openShifts.slice(0, 6);
+  const readinessIssues = pilotReadiness.filter((item) => !item.done).length;
 
   return (
     <>
@@ -141,8 +172,7 @@ export default function ManagerWorkspacePage() {
       </section>
 
       <div className="manager-focus-grid">
-        <section className="card">
-          <h2>פעולות להיום</h2>
+        <CollapsibleManagerSection title="פעולות להיום" summary={<span className="badge">3 פעולות</span>}>
           <div className="big-action-list">
             <Link href="/manager/schedule" className="big-action priority">
               <Wand2 size={22} />
@@ -166,10 +196,13 @@ export default function ManagerWorkspacePage() {
               </span>
             </Link>
           </div>
-        </section>
+        </CollapsibleManagerSection>
 
-        <section className="card">
-          <h2>משמרות פתוחות דחופות</h2>
+        <CollapsibleManagerSection
+          title="משמרות פתוחות דחופות"
+          icon={openShifts.length ? <AlertTriangle className="manager-section-warning" size={20} /> : <CheckCircle2 className="manager-section-ok" size={20} />}
+          summary={<span className={openShifts.length ? "badge critical" : "badge success"}>{openShifts.length}</span>}
+        >
           <div className="warning-list">
             {firstOpenShifts.length ? (
               firstOpenShifts.map((shift) => {
@@ -193,10 +226,13 @@ export default function ManagerWorkspacePage() {
               </div>
             )}
           </div>
-        </section>
+        </CollapsibleManagerSection>
 
-        <section className="card">
-          <h2>מוכנות לפיילוט</h2>
+        <CollapsibleManagerSection
+          title="מוכנות לפיילוט"
+          icon={readinessIssues ? <AlertTriangle className="manager-section-warning" size={20} /> : <CheckCircle2 className="manager-section-ok" size={20} />}
+          summary={<span className={readinessIssues ? "badge warning" : "badge success"}>{readinessIssues ? `${readinessIssues} לטיפול` : "תקין"}</span>}
+        >
           <div className="warning-list">
             {pilotReadiness.map((item) => (
               <div className="mini-row" key={item.label}>
@@ -210,12 +246,11 @@ export default function ManagerWorkspacePage() {
               </div>
             ))}
           </div>
-        </section>
+        </CollapsibleManagerSection>
       </div>
 
       <div className="manager-dashboard-grid">
-        <section className="card">
-          <h2>עומס עובדים</h2>
+        <CollapsibleManagerSection title="עומס עובדים" summary={<span className="badge">{fairness.length} עובדים</span>}>
           <div className="warning-list">
             {fairness
               .slice()
@@ -236,10 +271,13 @@ export default function ManagerWorkspacePage() {
               );
             })}
           </div>
-        </section>
+        </CollapsibleManagerSection>
 
-        <section className="card">
-          <h2>עובדים שלא הגישו</h2>
+        <CollapsibleManagerSection
+          title="עובדים שלא הגישו"
+          icon={missingSubmitters.length ? <AlertTriangle className="manager-section-warning" size={20} /> : <CheckCircle2 className="manager-section-ok" size={20} />}
+          summary={<span className={missingSubmitters.length ? "badge warning" : "badge success"}>{missingSubmitters.length}</span>}
+        >
           <div className="warning-list">
             {missingSubmitters.length ? (
               missingSubmitters.map((employee) => (
@@ -258,10 +296,13 @@ export default function ManagerWorkspacePage() {
               </div>
             )}
           </div>
-        </section>
+        </CollapsibleManagerSection>
 
-        <section className="card">
-          <h2>בקרות ניהול</h2>
+        <CollapsibleManagerSection
+          title="בקרות ניהול"
+          icon={criticalWarnings.length ? <AlertTriangle className="manager-section-warning" size={20} /> : undefined}
+          summary={<span className={criticalWarnings.length ? "badge critical" : "badge"}>{warnings.length} בדיקות</span>}
+        >
           <div className="warning-list">
             <div className="mini-row">
               <div>
@@ -285,15 +326,23 @@ export default function ManagerWorkspacePage() {
               <AlertTriangle size={18} color="var(--amber)" />
             </div>
           </div>
-        </section>
+        </CollapsibleManagerSection>
       </div>
 
       <div style={{ marginTop: 16 }}>
-        <WarningsPanel
-          schedule={scheduledShifts}
-          templates={shiftTemplates}
-          warnings={warnings.slice(0, 10)}
-        />
+        <CollapsibleManagerSection
+          title="אזהרות פתוחות"
+          icon={warnings.length ? <AlertTriangle className="manager-section-warning" size={20} /> : <CheckCircle2 className="manager-section-ok" size={20} />}
+          summary={<span className={warnings.length ? "badge warning" : "badge success"}>{warnings.length}</span>}
+        >
+          <div className="manager-collapsible-warning-panel">
+            <WarningsPanel
+              schedule={scheduledShifts}
+              templates={shiftTemplates}
+              warnings={warnings.slice(0, 10)}
+            />
+          </div>
+        </CollapsibleManagerSection>
       </div>
     </>
   );

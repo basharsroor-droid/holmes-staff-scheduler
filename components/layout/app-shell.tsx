@@ -23,6 +23,7 @@ import {
   getOrganizationById
 } from "@/lib/app-config";
 import { BrandLogo } from "@/components/brand/brand-logo";
+import { MobileAppDock } from "@/components/layout/mobile-app-dock";
 import { employees, managerEmployeeId } from "@/lib/mock-data";
 import type { AuthUser } from "@/lib/auth-config";
 import { AUTH_USER_KEY, DEMO_USER_KEY } from "@/lib/local-storage-keys";
@@ -37,10 +38,6 @@ const employeeNav = [
   { href: "/demo/help", label: "עזרה ותמיכה", icon: LifeBuoy }
 ];
 
-// Keep the demo shell focused on the same core jobs a manager sees in the
-// real product. /pilot remains the demo landing page (the logo links to it),
-// but it is deliberately not another top-level navigation item competing
-// with the actual work areas.
 const managerNav = [
   { href: "/manager", label: "מרכז הניהול", icon: CalendarCheck },
   { href: "/manager/schedule", label: "סידור עבודה", icon: Wand2 },
@@ -81,6 +78,7 @@ function normalizeAuthUser(user: AuthUser): AuthUser {
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
+  const isWorkspaceRoute = pathname.startsWith("/workspace");
   const isSaasRoute =
     pathname === "/app" ||
     pathname === "/onboarding" ||
@@ -92,7 +90,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     pathname === "/about" ||
     pathname === "/offline" ||
     pathname.startsWith("/support") ||
-    pathname.startsWith("/workspace") ||
+    isWorkspaceRoute ||
     pathname.startsWith("/auth/");
   const [authUser, setAuthUser] = useState<AuthUser | null>(null);
   const [authChecked, setAuthChecked] = useState(false);
@@ -133,6 +131,15 @@ export function AppShell({ children }: { children: ReactNode }) {
     router.replace("/");
   }
 
+  if (isWorkspaceRoute) {
+    return (
+      <main className="pb-24 md:pb-0">
+        {children}
+        <MobileAppDock />
+      </main>
+    );
+  }
+
   if (pathname === "/" || isSaasRoute) {
     return <main>{children}</main>;
   }
@@ -152,7 +159,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   const privateNavItems = getNavForEmployee(navUser);
 
   return (
-    <div className="app-shell">
+    <div className="app-shell pb-24 md:pb-0">
       <header
         className="topbar"
         style={{
@@ -170,6 +177,7 @@ export function AppShell({ children }: { children: ReactNode }) {
           <button
             type="button"
             className="mobile-nav-toggle"
+            style={{ display: "none" }}
             aria-label={mobileNavOpen ? "סגירת תפריט" : "פתיחת תפריט"}
             aria-expanded={mobileNavOpen}
             aria-controls="private-navigation"
@@ -247,6 +255,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         <span style={{ color: "#7b8798" }}>{organization.industryLabel}</span>
       </div>
       <main className="page">{children}</main>
+      <MobileAppDock />
     </div>
   );
 }
