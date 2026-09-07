@@ -47,9 +47,9 @@ export function FinalSchedule({
         <div className="schedule-calendar-weekdays" aria-hidden="true">
           {weekdayLabels.map((label) => <span key={label}>{label}</span>)}
         </div>
-        <div className="schedule-calendar-grid" role="grid" aria-label="לוח סידור עבודה">
+        <div className="schedule-calendar-grid" aria-label="לוח סידור עבודה">
           {calendarCells.map((day, index) => {
-            if (!day) return <span className="schedule-calendar-empty" key={`empty-${index}`} />;
+            if (!day) return <span className="schedule-calendar-empty" key={`empty-${index}`} aria-hidden="true" />;
             const date = format(day, "yyyy-MM-dd");
             const dayShifts = schedule.filter((shift) => shift.date === date);
             const isSelected = date === selectedDate;
@@ -59,16 +59,16 @@ export function FinalSchedule({
             return (
               <button
                 type="button"
-                role="gridcell"
-                aria-selected={isSelected}
+                aria-pressed={isSelected}
+                aria-label={`${format(day, "EEEE d בMMMM", { locale: he })}, ${dayShifts.length} משמרות`}
                 className={`schedule-calendar-day ${isSelected ? "selected" : ""}`}
                 key={date}
                 onClick={() => setSelectedDate(date)}
               >
                 <span className="schedule-calendar-number">{format(day, "d")}</span>
-                <span className="schedule-calendar-dots">
-                  {filledCount ? <i className="filled" title={`${filledCount} משמרות משובצות`} /> : null}
-                  {openCount ? <i className="open" title={`${openCount} משמרות פתוחות`} /> : null}
+                <span className="schedule-calendar-dots" aria-hidden="true">
+                  {filledCount ? <i className="filled" /> : null}
+                  {openCount ? <i className="open" /> : null}
                 </span>
                 <small>{dayShifts.length ? `${dayShifts.length} משמרות` : ""}</small>
               </button>
