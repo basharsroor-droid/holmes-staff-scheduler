@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 
 import "@/app/globals.css";
 import "@/app/pilot-touch-targets.css";
+import "@/app/mobile-manager-schedule.css";
 
 import { introPrebootScript, SiteIntro } from "@/components/brand/site-intro";
 import { AppShell } from "@/components/layout/app-shell";
