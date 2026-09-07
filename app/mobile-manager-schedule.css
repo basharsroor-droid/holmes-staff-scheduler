@@ -397,17 +397,15 @@
   body:has(#new-user-first-name) .compact-table td:nth-child(6)::before { content: "תפקיד"; }
   body:has(#new-user-first-name) .compact-table td:nth-child(7)::before { content: "סטטוס סיסמה"; }
 
-  body:has(#new-user-first-name) .table:not(.compact-table) td:nth-child(1),
-  body:has(#new-user-first-name) .table:not(.compact-table) td:nth-child(2) {
+  body:has(#new-user-first-name) .table:not(.compact-table) td:nth-child(1) {
     grid-column: 1 / -1;
   }
   body:has(#new-user-first-name) .table:not(.compact-table) td:nth-child(1)::before { content: "שם"; }
-  body:has(#new-user-first-name) .table:not(.compact-table) td:nth-child(2)::before { content: "ותק"; }
-  body:has(#new-user-first-name) .table:not(.compact-table) td:nth-child(3)::before { content: "פתיחה"; }
-  body:has(#new-user-first-name) .table:not(.compact-table) td:nth-child(4)::before { content: "סגירה"; }
-  body:has(#new-user-first-name) .table:not(.compact-table) td:nth-child(5)::before { content: "פעיל"; }
+  body:has(#new-user-first-name) .table:not(.compact-table) td:nth-child(2)::before { content: "תאריך תחילת עבודה"; }
+  body:has(#new-user-first-name) .table:not(.compact-table) td:nth-child(3)::before { content: "ותק"; }
+  body:has(#new-user-first-name) .table:not(.compact-table) td:nth-child(4)::before { content: "פעיל"; }
 
-  body:has(#new-user-first-name) .table:not(.compact-table) td:nth-child(n+3) {
+  body:has(#new-user-first-name) .table:not(.compact-table) td:nth-child(n+2) {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -495,6 +493,11 @@
     background: transparent !important;
   }
 
+  body:has(input[aria-label="שם סוג המשמרת"]) .table td:nth-child(3),
+  body:has(input[aria-label="שם סוג המשמרת"]) .table td:nth-child(4) {
+    overflow: hidden;
+  }
+
   body:has(input[aria-label="שם סוג המשמרת"]) .table td::before {
     color: var(--muted);
     font-size: 11px;
@@ -520,6 +523,23 @@
     height: 44px;
     padding: 8px 10px;
     font-size: 16px;
+  }
+
+  body:has(input[aria-label="שם סוג המשמרת"]) .table input[type="time"] {
+    display: block;
+    box-sizing: border-box;
+    inline-size: 100%;
+    min-inline-size: 0;
+    max-inline-size: 100%;
+    -webkit-appearance: none;
+    appearance: none;
+    text-align: center;
+  }
+
+  body:has(input[aria-label="שם סוג המשמרת"]) .table input[type="time"]::-webkit-date-and-time-value {
+    min-width: 0;
+    margin: 0;
+    text-align: center;
   }
 
   body:has(input[aria-label="שם סוג המשמרת"]) .table td:nth-child(6) {
