@@ -32,7 +32,7 @@ export function DockItem({
 }) {
   const className = cn(
     "relative flex min-h-12 min-w-14 flex-1 flex-col items-center justify-center gap-1 rounded-2xl px-1 text-[11px] font-bold transition-colors",
-    active ? "bg-blue-50 text-blue-700" : "text-slate-500 hover:bg-slate-50 hover:text-slate-800"
+    active ? "bg-blue-50 text-blue-700" : "text-slate-700 hover:bg-slate-50 hover:text-slate-900"
   );
 
   if (onClick) {
