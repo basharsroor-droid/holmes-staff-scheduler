@@ -93,37 +93,47 @@
 }
 
 .selected-day-schedule > header {
-  display: flex;
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) 44px;
   align-items: center;
-  justify-content: space-between;
   gap: 12px;
   padding: 15px 17px;
   background: linear-gradient(135deg, #edf3ff, #f8fbff);
   border-bottom: 1px solid var(--line);
 }
 
-.selected-day-schedule > header div {
+.selected-day-heading {
   display: grid;
+  justify-items: center;
   gap: 3px;
+  text-align: center;
 }
 
-.selected-day-schedule > header span {
+.selected-day-heading span {
   color: var(--primary);
   font-weight: 850;
 }
 
-.selected-day-schedule > header strong {
-  font-size: 18px;
-}
+.selected-day-heading strong { font-size: 18px; }
+.selected-day-heading small { color: var(--muted); font-weight: 750; }
 
-.selected-day-schedule > header small {
-  color: var(--muted);
-  font-weight: 750;
-}
-
-.selected-day-shifts {
+.selected-day-nav-button {
   display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  background: #fff;
+  color: var(--primary);
 }
+
+.selected-day-nav-button:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.selected-day-shifts { display: grid; }
 
 .selected-day-shift {
   display: grid;
@@ -154,8 +164,18 @@
   .schedule-calendar-dots { gap: 3px; }
   .schedule-calendar-dots i { width: 6px; height: 6px; }
   .selected-day-schedule { border-radius: 16px; }
-  .selected-day-schedule > header { padding: 12px 13px; }
-  .selected-day-schedule > header strong { font-size: 16px; }
+  .selected-day-schedule > header {
+    grid-template-columns: 40px minmax(0, 1fr) 40px;
+    gap: 8px;
+    padding: 10px 11px;
+  }
+  .selected-day-nav-button {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+  }
+  .selected-day-heading strong { font-size: 16px; }
+  .selected-day-heading small { font-size: 11px; }
   .selected-day-shift { min-height: 62px; padding: 11px 13px; gap: 8px; }
   .selected-day-shift > b { font-size: 15px; }
 }
