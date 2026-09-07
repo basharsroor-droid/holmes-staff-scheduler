@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import "@/app/globals.css";
 import "@/app/pilot-touch-targets.css";
 import "@/app/mobile-manager-schedule.css";
+import "@/app/mobile-touch-target-fixes.css";
 import "@/app/final-schedule-calendar.css";
 import "@/app/my-shifts-date-nav.css";
 
