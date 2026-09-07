@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { KeyRound, Mail, UserPlus } from "lucide-react";
+import { ChevronDown, KeyRound, Mail, UserPlus } from "lucide-react";
 
 import { SeniorityBadge } from "@/components/schedule/badges";
 import type { AuthUser } from "@/lib/auth-config";
@@ -46,6 +46,7 @@ export function AdminEmployeesClient({ initialEmployees }: { initialEmployees: E
   const [authUsers, setAuthUsers] = useState<StoredUser[]>([]);
   const [newUser, setNewUser] = useState(emptyUserForm);
   const [message, setMessage] = useState("");
+  const [emailNotificationsOpen, setEmailNotificationsOpen] = useState(false);
 
   useEffect(() => {
     setAuthUsers(JSON.parse(window.localStorage.getItem(LOCAL_USERS_KEY) ?? "[]"));
@@ -275,34 +276,48 @@ export function AdminEmployeesClient({ initialEmployees }: { initialEmployees: E
         </div>
       </section>
 
-      <section className="card">
-        <div className="page-header" style={{ marginBottom: 16 }}>
+      <section className="card email-notifications-card">
+        <button
+          type="button"
+          className="email-notifications-toggle"
+          aria-expanded={emailNotificationsOpen}
+          aria-controls="email-notifications-details"
+          onClick={() => setEmailNotificationsOpen((open) => !open)}
+        >
           <div>
             <h2>התראות מייל</h2>
             <p className="lead">
               זה התכנון שנחבר בשלב הבא לשירות מייל אמיתי. כרגע מוצג כמצב מערכת.
             </p>
           </div>
-          <Mail size={22} color="var(--primary)" />
-        </div>
-        <div className="notification-grid">
-          <div className="card-muted">
-            <strong>22 לחודש</strong>
-            <span>תזכורת להגיש משמרות לחודש הבא</span>
+          <span className="email-notifications-toggle-icons" aria-hidden="true">
+            <Mail size={22} />
+            <ChevronDown
+              size={20}
+              className={emailNotificationsOpen ? "email-notifications-chevron open" : "email-notifications-chevron"}
+            />
+          </span>
+        </button>
+        {emailNotificationsOpen ? (
+          <div id="email-notifications-details" className="notification-grid">
+            <div className="card-muted">
+              <strong>22 לחודש</strong>
+              <span>תזכורת להגיש משמרות לחודש הבא</span>
+            </div>
+            <div className="card-muted">
+              <strong>28 לחודש</strong>
+              <span>התראה שההגשה ננעלת</span>
+            </div>
+            <div className="card-muted">
+              <strong>פרסום סידור</strong>
+              <span>מייל לכל העובדים כשהסידור הסופי פורסם</span>
+            </div>
+            <div className="card-muted">
+              <strong>שעה לפני משמרת</strong>
+              <span>תזכורת אישית לעובד לפני תחילת המשמרת</span>
+            </div>
           </div>
-          <div className="card-muted">
-            <strong>28 לחודש</strong>
-            <span>התראה שההגשה ננעלת</span>
-          </div>
-          <div className="card-muted">
-            <strong>פרסום סידור</strong>
-            <span>מייל לכל העובדים כשהסידור הסופי פורסם</span>
-          </div>
-          <div className="card-muted">
-            <strong>שעה לפני משמרת</strong>
-            <span>תזכורת אישית לעובד לפני תחילת המשמרת</span>
-          </div>
-        </div>
+        ) : null}
       </section>
 
       <section className="card">

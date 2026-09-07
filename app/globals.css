@@ -1723,6 +1723,51 @@ a:focus-visible {
   line-height: 1.5;
 }
 
+.email-notifications-card {
+  padding-block: 18px;
+}
+
+.email-notifications-toggle {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-align: right;
+}
+
+.email-notifications-toggle h2 {
+  margin: 0 0 5px;
+}
+
+.email-notifications-toggle .lead {
+  margin: 0;
+}
+
+.email-notifications-toggle-icons {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  gap: 8px;
+  color: var(--primary);
+}
+
+.email-notifications-chevron {
+  transition: transform 0.2s ease;
+}
+
+.email-notifications-chevron.open {
+  transform: rotate(180deg);
+}
+
+.email-notifications-card .notification-grid {
+  margin-top: 16px;
+}
+
 .pilot-hero {
   display: grid;
   grid-template-columns: minmax(0, 1.35fr) minmax(320px, 0.65fr);
