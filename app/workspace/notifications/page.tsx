@@ -4,6 +4,7 @@ import { ArrowRight, Bell, CalendarCheck, CheckCircle2 } from "lucide-react";
 
 import { MarkNotificationsReadButton } from "@/app/workspace/notifications/mark-notifications-read-button";
 import { NotificationPreferences, type PreferenceValues } from "@/app/workspace/notifications/notification-preferences";
+import { PushNotificationPermission } from "@/app/workspace/notifications/push-notification-permission";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
@@ -111,6 +112,7 @@ export default async function NotificationsPage() {
         <p>כאשר מנהל יפרסם סידור עבודה, העדכון יופיע כאן.</p>
       </div> : null}
     </section>
+    <PushNotificationPermission />
     <NotificationPreferences organizationId={membership.organization_id} userId={user.id} initial={initialPreferences} />
   </main>;
 }

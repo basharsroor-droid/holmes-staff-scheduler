@@ -2,12 +2,22 @@ import { NextResponse } from "next/server";
 
 import { notificationEmail, renderEmail } from "@/lib/email/templates";
 import { sendEmail } from "@/lib/email/resend";
+import { pushCopy, sendApnsPush } from "@/lib/push/apns";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import type { Json } from "@/types/database";
 
 export const maxDuration = 60;
 
 type QueueJob = { id: string; recipient: string; template_key: string; payload: Json; attempts: number };
+type PushJob = {
+  id: string;
+  device_id: string;
+  device_token: string;
+  environment: "sandbox" | "production";
+  template_key: string;
+  payload: Json;
+  attempts: number;
+};
 
 function authorized(request: Request) {
   const secret = process.env.CRON_SECRET;
@@ -23,6 +33,8 @@ export async function GET(request: Request) {
   if (scheduleError) return NextResponse.json({ error: "Could not schedule notifications" }, { status: 500 });
   const { data, error } = await admin.rpc("claim_email_delivery_jobs", { batch_size: 25 });
   if (error) return NextResponse.json({ error: "Could not claim email jobs" }, { status: 500 });
+  const { data: pushData, error: pushClaimError } = await (admin as any).rpc("claim_push_delivery_jobs", { batch_size: 50 });
+  if (pushClaimError) return NextResponse.json({ error: "Could not claim push jobs" }, { status: 500 });
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || new URL(request.url).origin;
   const results = await Promise.allSettled(((data ?? []) as QueueJob[]).map(async (job) => {
@@ -43,5 +55,40 @@ export async function GET(request: Request) {
       throw sendError;
     }
   }));
-  return NextResponse.json({ claimed: results.length, sent: results.filter((item) => item.status === "fulfilled").length, failed: results.filter((item) => item.status === "rejected").length });
+  const pushResults = await Promise.allSettled(((pushData ?? []) as PushJob[]).map(async (job) => {
+    try {
+      const payload = job.payload && typeof job.payload === "object" && !Array.isArray(job.payload) ? job.payload as Record<string, unknown> : {};
+      const copy = pushCopy(job.template_key, payload);
+      const apnsId = await sendApnsPush({
+        token: job.device_token,
+        environment: job.environment,
+        ...copy
+      });
+      await (admin as any).from("push_delivery_queue").update({
+        status: "sent",
+        sent_at: new Date().toISOString(),
+        apns_id: apnsId,
+        last_error: null
+      }).eq("id", job.id);
+      return job.id;
+    } catch (sendError) {
+      const errorMessage = sendError instanceof Error ? sendError.message.slice(0, 500) : "Unknown delivery error";
+      const invalidToken = /BadDeviceToken|DeviceTokenNotForTopic|Unregistered/.test(errorMessage);
+      const finalFailure = invalidToken || job.attempts >= 5;
+      const delayMinutes = Math.min(2 ** Math.max(job.attempts, 1), 60);
+      await (admin as any).from("push_delivery_queue").update({
+        status: finalFailure ? "failed" : "retry",
+        scheduled_for: new Date(Date.now() + delayMinutes * 60_000).toISOString(),
+        last_error: errorMessage
+      }).eq("id", job.id);
+      if (invalidToken) {
+        await (admin as any).from("push_devices").update({ active: false, updated_at: new Date().toISOString() }).eq("id", job.device_id);
+      }
+      throw sendError;
+    }
+  }));
+  return NextResponse.json({
+    email: { claimed: results.length, sent: results.filter((item) => item.status === "fulfilled").length, failed: results.filter((item) => item.status === "rejected").length },
+    push: { claimed: pushResults.length, sent: pushResults.filter((item) => item.status === "fulfilled").length, failed: pushResults.filter((item) => item.status === "rejected").length }
+  });
 }

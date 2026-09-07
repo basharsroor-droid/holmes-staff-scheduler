@@ -62,6 +62,9 @@ const config: CapacitorConfig = {
   // Scoped narrowly on purpose.
   appendUserAgent: "ShiftPilotNativeApp",
   plugins: {
+    PushNotifications: {
+      presentationOptions: ["badge", "sound", "banner", "list"]
+    },
     LocalNotifications: {
       presentationOptions: ["sound", "banner", "list"]
     }
