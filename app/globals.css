@@ -1768,6 +1768,19 @@ a:focus-visible {
   margin-top: 16px;
 }
 
+.employee-list-card {
+  padding-block: 18px;
+}
+
+.employee-list-card > .email-notifications-toggle > svg {
+  flex: 0 0 auto;
+  color: var(--primary);
+}
+
+.employee-list-details {
+  margin-top: 16px;
+}
+
 .pilot-hero {
   display: grid;
   grid-template-columns: minmax(0, 1.35fr) minmax(320px, 0.65fr);
