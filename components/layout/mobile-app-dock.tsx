@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import {
   Bell,
@@ -11,6 +11,7 @@ import {
   CircleHelp,
   Home,
   LifeBuoy,
+  LogOut,
   Menu,
   Repeat2,
   Settings,
@@ -22,7 +23,7 @@ import { AnimatePresence, motion } from "motion/react";
 
 import { Dock, DockIcon, DockItem, DockLabel } from "@/components/ui/dock";
 import type { AuthUser } from "@/lib/auth-config";
-import { AUTH_USER_KEY } from "@/lib/local-storage-keys";
+import { AUTH_USER_KEY, DEMO_USER_KEY } from "@/lib/local-storage-keys";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 
 const workspaceEmployeePrimary = [
@@ -95,6 +96,7 @@ type DockRole = "employee" | "manager";
 
 export function MobileAppDock() {
   const pathname = usePathname();
+  const router = useRouter();
   const [role, setRole] = useState<DockRole>("employee");
   const [moreOpen, setMoreOpen] = useState(false);
   const isWorkspace = pathname.startsWith("/workspace");
@@ -152,6 +154,23 @@ export function MobileAppDock() {
     return pathname === href || (href !== "/workspace" && pathname.startsWith(`${href}/`));
   }
 
+  async function logout() {
+    setMoreOpen(false);
+    if (isWorkspace) {
+      const supabase = createSupabaseBrowserClient();
+      await supabase.auth.signOut();
+      router.replace("/login");
+      router.refresh();
+      return;
+    }
+
+    window.localStorage.removeItem(AUTH_USER_KEY);
+    window.localStorage.removeItem(DEMO_USER_KEY);
+    window.sessionStorage.removeItem(AUTH_USER_KEY);
+    window.sessionStorage.removeItem(DEMO_USER_KEY);
+    router.replace("/");
+  }
+
   return (
     <>
       <div
@@ -203,11 +222,11 @@ export function MobileAppDock() {
               <div className="mb-3 flex items-center justify-between">
                 <div>
                   <strong className="block text-base text-slate-900">עוד ב-ShiftPilot</strong>
-                  <small className="text-slate-500">{role === "employee" ? "כלים לעובד/ת" : "כלי ניהול והגדרות"}</small>
+                  <small className="text-slate-600">{role === "employee" ? "כלים לעובד/ת" : "כלי ניהול והגדרות"}</small>
                 </div>
                 <button
                   type="button"
-                  className="grid h-10 w-10 place-items-center rounded-full bg-slate-100 text-slate-700"
+                  className="grid h-11 w-11 place-items-center rounded-full bg-slate-100 text-slate-700"
                   onClick={() => setMoreOpen(false)}
                   aria-label="סגירה"
                 >
@@ -233,6 +252,14 @@ export function MobileAppDock() {
                   );
                 })}
               </div>
+              <button
+                type="button"
+                onClick={() => void logout()}
+                className="mt-3 flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-slate-50 px-4 text-sm font-black text-slate-800 transition-colors hover:bg-slate-100"
+              >
+                <LogOut className="h-4 w-4" />
+                יציאה
+              </button>
             </motion.aside>
           </>
         ) : null}
