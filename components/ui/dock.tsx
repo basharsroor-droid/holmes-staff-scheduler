@@ -30,20 +30,35 @@ export function DockItem({
   onClick?: () => void;
   label: string;
 }) {
+  const className = cn(
+    "relative flex min-h-12 min-w-14 flex-1 flex-col items-center justify-center gap-1 rounded-2xl px-1 text-[11px] font-bold transition-colors",
+    active ? "bg-blue-50 text-blue-700" : "text-slate-500 hover:bg-slate-50 hover:text-slate-800"
+  );
+
+  if (onClick) {
+    return (
+      <motion.button
+        type="button"
+        whileTap={{ scale: 0.92 }}
+        onClick={onClick}
+        aria-label={label}
+        aria-current={active ? "page" : undefined}
+        className={className}
+      >
+        {children}
+      </motion.button>
+    );
+  }
+
   return (
-    <motion.button
-      type="button"
+    <motion.div
       whileTap={{ scale: 0.92 }}
-      onClick={onClick}
       aria-label={label}
       aria-current={active ? "page" : undefined}
-      className={cn(
-        "relative flex min-h-12 min-w-14 flex-1 flex-col items-center justify-center gap-1 rounded-2xl px-1 text-[11px] font-bold transition-colors",
-        active ? "bg-blue-50 text-blue-700" : "text-slate-500 hover:bg-slate-50 hover:text-slate-800"
-      )}
+      className={className}
     >
       {children}
-    </motion.button>
+    </motion.div>
   );
 }
 
