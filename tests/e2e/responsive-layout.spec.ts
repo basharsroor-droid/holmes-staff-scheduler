@@ -87,7 +87,11 @@ test("mobile onboarding fields and authentication panels stack", async ({ page }
 
   for (const route of ["/login", "/auth/forgot-password", "/demo"]) {
     await page.goto(route);
-    const panel = page.locator(route === "/demo" ? ".demo-auth-flow" : ".auth-flow");
+    const panel = route === "/demo"
+      ? page.locator(".demo-auth-flow")
+      : route === "/login"
+        ? page.getByRole("main").last()
+        : page.locator(".auth-flow");
     const box = await panel.boundingBox();
     expect(box).not.toBeNull();
     expect(box!.width).toBeLessThanOrEqual(await page.evaluate(() => window.innerWidth));
