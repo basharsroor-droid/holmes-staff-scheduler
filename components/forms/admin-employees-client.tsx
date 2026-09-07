@@ -1,9 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { KeyRound, Mail, UserPlus } from "lucide-react";
+import { ChevronDown, KeyRound, Mail, UserPlus } from "lucide-react";
 
-import { SeniorityBadge } from "@/components/schedule/badges";
 import type { AuthUser } from "@/lib/auth-config";
 import {
   defaultBranchId,
@@ -12,10 +11,9 @@ import {
   organizations
 } from "@/lib/app-config";
 import { LOCAL_USERS_KEY } from "@/lib/local-storage-keys";
-import { seniorityLabels } from "@/lib/scheduler-labels";
-import type { Employee, SeniorityLevel } from "@/types/scheduler";
+import type { Employee } from "@/types/scheduler";
 
-type StoredUser = AuthUser & { password: string };
+type StoredUser = AuthUser & { password: string; employmentStartDate?: string };
 
 type NewUserForm = {
   firstName: string;
@@ -24,6 +22,7 @@ type NewUserForm = {
   username: string;
   email: string;
   password: string;
+  employmentStartDate: string;
   role: "employee" | "manager";
   organizationId: string;
   branchId: string;
@@ -36,19 +35,62 @@ const emptyUserForm: NewUserForm = {
   username: "",
   email: "",
   password: "",
+  employmentStartDate: "",
   role: "employee",
   organizationId: defaultOrganizationId,
   branchId: defaultBranchId
 };
+
+function employeeFromUser(user: StoredUser): Employee {
+  return {
+    id: user.id,
+    fullName: `${user.firstName} ${user.lastName}`.trim(),
+    employmentStartDate: user.employmentStartDate || undefined,
+    color: "#64748b",
+    role: user.role,
+    seniorityLevel: "regular",
+    canOpen: false,
+    canClose: false,
+    active: true
+  };
+}
+
+function formatSeniority(startDate?: string) {
+  if (!startDate) return "לא הוזן תאריך התחלה";
+
+  const start = new Date(`${startDate}T00:00:00`);
+  const today = new Date();
+  if (Number.isNaN(start.getTime())) return "לא הוזן תאריך התחלה";
+  if (start > today) return "טרם התחיל/ה לעבוד";
+
+  let months = (today.getFullYear() - start.getFullYear()) * 12 + today.getMonth() - start.getMonth();
+  if (today.getDate() < start.getDate()) months -= 1;
+  if (months < 1) return "פחות מחודש";
+
+  const years = Math.floor(months / 12);
+  const remainingMonths = months % 12;
+  const parts = [];
+  if (years) parts.push(years === 1 ? "שנה" : `${years} שנים`);
+  if (remainingMonths) parts.push(remainingMonths === 1 ? "חודש" : `${remainingMonths} חודשים`);
+  return parts.join(" ו־");
+}
 
 export function AdminEmployeesClient({ initialEmployees }: { initialEmployees: Employee[] }) {
   const [employees, setEmployees] = useState(initialEmployees);
   const [authUsers, setAuthUsers] = useState<StoredUser[]>([]);
   const [newUser, setNewUser] = useState(emptyUserForm);
   const [message, setMessage] = useState("");
+  const [emailNotificationsOpen, setEmailNotificationsOpen] = useState(false);
+  const [employeeListOpen, setEmployeeListOpen] = useState(false);
 
   useEffect(() => {
-    setAuthUsers(JSON.parse(window.localStorage.getItem(LOCAL_USERS_KEY) ?? "[]"));
+    const storedUsers = JSON.parse(window.localStorage.getItem(LOCAL_USERS_KEY) ?? "[]") as StoredUser[];
+    setAuthUsers(storedUsers);
+    setEmployees((current) => {
+      const storedEmployees = storedUsers.map(employeeFromUser);
+      const storedIds = new Set(storedEmployees.map((employee) => employee.id));
+      return [...current.filter((employee) => !storedIds.has(employee.id)), ...storedEmployees];
+    });
   }, []);
 
   function updateEmployee(id: string, patch: Partial<Employee>) {
@@ -84,6 +126,7 @@ export function AdminEmployeesClient({ initialEmployees }: { initialEmployees: E
       username: newUser.username.trim() || newUser.firstName.trim(),
       email: newUser.email.trim(),
       password: newUser.password,
+      employmentStartDate: newUser.employmentStartDate || undefined,
       role: newUser.role,
       organizationId: newUser.organizationId,
       branchId: newUser.branchId,
@@ -95,6 +138,12 @@ export function AdminEmployeesClient({ initialEmployees }: { initialEmployees: E
       ...authUsers.filter((user) => user.nationalId !== createdUser.nationalId),
       createdUser
     ]);
+    setEmployees((current) => {
+      const employee = employeeFromUser(createdUser);
+      const existing = current.find((item) => item.id === employee.id);
+      if (!existing) return [...current, employee];
+      return current.map((item) => item.id === employee.id ? { ...item, ...employee, active: item.active } : item);
+    });
     setNewUser(emptyUserForm);
     setMessage("המשתמש נוצר. בכניסה הראשונה הוא יהיה חייב להחליף סיסמה.");
   }
@@ -225,6 +274,18 @@ export function AdminEmployeesClient({ initialEmployees }: { initialEmployees: E
               }
             />
           </div>
+          <div className="field">
+            <label htmlFor="new-user-employment-start-date">תאריך תחילת עבודה (אופציונלי)</label>
+            <input
+              id="new-user-employment-start-date"
+              className="input"
+              type="date"
+              value={newUser.employmentStartDate}
+              onChange={(event) =>
+                setNewUser((current) => ({ ...current, employmentStartDate: event.target.value }))
+              }
+            />
+          </div>
         </div>
 
         <div className="actions" style={{ marginTop: 16 }}>
@@ -275,148 +336,116 @@ export function AdminEmployeesClient({ initialEmployees }: { initialEmployees: E
         </div>
       </section>
 
-      <section className="card">
-        <div className="page-header" style={{ marginBottom: 16 }}>
+      <section className="card email-notifications-card">
+        <button
+          type="button"
+          className="email-notifications-toggle"
+          aria-expanded={emailNotificationsOpen}
+          aria-controls="email-notifications-details"
+          onClick={() => setEmailNotificationsOpen((open) => !open)}
+        >
           <div>
             <h2>התראות מייל</h2>
             <p className="lead">
               זה התכנון שנחבר בשלב הבא לשירות מייל אמיתי. כרגע מוצג כמצב מערכת.
             </p>
           </div>
-          <Mail size={22} color="var(--primary)" />
-        </div>
-        <div className="notification-grid">
-          <div className="card-muted">
-            <strong>22 לחודש</strong>
-            <span>תזכורת להגיש משמרות לחודש הבא</span>
+          <span className="email-notifications-toggle-icons" aria-hidden="true">
+            <Mail size={22} />
+            <ChevronDown
+              size={20}
+              className={emailNotificationsOpen ? "email-notifications-chevron open" : "email-notifications-chevron"}
+            />
+          </span>
+        </button>
+        {emailNotificationsOpen ? (
+          <div id="email-notifications-details" className="notification-grid">
+            <div className="card-muted">
+              <strong>22 לחודש</strong>
+              <span>תזכורת להגיש משמרות לחודש הבא</span>
+            </div>
+            <div className="card-muted">
+              <strong>28 לחודש</strong>
+              <span>התראה שההגשה ננעלת</span>
+            </div>
+            <div className="card-muted">
+              <strong>פרסום סידור</strong>
+              <span>מייל לכל העובדים כשהסידור הסופי פורסם</span>
+            </div>
+            <div className="card-muted">
+              <strong>שעה לפני משמרת</strong>
+              <span>תזכורת אישית לעובד לפני תחילת המשמרת</span>
+            </div>
           </div>
-          <div className="card-muted">
-            <strong>28 לחודש</strong>
-            <span>התראה שההגשה ננעלת</span>
-          </div>
-          <div className="card-muted">
-            <strong>פרסום סידור</strong>
-            <span>מייל לכל העובדים כשהסידור הסופי פורסם</span>
-          </div>
-          <div className="card-muted">
-            <strong>שעה לפני משמרת</strong>
-            <span>תזכורת אישית לעובד לפני תחילת המשמרת</span>
-          </div>
-        </div>
+        ) : null}
       </section>
 
-      <section className="card">
-      <div className="page-header" style={{ marginBottom: 16 }}>
-        <div>
-          <h2>רשימת עובדים</h2>
-          <p className="lead">ניהול בסיסי של הרשאות פתיחה/סגירה, ותק וסטטוס פעיל.</p>
-        </div>
+      <section className="card employee-list-card">
         <button
-          className="button primary"
-          onClick={() =>
-            setEmployees((current) => [
-              ...current,
-              {
-                id: `emp-${current.length + 1}`,
-                fullName: "עובד חדש",
-                color: "#64748b",
-                role: "employee",
-                seniorityLevel: "new",
-                canOpen: false,
-                canClose: false,
-                active: true
-              }
-            ])
-          }
+          type="button"
+          className="email-notifications-toggle"
+          aria-expanded={employeeListOpen}
+          aria-controls="employee-list-details"
+          onClick={() => setEmployeeListOpen((open) => !open)}
         >
-          הוספת עובד
+          <div>
+            <h2>רשימת עובדים</h2>
+            <p className="lead">שמות העובדים, הוותק המחושב וסטטוס ההעסקה.</p>
+          </div>
+          <ChevronDown
+            size={22}
+            aria-hidden="true"
+            className={employeeListOpen ? "email-notifications-chevron open" : "email-notifications-chevron"}
+          />
         </button>
-      </div>
-      <div className="table-wrap">
-        <table className="table">
-          <thead>
-            <tr>
-              <th>שם</th>
-              <th>ותק</th>
-              <th>פתיחה</th>
-              <th>סגירה</th>
-              <th>פעיל</th>
-            </tr>
-          </thead>
-          <tbody>
-            {employees.map((employee) => (
-              <tr key={employee.id}>
-                <td>
-                  <input
-                    className="input"
-                    aria-label="שם העובד/ת"
-                    value={employee.fullName}
-                    onChange={(event) =>
-                      updateEmployee(employee.id, { fullName: event.target.value })
-                    }
-                  />
-                </td>
-                <td>
-                  <div className="grid">
-                    <SeniorityBadge level={employee.seniorityLevel} />
-                    <select
-                      className="select"
-                      aria-label={`ותק — ${employee.fullName}`}
-                      value={employee.seniorityLevel}
-                      onChange={(event) =>
-                        updateEmployee(employee.id, {
-                          seniorityLevel: event.target.value as SeniorityLevel
-                        })
-                      }
-                    >
-                      {Object.entries(seniorityLabels).map(([value, label]) => (
-                        <option key={value} value={value}>
-                          {label}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </td>
-                <td>
-                  <input
-                    checked={employee.canOpen}
-                    type="checkbox"
-                    aria-label={`הרשאת פתיחה — ${employee.fullName}`}
-                    onChange={(event) =>
-                      updateEmployee(employee.id, { canOpen: event.target.checked })
-                    }
-                  />
-                </td>
-                <td>
-                  <input
-                    checked={employee.canClose}
-                    type="checkbox"
-                    aria-label={`הרשאת סגירה — ${employee.fullName}`}
-                    onChange={(event) =>
-                      updateEmployee(employee.id, { canClose: event.target.checked })
-                    }
-                  />
-                </td>
-                <td>
-                  <input
-                    checked={employee.active}
-                    type="checkbox"
-                    aria-label={`עובד/ת פעיל/ה — ${employee.fullName}`}
-                    onChange={(event) =>
-                      updateEmployee(employee.id, { active: event.target.checked })
-                    }
-                  />
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      <div className="card-muted" style={{ marginTop: 14 }}>
-        <KeyRound size={16} />
-        פרטי הכניסה עצמם מנוהלים למעלה. הרשימה הזו נשארת לניהול הרשאות עבודה,
-        ותק וסטטוס פעיל.
-      </div>
+        {employeeListOpen ? (
+          <div id="employee-list-details" className="employee-list-details">
+            <div className="table-wrap">
+              <table className="table">
+                <thead>
+                  <tr>
+                    <th>שם</th>
+                    <th>תאריך תחילת עבודה</th>
+                    <th>ותק</th>
+                    <th>פעיל</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {employees.map((employee) => (
+                    <tr key={employee.id}>
+                      <td>
+                        <input
+                          className="input"
+                          aria-label="שם העובד/ת"
+                          value={employee.fullName}
+                          onChange={(event) =>
+                            updateEmployee(employee.id, { fullName: event.target.value })
+                          }
+                        />
+                      </td>
+                      <td>{employee.employmentStartDate || "לא הוזן"}</td>
+                      <td>{formatSeniority(employee.employmentStartDate)}</td>
+                      <td>
+                        <input
+                          checked={employee.active}
+                          type="checkbox"
+                          aria-label={`עובד/ת פעיל/ה — ${employee.fullName}`}
+                          onChange={(event) =>
+                            updateEmployee(employee.id, { active: event.target.checked })
+                          }
+                        />
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <div className="card-muted" style={{ marginTop: 14 }}>
+              <KeyRound size={16} />
+              הוותק מחושב אוטומטית מתאריך תחילת העבודה שהוזן בעת יצירת המשתמש.
+            </div>
+          </div>
+        ) : null}
       </section>
     </div>
   );

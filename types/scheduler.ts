@@ -25,6 +25,7 @@ export type WarningSeverity = "info" | "warning" | "critical";
 export interface Employee {
   id: string;
   fullName: string;
+  employmentStartDate?: string;
   color: string;
   role: UserRole;
   seniorityLevel: SeniorityLevel;

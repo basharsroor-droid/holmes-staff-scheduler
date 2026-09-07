@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { format } from "date-fns";
 import { he } from "date-fns/locale";
+import { ChevronDown } from "lucide-react";
 
 import { ShiftTypeBadge, WarningBadge } from "@/components/schedule/badges";
 import { EmployeeChip } from "@/components/schedule/employee-chip";
@@ -30,6 +31,8 @@ export function ManagerScheduleBuilder({
   const [schedule, setSchedule] = useState(initialSchedule);
   const [selectedDate, setSelectedDate] = useState(format(days[0], "yyyy-MM-dd"));
   const [saved, setSaved] = useState(false);
+  const [dayWarningsOpen, setDayWarningsOpen] = useState(false);
+  const [fairnessOpen, setFairnessOpen] = useState(false);
   const warnings = useMemo(
     () => validateSchedule(schedule, employees, availability, templates),
     [availability, employees, schedule, templates]
@@ -322,37 +325,62 @@ export function ManagerScheduleBuilder({
       </section>
 
       <aside className="manager-side-panel">
-        <section className="card">
-          <div className="shift-title">
-            <h2>אזהרות ליום</h2>
-            <span className="badge critical">{dayWarnings.length}</span>
-          </div>
-          <div className="warning-list">
-            {dayWarnings.length ? (
-              dayWarnings.map((warning, index) => (
-                <div className="warning-row" key={`${warning.shiftId}-${index}`}>
-                  <WarningBadge severity={warning.severity} /> {warning.message}
-                </div>
-              ))
-            ) : (
-              <div className="metric-label">אין אזהרות ביום הזה</div>
-            )}
-          </div>
+        <section className="card manager-side-collapsible">
+          <button
+            type="button"
+            className="manager-side-toggle"
+            aria-expanded={dayWarningsOpen}
+            aria-controls="day-warnings-details"
+            onClick={() => setDayWarningsOpen((open) => !open)}
+          >
+            <span className="manager-side-toggle-title">
+              <h2>אזהרות ליום</h2>
+              <span className="badge critical">{dayWarnings.length}</span>
+            </span>
+            <ChevronDown className={dayWarningsOpen ? "manager-side-chevron open" : "manager-side-chevron"} size={22} />
+          </button>
+          {dayWarningsOpen ? (
+            <div id="day-warnings-details" className="warning-list manager-side-details">
+              {dayWarnings.length ? (
+                dayWarnings.map((warning, index) => (
+                  <div className="warning-row" key={`${warning.shiftId}-${index}`}>
+                    <WarningBadge severity={warning.severity} /> {warning.message}
+                  </div>
+                ))
+              ) : (
+                <div className="metric-label">אין אזהרות ביום הזה</div>
+              )}
+            </div>
+          ) : null}
         </section>
 
-        <section className="card">
-          <h2>הוגנות מהירה</h2>
-          <div className="compact-fairness">
-            {fairness.slice(0, 8).map((row) => {
-              const employee = employees.find((item) => item.id === row.employeeId);
-              return (
-                <div className="mini-row" key={row.employeeId}>
-                  <strong>{employee?.fullName}</strong>
-                  <span>{row.totalShifts} משמרות</span>
-                </div>
-              );
-            })}
-          </div>
+        <section className="card manager-side-collapsible">
+          <button
+            type="button"
+            className="manager-side-toggle"
+            aria-expanded={fairnessOpen}
+            aria-controls="fairness-details"
+            onClick={() => setFairnessOpen((open) => !open)}
+          >
+            <span className="manager-side-toggle-title">
+              <h2>הוגנות מהירה</h2>
+              <span className="badge">{fairness.length} עובדים</span>
+            </span>
+            <ChevronDown className={fairnessOpen ? "manager-side-chevron open" : "manager-side-chevron"} size={22} />
+          </button>
+          {fairnessOpen ? (
+            <div id="fairness-details" className="compact-fairness manager-side-details">
+              {fairness.slice(0, 8).map((row) => {
+                const employee = employees.find((item) => item.id === row.employeeId);
+                return (
+                  <div className="mini-row" key={row.employeeId}>
+                    <strong>{employee?.fullName}</strong>
+                    <span>{row.totalShifts} משמרות</span>
+                  </div>
+                );
+              })}
+            </div>
+          ) : null}
         </section>
 
         <section className="card">
