@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { format } from "date-fns";
 import { he } from "date-fns/locale";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 import type { Employee, ScheduledShift, ShiftTemplate } from "@/types/scheduler";
 
@@ -28,8 +29,17 @@ export function FinalSchedule({
     [days, leadingEmptyDays]
   );
 
-  const selectedDay = days.find((day) => format(day, "yyyy-MM-dd") === selectedDate) ?? days[0];
+  const selectedIndex = days.findIndex((day) => format(day, "yyyy-MM-dd") === selectedDate);
+  const selectedDay = selectedIndex >= 0 ? days[selectedIndex] : days[0];
   const selectedShifts = schedule.filter((shift) => shift.date === selectedDate);
+  const canGoPrevious = selectedIndex > 0;
+  const canGoNext = selectedIndex >= 0 && selectedIndex < days.length - 1;
+
+  function moveSelectedDay(offset: number) {
+    if (selectedIndex < 0) return;
+    const nextDay = days[selectedIndex + offset];
+    if (nextDay) setSelectedDate(format(nextDay, "yyyy-MM-dd"));
+  }
 
   return (
     <div className="final-schedule-calendar">
@@ -70,11 +80,31 @@ export function FinalSchedule({
       {selectedDay ? (
         <article className="selected-day-schedule">
           <header>
-            <div>
+            <button
+              type="button"
+              className="selected-day-nav-button"
+              onClick={() => moveSelectedDay(-1)}
+              disabled={!canGoPrevious}
+              aria-label="היום הקודם"
+            >
+              <ChevronRight size={20} />
+            </button>
+
+            <div className="selected-day-heading">
               <span>{format(selectedDay, "EEEE", { locale: he })}</span>
               <strong>{format(selectedDay, "dd/MM/yyyy")}</strong>
+              <small>{selectedShifts.length} משמרות</small>
             </div>
-            <small>{selectedShifts.length} משמרות</small>
+
+            <button
+              type="button"
+              className="selected-day-nav-button"
+              onClick={() => moveSelectedDay(1)}
+              disabled={!canGoNext}
+              aria-label="היום הבא"
+            >
+              <ChevronLeft size={20} />
+            </button>
           </header>
           <div className="selected-day-shifts">
             {templates.map((template) => {
