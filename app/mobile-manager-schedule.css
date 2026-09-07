@@ -56,6 +56,49 @@
   color: var(--green);
 }
 
+.manager-side-collapsible {
+  overflow: hidden;
+}
+
+.manager-side-toggle {
+  display: flex;
+  width: 100%;
+  min-height: 44px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  text-align: right;
+}
+
+.manager-side-toggle-title {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 10px;
+}
+
+.manager-side-toggle-title h2 {
+  margin: 0;
+}
+
+.manager-side-chevron {
+  flex: 0 0 auto;
+  color: var(--primary);
+  transition: transform 180ms ease;
+}
+
+.manager-side-chevron.open {
+  transform: rotate(180deg);
+}
+
+.manager-side-details {
+  margin-top: 12px;
+}
+
 @media (max-width: 720px) {
   .manager-workbench {
     gap: 12px;
@@ -224,6 +267,18 @@
     padding: 10px 0 0;
     border: 0;
     background: transparent;
+  }
+
+  .manager-side-collapsible.card {
+    padding: 12px 14px;
+  }
+
+  .manager-side-toggle-title h2 {
+    font-size: 20px;
+  }
+
+  .manager-side-details {
+    margin-top: 10px;
   }
 
   /* Admin employees: the desktop tables were wider than an iPhone and
