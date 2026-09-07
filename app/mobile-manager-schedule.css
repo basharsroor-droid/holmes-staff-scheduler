@@ -1,6 +1,56 @@
 /* Mobile polish for the legacy manager/admin surfaces used inside the iOS wrapper.
  * Keep desktop/tablet unchanged; compact only phone-sized layouts so cards,
  * forms and native controls fit naturally inside the WKWebView viewport. */
+
+.manager-collapsible {
+  overflow: hidden;
+}
+
+.manager-collapsible-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.manager-collapsible-summary::-webkit-details-marker {
+  display: none;
+}
+
+.manager-collapsible-title,
+.manager-collapsible-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.manager-collapsible-meta {
+  flex: 0 0 auto;
+}
+
+.manager-collapsible-chevron {
+  transition: transform 180ms ease;
+}
+
+.manager-collapsible[open] .manager-collapsible-chevron {
+  transform: rotate(180deg);
+}
+
+.manager-collapsible-content {
+  margin-top: 14px;
+}
+
+.manager-section-warning {
+  color: var(--amber);
+}
+
+.manager-section-ok {
+  color: var(--green);
+}
+
 @media (max-width: 720px) {
   .manager-workbench {
     gap: 12px;
@@ -126,30 +176,11 @@
 
   .manager-collapsible {
     padding: 0 !important;
-    overflow: hidden;
   }
 
   .manager-collapsible-summary {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
     min-height: 58px;
     padding: 12px 14px;
-    cursor: pointer;
-    list-style: none;
-  }
-
-  .manager-collapsible-summary::-webkit-details-marker {
-    display: none;
-  }
-
-  .manager-collapsible-title,
-  .manager-collapsible-meta {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    min-width: 0;
   }
 
   .manager-collapsible-title strong {
@@ -157,19 +188,8 @@
     line-height: 1.3;
   }
 
-  .manager-collapsible-meta {
-    flex: 0 0 auto;
-  }
-
-  .manager-collapsible-chevron {
-    transition: transform 180ms ease;
-  }
-
-  .manager-collapsible[open] .manager-collapsible-chevron {
-    transform: rotate(180deg);
-  }
-
   .manager-collapsible-content {
+    margin-top: 0;
     padding: 0 12px 12px;
     border-top: 1px solid var(--line);
   }
@@ -177,14 +197,6 @@
   .manager-collapsible-content > .warning-list,
   .manager-collapsible-content > .big-action-list {
     margin-top: 10px;
-  }
-
-  .manager-section-warning {
-    color: var(--amber);
-  }
-
-  .manager-section-ok {
-    color: var(--green);
   }
 
   .manager-collapsible .mini-row,
