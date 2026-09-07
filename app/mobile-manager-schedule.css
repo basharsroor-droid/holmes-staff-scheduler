@@ -1,0 +1,121 @@
+/* Mobile polish for the legacy manager schedule editor used inside the iOS wrapper.
+ * Keep desktop/tablet unchanged; compact only phone-sized layouts so cards and
+ * native time inputs fit naturally inside the WKWebView viewport. */
+@media (max-width: 720px) {
+  .manager-workbench {
+    gap: 12px;
+  }
+
+  .day-editor.card {
+    padding: 12px;
+  }
+
+  .day-editor .page-header {
+    gap: 12px;
+    margin-bottom: 12px !important;
+  }
+
+  .day-editor .page-header h2 {
+    font-size: 20px;
+    line-height: 1.2;
+    margin-bottom: 6px;
+  }
+
+  .day-editor .page-header .lead {
+    font-size: 13px;
+    line-height: 1.55;
+    margin-bottom: 0;
+  }
+
+  .day-editor .page-header .actions {
+    gap: 8px;
+  }
+
+  .day-editor .page-header .actions .select,
+  .day-editor .page-header .actions .button {
+    min-height: 42px;
+  }
+
+  .shift-editor-list {
+    gap: 10px;
+  }
+
+  .large-shift-card {
+    gap: 10px;
+    padding: 12px;
+    border-right-width: 3px;
+  }
+
+  .large-shift-header {
+    gap: 10px;
+  }
+
+  .large-shift-header > div:first-child {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .large-shift-header .shift-title {
+    gap: 6px;
+  }
+
+  .large-shift-header h3 {
+    font-size: 16px;
+    margin-bottom: 4px;
+  }
+
+  .large-shift-header .select {
+    max-width: none !important;
+    min-height: 42px;
+    padding: 8px 10px;
+  }
+
+  .large-shift-card .metric-label {
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  .shift-time-editor {
+    gap: 8px;
+    padding: 10px;
+  }
+
+  .shift-time-editor .field {
+    gap: 5px;
+  }
+
+  .shift-time-editor .field label {
+    font-size: 12px;
+  }
+
+  .shift-time-editor .input {
+    min-height: 44px;
+    height: 44px;
+    padding: 8px 10px;
+    font-size: 16px;
+  }
+
+  .shift-time-editor .button {
+    min-height: 42px;
+    padding-block: 8px;
+  }
+
+  .assigned-row {
+    gap: 6px;
+    padding: 8px;
+  }
+
+  .employee-picker-grid {
+    gap: 6px;
+  }
+
+  .employee-pick {
+    min-height: 42px;
+    padding: 8px 10px;
+  }
+
+  .warning-row {
+    padding: 8px;
+    font-size: 13px;
+  }
+}
