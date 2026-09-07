@@ -335,11 +335,13 @@ export default function ManagerWorkspacePage() {
           icon={warnings.length ? <AlertTriangle className="manager-section-warning" size={20} /> : <CheckCircle2 className="manager-section-ok" size={20} />}
           summary={<span className={warnings.length ? "badge warning" : "badge success"}>{warnings.length}</span>}
         >
-          <WarningsPanel
-            schedule={scheduledShifts}
-            templates={shiftTemplates}
-            warnings={warnings.slice(0, 10)}
-          />
+          <div className="manager-collapsible-warning-panel">
+            <WarningsPanel
+              schedule={scheduledShifts}
+              templates={shiftTemplates}
+              warnings={warnings.slice(0, 10)}
+            />
+          </div>
         </CollapsibleManagerSection>
       </div>
     </>
