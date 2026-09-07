@@ -43,6 +43,11 @@
   margin-top: 14px;
 }
 
+.manager-collapsible-warning-panel > .card {
+  margin: 0;
+  box-shadow: none;
+}
+
 .manager-section-warning {
   color: var(--amber);
 }
@@ -202,6 +207,12 @@
   .manager-collapsible .mini-row,
   .manager-collapsible .big-action {
     padding: 10px;
+  }
+
+  .manager-collapsible-warning-panel > .card {
+    padding: 10px 0 0;
+    border: 0;
+    background: transparent;
   }
 
   /* Admin employees: the desktop tables were wider than an iPhone and
