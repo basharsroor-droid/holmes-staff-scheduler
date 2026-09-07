@@ -181,6 +181,8 @@
 
   .shift-time-editor .field {
     gap: 5px;
+    min-width: 0;
+    overflow: hidden;
   }
 
   .shift-time-editor .field label {
@@ -188,13 +190,30 @@
   }
 
   .shift-time-editor .input {
+    display: block;
+    box-sizing: border-box;
     width: 100%;
     min-width: 0;
     max-width: 100%;
+    inline-size: 100%;
+    min-inline-size: 0;
+    max-inline-size: 100%;
     min-height: 44px;
     height: 44px;
     padding: 6px 8px;
     font-size: 15px;
+  }
+
+  .shift-time-editor input[type="time"] {
+    -webkit-appearance: none;
+    appearance: none;
+    text-align: center;
+  }
+
+  .shift-time-editor input[type="time"]::-webkit-date-and-time-value {
+    min-width: 0;
+    margin: 0;
+    text-align: center;
   }
 
   .shift-time-editor .button {
