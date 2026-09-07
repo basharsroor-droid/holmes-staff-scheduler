@@ -96,8 +96,8 @@
   }
 
   .large-shift-card {
-    gap: 10px;
-    padding: 12px;
+    gap: 8px;
+    padding: 10px;
     border-right-width: 3px;
   }
 
@@ -131,8 +131,9 @@
   }
 
   .shift-time-editor {
-    gap: 8px;
-    padding: 10px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 7px;
+    padding: 8px;
   }
 
   .shift-time-editor .field {
@@ -144,15 +145,23 @@
   }
 
   .shift-time-editor .input {
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
     min-height: 44px;
     height: 44px;
-    padding: 8px 10px;
-    font-size: 16px;
+    padding: 6px 8px;
+    font-size: 15px;
   }
 
   .shift-time-editor .button {
-    min-height: 42px;
-    padding-block: 8px;
+    grid-column: 1 / -1;
+    min-height: 44px;
+    padding-block: 7px;
+  }
+
+  .shift-time-editor > .badge {
+    grid-column: 1 / -1;
   }
 
   .assigned-row {
@@ -161,12 +170,14 @@
   }
 
   .employee-picker-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 6px;
   }
 
   .employee-pick {
-    min-height: 42px;
-    padding: 8px 10px;
+    min-height: 44px;
+    padding: 7px 9px;
+    font-size: 14px;
   }
 
   .warning-row {
