@@ -1,6 +1,6 @@
-/* Mobile polish for the legacy manager schedule editor used inside the iOS wrapper.
- * Keep desktop/tablet unchanged; compact only phone-sized layouts so cards and
- * native time inputs fit naturally inside the WKWebView viewport. */
+/* Mobile polish for the legacy manager/admin surfaces used inside the iOS wrapper.
+ * Keep desktop/tablet unchanged; compact only phone-sized layouts so cards,
+ * forms and native controls fit naturally inside the WKWebView viewport. */
 @media (max-width: 720px) {
   .manager-workbench {
     gap: 12px;
@@ -117,5 +117,256 @@
   .warning-row {
     padding: 8px;
     font-size: 13px;
+  }
+
+  /* Admin employees: the desktop tables were wider than an iPhone and
+   * forced the whole screen into a sideways, clipped layout. The presence
+   * of the new-user form uniquely scopes these rules to this legacy page. */
+  body:has(#new-user-first-name) .page {
+    width: min(calc(100% - 16px), var(--max));
+  }
+
+  body:has(#new-user-first-name) .page > .page-header {
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+
+  body:has(#new-user-first-name) .page > .page-header h1 {
+    font-size: 30px;
+    line-height: 1.12;
+  }
+
+  body:has(#new-user-first-name) .page > .page-header .lead,
+  body:has(#new-user-first-name) .card .lead {
+    font-size: 14px;
+    line-height: 1.55;
+  }
+
+  body:has(#new-user-first-name) .card {
+    padding: 13px;
+  }
+
+  body:has(#new-user-first-name) .card .page-header {
+    gap: 8px;
+    margin-bottom: 12px !important;
+  }
+
+  body:has(#new-user-first-name) .card .page-header h2 {
+    font-size: 20px;
+    margin-bottom: 5px;
+  }
+
+  body:has(#new-user-first-name) .field {
+    gap: 5px;
+  }
+
+  body:has(#new-user-first-name) .field label {
+    font-size: 12px;
+  }
+
+  body:has(#new-user-first-name) .input,
+  body:has(#new-user-first-name) .select {
+    min-height: 44px;
+    height: 44px;
+    padding: 8px 10px;
+    font-size: 16px;
+  }
+
+  body:has(#new-user-first-name) .actions .button.primary {
+    width: 100%;
+  }
+
+  body:has(#new-user-first-name) .table-wrap {
+    overflow: visible;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    background: transparent;
+  }
+
+  body:has(#new-user-first-name) .table {
+    display: block;
+    width: 100%;
+    min-width: 0;
+  }
+
+  body:has(#new-user-first-name) .table thead {
+    display: none;
+  }
+
+  body:has(#new-user-first-name) .table tbody {
+    display: grid;
+    gap: 10px;
+  }
+
+  body:has(#new-user-first-name) .table tr {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    padding: 11px;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: #fbfdff;
+  }
+
+  body:has(#new-user-first-name) .table td {
+    display: grid;
+    gap: 4px;
+    min-width: 0;
+    padding: 0;
+    border: 0;
+    background: transparent !important;
+  }
+
+  body:has(#new-user-first-name) .table td::before {
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 800;
+  }
+
+  body:has(#new-user-first-name) .compact-table tr {
+    grid-template-columns: 1fr;
+  }
+  body:has(#new-user-first-name) .compact-table td:nth-child(1)::before { content: "שם"; }
+  body:has(#new-user-first-name) .compact-table td:nth-child(2)::before { content: "ת.ז"; }
+  body:has(#new-user-first-name) .compact-table td:nth-child(3)::before { content: "שם משתמש"; }
+  body:has(#new-user-first-name) .compact-table td:nth-child(4)::before { content: "מייל"; }
+  body:has(#new-user-first-name) .compact-table td:nth-child(5)::before { content: "עסק"; }
+  body:has(#new-user-first-name) .compact-table td:nth-child(6)::before { content: "תפקיד"; }
+  body:has(#new-user-first-name) .compact-table td:nth-child(7)::before { content: "סטטוס סיסמה"; }
+
+  body:has(#new-user-first-name) .table:not(.compact-table) td:nth-child(1),
+  body:has(#new-user-first-name) .table:not(.compact-table) td:nth-child(2) {
+    grid-column: 1 / -1;
+  }
+  body:has(#new-user-first-name) .table:not(.compact-table) td:nth-child(1)::before { content: "שם"; }
+  body:has(#new-user-first-name) .table:not(.compact-table) td:nth-child(2)::before { content: "ותק"; }
+  body:has(#new-user-first-name) .table:not(.compact-table) td:nth-child(3)::before { content: "פתיחה"; }
+  body:has(#new-user-first-name) .table:not(.compact-table) td:nth-child(4)::before { content: "סגירה"; }
+  body:has(#new-user-first-name) .table:not(.compact-table) td:nth-child(5)::before { content: "פעיל"; }
+
+  body:has(#new-user-first-name) .table:not(.compact-table) td:nth-child(n+3) {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 34px;
+    padding: 7px 9px;
+    border-radius: 10px;
+    background: #fff !important;
+  }
+
+  /* Shift templates: convert the six-column desktop table into one compact
+   * card per template. This removes horizontal scrolling and keeps every
+   * time/select control inside the phone viewport. */
+  body:has(input[aria-label="שם סוג המשמרת"]) .page {
+    width: min(calc(100% - 16px), var(--max));
+  }
+
+  body:has(input[aria-label="שם סוג המשמרת"]) .page > .page-header h1 {
+    font-size: 30px;
+    line-height: 1.12;
+  }
+
+  body:has(input[aria-label="שם סוג המשמרת"]) .page > .page-header .lead,
+  body:has(input[aria-label="שם סוג המשמרת"]) .card .lead {
+    font-size: 14px;
+    line-height: 1.55;
+  }
+
+  body:has(input[aria-label="שם סוג המשמרת"]) .card {
+    padding: 13px;
+  }
+
+  body:has(input[aria-label="שם סוג המשמרת"]) .card > .page-header {
+    gap: 10px;
+    margin-bottom: 12px !important;
+  }
+
+  body:has(input[aria-label="שם סוג המשמרת"]) .card > .page-header h2 {
+    font-size: 20px;
+    margin-bottom: 5px;
+  }
+
+  body:has(input[aria-label="שם סוג המשמרת"]) .card > .page-header .button {
+    width: 100%;
+  }
+
+  body:has(input[aria-label="שם סוג המשמרת"]) .table-wrap {
+    overflow: visible;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    background: transparent;
+  }
+
+  body:has(input[aria-label="שם סוג המשמרת"]) .table {
+    display: block;
+    width: 100%;
+    min-width: 0;
+  }
+
+  body:has(input[aria-label="שם סוג המשמרת"]) .table thead {
+    display: none;
+  }
+
+  body:has(input[aria-label="שם סוג המשמרת"]) .table tbody {
+    display: grid;
+    gap: 10px;
+  }
+
+  body:has(input[aria-label="שם סוג המשמרת"]) .table tr {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    padding: 11px;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: #fbfdff;
+  }
+
+  body:has(input[aria-label="שם סוג המשמרת"]) .table td {
+    display: grid;
+    gap: 4px;
+    min-width: 0;
+    padding: 0;
+    border: 0;
+    background: transparent !important;
+  }
+
+  body:has(input[aria-label="שם סוג המשמרת"]) .table td::before {
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 800;
+  }
+
+  body:has(input[aria-label="שם סוג המשמרת"]) .table td:nth-child(1),
+  body:has(input[aria-label="שם סוג המשמרת"]) .table td:nth-child(2) {
+    grid-column: 1 / -1;
+  }
+  body:has(input[aria-label="שם סוג המשמרת"]) .table td:nth-child(1)::before { content: "שם"; }
+  body:has(input[aria-label="שם סוג המשמרת"]) .table td:nth-child(2)::before { content: "סוג"; }
+  body:has(input[aria-label="שם סוג המשמרת"]) .table td:nth-child(3)::before { content: "התחלה"; }
+  body:has(input[aria-label="שם סוג המשמרת"]) .table td:nth-child(4)::before { content: "סיום"; }
+  body:has(input[aria-label="שם סוג המשמרת"]) .table td:nth-child(5)::before { content: "עובדים"; }
+  body:has(input[aria-label="שם סוג המשמרת"]) .table td:nth-child(6)::before { content: "חובה ותיק"; }
+
+  body:has(input[aria-label="שם סוג המשמרת"]) .table .input,
+  body:has(input[aria-label="שם סוג המשמרת"]) .table .select {
+    width: 100%;
+    min-width: 0;
+    min-height: 44px;
+    height: 44px;
+    padding: 8px 10px;
+    font-size: 16px;
+  }
+
+  body:has(input[aria-label="שם סוג המשמרת"]) .table td:nth-child(6) {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 44px;
+    padding: 7px 9px;
+    border-radius: 10px;
+    background: #fff !important;
   }
 }
