@@ -1,0 +1,16 @@
+/* Keep interactive manager controls at the WCAG-recommended 44px touch size on phones. */
+@media (max-width: 720px) {
+  .day-editor .page-header .actions .select,
+  .day-editor .page-header .actions .button,
+  .large-shift-header .select,
+  .shift-time-editor .button,
+  .employee-pick,
+  .selected-day-nav-button {
+    min-height: 44px;
+  }
+
+  .selected-day-nav-button {
+    width: 44px;
+    height: 44px;
+  }
+}
