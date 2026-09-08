@@ -7,7 +7,7 @@ import { PricingPlans } from "@/components/marketing/pricing-plans";
 import { ScrollReveal } from "@/components/marketing/scroll-reveal";
 import { ScrollToTop } from "@/components/marketing/scroll-to-top";
 import { SiteNavbar } from "@/components/marketing/site-navbar";
-import { ADDONS } from "@/lib/plans";
+import { ADDONS, getPlan } from "@/lib/plans";
 
 export const metadata: Metadata = {
   title: "תמחור | ShiftPilot",
@@ -53,6 +53,15 @@ const faq = [
 ];
 
 export default function PricingPage() {
+  const anchor = getPlan("business");
+  const anchorMonthly = anchor.monthlyIls ?? 0;
+  const anchorTeam = anchor.maxActiveEmployees ?? 30;
+  // Rough per-user band for the international flat-plan tools, converted to ILS
+  // for a team the size of the anchor plan. Category range, not a live quote --
+  // see docs/PRICING_BENCHMARK.md.
+  const globalLow = anchorTeam * 15;
+  const globalHigh = anchorTeam * 33;
+
   return <main className="marketing-site pricing-page" dir="rtl">
     <div className="marketing-navbar-shell absolute inset-x-0 top-0 z-40">
       <SiteNavbar />
@@ -84,6 +93,32 @@ export default function PricingPage() {
         <p>כל המסלולים כוללים סידור שבועי, דו־שבועי, חודשי או מותאם אישית. המחיר נקבע לפי כמות העובדים, המחלקות והמנהלים — לא לפי תדירות הסידור.</p>
       </ScrollReveal>
       <PricingPlans />
+    </section>
+
+    <section className="pro-section pricing-value-section">
+      <ScrollReveal className="section-heading centered">
+        <p className="pro-kicker dark">למה זה משתלם</p>
+        <h2>מחיר קבוע לעסק — לא לפי עובד</h2>
+        <p>רוב הכלים בשוק מחייבים לפי מספר העובדים, והחשבון גדל עם כל אחד שמצטרף. אצלנו המחיר נקבע פעם אחת לפי גודל העסק.</p>
+      </ScrollReveal>
+      <ScrollReveal className="pricing-value-grid">
+        <article>
+          <span className="pricing-value-tag">כלים גלובליים</span>
+          <p className="pricing-value-figure">₪{globalLow.toLocaleString("he-IL")}–{globalHigh.toLocaleString("he-IL")}<small> לחודש</small></p>
+          <p>חיוב לפי עובד ($3–9 לעובד). זה הטווח לצוות של {anchorTeam} עובדים — והוא עולה עם כל עובד נוסף.</p>
+        </article>
+        <article>
+          <span className="pricing-value-tag">מערכות נוכחות ותיקות בישראל</span>
+          <p className="pricing-value-figure">הצעת מחיר<small> פרטנית</small></p>
+          <p>לרוב חיוב לפי עובד, בתוספת דמי הקמה חד-פעמיים של מאות עד אלפי שקלים.</p>
+        </article>
+        <article className="featured">
+          <span className="pricing-value-tag">ShiftPilot</span>
+          <p className="pricing-value-figure">₪{anchorMonthly.toLocaleString("he-IL")}<small> לחודש</small></p>
+          <p>מחיר קבוע לצוות של עד {anchorTeam} עובדים. בלי חיוב לפי ראש, בלי דמי הקמה חובה, בלי הפתעות.</p>
+        </article>
+      </ScrollReveal>
+      <p className="pricing-value-note">השוואה להמחשה בלבד, מבוססת על מחירונים ציבוריים של ספקים (ספטמבר 2026) ונתונה לשינוי. הסכומים בשקלים לפני מע״מ.</p>
     </section>
 
     <section className="pro-section addons-section">
