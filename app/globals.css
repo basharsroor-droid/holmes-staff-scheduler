@@ -2401,7 +2401,10 @@ a:focus-visible {
 .pricing-cycle button em{margin-inline-start:5px;padding:3px 7px;border-radius:999px;color:#1f63c8;background:#dceaff;font-size:11px;font-style:normal}
 .pricing-cycle button.active{color:#132242;background:#fff;box-shadow:0 5px 18px rgba(20,47,88,.11)}
 .pricing-cycle button.active em{color:#fff;background:#245fd0}
-.pricing-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;align-items:stretch}
+.pricing-launch-ribbon{display:flex;align-items:center;justify-content:center;gap:9px;margin:0 auto;max-width:660px;padding:12px 20px;border:1px solid #cdd9ff;border-radius:16px;background:linear-gradient(135deg,#eef3ff,#f4efff);color:#33407a;font-size:13.5px;line-height:1.55;text-align:center}
+.pricing-launch-ribbon svg{flex:0 0 auto;color:var(--primary)}
+.pricing-launch-ribbon strong{color:#26326b}
+.pricing-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;align-items:stretch}
 .pricing-card{position:relative;display:flex;flex-direction:column;gap:17px;min-width:0;padding:30px 27px;border:1px solid #dce4ee;border-radius:24px;background:#fff;box-shadow:0 15px 45px rgba(26,54,95,.06);transition:transform .25s ease,box-shadow .25s ease,border-color .25s ease}
 .pricing-card:hover{transform:translateY(-5px);border-color:#bfcee2;box-shadow:0 24px 55px rgba(26,54,95,.11)}
 .pricing-card.featured{color:#fff;border-color:#173f88;background:linear-gradient(155deg,#071a38,#103a78);box-shadow:0 28px 65px rgba(20,58,123,.23)}
@@ -2418,6 +2421,9 @@ a:focus-visible {
 .pricing-price strong{font-size:38px;line-height:1;letter-spacing:-.05em}
 .pricing-price small{color:var(--msoft);font-size:13px;line-height:1.55}
 .featured .pricing-price small{color:#aebfd9}
+.pricing-offer-line{display:flex;align-items:center;gap:5px;margin-top:3px;color:#5a3fd0;font-weight:800}
+.pricing-offer-line svg{flex:0 0 auto}
+.featured .pricing-offer-line{color:#c3b6ff}
 .pricing-quota{margin:0;padding:11px 13px;border-radius:11px;color:#1d5fc1;background:#edf5ff;font-size:13px;font-weight:800;line-height:1.55}
 .featured .pricing-quota{color:#9bdcff;background:rgba(69,170,255,.12)}
 .pricing-includes{margin-top:4px;font-size:13px;font-weight:900}
@@ -2445,7 +2451,8 @@ a:focus-visible {
 .pricing-page .process-timeline{grid-template-columns:repeat(4,1fr)}
 .pricing-page .process-step>b{border-width:5px;background:linear-gradient(135deg,#226ee1,#754fe6)}
 .pricing-page .faq-grid details{border-radius:17px}
-@media(max-width:1050px){.pricing-grid{grid-template-columns:1fr 1fr}.pricing-card.featured{grid-row:span 1}.pricing-enterprise{grid-template-columns:auto 1fr auto}.pricing-enterprise ul{grid-column:2}.pricing-addons-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:1240px){.pricing-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:1050px){.pricing-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.pricing-card.featured{grid-row:span 1}.pricing-enterprise{grid-template-columns:auto 1fr auto}.pricing-enterprise ul{grid-column:2}.pricing-addons-grid{grid-template-columns:1fr 1fr}}
 @media(max-width:760px){.pricing-hero{width:100%;min-height:650px;padding:155px 22px 70px;border-radius:0 0 28px 28px}.pricing-hero h1{font-size:clamp(43px,13vw,62px)}.pricing-hero-lead{font-size:16px}.pricing-hero-actions{align-items:stretch;flex-direction:column;gap:17px}.pricing-text-link{align-self:center}.pricing-trust-row{justify-content:flex-start;display:grid;gap:12px;margin-inline:auto}.pricing-section-heading{grid-template-columns:1fr;gap:16px}.pricing-section{padding-top:72px}.pricing-grid{grid-template-columns:1fr}.pricing-card{padding:28px 22px}.pricing-cycle-wrap{align-items:stretch;flex-direction:column;gap:9px;padding:10px}.pricing-cycle-wrap>span{padding:3px 5px}.pricing-cycle button{flex:1;padding:10px 8px;font-size:13px}.pricing-cycle button em{display:block;margin:3px 0 0;background:transparent;padding:0}.pricing-cycle button.active em{color:#2766c7;background:transparent}.pricing-enterprise{grid-template-columns:auto 1fr;padding:24px 20px}.pricing-enterprise ul,.pricing-enterprise-action{grid-column:1/-1}.pricing-enterprise-action{width:100%}.pricing-addons-grid{grid-template-columns:1fr}.pricing-page .process-timeline{grid-template-columns:1fr}}
 @media(max-width:420px){.pricing-cycle button{font-size:12px}.pricing-card{border-radius:20px}.pricing-head{gap:10px}.pricing-head p{min-height:0}.pricing-plan-index{font-size:23px}}
 
