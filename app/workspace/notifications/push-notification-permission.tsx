@@ -16,26 +16,84 @@ async function saveToken(token: PushToken) {
   if (!response.ok) throw new Error("Device registration failed");
 }
 
+async function registerDevice() {
+  let registrationHandle: Awaited<ReturnType<typeof PushNotifications.addListener>> | undefined;
+  let errorHandle: Awaited<ReturnType<typeof PushNotifications.addListener>> | undefined;
+
+  try {
+    let resolveRegistration!: () => void;
+    let rejectRegistration!: (error: Error) => void;
+    const registered = new Promise<void>((resolve, reject) => {
+      resolveRegistration = resolve;
+      rejectRegistration = reject;
+    });
+
+    registrationHandle = await PushNotifications.addListener("registration", async (token) => {
+      try {
+        await saveToken(token);
+        resolveRegistration();
+      } catch (error) {
+        rejectRegistration(error instanceof Error ? error : new Error("Device registration failed"));
+      }
+    });
+    errorHandle = await PushNotifications.addListener("registrationError", (error) => {
+      rejectRegistration(new Error(error.error));
+    });
+
+    await PushNotifications.register();
+    await Promise.race([
+      registered,
+      new Promise<never>((_, reject) => setTimeout(() => reject(new Error("Registration timed out")), 15_000))
+    ]);
+  } finally {
+    await registrationHandle?.remove();
+    await errorHandle?.remove();
+  }
+}
+
 export function PushNotificationPermission() {
   const [state, setState] = useState<PushState>("checking");
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
 
   useEffect(() => {
+    let cancelled = false;
     if (!Capacitor.isNativePlatform() || !Capacitor.isPluginAvailable("PushNotifications")) {
       setState("unavailable");
       return;
     }
-    void PushNotifications.checkPermissions()
-      .then(({ receive }) => setState(receive === "granted" ? "granted" : receive === "denied" ? "denied" : "prompt"))
-      .catch(() => setState("unavailable"));
+
+    void PushNotifications.checkPermissions().then(async ({ receive }) => {
+      if (receive !== "granted") {
+        if (!cancelled) setState(receive === "denied" ? "denied" : "prompt");
+        return;
+      }
+
+      setBusy(true);
+      try {
+        await registerDevice();
+        if (!cancelled) {
+          setState("granted");
+          setMessage("ההתראות פעילות והמכשיר רשום לקבלת עדכונים.");
+        }
+      } catch {
+        if (!cancelled) {
+          setState("prompt");
+          setMessage("ההרשאה פעילה, אך רישום המכשיר נכשל. לחצו כדי לנסות שוב.");
+        }
+      } finally {
+        if (!cancelled) setBusy(false);
+      }
+    }).catch(() => setState("unavailable"));
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   async function enable() {
     setBusy(true);
     setMessage("");
-    let registrationHandle: Awaited<ReturnType<typeof PushNotifications.addListener>> | undefined;
-    let errorHandle: Awaited<ReturnType<typeof PushNotifications.addListener>> | undefined;
     try {
       const permission = await PushNotifications.requestPermissions();
       if (permission.receive !== "granted") {
@@ -44,33 +102,12 @@ export function PushNotificationPermission() {
         return;
       }
 
-      let resolveRegistration!: () => void;
-      let rejectRegistration!: (error: Error) => void;
-      const registered = new Promise<void>((resolve, reject) => {
-        resolveRegistration = resolve;
-        rejectRegistration = reject;
-      });
-      registrationHandle = await PushNotifications.addListener("registration", async (token) => {
-          try {
-            await saveToken(token);
-            resolveRegistration();
-          } catch (error) {
-            rejectRegistration(error instanceof Error ? error : new Error("Device registration failed"));
-          }
-      });
-      errorHandle = await PushNotifications.addListener("registrationError", (error) => rejectRegistration(new Error(error.error)));
-      await PushNotifications.register();
-      await Promise.race([
-        registered,
-        new Promise<never>((_, reject) => setTimeout(() => reject(new Error("Registration timed out")), 15_000))
-      ]);
+      await registerDevice();
       setState("granted");
       setMessage("ההתראות הופעלו בהצלחה במכשיר הזה.");
     } catch {
       setMessage("לא הצלחנו לרשום את המכשיר להתראות. אפשר לנסות שוב.");
     } finally {
-      await registrationHandle?.remove();
-      await errorHandle?.remove();
       setBusy(false);
     }
   }
