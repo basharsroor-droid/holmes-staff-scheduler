@@ -15,10 +15,10 @@ export const metadata: Metadata = {
 };
 
 const trialSteps = [
-  { n: "01", icon: UserRoundPlus, title: "פותחים חשבון", text: "נרשמים עם שם ומייל ומאמתים את הכתובת. אין צורך בכרטיס אשראי." },
-  { n: "02", icon: CircleCheck, title: "בוחרים מסלול", text: "עונים על כמה שאלות קצרות ומקבלים המלצה. אפשר לשנות מסלול בהמשך." },
-  { n: "03", icon: Building2, title: "מקימים את העסק", text: "מגדירים סניף ומחלקה, יוצרים סוגי משמרת ומזמינים את הצוות." },
-  { n: "04", icon: UsersRound, title: "מתחילים לעבוד", text: "בונים סידור ראשון ומפרסמים אותו — 30 יום מלאים כדי להתרשם." }
+  { n: "01", icon: UserRoundPlus, title: "פותחים חשבון", text: "נרשמים עם שם ומייל ומאמתים את הכתובת — אין צורך בכרטיס אשראי" },
+  { n: "02", icon: CircleCheck, title: "בוחרים מסלול", text: "עונים על כמה שאלות קצרות ומקבלים המלצה — אפשר לשנות מסלול בהמשך" },
+  { n: "03", icon: Building2, title: "מקימים את העסק", text: "מגדירים סניף ומחלקה, יוצרים סוגי משמרת ומזמינים את הצוות" },
+  { n: "04", icon: UsersRound, title: "מתחילים לעבוד", text: "בונים סידור ראשון ומפרסמים אותו — 30 יום מלאים כדי להתרשם" }
 ];
 
 const faq = [
@@ -73,8 +73,8 @@ export default function PricingPage() {
       <div className="pricing-hero-orb two" aria-hidden="true" />
       <ScrollReveal className="pricing-hero-inner">
         <p className="pricing-eyebrow"><span /> מחיר השקה לעסקים ראשונים</p>
-        <h1>המסלול שמתאים<br /><em>לקצב של העסק שלך.</em></h1>
-        <p className="pricing-hero-lead">תמחור ברור לפי גודל הצוות — עם כל הכלים לניהול זמינות, סידורים והחלפות משמרת במקום אחד.</p>
+        <h1>המסלול שמתאים<br /><em>לקצב של העסק שלך</em></h1>
+        <p className="pricing-hero-lead">תמחור ברור לפי גודל הצוות — עם כל הכלים לניהול זמינות, סידורים והחלפות משמרת במקום אחד</p>
         <div className="pricing-hero-actions">
           <Link className="button brand-button large" href="/onboarding">התחלת 30 ימי ניסיון <ArrowLeft size={18} /></Link>
           <a className="pricing-text-link" href="#plans">השוואת המסלולים</a>
@@ -89,8 +89,8 @@ export default function PricingPage() {
 
     <section className="pro-section pricing-section" id="plans">
       <ScrollReveal className="pricing-section-heading">
-        <div><p className="pro-kicker dark">המסלולים שלנו</p><h2>פשוט לבחור. קל להתחיל.</h2></div>
-        <p>כל המסלולים כוללים סידור שבועי, דו־שבועי, חודשי או מותאם אישית. המחיר נקבע לפי כמות העובדים, המחלקות והמנהלים — לא לפי תדירות הסידור.</p>
+        <div><p className="pro-kicker dark">המסלולים שלנו</p><h2>פשוט לבחור, קל להתחיל</h2></div>
+        <p>כל המסלולים כוללים סידור שבועי, דו־שבועי, חודשי או מותאם אישית — המחיר נקבע לפי כמות העובדים, המחלקות והמנהלים, לא לפי תדירות הסידור</p>
       </ScrollReveal>
       <PricingPlans />
     </section>
@@ -99,33 +99,33 @@ export default function PricingPage() {
       <ScrollReveal className="section-heading centered">
         <p className="pro-kicker dark">למה זה משתלם</p>
         <h2>מחיר קבוע לעסק — לא לפי עובד</h2>
-        <p>רוב הכלים בשוק מחייבים לפי מספר העובדים, והחשבון גדל עם כל אחד שמצטרף. אצלנו המחיר נקבע פעם אחת לפי גודל העסק.</p>
+        <p>רוב הכלים בשוק מחייבים לפי מספר העובדים, והחשבון גדל עם כל אחד שמצטרף — אצלנו המחיר נקבע פעם אחת לפי גודל העסק</p>
       </ScrollReveal>
       <ScrollReveal className="pricing-value-grid">
         <article>
           <span className="pricing-value-tag">כלים גלובליים</span>
           <p className="pricing-value-figure">₪{globalLow.toLocaleString("he-IL")}–{globalHigh.toLocaleString("he-IL")}<small> לחודש</small></p>
-          <p>חיוב לפי עובד ($3–9 לעובד). זה הטווח לצוות של {anchorTeam} עובדים — והוא עולה עם כל עובד נוסף.</p>
+          <p>חיוב לפי עובד ($3–9 לעובד) — זה הטווח לצוות של {anchorTeam} עובדים, והוא עולה עם כל עובד נוסף</p>
         </article>
         <article>
           <span className="pricing-value-tag">מערכות נוכחות ותיקות בישראל</span>
           <p className="pricing-value-figure">הצעת מחיר<small> פרטנית</small></p>
-          <p>לרוב חיוב לפי עובד, בתוספת דמי הקמה חד-פעמיים של מאות עד אלפי שקלים.</p>
+          <p>לרוב חיוב לפי עובד, בתוספת דמי הקמה חד-פעמיים של מאות עד אלפי שקלים</p>
         </article>
         <article className="featured">
           <span className="pricing-value-tag">ShiftPilot</span>
           <p className="pricing-value-figure">₪{anchorMonthly.toLocaleString("he-IL")}<small> לחודש</small></p>
-          <p>מחיר קבוע לצוות של עד {anchorTeam} עובדים. בלי חיוב לפי ראש, בלי דמי הקמה חובה, בלי הפתעות.</p>
+          <p>מחיר קבוע לצוות של עד {anchorTeam} עובדים — בלי חיוב לפי ראש, בלי דמי הקמה חובה, בלי הפתעות</p>
         </article>
       </ScrollReveal>
-      <p className="pricing-value-note">השוואה להמחשה בלבד, מבוססת על מחירונים ציבוריים של ספקים (ספטמבר 2026) ונתונה לשינוי. הסכומים בשקלים לפני מע״מ.</p>
+      <p className="pricing-value-note">השוואה להמחשה בלבד, מבוססת על מחירונים ציבוריים של ספקים (ספטמבר 2026) ונתונה לשינוי · הסכומים בשקלים לפני מע״מ</p>
     </section>
 
     <section className="pro-section addons-section">
       <ScrollReveal className="section-heading centered">
         <p className="pro-kicker dark">תוספות בתשלום</p>
         <h2>מרחיבים את החשבון כשצריך</h2>
-        <p>אפשר להוסיף משאבים מעבר למכסת המסלול. לפני כל הגדלת חיוב מוצג המחיר החדש ונדרש אישור מפורש של בעל העסק.</p>
+        <p>אפשר להוסיף משאבים מעבר למכסת המסלול — לפני כל הגדלת חיוב מוצג המחיר החדש ונדרש אישור מפורש של בעל העסק</p>
       </ScrollReveal>
       <ScrollReveal className="pricing-addons-grid" role="list" aria-label="תוספות בתשלום">
         {ADDONS.map((addon, index) => (
@@ -141,7 +141,7 @@ export default function PricingPage() {
       <ScrollReveal className="section-heading centered">
         <p className="pro-kicker dark">איך הניסיון עובד</p>
         <h2>ארבעה צעדים עד לסידור הראשון</h2>
-        <p>30 יום מספיקים למחזור עבודה שלם — הקמה, הזמנת עובדים, קבלת זמינות, סידור, פרסום והחלפות.</p>
+        <p>30 יום מספיקים למחזור עבודה שלם — הקמה, הזמנת עובדים, קבלת זמינות, סידור, פרסום והחלפות</p>
       </ScrollReveal>
       <div className="process-timeline">
         {trialSteps.map((step, index) => (
@@ -171,8 +171,8 @@ export default function PricingPage() {
     <section className="final-cta">
       <ScrollReveal>
         <BrandLogo light />
-        <h2>מתחילים ב-30 יום ניסיון.</h2>
-        <p>פותחים סביבת עבודה לעסק, בוחרים מסלול ומקימים את הצוות — בלי שיחת מכירה ובלי כרטיס אשראי.</p>
+        <h2>מתחילים ב-30 יום ניסיון</h2>
+        <p>פותחים סביבת עבודה לעסק, בוחרים מסלול ומקימים את הצוות — בלי שיחת מכירה ובלי כרטיס אשראי</p>
         <div>
           <Link className="button brand-button large" href="/onboarding">פתיחת סביבת עבודה <ArrowLeft size={18} /></Link>
           <Link className="button glass-button large" href="/demo">צפייה בדמו</Link>
