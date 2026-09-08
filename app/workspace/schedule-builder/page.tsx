@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { ArrowRight, CalendarRange } from "lucide-react";
+import { ArrowRight, CalendarRange, ChevronDown, Settings2 } from "lucide-react";
 
 import { ConflictDetectorEnhancer } from "@/app/workspace/schedule-builder/conflict-detector-enhancer";
 import { CoverageRulesEnhancer } from "@/app/workspace/schedule-builder/coverage-rules-enhancer";
@@ -151,6 +151,44 @@ export default async function ScheduleBuilderPage() {
       <p>מאשרים Time Off, יוצרים משמרות, משבצים לפי הזמינות ומפרסמים לצוות.</p>
     </div></header>
 
+    <ScheduleBuilderClient
+      assignments={assignments ?? []}
+      availability={availability ?? []}
+      branches={branchesResult.data ?? []}
+      departments={departmentsResult.data ?? []}
+      callerRole={membership.role}
+      currentUserId={user.id}
+      initialMinRestHours={organizationResult.data.min_rest_hours}
+      leaveRequests={approvedTimeOff}
+      organizationId={organizationId}
+      periods={periodsResult.data ?? []}
+      shifts={(shifts ?? []).map((shift: any) => ({
+        id: shift.id,
+        schedule_period_id: shift.schedule_period_id,
+        shift_template_id: shift.shift_template_id,
+        shift_date: shift.shift_date,
+        name: shift.name,
+        start_time: shift.start_time,
+        end_time: shift.end_time,
+        required_employees: shift.required_employees,
+        status: shift.status
+      }))}
+      submissions={submissions ?? []}
+      templates={templatesResult.data ?? []}
+      workers={workers}
+    />
+
+    <details className="schedule-tools-disclosure">
+      <summary>
+        <span className="schedule-tools-summary-icon"><Settings2 size={20} /></span>
+        <span>
+          <strong>כלי ניהול ובקרה</strong>
+          <small>בקשות חופשה, תבניות, בדיקות, הוגנות וכלים חכמים</small>
+        </span>
+        <ChevronDown className="schedule-tools-chevron" size={20} />
+      </summary>
+      <div className="schedule-tools-content">
+
     <TimeOffApprovalPanel initialRequests={pendingTimeOff} />
     {!pilotMode && <OpenShiftsManagerPanel initialShifts={managerOpenShifts} initialRequests={managerOpenShiftRequests} />}
     <CoverageRulesEnhancer workers={coverageWorkers} templates={coverageTemplates} />
@@ -212,32 +250,7 @@ export default async function ScheduleBuilderPage() {
       templates={templatesResult.data ?? []}
       minRestHours={organizationResult.data.min_rest_hours}
     />}
-
-    <ScheduleBuilderClient
-      assignments={assignments ?? []}
-      availability={availability ?? []}
-      branches={branchesResult.data ?? []}
-      departments={departmentsResult.data ?? []}
-      callerRole={membership.role}
-      currentUserId={user.id}
-      initialMinRestHours={organizationResult.data.min_rest_hours}
-      leaveRequests={approvedTimeOff}
-      organizationId={organizationId}
-      periods={periodsResult.data ?? []}
-      shifts={(shifts ?? []).map((shift: any) => ({
-        id: shift.id,
-        schedule_period_id: shift.schedule_period_id,
-        shift_template_id: shift.shift_template_id,
-        shift_date: shift.shift_date,
-        name: shift.name,
-        start_time: shift.start_time,
-        end_time: shift.end_time,
-        required_employees: shift.required_employees,
-        status: shift.status
-      }))}
-      submissions={submissions ?? []}
-      templates={templatesResult.data ?? []}
-      workers={workers}
-    />
+      </div>
+    </details>
   </main>;
 }
