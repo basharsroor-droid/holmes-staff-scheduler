@@ -5981,3 +5981,77 @@ summary:focus-visible {
 .native-shift-reminder small {
   color: var(--muted);
 }
+.schedule-tools-disclosure {
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.schedule-tools-disclosure > summary {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 20px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.schedule-tools-disclosure > summary::-webkit-details-marker {
+  display: none;
+}
+
+.schedule-tools-disclosure > summary > span:nth-child(2) {
+  display: grid;
+  gap: 3px;
+}
+
+.schedule-tools-disclosure > summary strong {
+  font-size: 1.05rem;
+}
+
+.schedule-tools-disclosure > summary small {
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.schedule-tools-summary-icon {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  border-radius: 14px;
+  color: var(--primary);
+  background: var(--primary-soft);
+}
+
+.schedule-tools-chevron {
+  transition: transform 180ms ease;
+}
+
+.schedule-tools-disclosure[open] .schedule-tools-chevron {
+  transform: rotate(180deg);
+}
+
+.schedule-tools-content {
+  display: grid;
+  gap: 16px;
+  padding: 0 16px 16px;
+}
+
+@media (max-width: 640px) {
+  .schedule-tools-disclosure {
+    border-radius: 20px;
+  }
+
+  .schedule-tools-disclosure > summary {
+    padding: 14px;
+  }
+
+  .schedule-tools-content {
+    gap: 12px;
+    padding: 0 10px 10px;
+  }
+}
