@@ -2378,7 +2378,9 @@ a:focus-visible {
 .pricing-hero-inner{position:relative;z-index:2;max-width:850px;margin-inline:auto;text-align:center}
 .pricing-eyebrow{display:inline-flex;align-items:center;gap:9px;margin:0 0 24px;padding:8px 14px;border:1px solid rgba(255,255,255,.16);border-radius:999px;color:#c8d9f4;background:rgba(255,255,255,.06);font-size:13px;font-weight:800;backdrop-filter:blur(10px)}
 .pricing-eyebrow span{width:8px;height:8px;border-radius:50%;background:#55d6ff;box-shadow:0 0 0 5px rgba(85,214,255,.12)}
-.pricing-hero h1{margin:0;font-size:clamp(48px,7vw,86px);line-height:1.04;letter-spacing:-.055em}
+/* Hebrew display type collides under the tight negative tracking that suits
+   Latin headlines -- keep it near-normal so letterforms don't overlap. */
+.pricing-hero h1{margin:0;font-size:clamp(46px,6.6vw,82px);line-height:1.12;letter-spacing:-.005em}
 .pricing-hero h1 em{font-style:normal;color:transparent;background:linear-gradient(100deg,#5ed5ff,#8d7aff);-webkit-background-clip:text;background-clip:text}
 .pricing-hero-lead{max-width:720px;margin:28px auto 0;color:#c0cee4;font-size:18px;line-height:1.8}
 .pricing-hero-actions{display:flex;justify-content:center;align-items:center;gap:24px;margin-top:34px}
@@ -2391,7 +2393,7 @@ a:focus-visible {
 .pricing-hero-orb.two{width:230px;height:230px;bottom:-120px;left:7%;background:rgba(42,173,255,.2)}
 .pricing-section{padding-top:100px}
 .pricing-section-heading{display:grid;grid-template-columns:1fr .75fr;gap:80px;align-items:end;margin-bottom:42px}
-.pricing-section-heading h2{margin:8px 0 0;font-size:clamp(34px,4vw,52px);letter-spacing:-.04em}
+.pricing-section-heading h2{margin:8px 0 0;font-size:clamp(34px,4vw,52px);letter-spacing:-.01em}
 .pricing-section-heading>p{margin:0;color:var(--msoft);font-size:16px;line-height:1.8}
 .pricing-block{display:grid;gap:28px}
 .pricing-cycle-wrap{display:flex;justify-content:space-between;align-items:center;padding:10px 10px 10px 18px;border:1px solid #dce5f1;border-radius:18px;background:#fff;box-shadow:0 10px 35px rgba(21,47,86,.05)}
