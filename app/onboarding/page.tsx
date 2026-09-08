@@ -282,7 +282,7 @@ export default function OnboardingPage() {
                 {launchOfferMonthlyIls(getPlan(recommendedPlanId)) !== null ? (
                   <small>
                     מבצע השקה: {LAUNCH_OFFER.discountPercent}% הנחה ל-{LAUNCH_OFFER.months} החודשים הראשונים
-                    (₪{launchOfferMonthlyIls(getPlan(recommendedPlanId))} לחודש) לנרשמים עד {launchOfferEndLabel()}.
+                    (₪{launchOfferMonthlyIls(getPlan(recommendedPlanId))} לחודש) לנרשמים עד {launchOfferEndLabel()}
                   </small>
                 ) : null}
                 <small>מתחילים ב-{TRIAL_DAYS} ימי ניסיון ללא כרטיס אשראי.</small>

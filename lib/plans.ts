@@ -70,7 +70,7 @@ export const PLANS: Plan[] = [
   {
     id: "solo",
     name: "מנהל עצמאי",
-    tagline: "למנהל צוות, אחראי משמרת או בעל עסק קטן.",
+    tagline: "למנהל צוות, אחראי משמרת או בעל עסק קטן",
     monthlyIls: 69,
     annualIls: 690,
     maxActiveEmployees: 10,
@@ -89,7 +89,7 @@ export const PLANS: Plan[] = [
   {
     id: "business",
     name: "עסק",
-    tagline: "לעסק עם צוות אחד ועד שלוש מחלקות.",
+    tagline: "לעסק עם צוות אחד ועד שלוש מחלקות",
     badge: "הפופולרי ביותר",
     monthlyIls: 179,
     annualIls: 1790,
@@ -110,7 +110,7 @@ export const PLANS: Plan[] = [
   {
     id: "business_pro",
     name: "Business Pro",
-    tagline: "לעסק גדול, מועדון, מסעדה, מלון או ארגון רב-צוותי.",
+    tagline: "לעסק גדול, מועדון, מסעדה, מלון או ארגון רב-צוותי",
     monthlyIls: 339,
     annualIls: 3390,
     maxActiveEmployees: 80,
@@ -130,7 +130,7 @@ export const PLANS: Plan[] = [
   {
     id: "network",
     name: "רשת",
-    tagline: "לעסק עם עד שלושה סניפים ושיתוף עובדים ביניהם.",
+    tagline: "לעסק עם עד שלושה סניפים ושיתוף עובדים ביניהם",
     monthlyIls: 549,
     annualIls: 5490,
     maxActiveEmployees: 150,
@@ -149,7 +149,7 @@ export const PLANS: Plan[] = [
   {
     id: "enterprise",
     name: "Enterprise",
-    tagline: "לרשת עם ארבעה סניפים ומעלה, מעל 150 עובדים או דרישות מיוחדות.",
+    tagline: "לרשת עם ארבעה סניפים ומעלה, מעל 150 עובדים או דרישות מיוחדות",
     monthlyIls: null,
     annualIls: null,
     maxActiveEmployees: null,
