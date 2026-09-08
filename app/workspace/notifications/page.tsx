@@ -73,7 +73,7 @@ export default async function NotificationsPage() {
   const unreadCount = (notifications ?? []).filter((notification) => !notification.read_at).length;
   const initialPreferences: PreferenceValues = preferences ?? { schedule_published: true, shift_changes: true, shift_reminders: true, availability_reminders: true, swap_updates: true };
 
-  return <main className="workspace-home" dir="rtl">
+  return <main className="workspace-home notifications-page" dir="rtl">
     <header className="workspace-subheader notifications-header">
       <div>
         <Link href="/workspace" className="back-link"><ArrowRight size={17} /> חזרה לסביבת העבודה</Link>
