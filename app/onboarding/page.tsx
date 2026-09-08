@@ -8,7 +8,17 @@ import { ArrowLeft, Briefcase, Building2, CheckCircle2, Loader2, Network, Shield
 import { PasswordField } from "@/components/auth/password-field";
 import { BrandLogo } from "@/components/brand/brand-logo";
 import { isNativeApp } from "@/lib/native-app";
-import { PLANS, TRIAL_DAYS, formatMonthlyPrice, getPlan, recommendPlan, type PlanId } from "@/lib/plans";
+import {
+  LAUNCH_OFFER,
+  PLANS,
+  TRIAL_DAYS,
+  formatMonthlyPrice,
+  getPlan,
+  launchOfferEndLabel,
+  launchOfferMonthlyIls,
+  recommendPlan,
+  type PlanId
+} from "@/lib/plans";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 
 type Stage = "loading" | "use" | "account" | "verify" | "recommend" | "workspace" | "done";
@@ -269,6 +279,12 @@ export default function OnboardingPage() {
               <div className="plan-reco">
                 <strong>מסלול מומלץ: {getPlan(recommendedPlanId).name}</strong>
                 <span className="plan-reco-price">{formatMonthlyPrice(getPlan(recommendedPlanId))} · מחיר השקה, לפני מע״מ</span>
+                {launchOfferMonthlyIls(getPlan(recommendedPlanId)) !== null ? (
+                  <small>
+                    מבצע השקה: {LAUNCH_OFFER.discountPercent}% הנחה ל-{LAUNCH_OFFER.months} החודשים הראשונים
+                    (₪{launchOfferMonthlyIls(getPlan(recommendedPlanId))} לחודש) לנרשמים עד {launchOfferEndLabel()}.
+                  </small>
+                ) : null}
                 <small>מתחילים ב-{TRIAL_DAYS} ימי ניסיון ללא כרטיס אשראי.</small>
               </div>
             ) : null}

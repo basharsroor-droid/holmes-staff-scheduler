@@ -4,7 +4,13 @@ import { useState } from "react";
 import Link from "next/link";
 import { ArrowLeft, Building2, Check, Sparkles } from "lucide-react";
 
-import { PLANS, type Plan } from "@/lib/plans";
+import {
+  LAUNCH_OFFER,
+  PLANS,
+  launchOfferEndLabel,
+  launchOfferMonthlyIls,
+  type Plan
+} from "@/lib/plans";
 
 type Cycle = "monthly" | "annual";
 
@@ -12,7 +18,7 @@ function priceBlock(plan: Plan, cycle: Cycle) {
   if (plan.monthlyIls === null || plan.annualIls === null) {
     return (
       <div className="pricing-price">
-        <strong>החל מ-499 ₪</strong>
+        <strong>{plan.customFromIls ? `החל מ-${plan.customFromIls} ₪` : "הצעה מותאמת"}</strong>
         <small>לחודש · הצעה מותאמת</small>
       </div>
     );
@@ -28,17 +34,25 @@ function priceBlock(plan: Plan, cycle: Cycle) {
     );
   }
 
+  const offerPrice = launchOfferMonthlyIls(plan);
   return (
     <div className="pricing-price">
       <strong>₪{plan.monthlyIls}</strong>
       <small>לחודש · חיוב חודשי</small>
+      {offerPrice !== null ? (
+        <small className="pricing-offer-line">
+          <Sparkles size={12} aria-hidden="true" />
+          ₪{offerPrice} ל-{LAUNCH_OFFER.months} החודשים הראשונים · מבצע השקה
+        </small>
+      ) : null}
     </div>
   );
 }
 
 function quotaLine(plan: Plan) {
   if (plan.maxActiveEmployees === null) return "עובדים, מחלקות ומנהלים לפי התאמה";
-  return `עד ${plan.maxActiveEmployees} עובדים · ${plan.maxDepartments} מחלקות · ${plan.maxManagers} מנהלים`;
+  const branches = (plan.maxBranches ?? 1) > 1 ? `${plan.maxBranches} סניפים · ` : "";
+  return `${branches}עד ${plan.maxActiveEmployees} עובדים · ${plan.maxDepartments} מחלקות · ${plan.maxManagers} מנהלים`;
 }
 
 export function PricingPlans() {
@@ -48,6 +62,14 @@ export function PricingPlans() {
 
   return (
     <div className="pricing-block">
+      <p className="pricing-launch-ribbon">
+        <Sparkles size={15} aria-hidden="true" />
+        <span>
+          מבצע השקה: <strong>{LAUNCH_OFFER.discountPercent}% הנחה</strong> ל-{LAUNCH_OFFER.months} החודשים
+          הראשונים, לכל עסק שנפתח עד {launchOfferEndLabel()}.
+        </span>
+      </p>
+
       <div className="pricing-cycle-wrap">
         <span>בחרו את אופן החיוב</span>
         <div className="pricing-cycle" role="group" aria-label="מחזור חיוב">
@@ -108,7 +130,7 @@ export function PricingPlans() {
             {enterprisePlan.features.slice(0, 3).map((feature) => <li key={feature}><Check size={15} /> {feature}</li>)}
           </ul>
           <div className="pricing-enterprise-action">
-            <strong>החל מ־499 ₪</strong>
+            <strong>{enterprisePlan.customFromIls ? `החל מ־${enterprisePlan.customFromIls} ₪` : "הצעה מותאמת"}</strong>
             <small>לחודש · הצעה מותאמת</small>
             <Link className="button" href="/support">דברו איתנו <ArrowLeft size={16} /></Link>
           </div>
@@ -116,7 +138,7 @@ export function PricingPlans() {
       ) : null}
 
       <p className="pricing-fineprint">
-        כל המחירים הם מחירי השקה, בשקלים ולפני מע״מ, ועשויים להשתנות. סידור שבועי, דו־שבועי, חודשי או מותאם כלול באותו מחיר. הניסיון הוא ל-30 יום, ללא כרטיס אשראי.
+        כל המחירים הם מחירי השקה, בשקלים ולפני מע״מ, ועשויים להשתנות. סידור שבועי, דו־שבועי, חודשי או מותאם כלול באותו מחיר. הניסיון הוא ל-30 יום, ללא כרטיס אשראי. הנחת ההשקה חלה על חיוב חודשי ומיושמת מרגע תחילת החיוב.
       </p>
     </div>
   );
