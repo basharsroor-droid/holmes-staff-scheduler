@@ -66,7 +66,7 @@ export function PricingPlans() {
         <Sparkles size={15} aria-hidden="true" />
         <span>
           מבצע השקה: <strong>{LAUNCH_OFFER.discountPercent}% הנחה</strong> ל-{LAUNCH_OFFER.months} החודשים
-          הראשונים, לכל עסק שנפתח עד {launchOfferEndLabel()}.
+          הראשונים, לכל עסק שנפתח עד {launchOfferEndLabel()}
         </span>
       </p>
 
