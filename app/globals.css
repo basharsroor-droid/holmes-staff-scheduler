@@ -3412,6 +3412,12 @@ html.si-lock, html.si-lock body {
 
 /* In-app notifications */
 .notification-preferences-list { display: grid; gap: 10px; margin-top: 20px; }
+.push-permission-card { display: grid; gap: 16px; }
+.push-permission-card > p { margin: 0; color: var(--muted); line-height: 1.65; }
+.push-permission-card > .button { width: fit-content; }
+@media (max-width: 720px) {
+  .push-permission-card > .button { width: 100%; }
+}
 .notification-preference { display: flex; align-items: center; justify-content: space-between; gap: 18px; padding: 16px 18px; border: 1px solid #dce5f1; border-radius: 14px; background: #f8fafc; cursor: pointer; }
 .notification-preference span { display: grid; gap: 4px; }
 .notification-preference small { color: #64748b; line-height: 1.5; }

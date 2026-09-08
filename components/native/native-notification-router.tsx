@@ -4,8 +4,15 @@ import { Capacitor } from "@capacitor/core";
 import { LocalNotifications } from "@capacitor/local-notifications";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { PushNotifications } from "@/lib/native/push-notifications";
 
 const MY_SHIFTS_ROUTE = "/workspace/my-shifts";
+const ALLOWED_PUSH_ROUTES = new Set([
+  "/workspace/my-shifts",
+  "/workspace/availability",
+  "/workspace/shift-swaps",
+  "/workspace/notifications"
+]);
 
 export function NativeNotificationRouter() {
   const router = useRouter();
@@ -38,6 +45,23 @@ export function NativeNotificationRouter() {
         // when an older iOS binary does not include the native plugin.
       });
 
+    return () => {
+      active = false;
+      void removeListener?.();
+    };
+  }, [router]);
+
+  useEffect(() => {
+    if (!Capacitor.isNativePlatform() || !Capacitor.isPluginAvailable("PushNotifications")) return;
+    let active = true;
+    let removeListener: (() => Promise<void>) | undefined;
+    void PushNotifications.addListener("pushNotificationActionPerformed", (event) => {
+      const route = event.notification.data?.route;
+      if (typeof route === "string" && ALLOWED_PUSH_ROUTES.has(route)) router.push(route);
+    }).then((handle) => {
+      if (!active) void handle.remove();
+      else removeListener = () => handle.remove();
+    }).catch(() => {});
     return () => {
       active = false;
       void removeListener?.();
