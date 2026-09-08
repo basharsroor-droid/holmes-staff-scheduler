@@ -5016,6 +5016,7 @@ html.si-lock, html.si-lock body {
 
 /* Operations: notifications, audit and support */
 .notifications-center,
+.push-permission-card,
 .notification-preferences-card,
 .audit-console,
 .support-experience {
@@ -5077,6 +5078,9 @@ html.si-lock, html.si-lock body {
 }
 .notification-preferences-card {
   margin-top: 18px;
+}
+.push-permission-card {
+  margin: 18px auto 0;
 }
 .notification-preferences-card > p,
 .notification-preferences-card > .notification-preferences-list,
@@ -5221,7 +5225,17 @@ html.si-lock, html.si-lock body {
 }
 
 @media (max-width: 760px) {
+  .notifications-page {
+    /* The body supplies the real iOS inset when WebKit exposes it. Keep a
+       native fallback without counting the inset twice. */
+    padding-top: max(16px, calc(52px - env(safe-area-inset-top)));
+    padding-bottom: calc(132px + env(safe-area-inset-bottom));
+  }
+  .notifications-page > section + section {
+    margin-top: 16px;
+  }
   .notifications-center,
+  .push-permission-card,
   .notification-preferences-card,
   .audit-console,
   .support-create-card,
@@ -5247,6 +5261,11 @@ html.si-lock, html.si-lock body {
   .notifications-list .notification-card > .button {
     grid-column: 2;
     width: 100%;
+  }
+  .notifications-center .empty-template-state {
+    min-height: 260px;
+    margin: 14px 12px 16px;
+    padding: 28px 16px;
   }
   .notification-preferences-card > p,
   .notification-preferences-card > .notification-preferences-list,
