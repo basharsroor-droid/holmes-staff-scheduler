@@ -3,6 +3,11 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
 const INTRO_KEY = "shiftpilot_code_intro_seen_v1";
+
+// G3 in docs/REMEDIATION_PLAN.md: the 3.6s intro plays once per browser,
+// ever (localStorage), not once per session -- returning visitors and
+// people opening the site in a new tab go straight to the page. The
+// animation itself is unchanged.
 const tagline = "THE EASY WAY TO YOUR NEXT SHIFT".split(" ");
 
 // Reported live (2026-08-19): the site/app was visible for a beat before
@@ -11,7 +16,7 @@ const tagline = "THE EASY WAY TO YOUR NEXT SHIFT".split(" ");
 // something React-side logic can fix on its own: the browser paints the
 // server-rendered HTML before ANY JavaScript runs, including this
 // component's own mount effect below. `visible` has to start `false` here
-// (sessionStorage/matchMedia aren't available during SSR, so there's no
+// (localStorage/matchMedia aren't available during SSR, so there's no
 // way to know the right answer yet without a hydration mismatch) -- which
 // means the underlying page is guaranteed to paint first no matter how
 // fast the effect fires afterward.
@@ -28,7 +33,7 @@ const tagline = "THE EASY WAY TO YOUR NEXT SHIFT".split(" ");
 // React's own overlay is ready to take its place.
 export const introPrebootScript = `(function(){try{
   if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-  if (sessionStorage.getItem("${INTRO_KEY}")) return;
+  if (localStorage.getItem("${INTRO_KEY}")) return;
   document.documentElement.classList.add("si-lock");
   var el = document.createElement("div");
   el.id = "si-preboot";
@@ -48,7 +53,7 @@ export function SiteIntro() {
     if (leavingRef.current) return;
     leavingRef.current = true;
     setLeaving(true);
-    window.sessionStorage.setItem(INTRO_KEY, "1");
+    window.localStorage.setItem(INTRO_KEY, "1");
     window.setTimeout(() => {
       document.documentElement.classList.remove("si-lock");
       setVisible(false);
@@ -56,7 +61,7 @@ export function SiteIntro() {
   }, []);
 
   useEffect(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches || window.sessionStorage.getItem(INTRO_KEY)) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches || window.localStorage.getItem(INTRO_KEY)) return;
     document.documentElement.classList.add("si-lock");
     // Hand off from the preboot placeholder (see introPrebootScript above)
     // to this real, interactive overlay -- same background, so removing

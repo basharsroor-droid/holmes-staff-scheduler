@@ -51,7 +51,7 @@ const publicPages = [
 for (const publicPage of publicPages) {
   test(`${publicPage.name} has no automatic WCAG A/AA violations`, async ({ page }) => {
     await page.addInitScript(() => {
-      window.sessionStorage.setItem("shiftpilot_code_intro_seen_v1", "1");
+      window.localStorage.setItem("shiftpilot_code_intro_seen_v1", "1"); // intro is remembered per browser since G3
     });
     await page.goto(publicPage.path);
     if (publicPage.path === "/onboarding") {
