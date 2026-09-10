@@ -234,13 +234,11 @@ export function SmartReplacementPanel({ organizationId, currentUserId, periods, 
       setBusy(""); setCandidates([]); setMessage("ההחלפה תפגע בכיסוי Senior שנדרש למשמרת. לא בוצע שינוי; יש לדרג מחדש."); return;
     }
 
-    const { error: removeError } = await db.from("shift_assignments").delete().eq("shift_id", currentShift.id).eq("user_id", outgoingUserId);
-    if (removeError) { setBusy(""); setMessage("ההחלפה נכשלה לפני הסרת העובד/ת המקורי/ת. לא פורסם שום שינוי."); return; }
-    const { error: addError } = await db.from("shift_assignments").insert({ organization_id: organizationId, shift_id: currentShift.id, user_id: candidate.userId, assigned_by: currentUserId });
-    if (addError) {
-      await db.from("shift_assignments").insert({ organization_id: organizationId, shift_id: currentShift.id, user_id: outgoingUserId, assigned_by: currentUserId });
-      setBusy(""); setMessage("הוספת המחליף נכשלה. ניסיתי לשחזר את השיבוץ המקורי; יש לרענן ולבדוק את הטיוטה."); return;
-    }
+    // One transaction on the server (replace_shift_assignment): the outgoing
+    // employee is removed only if the replacement is inserted, so a failure
+    // can no longer leave the shift short.
+    const { error: replaceError } = await db.rpc("replace_shift_assignment", { target_shift_id: currentShift.id, outgoing_user_id: outgoingUserId, incoming_user_id: candidate.userId });
+    if (replaceError) { setBusy(""); setCandidates([]); setMessage("ההחלפה נכשלה ולא בוצע שום שינוי בטיוטה. יש לרענן ולדרג מחדש."); return; }
     setMessage("ההחלפה בוצעה בטיוטה. מרענן את הסידור...");
     window.location.reload();
   }, [approvedLeave, availability, currentUserId, minRestHours, organizationId, outgoingUserId, periods, selectedPeriodId, selectedShiftId, shifts, submissions, supabase, templates, workerName, workers]);

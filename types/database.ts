@@ -2107,6 +2107,27 @@ export type Database = {
         Returns: number
       }
       purge_expired_operational_events: { Args: never; Returns: number }
+      replace_shift_assignment: {
+        Args: {
+          incoming_user_id: string
+          outgoing_user_id: string
+          target_shift_id: string
+        }
+        Returns: {
+          assigned_by: string | null
+          created_at: string
+          id: string
+          organization_id: string
+          shift_id: string
+          user_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "shift_assignments"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       request_open_shift: {
         Args: { request_note?: string; target_shift_id: string }
         Returns: {
