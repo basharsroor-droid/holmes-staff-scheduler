@@ -6035,11 +6035,23 @@ summary:focus-visible {
     font-size: 28px;
   }
 }
+/* G2: safety net for "reduce motion". The specific rules above already stop
+   the intro, scroll reveals, the proof strip and the hero; this catches every
+   other CSS animation or transition (loading skeletons, spinners, hover
+   effects, and anything added later). Durations go to ~0 rather than "none"
+   so elements still reach their end state. Nothing in the codebase waits on
+   animationend/transitionend (checked 2026-09-11), so nothing hangs.
+   framer-motion is covered separately by ReducedMotionProvider. */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
   *::after {
     scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    animation-delay: 0ms !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
   }
 }
 .native-shift-reminder {

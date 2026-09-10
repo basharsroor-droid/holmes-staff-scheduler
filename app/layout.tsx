@@ -12,6 +12,7 @@ import "@/app/my-shifts-date-nav.css";
 import { WebAnalytics } from "@/components/analytics/web-analytics";
 import { introPrebootScript, SiteIntro } from "@/components/brand/site-intro";
 import { AppShell } from "@/components/layout/app-shell";
+import { ReducedMotionProvider } from "@/components/motion/reduced-motion-provider";
 import { NativeNotificationRouter } from "@/components/native/native-notification-router";
 import { ClientObservability } from "@/components/observability/client-observability";
 import { ServiceWorkerRegister } from "@/components/pwa/sw-register";
@@ -57,7 +58,9 @@ export default function RootLayout({
       <body>
         <script dangerouslySetInnerHTML={{ __html: introPrebootScript }} />
         <SiteIntro />
-        <AppShell>{children}</AppShell>
+        <ReducedMotionProvider>
+          <AppShell>{children}</AppShell>
+        </ReducedMotionProvider>
         <ClientObservability />
         <NativeNotificationRouter />
         <ServiceWorkerRegister />
