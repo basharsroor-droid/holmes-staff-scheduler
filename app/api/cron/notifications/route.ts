@@ -33,7 +33,7 @@ export async function GET(request: Request) {
   if (scheduleError) return NextResponse.json({ error: "Could not schedule notifications" }, { status: 500 });
   const { data, error } = await admin.rpc("claim_email_delivery_jobs", { batch_size: 25 });
   if (error) return NextResponse.json({ error: "Could not claim email jobs" }, { status: 500 });
-  const { data: pushData, error: pushClaimError } = await (admin as any).rpc("claim_push_delivery_jobs", { batch_size: 50 });
+  const { data: pushData, error: pushClaimError } = await admin.rpc("claim_push_delivery_jobs", { batch_size: 50 });
   if (pushClaimError) return NextResponse.json({ error: "Could not claim push jobs" }, { status: 500 });
 
   const appUrl = process.env.NEXT_PUBLIC_APP_URL || new URL(request.url).origin;
@@ -64,7 +64,7 @@ export async function GET(request: Request) {
         environment: job.environment,
         ...copy
       });
-      await (admin as any).from("push_delivery_queue").update({
+      await admin.from("push_delivery_queue").update({
         status: "sent",
         sent_at: new Date().toISOString(),
         apns_id: apnsId,
@@ -76,13 +76,13 @@ export async function GET(request: Request) {
       const invalidToken = /BadDeviceToken|DeviceTokenNotForTopic|Unregistered/.test(errorMessage);
       const finalFailure = invalidToken || job.attempts >= 5;
       const delayMinutes = Math.min(2 ** Math.max(job.attempts, 1), 60);
-      await (admin as any).from("push_delivery_queue").update({
+      await admin.from("push_delivery_queue").update({
         status: finalFailure ? "failed" : "retry",
         scheduled_for: new Date(Date.now() + delayMinutes * 60_000).toISOString(),
         last_error: errorMessage
       }).eq("id", job.id);
       if (invalidToken) {
-        await (admin as any).from("push_devices").update({ active: false, updated_at: new Date().toISOString() }).eq("id", job.device_id);
+        await admin.from("push_devices").update({ active: false, updated_at: new Date().toISOString() }).eq("id", job.device_id);
       }
       throw sendError;
     }

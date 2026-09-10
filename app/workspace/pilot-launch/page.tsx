@@ -132,10 +132,10 @@ export default async function PilotLaunchPage() {
   return <main className="workspace-home" dir="rtl">
     <header className="workspace-subheader"><div>
       <Link href="/workspace" className="back-link"><ArrowRight size={17} /> חזרה לסביבת העבודה</Link>
-      <p className="eyebrow">{organization.name} · השקת פיילוט{(organization as any).pilot_mode ? " · Pilot Mode פעיל" : ""}</p>
+      <p className="eyebrow">{organization.name} · השקת פיילוט{organization.pilot_mode ? " · Pilot Mode פעיל" : ""}</p>
       <h1><Rocket /> מרכז השקת הפיילוט</h1>
       <p>תמונת מצב אחת מהגדרת העסק ועד פרסום הסידור הראשון. הנתונים כאן נקראים מהמערכת ואינם מפרסמים או משנים סידור.</p>
-      {(organization as any).pilot_mode ? <p>כלי ה-Intelligence מוסתרים כרגע כדי לשמור על מחזור פשוט. הם ייפתחו בהדרגה אחרי שמחזור 1 ייסגר.</p> : null}
+      {organization.pilot_mode ? <p>כלי ה-Intelligence מוסתרים כרגע כדי לשמור על מחזור פשוט. הם ייפתחו בהדרגה אחרי שמחזור 1 ייסגר.</p> : null}
     </div></header>
 
     <section className="template-list-card">

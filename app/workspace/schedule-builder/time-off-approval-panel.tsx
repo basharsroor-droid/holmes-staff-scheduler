@@ -27,7 +27,7 @@ const leaveTypeLabels: Record<LeaveType, string> = {
 
 export function TimeOffApprovalPanel({ initialRequests }: { initialRequests: PendingRequest[] }) {
   const supabase = useMemo(() => createSupabaseBrowserClient(), []);
-  const db = supabase as any;
+  const db = supabase;
   const router = useRouter();
   const [requests, setRequests] = useState(initialRequests);
   const [notes, setNotes] = useState<Record<string, string>>({});
@@ -40,7 +40,7 @@ export function TimeOffApprovalPanel({ initialRequests }: { initialRequests: Pen
     const { error } = await db.rpc("decide_leave_request", {
       target_request_id: id,
       decision,
-      decision_note: notes[id]?.trim() || null
+      decision_note: notes[id]?.trim() || undefined
     });
     setBusy("");
 

@@ -30,7 +30,7 @@ type SavedTemplate = {
 const monthNames = ["ינואר","פברואר","מרץ","אפריל","מאי","יוני","יולי","אוגוסט","ספטמבר","אוקטובר","נובמבר","דצמבר"];
 
 export function ScheduleTemplatesPanel({ periods, initialTemplates }: { periods: Period[]; initialTemplates: SavedTemplate[] }) {
-  const supabase = useMemo(() => createSupabaseBrowserClient() as any, []);
+  const supabase = useMemo(() => createSupabaseBrowserClient(), []);
   const router = useRouter();
   const { message, kind, setMessage } = useStatusMessage();
   const [busy, setBusy] = useState("");

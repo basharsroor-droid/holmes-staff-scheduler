@@ -24,7 +24,7 @@ export async function POST(request: Request) {
     .maybeSingle();
   if (!membership) return NextResponse.json({ error: "No active membership" }, { status: 403 });
 
-  const admin = createSupabaseAdminClient() as any;
+  const admin = createSupabaseAdminClient();
   const token = body.token.toLowerCase();
   const configuredEnvironment = process.env.APNS_ENVIRONMENT === "sandbox" ? "sandbox" : "production";
   const { error } = await admin.from("push_devices").upsert({
@@ -49,7 +49,7 @@ export async function DELETE(request: Request) {
   if (!body || typeof body.token !== "string" || !tokenPattern.test(body.token)) {
     return NextResponse.json({ error: "Invalid device token" }, { status: 400 });
   }
-  const admin = createSupabaseAdminClient() as any;
+  const admin = createSupabaseAdminClient();
   await admin.from("push_devices").update({ active: false, updated_at: new Date().toISOString() })
     .eq("user_id", user.id).eq("token", body.token.toLowerCase());
   return NextResponse.json({ registered: false });

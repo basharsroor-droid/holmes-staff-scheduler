@@ -10,7 +10,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.15"
+    PostgrestVersion: "14.5"
   }
   public: {
     Tables: {
@@ -46,6 +46,13 @@ export type Database = {
           organization_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "audit_logs_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organization_usage"
+            referencedColumns: ["organization_id"]
+          },
           {
             foreignKeyName: "audit_logs_organization_id_fkey"
             columns: ["organization_id"]
@@ -90,6 +97,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "availability_entries_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organization_usage"
+            referencedColumns: ["organization_id"]
+          },
           {
             foreignKeyName: "availability_entries_organization_id_fkey"
             columns: ["organization_id"]
@@ -149,6 +163,13 @@ export type Database = {
             foreignKeyName: "availability_submissions_organization_id_fkey"
             columns: ["organization_id"]
             isOneToOne: false
+            referencedRelation: "organization_usage"
+            referencedColumns: ["organization_id"]
+          },
+          {
+            foreignKeyName: "availability_submissions_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
             referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
@@ -190,6 +211,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "branches_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organization_usage"
+            referencedColumns: ["organization_id"]
+          },
           {
             foreignKeyName: "branches_organization_id_fkey"
             columns: ["organization_id"]
@@ -257,6 +285,13 @@ export type Database = {
             foreignKeyName: "department_memberships_organization_id_fkey"
             columns: ["organization_id"]
             isOneToOne: false
+            referencedRelation: "organization_usage"
+            referencedColumns: ["organization_id"]
+          },
+          {
+            foreignKeyName: "department_memberships_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
             referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
@@ -297,6 +332,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "branches"
             referencedColumns: ["id", "organization_id"]
+          },
+          {
+            foreignKeyName: "departments_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organization_usage"
+            referencedColumns: ["organization_id"]
           },
           {
             foreignKeyName: "departments_organization_id_fkey"
@@ -367,6 +409,13 @@ export type Database = {
             foreignKeyName: "email_delivery_queue_organization_id_fkey"
             columns: ["organization_id"]
             isOneToOne: false
+            referencedRelation: "organization_usage"
+            referencedColumns: ["organization_id"]
+          },
+          {
+            foreignKeyName: "email_delivery_queue_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
             referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
@@ -374,39 +423,61 @@ export type Database = {
       }
       leave_requests: {
         Row: {
+          cancelled_at: string | null
           created_at: string
+          decided_at: string | null
+          decided_by: string | null
           end_date: string
           id: string
           leave_type: Database["public"]["Enums"]["leave_type"]
+          manager_note: string | null
           note: string | null
           organization_id: string
           start_date: string
+          status: Database["public"]["Enums"]["leave_request_status"]
           updated_at: string
           user_id: string
         }
         Insert: {
+          cancelled_at?: string | null
           created_at?: string
+          decided_at?: string | null
+          decided_by?: string | null
           end_date: string
           id?: string
           leave_type: Database["public"]["Enums"]["leave_type"]
+          manager_note?: string | null
           note?: string | null
           organization_id: string
           start_date: string
+          status?: Database["public"]["Enums"]["leave_request_status"]
           updated_at?: string
           user_id: string
         }
         Update: {
+          cancelled_at?: string | null
           created_at?: string
+          decided_at?: string | null
+          decided_by?: string | null
           end_date?: string
           id?: string
           leave_type?: Database["public"]["Enums"]["leave_type"]
+          manager_note?: string | null
           note?: string | null
           organization_id?: string
           start_date?: string
+          status?: Database["public"]["Enums"]["leave_request_status"]
           updated_at?: string
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "leave_requests_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organization_usage"
+            referencedColumns: ["organization_id"]
+          },
           {
             foreignKeyName: "leave_requests_organization_id_fkey"
             columns: ["organization_id"]
@@ -451,6 +522,13 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "notification_preferences_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organization_usage"
+            referencedColumns: ["organization_id"]
+          },
           {
             foreignKeyName: "notification_preferences_organization_id_fkey"
             columns: ["organization_id"]
@@ -506,6 +584,137 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "notifications_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organization_usage"
+            referencedColumns: ["organization_id"]
+          },
+          {
+            foreignKeyName: "notifications_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      open_shift_requests: {
+        Row: {
+          cancelled_at: string | null
+          created_at: string
+          decided_at: string | null
+          decided_by: string | null
+          employee_note: string | null
+          id: string
+          manager_note: string | null
+          organization_id: string
+          shift_id: string
+          status: Database["public"]["Enums"]["open_shift_request_status"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          cancelled_at?: string | null
+          created_at?: string
+          decided_at?: string | null
+          decided_by?: string | null
+          employee_note?: string | null
+          id?: string
+          manager_note?: string | null
+          organization_id: string
+          shift_id: string
+          status?: Database["public"]["Enums"]["open_shift_request_status"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          cancelled_at?: string | null
+          created_at?: string
+          decided_at?: string | null
+          decided_by?: string | null
+          employee_note?: string | null
+          id?: string
+          manager_note?: string | null
+          organization_id?: string
+          shift_id?: string
+          status?: Database["public"]["Enums"]["open_shift_request_status"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "open_shift_requests_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organization_usage"
+            referencedColumns: ["organization_id"]
+          },
+          {
+            foreignKeyName: "open_shift_requests_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "open_shift_requests_shift_id_fkey"
+            columns: ["shift_id"]
+            isOneToOne: false
+            referencedRelation: "shifts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      operational_events: {
+        Row: {
+          actor_user_id: string | null
+          created_at: string
+          event_name: string
+          event_type: string
+          fingerprint: string | null
+          id: string
+          metadata: Json
+          organization_id: string | null
+          release: string | null
+          route: string | null
+          severity: string
+        }
+        Insert: {
+          actor_user_id?: string | null
+          created_at?: string
+          event_name: string
+          event_type: string
+          fingerprint?: string | null
+          id?: string
+          metadata?: Json
+          organization_id?: string | null
+          release?: string | null
+          route?: string | null
+          severity?: string
+        }
+        Update: {
+          actor_user_id?: string | null
+          created_at?: string
+          event_name?: string
+          event_type?: string
+          fingerprint?: string | null
+          id?: string
+          metadata?: Json
+          organization_id?: string | null
+          release?: string | null
+          route?: string | null
+          severity?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "operational_events_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organization_usage"
+            referencedColumns: ["organization_id"]
+          },
+          {
+            foreignKeyName: "operational_events_organization_id_fkey"
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
@@ -580,6 +789,13 @@ export type Database = {
             foreignKeyName: "organization_invitations_organization_id_fkey"
             columns: ["organization_id"]
             isOneToOne: false
+            referencedRelation: "organization_usage"
+            referencedColumns: ["organization_id"]
+          },
+          {
+            foreignKeyName: "organization_invitations_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
             referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
@@ -649,54 +865,11 @@ export type Database = {
             foreignKeyName: "organization_memberships_organization_id_fkey"
             columns: ["organization_id"]
             isOneToOne: false
-            referencedRelation: "organizations"
-            referencedColumns: ["id"]
+            referencedRelation: "organization_usage"
+            referencedColumns: ["organization_id"]
           },
-        ]
-      }
-      operational_events: {
-        Row: {
-          actor_user_id: string | null
-          created_at: string
-          event_name: string
-          event_type: string
-          fingerprint: string | null
-          id: string
-          metadata: Json
-          organization_id: string | null
-          release: string | null
-          route: string | null
-          severity: string
-        }
-        Insert: {
-          actor_user_id?: string | null
-          created_at?: string
-          event_name: string
-          event_type: string
-          fingerprint?: string | null
-          id?: string
-          metadata?: Json
-          organization_id?: string | null
-          release?: string | null
-          route?: string | null
-          severity?: string
-        }
-        Update: {
-          actor_user_id?: string | null
-          created_at?: string
-          event_name?: string
-          event_type?: string
-          fingerprint?: string | null
-          id?: string
-          metadata?: Json
-          organization_id?: string | null
-          release?: string | null
-          route?: string | null
-          severity?: string
-        }
-        Relationships: [
           {
-            foreignKeyName: "operational_events_organization_id_fkey"
+            foreignKeyName: "organization_memberships_organization_id_fkey"
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
@@ -788,57 +961,6 @@ export type Database = {
         }
         Relationships: []
       }
-      subscriptions: {
-        Row: {
-          billing_period: string
-          created_at: string
-          current_period_end: string | null
-          organization_id: string
-          plan_id: string
-          status: Database["public"]["Enums"]["subscription_status"]
-          trial_ends_at: string | null
-          trial_started_at: string | null
-          updated_at: string
-        }
-        Insert: {
-          billing_period?: string
-          created_at?: string
-          current_period_end?: string | null
-          organization_id: string
-          plan_id: string
-          status?: Database["public"]["Enums"]["subscription_status"]
-          trial_ends_at?: string | null
-          trial_started_at?: string | null
-          updated_at?: string
-        }
-        Update: {
-          billing_period?: string
-          created_at?: string
-          current_period_end?: string | null
-          organization_id?: string
-          plan_id?: string
-          status?: Database["public"]["Enums"]["subscription_status"]
-          trial_ends_at?: string | null
-          trial_started_at?: string | null
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "subscriptions_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: true
-            referencedRelation: "organizations"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "subscriptions_plan_id_fkey"
-            columns: ["plan_id"]
-            isOneToOne: false
-            referencedRelation: "plans"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       platform_support_agents: {
         Row: {
           created_at: string
@@ -883,6 +1005,152 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      push_delivery_queue: {
+        Row: {
+          apns_id: string | null
+          attempts: number
+          created_at: string
+          device_id: string
+          device_token: string
+          environment: string
+          id: string
+          last_error: string | null
+          locked_at: string | null
+          notification_id: string
+          organization_id: string
+          payload: Json
+          scheduled_for: string
+          sent_at: string | null
+          status: string
+          template_key: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          apns_id?: string | null
+          attempts?: number
+          created_at?: string
+          device_id: string
+          device_token: string
+          environment: string
+          id?: string
+          last_error?: string | null
+          locked_at?: string | null
+          notification_id: string
+          organization_id: string
+          payload?: Json
+          scheduled_for?: string
+          sent_at?: string | null
+          status?: string
+          template_key: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          apns_id?: string | null
+          attempts?: number
+          created_at?: string
+          device_id?: string
+          device_token?: string
+          environment?: string
+          id?: string
+          last_error?: string | null
+          locked_at?: string | null
+          notification_id?: string
+          organization_id?: string
+          payload?: Json
+          scheduled_for?: string
+          sent_at?: string | null
+          status?: string
+          template_key?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "push_delivery_queue_device_id_fkey"
+            columns: ["device_id"]
+            isOneToOne: false
+            referencedRelation: "push_devices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "push_delivery_queue_notification_id_fkey"
+            columns: ["notification_id"]
+            isOneToOne: false
+            referencedRelation: "notifications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "push_delivery_queue_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organization_usage"
+            referencedColumns: ["organization_id"]
+          },
+          {
+            foreignKeyName: "push_delivery_queue_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      push_devices: {
+        Row: {
+          active: boolean
+          created_at: string
+          environment: string
+          id: string
+          last_seen_at: string
+          organization_id: string
+          platform: string
+          token: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          environment?: string
+          id?: string
+          last_seen_at?: string
+          organization_id: string
+          platform: string
+          token: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          environment?: string
+          id?: string
+          last_seen_at?: string
+          organization_id?: string
+          platform?: string
+          token?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "push_devices_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organization_usage"
+            referencedColumns: ["organization_id"]
+          },
+          {
+            foreignKeyName: "push_devices_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       schedule_periods: {
         Row: {
@@ -949,6 +1217,146 @@ export type Database = {
             foreignKeyName: "schedule_periods_organization_id_fkey"
             columns: ["organization_id"]
             isOneToOne: false
+            referencedRelation: "organization_usage"
+            referencedColumns: ["organization_id"]
+          },
+          {
+            foreignKeyName: "schedule_periods_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      schedule_template_items: {
+        Row: {
+          created_at: string
+          end_time: string
+          id: string
+          name: string
+          occurrence: number
+          organization_id: string
+          required_employees: number
+          schedule_template_id: string
+          shift_template_id: string | null
+          start_time: string
+          weekday: number
+        }
+        Insert: {
+          created_at?: string
+          end_time: string
+          id?: string
+          name: string
+          occurrence: number
+          organization_id: string
+          required_employees: number
+          schedule_template_id: string
+          shift_template_id?: string | null
+          start_time: string
+          weekday: number
+        }
+        Update: {
+          created_at?: string
+          end_time?: string
+          id?: string
+          name?: string
+          occurrence?: number
+          organization_id?: string
+          required_employees?: number
+          schedule_template_id?: string
+          shift_template_id?: string | null
+          start_time?: string
+          weekday?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "schedule_template_items_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organization_usage"
+            referencedColumns: ["organization_id"]
+          },
+          {
+            foreignKeyName: "schedule_template_items_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "schedule_template_items_schedule_template_id_fkey"
+            columns: ["schedule_template_id"]
+            isOneToOne: false
+            referencedRelation: "schedule_templates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "schedule_template_items_shift_template_id_fkey"
+            columns: ["shift_template_id"]
+            isOneToOne: false
+            referencedRelation: "shift_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      schedule_templates: {
+        Row: {
+          branch_id: string
+          created_at: string
+          created_by: string
+          department_id: string
+          id: string
+          name: string
+          organization_id: string
+          updated_at: string
+        }
+        Insert: {
+          branch_id: string
+          created_at?: string
+          created_by: string
+          department_id: string
+          id?: string
+          name: string
+          organization_id: string
+          updated_at?: string
+        }
+        Update: {
+          branch_id?: string
+          created_at?: string
+          created_by?: string
+          department_id?: string
+          id?: string
+          name?: string
+          organization_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "schedule_templates_branch_id_fkey"
+            columns: ["branch_id"]
+            isOneToOne: false
+            referencedRelation: "branches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "schedule_templates_department_id_fkey"
+            columns: ["department_id"]
+            isOneToOne: false
+            referencedRelation: "departments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "schedule_templates_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organization_usage"
+            referencedColumns: ["organization_id"]
+          },
+          {
+            foreignKeyName: "schedule_templates_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
             referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
@@ -980,6 +1388,13 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "shift_assignments_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organization_usage"
+            referencedColumns: ["organization_id"]
+          },
           {
             foreignKeyName: "shift_assignments_organization_id_fkey"
             columns: ["organization_id"]
@@ -1061,6 +1476,13 @@ export type Database = {
             foreignKeyName: "shift_templates_organization_id_fkey"
             columns: ["organization_id"]
             isOneToOne: false
+            referencedRelation: "organization_usage"
+            referencedColumns: ["organization_id"]
+          },
+          {
+            foreignKeyName: "shift_templates_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
             referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
@@ -1073,6 +1495,9 @@ export type Database = {
           id: string
           manager_note: string | null
           name: string
+          open_for_requests: boolean
+          opened_at: string | null
+          opened_by: string | null
           organization_id: string
           required_employees: number
           schedule_period_id: string
@@ -1088,6 +1513,9 @@ export type Database = {
           id?: string
           manager_note?: string | null
           name: string
+          open_for_requests?: boolean
+          opened_at?: string | null
+          opened_by?: string | null
           organization_id: string
           required_employees?: number
           schedule_period_id: string
@@ -1103,6 +1531,9 @@ export type Database = {
           id?: string
           manager_note?: string | null
           name?: string
+          open_for_requests?: boolean
+          opened_at?: string | null
+          opened_by?: string | null
           organization_id?: string
           required_employees?: number
           schedule_period_id?: string
@@ -1113,6 +1544,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "shifts_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organization_usage"
+            referencedColumns: ["organization_id"]
+          },
           {
             foreignKeyName: "shifts_organization_id_fkey"
             columns: ["organization_id"]
@@ -1133,6 +1571,64 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "shift_templates"
             referencedColumns: ["id", "organization_id"]
+          },
+        ]
+      }
+      subscriptions: {
+        Row: {
+          billing_period: string
+          created_at: string
+          current_period_end: string | null
+          organization_id: string
+          plan_id: string
+          status: Database["public"]["Enums"]["subscription_status"]
+          trial_ends_at: string | null
+          trial_started_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          billing_period?: string
+          created_at?: string
+          current_period_end?: string | null
+          organization_id: string
+          plan_id: string
+          status?: Database["public"]["Enums"]["subscription_status"]
+          trial_ends_at?: string | null
+          trial_started_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          billing_period?: string
+          created_at?: string
+          current_period_end?: string | null
+          organization_id?: string
+          plan_id?: string
+          status?: Database["public"]["Enums"]["subscription_status"]
+          trial_ends_at?: string | null
+          trial_started_at?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscriptions_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: true
+            referencedRelation: "organization_usage"
+            referencedColumns: ["organization_id"]
+          },
+          {
+            foreignKeyName: "subscriptions_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: true
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "subscriptions_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "plans"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -1196,6 +1692,13 @@ export type Database = {
             foreignKeyName: "support_tickets_organization_id_fkey"
             columns: ["organization_id"]
             isOneToOne: false
+            referencedRelation: "organization_usage"
+            referencedColumns: ["organization_id"]
+          },
+          {
+            foreignKeyName: "support_tickets_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
             referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
@@ -1230,6 +1733,13 @@ export type Database = {
           swap_request_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "swap_request_events_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organization_usage"
+            referencedColumns: ["organization_id"]
+          },
           {
             foreignKeyName: "swap_request_events_organization_id_fkey"
             columns: ["organization_id"]
@@ -1297,6 +1807,13 @@ export type Database = {
             foreignKeyName: "swap_requests_organization_id_fkey"
             columns: ["organization_id"]
             isOneToOne: false
+            referencedRelation: "organization_usage"
+            referencedColumns: ["organization_id"]
+          },
+          {
+            foreignKeyName: "swap_requests_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
             referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
@@ -1320,23 +1837,31 @@ export type Database = {
     Views: {
       organization_usage: {
         Row: {
-          active_branches: number
-          active_departments: number
-          active_employees: number
-          active_managers: number
+          active_branches: number | null
+          active_departments: number | null
+          active_employees: number | null
+          active_managers: number | null
           max_active_employees: number | null
           max_branches: number | null
           max_departments: number | null
           max_managers: number | null
           organization_id: string | null
-          pending_invitations: number
+          pending_invitations: number | null
           plan_id: string | null
           subscription_status:
             | Database["public"]["Enums"]["subscription_status"]
             | null
           trial_ends_at: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "subscriptions_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "plans"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Functions: {
@@ -1344,9 +1869,64 @@ export type Database = {
         Args: { invitation_token: string }
         Returns: string
       }
+      apply_schedule_template: {
+        Args: { target_period_id: string; target_template_id: string }
+        Returns: {
+          items_skipped: number
+          shifts_created: number
+        }[]
+      }
       approve_shift_swap: {
         Args: { decision_note?: string; target_request_id: string }
         Returns: boolean
+      }
+      cancel_leave_request: {
+        Args: { target_request_id: string }
+        Returns: {
+          cancelled_at: string | null
+          created_at: string
+          decided_at: string | null
+          decided_by: string | null
+          end_date: string
+          id: string
+          leave_type: Database["public"]["Enums"]["leave_type"]
+          manager_note: string | null
+          note: string | null
+          organization_id: string
+          start_date: string
+          status: Database["public"]["Enums"]["leave_request_status"]
+          updated_at: string
+          user_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "leave_requests"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      cancel_open_shift_request: {
+        Args: { target_request_id: string }
+        Returns: {
+          cancelled_at: string | null
+          created_at: string
+          decided_at: string | null
+          decided_by: string | null
+          employee_note: string | null
+          id: string
+          manager_note: string | null
+          organization_id: string
+          shift_id: string
+          status: Database["public"]["Enums"]["open_shift_request_status"]
+          updated_at: string
+          user_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "open_shift_requests"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       cancel_shifts_for_day: {
         Args: { target_date: string; target_period_id: string }
@@ -1354,6 +1934,10 @@ export type Database = {
           assignments_removed: number
           shifts_cancelled: number
         }[]
+      }
+      check_open_shift_eligibility: {
+        Args: { target_shift_id: string }
+        Returns: Json
       }
       claim_email_delivery_jobs: {
         Args: { batch_size?: number }
@@ -1378,6 +1962,35 @@ export type Database = {
         SetofOptions: {
           from: "*"
           to: "email_delivery_queue"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
+      claim_push_delivery_jobs: {
+        Args: { batch_size?: number }
+        Returns: {
+          apns_id: string | null
+          attempts: number
+          created_at: string
+          device_id: string
+          device_token: string
+          environment: string
+          id: string
+          last_error: string | null
+          locked_at: string | null
+          notification_id: string
+          organization_id: string
+          payload: Json
+          scheduled_for: string
+          sent_at: string | null
+          status: string
+          template_key: string
+          updated_at: string
+          user_id: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "push_delivery_queue"
           isOneToOne: false
           isSetofReturn: true
         }
@@ -1416,6 +2029,66 @@ export type Database = {
         }
         Returns: string
       }
+      decide_leave_request: {
+        Args: {
+          decision: Database["public"]["Enums"]["leave_request_status"]
+          decision_note?: string
+          target_request_id: string
+        }
+        Returns: {
+          cancelled_at: string | null
+          created_at: string
+          decided_at: string | null
+          decided_by: string | null
+          end_date: string
+          id: string
+          leave_type: Database["public"]["Enums"]["leave_type"]
+          manager_note: string | null
+          note: string | null
+          organization_id: string
+          start_date: string
+          status: Database["public"]["Enums"]["leave_request_status"]
+          updated_at: string
+          user_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "leave_requests"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      decide_open_shift_request: {
+        Args: {
+          decision: Database["public"]["Enums"]["open_shift_request_status"]
+          decision_note?: string
+          target_request_id: string
+        }
+        Returns: {
+          cancelled_at: string | null
+          created_at: string
+          decided_at: string | null
+          decided_by: string | null
+          employee_note: string | null
+          id: string
+          manager_note: string | null
+          organization_id: string
+          shift_id: string
+          status: Database["public"]["Enums"]["open_shift_request_status"]
+          updated_at: string
+          user_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "open_shift_requests"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      delete_schedule_template: {
+        Args: { target_template_id: string }
+        Returns: undefined
+      }
       duplicate_schedule_period: {
         Args: { source_period_id: string; target_period_id: string }
         Returns: {
@@ -1429,10 +2102,33 @@ export type Database = {
         Returns: number
       }
       mark_my_notifications_read: { Args: never; Returns: number }
-      purge_expired_operational_events: { Args: never; Returns: number }
       publish_schedule_period: {
         Args: { target_period_id: string }
         Returns: number
+      }
+      purge_expired_operational_events: { Args: never; Returns: number }
+      request_open_shift: {
+        Args: { request_note?: string; target_shift_id: string }
+        Returns: {
+          cancelled_at: string | null
+          created_at: string
+          decided_at: string | null
+          decided_by: string | null
+          employee_note: string | null
+          id: string
+          manager_note: string | null
+          organization_id: string
+          shift_id: string
+          status: Database["public"]["Enums"]["open_shift_request_status"]
+          updated_at: string
+          user_id: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "open_shift_requests"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       reset_demo_environment: {
         Args: { target_organization_id: string }
@@ -1442,9 +2138,55 @@ export type Database = {
         Args: { invitation_token: string }
         Returns: boolean
       }
+      save_schedule_template_from_period: {
+        Args: { source_period_id: string; template_name: string }
+        Returns: {
+          branch_id: string
+          created_at: string
+          created_by: string
+          department_id: string
+          id: string
+          name: string
+          organization_id: string
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "schedule_templates"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       set_membership_departments: {
         Args: { target_department_ids: string[]; target_membership_id: string }
         Returns: undefined
+      }
+      set_shift_open_for_requests: {
+        Args: { make_open: boolean; target_shift_id: string }
+        Returns: {
+          created_at: string
+          end_time: string
+          id: string
+          manager_note: string | null
+          name: string
+          open_for_requests: boolean
+          opened_at: string | null
+          opened_by: string | null
+          organization_id: string
+          required_employees: number
+          schedule_period_id: string
+          shift_date: string
+          shift_template_id: string | null
+          start_time: string
+          status: Database["public"]["Enums"]["shift_status"]
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "shifts"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       transfer_organization_ownership: {
         Args: { target_user_id: string }
@@ -1461,10 +2203,16 @@ export type Database = {
         | "preferred"
         | "only_if_needed"
         | "unavailable"
+      leave_request_status: "pending" | "approved" | "rejected" | "cancelled"
       leave_type: "vacation" | "sick"
       member_role: "owner" | "admin" | "manager" | "employee"
       member_status: "invited" | "active" | "suspended"
       notification_status: "pending" | "sent" | "failed" | "cancelled"
+      open_shift_request_status:
+        | "pending"
+        | "approved"
+        | "rejected"
+        | "cancelled"
       schedule_status: "collecting" | "draft" | "published" | "archived"
       shift_status: "draft" | "published" | "cancelled"
       subscription_status:
@@ -1509,12 +2257,12 @@ export type Tables<
   DefaultSchemaTableNameOrOptions extends
     | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
         DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -1538,11 +2286,11 @@ export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -1563,11 +2311,11 @@ export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -1588,11 +2336,11 @@ export type Enums<
   DefaultSchemaEnumNameOrOptions extends
     | keyof DefaultSchema["Enums"]
     | { schema: keyof DatabaseWithoutInternals },
-  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+  EnumName extends (DefaultSchemaEnumNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaEnumNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -1605,11 +2353,11 @@ export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
     | keyof DefaultSchema["CompositeTypes"]
     | { schema: keyof DatabaseWithoutInternals },
-  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+  CompositeTypeName extends (PublicCompositeTypeNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
-    : never = never,
+    : never) = never,
 > = PublicCompositeTypeNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -1627,10 +2375,17 @@ export const Constants = {
         "only_if_needed",
         "unavailable",
       ],
+      leave_request_status: ["pending", "approved", "rejected", "cancelled"],
       leave_type: ["vacation", "sick"],
       member_role: ["owner", "admin", "manager", "employee"],
       member_status: ["invited", "active", "suspended"],
       notification_status: ["pending", "sent", "failed", "cancelled"],
+      open_shift_request_status: [
+        "pending",
+        "approved",
+        "rejected",
+        "cancelled",
+      ],
       schedule_status: ["collecting", "draft", "published", "archived"],
       shift_status: ["draft", "published", "cancelled"],
       subscription_status: [

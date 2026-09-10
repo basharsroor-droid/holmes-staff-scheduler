@@ -41,7 +41,7 @@ export default async function AvailabilityPage() {
     ? await supabase.from("availability_entries").select("id, submission_id, shift_template_id, shift_date, status, note").in("submission_id", submissionIds)
     : { data: [] };
 
-  const db = supabase as any;
+  const db = supabase;
   const { data: leaveRequests } = await db
     .from("leave_requests")
     .select("id, leave_type, start_date, end_date, note, status, manager_note")
