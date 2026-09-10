@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 8
     env:
-      STAGING_SUPABASE_URL: https://ctibuhkkbmyzawjhwujn.supabase.co
+      STAGING_SUPABASE_URL: https://sqmstwwrdoenfumligmf.supabase.co
       STAGING_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.STAGING_SUPABASE_PUBLISHABLE_KEY }}
       STAGING_SUPABASE_SECRET_KEY: ${{ secrets.STAGING_SUPABASE_SECRET_KEY }}
     steps:
