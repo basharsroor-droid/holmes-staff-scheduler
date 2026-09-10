@@ -4,9 +4,14 @@ import { expect, type Page, test } from "@playwright/test";
 // showed seven buttons that led to three places ("open a workspace" x3,
 // "demo" x3, "log in"). It should offer one primary and one secondary action.
 
+// Both storages: before G3 the intro read sessionStorage, after it
+// localStorage. Setting both keeps this spec correct in either order of
+// merge -- and while the intro plays the page can't scroll and the hero's
+// buttons haven't revealed yet, which is what made the first run fail.
 async function skipIntro(page: Page) {
   await page.addInitScript(() => {
     window.localStorage.setItem("shiftpilot_code_intro_seen_v1", "1");
+    window.sessionStorage.setItem("shiftpilot_code_intro_seen_v1", "1");
   });
 }
 
@@ -36,8 +41,10 @@ test.describe("mobile home page", () => {
     await skipIntro(page);
     await page.goto("/");
     await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
-    expect(await visibleLinksTo(page, "/onboarding")).toBe(1);
-    expect(await visibleLinksTo(page, "/demo")).toBe(1);
+    // The hero's buttons fade in; count once they've revealed, not mid-animation.
+    await expect(page.locator('.ch-hero-ctas a[href="/onboarding"]')).toBeVisible();
+    await expect.poll(() => visibleLinksTo(page, "/onboarding")).toBe(1);
+    await expect.poll(() => visibleLinksTo(page, "/demo")).toBe(1);
     await expect(page.getByRole("link", { name: /כניסה למערכת/ })).toBeVisible();
   });
 
@@ -49,6 +56,7 @@ test.describe("mobile home page", () => {
     await expect(bar).toBeHidden();
 
     await page.evaluate(() => window.scrollTo(0, window.innerHeight));
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(0);
     await expect(bar).toHaveAttribute("aria-hidden", "false");
     await expect(bar).toBeVisible();
   });
