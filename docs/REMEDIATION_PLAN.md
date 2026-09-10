@@ -76,11 +76,16 @@
 - **ביצוע:** להגביל ל-`schedule_period_id` הרלוונטי, או לחלון תאריכים (`shift_date >= period.start - 7d`), עם `.limit()` הגנתי
 - **קבלה:** אין שאילתת `shifts` ללא `.eq/.in` על תקופה או `.gte` על תאריך; מדידה: < 500 שורות ל-rank בעסק של 80 עובדים
 
-**B3 · צמצום ה-waterfall ב-schedule-builder** — `P1` · `M`
-> `page.tsx` עושה 17 שאילתות שרת, ואז מרנדר ~10 פאנלים שכל אחד יורה עוד 2–11 ב-`useEffect`. **~60 round-trips לרנדר עמוד אחד.** `app/workspace/page.tsx` כבר עושה `Promise.all` נכון — הדפוס קיים, פשוט לא הועתק.
-
-- **ביצוע:** להעביר את הנתונים המשותפים (shifts, assignments, workers, availability) מ-fetch-per-panel ל-props מהשרת; `Promise.all` בשרת; פאנל שצריך רענון מקבל `router.refresh()`
-- **קבלה:** ספירת round-trips ראשוני < 20; TTI נמדד לפני/אחרי
+**B3 · הגבלת טעינת ה-schedule-builder וצמצום ה-waterfall** — `P1` · `M`
+> **נמדד מחדש ב-10.9 (מתקן את ההערכה המקורית "~60 round-trips"):** בטעינה רצות **27 שאילתות בכ-8 שלבים עוקבים**. בשרת 6 שלבים (`getUser` → membership → 7 במקביל → 2 במקביל → 3 במקביל → 4 במקביל); בדפדפן עוד 2 (ארבעה פאנלים — conflict-detector, fairness, shiftpilot-score, smart-replacement — כל אחד shifts → assignments, במקביל זה לזה). שני ה-enhancers שנראו כמו שאילתות (coverage-rules, employee-preference) קוראים רק את ה-DOM. *(ה-grep המקורי ספר גם `Array.from` כשאילתה.)*
+>
+> **ממצא חדש, חמור יותר מהמספר:** `page.tsx:34` טוען **את כל** תקופות הארגון בלי הגבלת זמן, שורה 52 את כל המשמרות שלהן, ושורה 59 את כל השיבוצים — **כל היסטוריית העסק בכל כניסה לעמוד**. זה B2 בצד השרת. היום זעיר (הארגון הגדול: תקופה אחת, 90 משמרות), אבל זה גדל בתקופה לכל מחלקה בכל חודש.
+>
+> בנוסף: קבוצת 2 השאילתות (`leave_requests`, `schedule_templates`) תלויה רק ב-`organizationId` ויכלה לרוץ עם 7 הראשונות; והפאנלים מגלים את התקופה הנבחרת דרך `document.querySelector(".schedule-period-select")` + `MutationObserver` במקום props.
+- **ביצוע:** השרת טוען רק את התקופה הנבחרת (דרך `?period=` ב-URL; ברירת מחדל: העדכנית) + חלון ±7 ימים; בחירת תקופה מנווטת; הפאנלים מקבלים shifts/assignments/period כ-props מהשרת במקום fetch ב-mount וקריאת DOM; איחוד קבוצת ה-2 לתוך הראשונה; פאנל שמשנה נתונים קורא ל-`router.refresh()`
+- **קבלה:** אין שאילתת shifts/assignments בשרת מחוץ לחלון התקופה הנבחרת; 0 fetch ב-mount בפאנלים; 0 `querySelector(".schedule-period-select")`; מספר השלבים העוקבים בטעינה ≤ 5
+- **תכנון (10.9):** החלון הוא **לפי תאריך, על כל הארגון** (החודש הנבחר ±7 ימים, `periodShiftRange` מ-B2) ולא "רק שורות התקופה", כי הבונה עצמו בודק חפיפה באותו יום, שעות שבועיות ומנוחה מול משמרות בחודש שכן או במחלקה אחרת (`schedule-builder-client.tsx:98/110/125`). `duplicateCandidates` ופאנל התבניות צריכים רק **מספר משמרות לכל תקופה**, לא את השורות: פונקציית ספירה קטנה ב-SQL (מיגרציה). פאנל ה-Open Shifts צריך רק משמרות מפורסמות עם `shift_date >= today`.
+- **תלות: D1 רץ בפועל.** זה שכתוב של זרימת הנתונים במסך המרכזי של המוצר, ו-D1 הוא הבדיקה היחידה שעוברת עליו מקצה לקצה. עד ש-`STAGING_SUPABASE_SECRET_KEY` מוגדר, D1 מדלג; לכן B3 ממתין. החשיפה היום זעירה (הארגון הגדול: 90 משמרות), סיכון רגרסיה שקטה במסך הראשי לא.
 
 **B4 · אינדקסים ל-9 FK + תיקון 4 RLS policies** — `P1` · `S`
 > Supabase advisors: 9 FK ללא אינדקס מכסה (`push_delivery_queue` ×3, `push_devices`, `schedule_templates` ×3, `schedule_template_items` ×2). 4 policies מעריכות `auth.uid()` **לכל שורה** במקום `(select auth.uid())` — רגרסיה מהדפוס שנשמר ב-63 ה-policies האחרות.
