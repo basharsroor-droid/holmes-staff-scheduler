@@ -4,6 +4,7 @@ import { notificationEmail, renderEmail } from "@/lib/email/templates";
 import { sendEmail } from "@/lib/email/resend";
 import { pushCopy, sendApnsPush } from "@/lib/push/apns";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
+import { bearerMatches } from "@/lib/timing-safe";
 import type { Json } from "@/types/database";
 
 export const maxDuration = 60;
@@ -20,8 +21,8 @@ type PushJob = {
 };
 
 function authorized(request: Request) {
-  const secret = process.env.CRON_SECRET;
-  return Boolean(secret && request.headers.get("authorization") === `Bearer ${secret}`);
+  // Constant-time comparison (E5); false when CRON_SECRET is unset.
+  return bearerMatches(request.headers.get("authorization"), process.env.CRON_SECRET);
 }
 
 export async function GET(request: Request) {
