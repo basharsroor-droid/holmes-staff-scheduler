@@ -1,4 +1,17 @@
-import { escapeHtml } from "@/lib/html";
+// NOTE: this file keeps its own copy of escapeHtml instead of importing the
+// shared lib/html.ts, and that is deliberate.
+//
+// tests/unit/email-templates.test.mjs loads this module directly through
+// Node's TypeScript type-stripping loader, which resolves neither the "@/"
+// tsconfig path alias nor an extensionless relative specifier -- both fail
+// with ERR_MODULE_NOT_FOUND at test time even though tsc and Next accept
+// them. Every other lib module the unit tests load raw (israeli-holidays,
+// support-metrics, plans) is likewise a leaf that imports nothing local.
+// Keep it that way; the alternative is enabling allowImportingTsExtensions
+// project-wide for a single import.
+//
+// If you change the escaping rule here, change lib/html.ts too.
+function escapeHtml(value: string) { return value.replace(/[&<>"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[character] ?? character); }
 type EmailTemplate = { subject: string; preview: string; heading: string; body: string; cta: string; href: string };
 
 const monthNames = ["ינואר", "פברואר", "מרץ", "אפריל", "מאי", "יוני", "יולי", "אוגוסט", "ספטמבר", "אוקטובר", "נובמבר", "דצמבר"];
