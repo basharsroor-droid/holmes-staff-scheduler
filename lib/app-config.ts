@@ -1,6 +1,11 @@
 export const productConfig = {
   name: "ShiftPilot",
-  shortName: "SP",
+  // Label under the home-screen icon (apple-mobile-web-app-title). Was "SP",
+  // which is all users saw on their home screen (H5).
+  shortName: "ShiftPilot",
+  // Two-letter badge for compact brand marks (e.g. /pilot's .brand-mark),
+  // which used shortName when it was still "SP".
+  monogram: "SP",
   tagline: "ניהול סידור עבודה פשוט לכל עסק",
   description: "מערכת לניהול זמינות, שיבוצים, החלפות וסידור עבודה לעובדים."
 };
