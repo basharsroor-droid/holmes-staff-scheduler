@@ -39,7 +39,7 @@ async function spinnerAnimationSeconds(page: Page): Promise<number> {
 }
 
 test.describe("with reduce motion", () => {
-  test.use({ reducedMotion: "reduce" });
+  test.use({ contextOptions: { reducedMotion: "reduce" } });
 
   test("framer-motion animations stay still", async ({ page }) => {
     const transforms = await shimmerTransforms(page);
@@ -52,7 +52,7 @@ test.describe("with reduce motion", () => {
 });
 
 test.describe("control: without reduce motion", () => {
-  test.use({ reducedMotion: "no-preference" });
+  test.use({ contextOptions: { reducedMotion: "no-preference" } });
 
   test("the shimmer does move, so the check above measures something", async ({ page }) => {
     const transforms = await shimmerTransforms(page);
