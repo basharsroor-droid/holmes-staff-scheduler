@@ -1,7 +1,7 @@
 import fs from "node:fs/promises";
 import { createClient } from "@supabase/supabase-js";
 
-const expectedHost = "ctibuhkkbmyzawjhwujn.supabase.co";
+const expectedHost = "sqmstwwrdoenfumligmf.supabase.co";
 const url = process.env.STAGING_SUPABASE_URL;
 const secret = process.env.STAGING_SUPABASE_SECRET_KEY;
 const action = process.argv[2] ?? "seed";

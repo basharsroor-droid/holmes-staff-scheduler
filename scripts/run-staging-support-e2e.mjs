@@ -1,7 +1,7 @@
 import { randomBytes } from "node:crypto";
 import { createClient } from "@supabase/supabase-js";
 
-const expectedHost = "ctibuhkkbmyzawjhwujn.supabase.co";
+const expectedHost = "sqmstwwrdoenfumligmf.supabase.co";
 const url = process.env.STAGING_SUPABASE_URL;
 const key = process.env.STAGING_SUPABASE_PUBLISHABLE_KEY;
 const secret = process.env.STAGING_SUPABASE_SECRET_KEY;
