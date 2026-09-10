@@ -3310,6 +3310,11 @@ html.si-lock, html.si-lock body {
     text-decoration: none; font-size: 13px; font-weight: 850;
   }
   .mobile-sticky-actions a:last-child { color: #fff; background: linear-gradient(115deg,#128fff,#6748ff); }
+  /* H4: hidden while the hero's own two buttons are on screen; shown after
+     scrolling (components/marketing/mobile-sticky-actions.tsx). visibility
+     also removes it from hit-testing, so it can't intercept taps. */
+  .mobile-sticky-actions { transition: transform .28s ease, opacity .28s ease, visibility .28s; }
+  .mobile-sticky-actions:not(.is-visible) { transform: translateY(calc(100% + 16px)); opacity: 0; visibility: hidden; }
 
   .scroll-reveal { transform: translateY(20px); transition-duration: .58s; }
 }

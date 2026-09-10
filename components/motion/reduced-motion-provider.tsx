@@ -1,7 +1,10 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { MotionConfig } from "framer-motion";
+// From "motion/react" like every other animated component: package.json
+// declares only "motion", which re-exports framer-motion; importing
+// "framer-motion" directly relied on it being hoisted as a sub-dependency.
+import { MotionConfig } from "motion/react";
 
 // G2 in docs/REMEDIATION_PLAN.md: honour the operating system's "reduce
 // motion" setting in every framer-motion component (login, navbar, roles
