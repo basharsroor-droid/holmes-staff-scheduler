@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Gauge, RefreshCw } from "lucide-react";
 
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
+import { periodShiftRange, SHIFT_RANGE_LIMIT } from "@/lib/period-window";
 
 type Period = { id: string; department_id: string; year: number; month: number };
 type Worker = { user_id: string; department_ids: string[]; weekly_hours_limit: number | null; profile: { first_name: string; last_name: string } | null };
@@ -51,8 +52,11 @@ export function ShiftPilotScore({ periods, workers, submissions, availability, a
     if (!periodId) return;
     setChecking(true);
     const db = supabase;
+    const scanPeriod = periods.find((item) => item.id === periodId);
+    if (!scanPeriod) { setChecking(false); return; }
+    const range = periodShiftRange(scanPeriod.year, scanPeriod.month);
     const [{ data: allShifts }, { data: periodShifts }] = await Promise.all([
-      db.from("shifts").select("id, schedule_period_id, shift_template_id, shift_date, name, start_time, end_time, required_employees, status").neq("status", "cancelled"),
+      db.from("shifts").select("id, schedule_period_id, shift_template_id, shift_date, name, start_time, end_time, required_employees, status").gte("shift_date", range.from).lte("shift_date", range.to).neq("status", "cancelled").limit(SHIFT_RANGE_LIMIT),
       db.from("shifts").select("id, schedule_period_id, shift_template_id, shift_date, name, start_time, end_time, required_employees, status").eq("schedule_period_id", periodId).neq("status", "cancelled")
     ]);
     const shifts = (allShifts ?? []) as Shift[];

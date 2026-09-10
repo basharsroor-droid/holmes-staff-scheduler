@@ -5,6 +5,7 @@ import { CheckCircle2, Loader2, RefreshCw, ShieldCheck, Wrench } from "lucide-re
 
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { isPresent } from "@/lib/utils";
+import { periodShiftRange, SHIFT_RANGE_LIMIT } from "@/lib/period-window";
 
 type Period = { id: string; department_id: string; year: number; month: number; status: string };
 type Worker = { user_id: string; department_ids: string[]; seniority_level: string; weekly_hours_limit: number | null; profile: { first_name: string; last_name: string } | null };
@@ -77,9 +78,12 @@ export function FixMySchedulePanel({ organizationId, currentUserId, periods, wor
     }
 
     const db = supabase;
+    const range = periodShiftRange(period.year, period.month);
     const { data: allShiftRows } = await db.from("shifts")
       .select("id, schedule_period_id, shift_template_id, shift_date, name, start_time, end_time, required_employees, status")
-      .neq("status", "cancelled");
+      .gte("shift_date", range.from).lte("shift_date", range.to)
+      .neq("status", "cancelled")
+      .limit(SHIFT_RANGE_LIMIT);
     const allShifts = (allShiftRows ?? []) as Shift[];
     const shiftIds = allShifts.map((s) => s.id);
     const { data: assignmentRows } = shiftIds.length
