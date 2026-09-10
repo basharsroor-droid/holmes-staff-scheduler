@@ -5,6 +5,7 @@ import { ArrowLeftRight, CheckCircle2, Loader2, RefreshCw, ShieldCheck } from "l
 
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { isPresent } from "@/lib/utils";
+import { periodShiftRange, shiftDateRangeAround, SHIFT_RANGE_LIMIT } from "@/lib/period-window";
 
 type Period = { id: string; department_id: string; year: number; month: number; status: string };
 type Worker = { user_id: string; department_ids: string[]; seniority_level: string; weekly_hours_limit: number | null; profile: { first_name: string; last_name: string } | null };
@@ -91,9 +92,12 @@ export function SmartReplacementPanel({ organizationId, currentUserId, periods, 
     }
     setBusy("rank"); setMessage(""); setCandidates([]);
     const db = supabase;
+    const range = periodShiftRange(period.year, period.month);
     const { data: allShiftRows } = await db.from("shifts")
       .select("id, schedule_period_id, shift_template_id, shift_date, name, start_time, end_time, required_employees, status")
-      .neq("status", "cancelled");
+      .gte("shift_date", range.from).lte("shift_date", range.to)
+      .neq("status", "cancelled")
+      .limit(SHIFT_RANGE_LIMIT);
     const allShifts = (allShiftRows ?? []) as Shift[];
     const allIds = allShifts.map((s) => s.id);
     const { data: allAssignmentRows } = allIds.length
@@ -169,10 +173,11 @@ export function SmartReplacementPanel({ organizationId, currentUserId, periods, 
     if (!window.confirm(`להחליף את ${workerName(outgoingUserId)} ב-${candidate.name} במשמרת ${shift.shift_date} ${shift.name}? הפעולה אינה מפרסמת את הסידור.`)) return;
     setBusy("apply"); setMessage("");
     const db = supabase;
+    const range = shiftDateRangeAround(shift.shift_date);
 
     const [{ data: currentPeriod }, { data: allShiftRows }] = await Promise.all([
       db.from("schedule_periods").select("id, status").eq("id", selectedPeriodId).single(),
-      db.from("shifts").select("id, schedule_period_id, shift_template_id, shift_date, name, start_time, end_time, required_employees, status").neq("status", "cancelled")
+      db.from("shifts").select("id, schedule_period_id, shift_template_id, shift_date, name, start_time, end_time, required_employees, status").gte("shift_date", range.from).lte("shift_date", range.to).neq("status", "cancelled").limit(SHIFT_RANGE_LIMIT)
     ]);
     if (!currentPeriod || currentPeriod.status === "published") {
       setBusy(""); setCandidates([]); setMessage("התקופה פורסמה מאז הדירוג. לא בוצע שינוי; בטל פרסום ודרג מחדש."); return;
