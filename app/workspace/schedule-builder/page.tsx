@@ -37,9 +37,9 @@ export default async function ScheduleBuilderPage() {
     supabase.from("department_memberships").select("membership_id, department_id").eq("organization_id", organizationId)
   ]);
   if (!organizationResult.data) redirect("/workspace");
-  const pilotMode = !!(organizationResult.data as any).pilot_mode;
+  const pilotMode = !!organizationResult.data.pilot_mode;
 
-  const db = supabase as any;
+  const db = supabase;
   const [{ data: leaveRequests }, { data: savedTemplates }] = await Promise.all([
     db.from("leave_requests").select("id, user_id, leave_type, start_date, end_date, note, status").eq("organization_id", organizationId).order("start_date", { ascending: true }),
     db.from("schedule_templates").select("id, branch_id, department_id, name, created_at").eq("organization_id", organizationId).order("created_at", { ascending: false })
@@ -52,9 +52,9 @@ export default async function ScheduleBuilderPage() {
     periodIds.length ? db.from("shifts").select("id, schedule_period_id, shift_template_id, shift_date, name, start_time, end_time, required_employees, status, open_for_requests").in("schedule_period_id", periodIds).order("shift_date").order("start_time") : Promise.resolve({ data: [] }),
     periodIds.length ? supabase.from("availability_submissions").select("id, schedule_period_id, user_id, submitted_at").in("schedule_period_id", periodIds) : Promise.resolve({ data: [] })
   ]);
-  const shiftIds = (shifts ?? []).map((item: any) => item.id);
+  const shiftIds = (shifts ?? []).map((item) => item.id);
   const submissionIds = (submissions ?? []).map((item) => item.id);
-  const savedTemplateIds = (savedTemplates ?? []).map((item: any) => item.id);
+  const savedTemplateIds = (savedTemplates ?? []).map((item) => item.id);
   const [{ data: assignments }, { data: availability }, { data: openShiftRequests }, { data: savedTemplateItems }] = await Promise.all([
     shiftIds.length ? supabase.from("shift_assignments").select("id, shift_id, user_id").in("shift_id", shiftIds) : Promise.resolve({ data: [] }),
     submissionIds.length ? supabase.from("availability_entries").select("submission_id, shift_template_id, shift_date, status").in("submission_id", submissionIds) : Promise.resolve({ data: [] }),
@@ -70,8 +70,8 @@ export default async function ScheduleBuilderPage() {
   }));
 
   const pendingTimeOff = (leaveRequests ?? [])
-    .filter((request: any) => request.status === "pending")
-    .map((request: any) => {
+    .filter((request) => request.status === "pending")
+    .map((request) => {
       const profile = profileMap.get(request.user_id);
       return {
         id: request.id,
@@ -85,8 +85,8 @@ export default async function ScheduleBuilderPage() {
     });
 
   const approvedTimeOff = (leaveRequests ?? [])
-    .filter((request: any) => request.status === "approved")
-    .map((request: any) => ({
+    .filter((request) => request.status === "approved")
+    .map((request) => ({
       id: request.id,
       user_id: request.user_id,
       leave_type: request.leave_type,
@@ -98,8 +98,8 @@ export default async function ScheduleBuilderPage() {
   const assignmentCountMap = new Map<string, number>();
   for (const assignment of assignments ?? []) assignmentCountMap.set(assignment.shift_id, (assignmentCountMap.get(assignment.shift_id) ?? 0) + 1);
   const managerOpenShifts = (shifts ?? [])
-    .filter((shift: any) => shift.status === "published" && (assignmentCountMap.get(shift.id) ?? 0) < shift.required_employees)
-    .map((shift: any) => {
+    .filter((shift) => shift.status === "published" && (assignmentCountMap.get(shift.id) ?? 0) < shift.required_employees)
+    .map((shift) => {
       const p = periodMap.get(shift.schedule_period_id);
       return {
         id: shift.id,
@@ -113,7 +113,7 @@ export default async function ScheduleBuilderPage() {
         period_label: p ? `${p.month}/${p.year}` : ""
       };
     });
-  const managerOpenShiftRequests = (openShiftRequests ?? []).map((request: any) => {
+  const managerOpenShiftRequests = (openShiftRequests ?? []).map((request) => {
     const profile = profileMap.get(request.user_id);
     return {
       id: request.id,
@@ -135,13 +135,13 @@ export default async function ScheduleBuilderPage() {
 
   const shiftCountByPeriod = new Map<string, number>();
   for (const shift of shifts ?? []) {
-    if ((shift as any).status === "cancelled") continue;
-    shiftCountByPeriod.set((shift as any).schedule_period_id, (shiftCountByPeriod.get((shift as any).schedule_period_id) ?? 0) + 1);
+    if (shift.status === "cancelled") continue;
+    shiftCountByPeriod.set(shift.schedule_period_id, (shiftCountByPeriod.get(shift.schedule_period_id) ?? 0) + 1);
   }
   const templateItemCount = new Map<string, number>();
-  for (const item of savedTemplateItems ?? []) templateItemCount.set((item as any).schedule_template_id, (templateItemCount.get((item as any).schedule_template_id) ?? 0) + 1);
+  for (const item of savedTemplateItems ?? []) templateItemCount.set(item.schedule_template_id, (templateItemCount.get(item.schedule_template_id) ?? 0) + 1);
   const templatePeriods = (periodsResult.data ?? []).map((period) => ({ ...period, shift_count: shiftCountByPeriod.get(period.id) ?? 0 }));
-  const reusableTemplates = (savedTemplates ?? []).map((template: any) => ({ ...template, item_count: templateItemCount.get(template.id) ?? 0 }));
+  const reusableTemplates = (savedTemplates ?? []).map((template) => ({ ...template, item_count: templateItemCount.get(template.id) ?? 0 }));
 
   return <main className="workspace-home" dir="rtl">
     <header className="workspace-subheader"><div>
@@ -162,7 +162,7 @@ export default async function ScheduleBuilderPage() {
       leaveRequests={approvedTimeOff}
       organizationId={organizationId}
       periods={periodsResult.data ?? []}
-      shifts={(shifts ?? []).map((shift: any) => ({
+      shifts={(shifts ?? []).map((shift) => ({
         id: shift.id,
         schedule_period_id: shift.schedule_period_id,
         shift_template_id: shift.shift_template_id,

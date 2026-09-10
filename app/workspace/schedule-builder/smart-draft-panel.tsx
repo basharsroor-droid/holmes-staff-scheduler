@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { CheckCircle2, Loader2, RefreshCw, Sparkles, WandSparkles } from "lucide-react";
 
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
+import { isPresent } from "@/lib/utils";
 
 type Period = { id: string; department_id: string; year: number; month: number; status: string };
 type Worker = { user_id: string; department_ids: string[]; seniority_level: string; weekly_hours_limit: number | null; profile: { first_name: string; last_name: string } | null };
@@ -75,7 +76,7 @@ export function SmartDraftPanel({ organizationId, currentUserId, periods, worker
       return;
     }
 
-    const db = supabase as any;
+    const db = supabase;
     const { data: allShiftRows } = await db.from("shifts")
       .select("id, schedule_period_id, shift_template_id, shift_date, name, start_time, end_time, required_employees, status")
       .neq("status", "cancelled");
@@ -151,10 +152,10 @@ export function SmartDraftPanel({ organizationId, currentUserId, periods, worker
             if (needSenior) reasons.push("משלים/ה דרישת Senior למשמרת");
             return { worker, score, reasons };
           })
-          .filter(Boolean)
-          .sort((a: any, b: any) => b.score - a.score || a.worker.user_id.localeCompare(b.worker.user_id));
+          .filter(isPresent)
+          .sort((a, b) => b.score - a.score || a.worker.user_id.localeCompare(b.worker.user_id));
 
-        const chosen = candidates[0] as any;
+        const chosen = candidates[0];
         if (!chosen) { missing += slots; break; }
         planned.push({ shift_id: shift.id, user_id: chosen.worker.user_id });
         next.push({
@@ -184,7 +185,7 @@ export function SmartDraftPanel({ organizationId, currentUserId, periods, worker
     if (!window.confirm(`להחיל ${suggestions.length} שיבוצים מוצעים על הטיוטה? הפעולה לא מפרסמת את הסידור לצוות.`)) return;
 
     setBusy("apply"); setMessage("");
-    const db = supabase as any;
+    const db = supabase;
 
     const [{ data: currentPeriod }, { data: periodShiftRows }] = await Promise.all([
       db.from("schedule_periods").select("id, status").eq("id", selectedPeriodId).single(),

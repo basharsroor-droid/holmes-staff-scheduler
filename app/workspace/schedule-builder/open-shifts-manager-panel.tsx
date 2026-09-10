@@ -21,7 +21,7 @@ export function OpenShiftsManagerPanel({ initialShifts, initialRequests }: { ini
 
   async function setOpen(shiftId: string, makeOpen: boolean) {
     setBusy(`open-${shiftId}`); setMessage("");
-    const { error } = await (supabase as any).rpc("set_shift_open_for_requests", { target_shift_id: shiftId, make_open: makeOpen });
+    const { error } = await supabase.rpc("set_shift_open_for_requests", { target_shift_id: shiftId, make_open: makeOpen });
     setBusy("");
     if (error) { setMessage(makeOpen ? "פתיחת המשמרת לבקשות נכשלה." : "סגירת המשמרת לבקשות נכשלה.", "error"); return; }
     setShifts((current) => current.map((item) => item.id === shiftId ? { ...item, open_for_requests: makeOpen } : item));
@@ -32,7 +32,7 @@ export function OpenShiftsManagerPanel({ initialShifts, initialRequests }: { ini
 
   async function decide(requestId: string, decision: "approved" | "rejected") {
     setBusy(`decision-${requestId}`); setMessage("");
-    const { error } = await (supabase as any).rpc("decide_open_shift_request", { target_request_id: requestId, decision, decision_note: null });
+    const { error } = await supabase.rpc("decide_open_shift_request", { target_request_id: requestId, decision });
     setBusy("");
     if (error) { setMessage("עדכון הבקשה נכשל. ייתכן שהמשמרת כבר אוישה או נסגרה.", "error"); return; }
     setRequests((current) => current.filter((item) => item.id !== requestId));

@@ -44,7 +44,7 @@ export function TimeOffClient({ organizationId, userId, initialRequests }: {
   initialRequests: LeaveRequest[];
 }) {
   const supabase = useMemo(() => createSupabaseBrowserClient(), []);
-  const db = supabase as any;
+  const db = supabase;
   const [requests, setRequests] = useState(initialRequests);
   const [form, setForm] = useState<{ leaveType: LeaveType; startDate: string; endDate: string; note: string }>({
     leaveType: "vacation",

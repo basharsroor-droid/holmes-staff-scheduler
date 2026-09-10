@@ -50,7 +50,7 @@ export function ShiftPilotScore({ periods, workers, submissions, availability, a
   const scan = useCallback(async (periodId: string) => {
     if (!periodId) return;
     setChecking(true);
-    const db = supabase as any;
+    const db = supabase;
     const [{ data: allShifts }, { data: periodShifts }] = await Promise.all([
       db.from("shifts").select("id, schedule_period_id, shift_template_id, shift_date, name, start_time, end_time, required_employees, status").neq("status", "cancelled"),
       db.from("shifts").select("id, schedule_period_id, shift_template_id, shift_date, name, start_time, end_time, required_employees, status").eq("schedule_period_id", periodId).neq("status", "cancelled")
