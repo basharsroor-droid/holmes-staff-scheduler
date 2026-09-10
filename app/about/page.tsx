@@ -53,7 +53,7 @@ export default function AboutPage() {
           <p>
             שקיפות על מה שעובד ומה שעדיין לא — לא מבטיחים פיצ׳ר שלא קיים.
             עברית כשפת ממשק ראשית, לא תרגום מאוחר. ומענה אמיתי כשמשהו נשבר:
-            <Link href="/support"> מרכז התמיכה</Link> ומייל{" "}
+            <Link href="/contact"> טופס יצירת הקשר</Link> ומייל{" "}
             <a href="mailto:support@shiftpilothq.com">support@shiftpilothq.com</a>{" "}
             מגיעים לבן אדם, לא לתפריט אוטומטי.
           </p>

@@ -132,7 +132,7 @@ export function PricingPlans() {
           <div className="pricing-enterprise-action">
             <strong>{enterprisePlan.customFromIls ? `החל מ־${enterprisePlan.customFromIls} ₪` : "הצעה מותאמת"}</strong>
             <small>לחודש · הצעה מותאמת</small>
-            <Link className="button" href="/support">דברו איתנו <ArrowLeft size={16} /></Link>
+            <Link className="button" href="/contact">דברו איתנו <ArrowLeft size={16} /></Link>
           </div>
         </article>
       ) : null}
