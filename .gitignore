@@ -31,7 +31,6 @@ app/api/market/
 app/api/news/
 app/api/signals/
 components/news-intelligence-client.tsx
-components/ui/
 data/
 lib/analysis/
 lib/constants.ts
@@ -41,6 +40,8 @@ types/market.ts
 db/schema.sql
 .vercel
 .env*
+# ...except the committed templates, which document every variable.
+!.env*.example
 backups/
 
 # Local marketing/video source assets (100MB+ of .mov/.mp4). Deliverables are
