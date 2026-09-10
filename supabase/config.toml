@@ -1,0 +1,12 @@
+# Minimal Supabase CLI config.
+#
+# Used by the schema-invariants CI job (`supabase db start`) to build a
+# throwaway local database from supabase/migrations/. It does not affect
+# production: apply-migrations.yml pushes with `supabase link` +
+# `supabase db push`, which read the migrations, not this file.
+
+project_id = "shiftpilot"
+
+[db]
+# Match production (Postgres 17.6, checked 2026-09-10).
+major_version = 17
