@@ -2,7 +2,7 @@ import { expect, type Page, test } from "@playwright/test";
 
 async function skipIntro(page: Page) {
   await page.addInitScript(() => {
-    window.sessionStorage.setItem("shiftpilot_code_intro_seen_v1", "1");
+    window.localStorage.setItem("shiftpilot_code_intro_seen_v1", "1"); // intro is remembered per browser since G3
   });
 }
 

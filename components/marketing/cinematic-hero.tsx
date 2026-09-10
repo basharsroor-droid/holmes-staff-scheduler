@@ -159,7 +159,7 @@ const INJECTED_STYLES = `
     position: absolute; bottom: -5%; left: 50%; z-index: 0;
     transform: translateX(-50%);
     font-size: clamp(96px, 20vw, 320px);
-    font-weight: 900; letter-spacing: -0.02em; line-height: 1; white-space: nowrap;
+    font-weight: 900; letter-spacing: -.01em; line-height: 1; white-space: nowrap;
     color: transparent;
     background: linear-gradient(120deg, var(--primary-dark) 0%, var(--primary) 35%, color-mix(in srgb, var(--primary) 30%, white) 58%, var(--primary) 78%, var(--primary-dark) 100%);
     -webkit-background-clip: text; background-clip: text;
