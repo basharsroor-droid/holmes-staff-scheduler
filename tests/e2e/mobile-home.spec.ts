@@ -45,7 +45,8 @@ test.describe("mobile home page", () => {
     await expect(page.locator('.ch-hero-ctas a[href="/onboarding"]')).toBeVisible();
     await expect.poll(() => visibleLinksTo(page, "/onboarding")).toBe(1);
     await expect.poll(() => visibleLinksTo(page, "/demo")).toBe(1);
-    await expect(page.getByRole("link", { name: /כניסה למערכת/ })).toBeVisible();
+    // The header's "log in" (the footer has one too, further down).
+    await expect(page.locator(".marketing-nav-bar").getByRole("link", { name: /כניסה למערכת/ })).toBeVisible();
   });
 
   test("sticky actions appear only after scrolling", async ({ page }) => {
