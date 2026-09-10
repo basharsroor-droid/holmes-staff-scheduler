@@ -1,0 +1,128 @@
+name: Apply database migrations
+
+# Closes the gap that caused the 2026-09-08 incident: PR #217 merged green,
+# Vercel shipped a pricing page advertising a `network` plan, and
+# create_organization_workspace rejected it as "Invalid plan" -- because
+# public.plans was never migrated. Merging to main applied code but not schema,
+# while docs/RUNBOOK.md line 44 claimed otherwise.
+#
+# Two jobs:
+#   plan   -- on every PR that touches supabase/migrations/**, print what WOULD
+#             be applied. Read-only. Makes the schema change reviewable next to
+#             the code change instead of being discovered afterwards.
+#   apply  -- on push to main, actually apply it, then read the catalogue back.
+#
+# ORDERING CAVEAT: Vercel deploys from the same push, in parallel with this
+# workflow -- nothing here gates it. In practice this job finishes in well under
+# a minute while a Vercel build takes ~6, so the schema lands first. That is a
+# race we win by margin, not by design. A migration that must strictly precede
+# its code (a NOT NULL column the new code writes, say) still has to ship in two
+# PRs: schema first, code second.
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "supabase/migrations/**"
+  push:
+    branches: [main]
+    paths:
+      - "supabase/migrations/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+# Never let two pushes apply migrations at the same time. Not cancel-in-progress:
+# interrupting a running DDL statement is worse than queueing behind it.
+concurrency:
+  group: shiftpilot-migrations
+  cancel-in-progress: false
+
+env:
+  # Not a secret -- this ref appears in every public Supabase URL for the
+  # project. Kept here so the target is obvious when reading the workflow.
+  SUPABASE_PROJECT_REF: forstsmvakpsreffdiwb
+
+jobs:
+  plan:
+    name: Plan (dry run)
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Link project
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: supabase link --project-ref "$SUPABASE_PROJECT_REF" --password "${{ secrets.SUPABASE_DB_PASSWORD }}"
+
+      - name: Show pending migrations
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: |
+          echo "## Pending migrations" >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          supabase migration list --linked --password "${{ secrets.SUPABASE_DB_PASSWORD }}" 2>&1 | tee -a "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Dry run
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: |
+          echo "## Statements that would run" >> "$GITHUB_STEP_SUMMARY"
+          echo '```sql' >> "$GITHUB_STEP_SUMMARY"
+          supabase db push --linked --dry-run --password "${{ secrets.SUPABASE_DB_PASSWORD }}" 2>&1 | tee -a "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+
+  apply:
+    name: Apply to production
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Link project
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: supabase link --project-ref "$SUPABASE_PROJECT_REF" --password "${{ secrets.SUPABASE_DB_PASSWORD }}"
+
+      - name: Apply migrations
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: supabase db push --linked --include-all --password "${{ secrets.SUPABASE_DB_PASSWORD }}"
+
+      - name: Read the catalogue back
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+        run: |
+          echo "## Applied migrations after this run" >> "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+          supabase migration list --linked --password "${{ secrets.SUPABASE_DB_PASSWORD }}" 2>&1 | tail -30 | tee -a "$GITHUB_STEP_SUMMARY"
+          echo '```' >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Production still healthy
+        run: |
+          # A migration that leaves the database unreachable should fail the run
+          # loudly, not wait for the next visitor to notice.
+          for attempt in 1 2 3; do
+            body="$(curl -sS --max-time 20 "https://www.shiftpilothq.com/api/health?deep=1" || true)"
+            echo "attempt $attempt: $body"
+            case "$body" in
+              *'"database":"ok"'*) echo "Production deep health is ok"; exit 0 ;;
+            esac
+            sleep 10
+          done
+          echo "::error::Production deep health check did not report database ok after applying migrations"
+          exit 1
