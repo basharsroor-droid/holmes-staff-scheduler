@@ -8,6 +8,7 @@ import "@/app/mobile-touch-target-fixes.css";
 import "@/app/final-schedule-calendar.css";
 import "@/app/my-shifts-date-nav.css";
 
+import { WebAnalytics } from "@/components/analytics/web-analytics";
 import { introPrebootScript, SiteIntro } from "@/components/brand/site-intro";
 import { AppShell } from "@/components/layout/app-shell";
 import { NativeNotificationRouter } from "@/components/native/native-notification-router";
@@ -48,6 +49,7 @@ export default function RootLayout({
         <ClientObservability />
         <NativeNotificationRouter />
         <ServiceWorkerRegister />
+        <WebAnalytics />
       </body>
     </html>
   );
