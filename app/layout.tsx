@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { Heebo } from "next/font/google";
 import type { ReactNode } from "react";
 
 import "@/app/globals.css";
@@ -15,6 +16,17 @@ import { NativeNotificationRouter } from "@/components/native/native-notificatio
 import { ClientObservability } from "@/components/observability/client-observability";
 import { ServiceWorkerRegister } from "@/components/pwa/sw-register";
 import { productConfig } from "@/lib/app-config";
+
+// G1 in docs/REMEDIATION_PLAN.md: the site's typeface. Until now every
+// heading and paragraph fell back to Arial. next/font downloads Heebo at build
+// time and serves it from our own origin (no request to Google from the
+// visitor's browser) with a size-matched fallback, so text doesn't jump when
+// it loads. Exposed as --font-heebo and consumed by --font in globals.css.
+const heebo = Heebo({
+  subsets: ["hebrew", "latin"],
+  variable: "--font-heebo",
+  display: "swap"
+});
 
 export const metadata: Metadata = {
   title: productConfig.name,
@@ -41,7 +53,7 @@ export default function RootLayout({
   children: ReactNode;
 }>) {
   return (
-    <html lang="he" dir="rtl">
+    <html lang="he" dir="rtl" className={heebo.variable}>
       <body>
         <script dangerouslySetInnerHTML={{ __html: introPrebootScript }} />
         <SiteIntro />
