@@ -53,7 +53,7 @@ export function FairnessEnhancer({ periods, workers, submissions, availability }
     const period = periods.find((item) => item.id === periodId);
     if (!period) { setChecking(false); return; }
 
-    const db = supabase as any;
+    const db = supabase;
     const { data: shiftRows } = await db
       .from("shifts")
       .select("id, schedule_period_id, shift_template_id, shift_date, start_time, end_time, status")

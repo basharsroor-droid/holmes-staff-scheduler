@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { CheckCircle2, Loader2, RefreshCw, ShieldCheck, Wrench } from "lucide-react";
 
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
+import { isPresent } from "@/lib/utils";
 
 type Period = { id: string; department_id: string; year: number; month: number; status: string };
 type Worker = { user_id: string; department_ids: string[]; seniority_level: string; weekly_hours_limit: number | null; profile: { first_name: string; last_name: string } | null };
@@ -75,7 +76,7 @@ export function FixMySchedulePanel({ organizationId, currentUserId, periods, wor
       return;
     }
 
-    const db = supabase as any;
+    const db = supabase;
     const { data: allShiftRows } = await db.from("shifts")
       .select("id, schedule_period_id, shift_template_id, shift_date, name, start_time, end_time, required_employees, status")
       .neq("status", "cancelled");
@@ -149,8 +150,8 @@ export function FixMySchedulePanel({ organizationId, currentUserId, periods, wor
           let score = status === "preferred" ? 100 : status === "available" ? 80 : 55;
           score -= Math.min(30, assignedHours(worker.user_id) / 3);
           return { worker, status, score };
-        }).filter(Boolean).sort((a: any, b: any) => b.score - a.score || a.worker.user_id.localeCompare(b.worker.user_id));
-        const chosen = candidates[0] as any;
+        }).filter(isPresent).sort((a, b) => b.score - a.score || a.worker.user_id.localeCompare(b.worker.user_id));
+        const chosen = candidates[0];
         if (!chosen) { missing += slots; break; }
         planned.push({ id: `planned-${shift.id}-${chosen.worker.user_id}`, shift_id: shift.id, user_id: chosen.worker.user_id });
         next.push({ kind: "add", shiftId: shift.id, shiftLabel: `${shift.shift_date} · ${shift.name} · ${shift.start_time.slice(0,5)}-${shift.end_time.slice(0,5)}`, userId: chosen.worker.user_id, workerName: workerName(chosen.worker.user_id), reason: chosen.status === "preferred" ? "מועדף/ת, עומד/ת בכל המגבלות ומאזן/ת את חלוקת השעות" : chosen.status === "available" ? "זמין/ה, עומד/ת בכל המגבלות ומאזן/ת את חלוקת השעות" : "זמין/ה רק אם צריך; נבחר/ה לאחר שלא נמצא מועמד עדיף" });
@@ -172,7 +173,7 @@ export function FixMySchedulePanel({ organizationId, currentUserId, periods, wor
     }
     if (!window.confirm(`להחיל ${actions.length} פעולות תיקון על הטיוטה? הפעולה אינה מפרסמת את הסידור.`)) return;
     setBusy("apply"); setMessage("");
-    const db = supabase as any;
+    const db = supabase;
 
     const [{ data: currentPeriod }, { data: currentShiftRows }] = await Promise.all([
       db.from("schedule_periods").select("id, status").eq("id", selectedPeriodId).single(),
@@ -182,14 +183,14 @@ export function FixMySchedulePanel({ organizationId, currentUserId, periods, wor
       setBusy(""); setActions([]); setMessage("התקופה פורסמה מאז יצירת התוכנית. לא בוצע שינוי; בטל פרסום ובנה תוכנית מחדש."); return;
     }
 
-    const currentShiftIds = (currentShiftRows ?? []).map((s: any) => s.id);
+    const currentShiftIds = (currentShiftRows ?? []).map((s) => s.id);
     const { data: currentAssignmentRows } = currentShiftIds.length
       ? await db.from("shift_assignments").select("id, shift_id, user_id").in("shift_id", currentShiftIds)
       : { data: [] };
     const currentAssignments = (currentAssignmentRows ?? []) as Assignment[];
 
     for (const action of actions) {
-      const currentShift = (currentShiftRows ?? []).find((s: any) => s.id === action.shiftId);
+      const currentShift = (currentShiftRows ?? []).find((s) => s.id === action.shiftId);
       if (!currentShift) {
         setBusy(""); setActions([]); setMessage("אחת המשמרות השתנתה מאז יצירת התוכנית. לא בוצע שינוי; יש לבנות תוכנית מחדש."); return;
       }

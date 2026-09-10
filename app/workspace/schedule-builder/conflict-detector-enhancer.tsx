@@ -66,7 +66,7 @@ export function ConflictDetectorEnhancer({
   const scan = useCallback(async (periodId: string) => {
     if (!periodId) return;
     setChecking(true);
-    const db = supabase as any;
+    const db = supabase;
     const period = periods.find((item) => item.id === periodId);
     if (!period) { setChecking(false); return; }
 

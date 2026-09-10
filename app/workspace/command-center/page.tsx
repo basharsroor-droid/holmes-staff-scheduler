@@ -32,7 +32,7 @@ export default async function ManagerCommandCenterPage() {
     membership.role === "manager" ? supabase.from("department_memberships").select("department_id").eq("membership_id", membership.id) : Promise.resolve({ data: [] })
   ]);
   if (!organization) redirect("/workspace");
-  const pilotMode = !!(organization as any).pilot_mode;
+  const pilotMode = !!organization.pilot_mode;
 
   const departmentIds = (managerDepartments ?? []).map((row) => row.department_id);
   let periodQuery = supabase.from("schedule_periods").select("id, department_id, branch_id, year, month, status, published_at").eq("organization_id", membership.organization_id).order("year", { ascending: false }).order("month", { ascending: false });
@@ -45,14 +45,14 @@ export default async function ManagerCommandCenterPage() {
   const { data: periodRows } = await periodQuery;
   const periods = (periodRows ?? []) as Period[];
   const activePeriod = periods.find((period) => ["draft", "published", "collecting"].includes(period.status)) ?? periods[0] ?? null;
-  const { data: shiftsData } = activePeriod ? await (supabase as any).from("shifts").select("id, required_employees, open_for_requests, status").eq("schedule_period_id", activePeriod.id).neq("status", "cancelled") : { data: [] };
+  const { data: shiftsData } = activePeriod ? await supabase.from("shifts").select("id, required_employees, open_for_requests, status").eq("schedule_period_id", activePeriod.id).neq("status", "cancelled") : { data: [] };
   const shifts = (shiftsData ?? []) as Shift[];
   const shiftIds = shifts.map((shift) => shift.id);
 
   const [{ data: assignmentsData }, { data: marketplaceRequests }, { data: leaveRequests }, { data: swapRequests }] = await Promise.all([
     shiftIds.length ? supabase.from("shift_assignments").select("shift_id").in("shift_id", shiftIds) : Promise.resolve({ data: [] }),
-    shiftIds.length ? (supabase as any).from("open_shift_requests").select("id, shift_id").eq("status", "pending").in("shift_id", shiftIds) : Promise.resolve({ data: [] }),
-    (supabase as any).from("leave_requests").select("id").eq("organization_id", membership.organization_id).eq("status", "pending"),
+    shiftIds.length ? supabase.from("open_shift_requests").select("id, shift_id").eq("status", "pending").in("shift_id", shiftIds) : Promise.resolve({ data: [] }),
+    supabase.from("leave_requests").select("id").eq("organization_id", membership.organization_id).eq("status", "pending"),
     supabase.from("swap_requests").select("id").eq("organization_id", membership.organization_id).eq("status", "pending_manager")
   ]);
 

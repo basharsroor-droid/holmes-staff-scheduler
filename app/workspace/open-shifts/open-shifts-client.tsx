@@ -49,10 +49,13 @@ export function OpenShiftsClient({ initialShifts }: { initialShifts: OpenShift[]
     async function loadEligibility() {
       const entries = await Promise.all(shifts.map(async (shift) => {
         if (shift.requested) return [shift.id, { eligible: true, reason: null, loading: false } as Eligibility] as const;
-        const { data, error } = await (supabase as any).rpc("check_open_shift_eligibility", { target_shift_id: shift.id });
+        const { data, error } = await supabase.rpc("check_open_shift_eligibility", { target_shift_id: shift.id });
+        // check_open_shift_eligibility returns jsonb {eligible, reason}; the generated
+        // type for a jsonb return is plain Json, so narrow it rather than cast it.
+        const payload: Record<string, unknown> = data && typeof data === "object" && !Array.isArray(data) ? data : {};
         const result: Eligibility = error
           ? { eligible: false, reason: error.message, loading: false }
-          : { eligible: !!data?.eligible, reason: data?.reason ?? null, loading: false };
+          : { eligible: payload.eligible === true, reason: typeof payload.reason === "string" ? payload.reason : null, loading: false };
         return [shift.id, result] as const;
       }));
       if (active) setEligibility(Object.fromEntries(entries));
@@ -64,9 +67,9 @@ export function OpenShiftsClient({ initialShifts }: { initialShifts: OpenShift[]
   async function requestShift(shiftId: string) {
     setBusy(`request-${shiftId}`);
     setMessage("");
-    const { data, error } = await (supabase as any).rpc("request_open_shift", {
+    const { data, error } = await supabase.rpc("request_open_shift", {
       target_shift_id: shiftId,
-      request_note: notes[shiftId]?.trim() || null
+      request_note: notes[shiftId]?.trim() || undefined
     });
     setBusy("");
     if (error || !data) {
@@ -85,7 +88,7 @@ export function OpenShiftsClient({ initialShifts }: { initialShifts: OpenShift[]
   async function cancelRequest(shiftId: string, requestId: string) {
     setBusy(`cancel-${shiftId}`);
     setMessage("");
-    const { error } = await (supabase as any).rpc("cancel_open_shift_request", {
+    const { error } = await supabase.rpc("cancel_open_shift_request", {
       target_request_id: requestId
     });
     setBusy("");

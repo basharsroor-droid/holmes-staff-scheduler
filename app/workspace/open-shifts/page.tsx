@@ -41,19 +41,19 @@ export default async function OpenShiftsPage() {
     supabase.from("schedule_periods").select("id, branch_id, department_id").eq("organization_id", membership.organization_id).eq("status", "published").in("department_id", departmentIds)
   ]);
   if (!organization) redirect("/workspace");
-  if ((organization as any).pilot_mode) {
+  if (organization.pilot_mode) {
     return <main className="workspace-home" dir="rtl"><header className="workspace-subheader"><div><Link href="/workspace" className="back-link"><ArrowRight size={17} /> חזרה לסביבת העבודה</Link><p className="eyebrow">{organization.name} · פיילוט ראשון</p><h1><CalendarPlus /> משמרות פתוחות</h1><p>Shift Marketplace עדיין לא פעיל בשלב הפיילוט. אם יש משמרת שצריך לאייש, פנו למנהל ישירות.</p></div></header></main>;
   }
 
   const periodIds = (periods ?? []).map((item) => item.id);
   const { data: shifts } = periodIds.length
-    ? await (supabase as any).from("shifts").select("id, schedule_period_id, shift_date, name, start_time, end_time, required_employees, open_for_requests").in("schedule_period_id", periodIds).eq("status", "published").eq("open_for_requests", true).order("shift_date").order("start_time")
+    ? await supabase.from("shifts").select("id, schedule_period_id, shift_date, name, start_time, end_time, required_employees, open_for_requests").in("schedule_period_id", periodIds).eq("status", "published").eq("open_for_requests", true).order("shift_date").order("start_time")
     : { data: [] };
 
-  const shiftIds = (shifts ?? []).map((item: any) => item.id);
+  const shiftIds = (shifts ?? []).map((item) => item.id);
   const [{ data: assignments }, { data: requests }] = await Promise.all([
     shiftIds.length ? supabase.from("shift_assignments").select("shift_id").in("shift_id", shiftIds) : Promise.resolve({ data: [] }),
-    shiftIds.length ? (supabase as any).from("open_shift_requests").select("id, shift_id, status").eq("user_id", user.id).in("shift_id", shiftIds) : Promise.resolve({ data: [] })
+    shiftIds.length ? supabase.from("open_shift_requests").select("id, shift_id, status").eq("user_id", user.id).in("shift_id", shiftIds) : Promise.resolve({ data: [] })
   ]);
 
   const periodMap = new Map((periods ?? []).map((item) => [item.id, item]));
@@ -71,8 +71,8 @@ export default async function OpenShiftsPage() {
   for (const assignment of assignments ?? []) assignmentCounts.set(assignment.shift_id, (assignmentCounts.get(assignment.shift_id) ?? 0) + 1);
 
   const openShifts = (shifts ?? [])
-    .filter((shift: any) => (assignmentCounts.get(shift.id) ?? 0) < shift.required_employees)
-    .map((shift: any) => {
+    .filter((shift) => (assignmentCounts.get(shift.id) ?? 0) < shift.required_employees)
+    .map((shift) => {
       const period = periodMap.get(shift.schedule_period_id);
       const request = requestMap.get(shift.id);
       return {

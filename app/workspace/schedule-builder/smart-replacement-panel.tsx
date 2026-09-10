@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { ArrowLeftRight, CheckCircle2, Loader2, RefreshCw, ShieldCheck } from "lucide-react";
 
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
+import { isPresent } from "@/lib/utils";
 
 type Period = { id: string; department_id: string; year: number; month: number; status: string };
 type Worker = { user_id: string; department_ids: string[]; seniority_level: string; weekly_hours_limit: number | null; profile: { first_name: string; last_name: string } | null };
@@ -69,7 +70,7 @@ export function SmartReplacementPanel({ organizationId, currentUserId, periods, 
 
   const loadPeriod = useCallback(async (periodId: string) => {
     setBusy("load"); setMessage(""); setCandidates([]); setSelectedShiftId(""); setOutgoingUserId("");
-    const db = supabase as any;
+    const db = supabase;
     const { data: shiftRows } = await db.from("shifts")
       .select("id, schedule_period_id, shift_template_id, shift_date, name, start_time, end_time, required_employees, status")
       .eq("schedule_period_id", periodId).neq("status", "cancelled").order("shift_date").order("start_time");
@@ -89,7 +90,7 @@ export function SmartReplacementPanel({ organizationId, currentUserId, periods, 
       setCandidates([]); setMessage("Smart Replacement עובד על טיוטה בלבד. יש לבטל פרסום לפני שינוי שיבוצים."); return;
     }
     setBusy("rank"); setMessage(""); setCandidates([]);
-    const db = supabase as any;
+    const db = supabase;
     const { data: allShiftRows } = await db.from("shifts")
       .select("id, schedule_period_id, shift_template_id, shift_date, name, start_time, end_time, required_employees, status")
       .neq("status", "cancelled");
@@ -152,7 +153,7 @@ export function SmartReplacementPanel({ organizationId, currentUserId, periods, 
       if (replacementMustBeSenior) reasons.push("שומר/ת על דרישת Senior במשמרת");
       reasons.push("ללא חפיפה, Time Off או חריגת מנוחה/שעות");
       return { userId: worker.user_id, name: workerName(worker.user_id), score: Math.round(score), reasons };
-    }).filter(Boolean).sort((a: any, b: any) => b.score - a.score || a.userId.localeCompare(b.userId)) as Candidate[];
+    }).filter(isPresent).sort((a, b) => b.score - a.score || a.userId.localeCompare(b.userId)) as Candidate[];
 
     setCandidates(ranked); setBusy("");
     setMessage(ranked.length ? `נמצאו ${ranked.length} מחליפים בטוחים. המועמד המוביל מדורג לפי זמינות, העדפות, מגבלות ו-Fairness.` : "לא נמצא מחליף שעומד בכל המגבלות הנוכחיות.");
@@ -167,7 +168,7 @@ export function SmartReplacementPanel({ organizationId, currentUserId, periods, 
     }
     if (!window.confirm(`להחליף את ${workerName(outgoingUserId)} ב-${candidate.name} במשמרת ${shift.shift_date} ${shift.name}? הפעולה אינה מפרסמת את הסידור.`)) return;
     setBusy("apply"); setMessage("");
-    const db = supabase as any;
+    const db = supabase;
 
     const [{ data: currentPeriod }, { data: allShiftRows }] = await Promise.all([
       db.from("schedule_periods").select("id, status").eq("id", selectedPeriodId).single(),
