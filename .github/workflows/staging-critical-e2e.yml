@@ -2,6 +2,10 @@ name: ShiftPilot Staging Critical E2E
 
 on:
   workflow_dispatch:
+  # Nightly (D2 in docs/REMEDIATION_PLAN.md): 01:30 UTC, around 04:30 in Israel.
+  # Staggered from staging-workspace-e2e so the two never seed staging at once.
+  schedule:
+    - cron: "30 1 * * *"
 
 permissions:
   contents: read
@@ -22,26 +26,41 @@ jobs:
       STAGING_E2E_FIXTURE_PATH: .staging-e2e-fixture.json
 
     steps:
+      - name: Check staging credentials
+        id: creds
+        run: |
+          if [ -z "$STAGING_SUPABASE_SECRET_KEY" ] || [ -z "$STAGING_SUPABASE_PUBLISHABLE_KEY" ]; then
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::STAGING_SUPABASE_SECRET_KEY / STAGING_SUPABASE_PUBLISHABLE_KEY not set -- skipping staging critical checks."
+          else
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Check out repository
+        if: steps.creds.outputs.ready == 'true'
         uses: actions/checkout@v4
 
       - name: Set up Node.js
+        if: steps.creds.outputs.ready == 'true'
         uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
 
       - name: Install locked dependencies
+        if: steps.creds.outputs.ready == 'true'
         run: npm ci
 
       - name: Seed isolated staging fixture
+        if: steps.creds.outputs.ready == 'true'
         run: node scripts/staging-e2e-fixtures.mjs seed
 
       - name: Run critical mutation checks
+        if: steps.creds.outputs.ready == 'true'
         run: node scripts/run-staging-critical-mutations.mjs
 
       - name: Cleanup isolated staging fixture
-        if: always()
+        if: always() && steps.creds.outputs.ready == 'true'
         run: |
           if [ -f "$STAGING_E2E_FIXTURE_PATH" ]; then
             node scripts/staging-e2e-fixtures.mjs cleanup

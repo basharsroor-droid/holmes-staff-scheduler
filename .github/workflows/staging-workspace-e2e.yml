@@ -11,6 +11,9 @@ name: ShiftPilot Staging Workspace E2E
 
 on:
   workflow_dispatch:
+  # Nightly (D2): 02:15 UTC, 45 minutes after staging-critical-e2e.
+  schedule:
+    - cron: "15 2 * * *"
   pull_request:
     branches: [main]
     paths:
