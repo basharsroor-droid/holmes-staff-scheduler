@@ -6,7 +6,12 @@ import { motion } from "motion/react";
 
 import { BrandLogo } from "@/components/brand/brand-logo";
 
-export function SiteNavbar() {
+// compactOnMobile (H4): on the home page the hero already offers "open a
+// workspace" and "demo" as its two big buttons, so below the sm breakpoint
+// the header keeps only "log in". Other pages (pricing, contact) don't pass
+// it and keep all three.
+export function SiteNavbar({ compactOnMobile = false }: { compactOnMobile?: boolean }) {
+  const mobileDuplicate = compactOnMobile ? "hidden sm:inline-flex" : "inline-flex";
   return (
     <div className="marketing-nav-wrap flex w-full justify-center px-3 pt-4 sm:px-6 sm:pt-6">
       <div className="marketing-nav-bar relative z-10 flex w-full max-w-[1180px] flex-wrap items-center justify-between gap-3 rounded-[24px] border border-slate-200/80 bg-white/95 px-4 py-3 shadow-[0_14px_38px_rgba(15,23,42,0.08)] backdrop-blur-xl sm:flex-nowrap sm:px-6">
@@ -29,7 +34,7 @@ export function SiteNavbar() {
         >
           <Link
             href="/demo"
-            className="inline-flex min-h-10 flex-1 items-center justify-center gap-1.5 whitespace-nowrap rounded-xl bg-slate-50 px-3 py-2.5 text-xs font-semibold text-slate-700 transition-all hover:bg-slate-100 sm:flex-none sm:px-4 sm:text-sm"
+            className={`${mobileDuplicate} min-h-10 flex-1 items-center justify-center gap-1.5 whitespace-nowrap rounded-xl bg-slate-50 px-3 py-2.5 text-xs font-semibold text-slate-700 transition-all hover:bg-slate-100 sm:flex-none sm:px-4 sm:text-sm`}
           >
             <CirclePlay size={16} />
             צפייה בדמו
@@ -37,7 +42,7 @@ export function SiteNavbar() {
 
           <Link
             href="/onboarding"
-            className="inline-flex min-h-10 flex-1 items-center justify-center gap-1.5 whitespace-nowrap rounded-xl border border-[var(--primary)] bg-white px-3 py-2.5 text-xs font-semibold text-[var(--primary)] transition-all hover:bg-[var(--primary-soft)] sm:flex-none sm:px-4 sm:text-sm"
+            className={`${mobileDuplicate} min-h-10 flex-1 items-center justify-center gap-1.5 whitespace-nowrap rounded-xl border border-[var(--primary)] bg-white px-3 py-2.5 text-xs font-semibold text-[var(--primary)] transition-all hover:bg-[var(--primary-soft)] sm:flex-none sm:px-4 sm:text-sm`}
           >
             <UserPlus size={16} />
             הרשמה

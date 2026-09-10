@@ -4,6 +4,7 @@ import { ArrowLeft, BarChart3, Building2, CalendarCheck, CalendarRange, Clock3, 
 import { BrandLogo } from "@/components/brand/brand-logo";
 import { PLANS } from "@/lib/plans";
 import { CinematicHero } from "@/components/marketing/cinematic-hero";
+import { MobileStickyActions } from "@/components/marketing/mobile-sticky-actions";
 import { RolesShowcase } from "@/components/marketing/roles-showcase";
 import { ScrollReveal } from "@/components/marketing/scroll-reveal";
 import { ScrollToTop } from "@/components/marketing/scroll-to-top";
@@ -34,7 +35,7 @@ export default function HomePage() {
         staying glued to the viewport and covering the pinned Hero card
         while scrolling through it. */}
     <div className="marketing-navbar-shell absolute inset-x-0 top-0 z-40">
-      <SiteNavbar />
+      <SiteNavbar compactOnMobile />
     </div>
 
     <CinematicHero />
@@ -95,7 +96,7 @@ export default function HomePage() {
 
     <section className="final-cta"><ScrollReveal><BrandLogo light /><h2>את הסידור הבא אפשר להתחיל אחרת.</h2><p>פתחו סביבת עבודה לעסק, הזמינו את הצוות ורכזו את הזמינות, השיבוצים וההחלפות במקום אחד.</p><div><Link className="button brand-button large" href="/onboarding">פתיחת סביבת עבודה <ArrowLeft size={18} /></Link><Link className="button glass-button large" href="/demo">צפייה בדמו</Link></div></ScrollReveal></section>
 
-    <div className="mobile-sticky-actions"><Link href="/demo">דמו</Link><Link href="/onboarding">פתיחת סביבת עבודה <ArrowLeft size={16} /></Link></div>
+    <MobileStickyActions />
 
     <footer className="pro-footer">
       <div className="pro-footer-top">
