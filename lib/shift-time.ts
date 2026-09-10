@@ -13,9 +13,17 @@
 //     guardrail computes it as d - extract(dow from d)::int (migration
 //     20260910190000); weekStartKey below returns the same date.
 //
-// Deliberately NOT changed here: shiftBounds builds Dates in the browser's
-// local time zone, as every copy did. Evaluating in the organization's time
-// zone is C2, a separate change.
+// Time is wall-clock (C2). The database does all shift arithmetic on
+// shift_date + time, a timestamp WITHOUT time zone: the overlap trigger
+// (check_shift_assignment_overlap, tsrange) and the marketplace guardrail
+// both treat 22:00-06:00 as 8 hours on every night of the year, with no
+// time zone and no DST. shiftBounds therefore reads the date and time as
+// naive UTC, so every overlap, rest gap and duration computed here equals
+// the server's, whatever time zone the manager's browser is in. (Until C2
+// it used browser-local time, so a manager abroad -- or any browser on a
+// DST-change night -- could disagree with the server.) The organization's
+// timezone column is still used where real instants matter: notification
+// scheduling (enqueue_scheduled_notifications, AT TIME ZONE).
 //
 // No imports on purpose: tests/unit loads this file directly with Node's
 // type stripping, which cannot resolve the "@/" alias.
@@ -38,12 +46,22 @@ export function shiftHours(shift: TimedShift): number {
   return minutes / 60;
 }
 
-/** Start and end instants of a shift (browser local time; see C2). */
+function wallClock(date: string, time: string): number {
+  const [year, month, day] = date.split("-").map(Number);
+  const [hours, minutes, seconds = 0] = time.split(":").map(Number);
+  return Date.UTC(year, month - 1, day, hours, minutes, seconds);
+}
+
+/**
+ * Start and end of a shift as wall-clock instants (naive UTC), matching the
+ * database's timestamp-without-time-zone arithmetic. Compare them or subtract
+ * getTime(); don't format them as local times.
+ */
 export function shiftBounds(shift: DatedShift): { start: Date; end: Date } {
-  const start = new Date(`${shift.shift_date}T${shift.start_time}`);
-  let end = new Date(`${shift.shift_date}T${shift.end_time}`);
-  if (end <= start) end = new Date(end.getTime() + MS_PER_DAY);
-  return { start, end };
+  const start = wallClock(shift.shift_date, shift.start_time);
+  let end = wallClock(shift.shift_date, shift.end_time);
+  if (end <= start) end += MS_PER_DAY;
+  return { start: new Date(start), end: new Date(end) };
 }
 
 /** True when the two shifts share any time. Touching end-to-start is not an overlap. */
