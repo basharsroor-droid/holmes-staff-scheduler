@@ -56,7 +56,7 @@ export default function PilotPage() {
 
       <div className="pilot-hero">
         <section className="pilot-main-card">
-          <div className="brand-mark">{productConfig.shortName}</div>
+          <div className="brand-mark">{productConfig.monogram}</div>
           <div><h2>מטרה לגרסת ניסיון</h2><p className="lead">לבדוק במשך חודש האם המערכת חוסכת זמן למנהלים, מצמצמת טעויות בשיבוץ, ומאפשרת לעובדים להגיש זמינות בצורה פשוטה מהטלפון.</p></div>
           <div className="actions"><Link className="button primary" href="/manager/schedule"><Wand2 size={16} />לפתוח שיבוץ</Link><Link className="button" href="/availability"><CalendarCheck size={16} />הגשת עובד</Link></div>
         </section>
