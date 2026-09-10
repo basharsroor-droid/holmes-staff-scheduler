@@ -5,6 +5,7 @@ import { AlertTriangle, CheckCircle2, ShieldAlert } from "lucide-react";
 
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { periodShiftRange, SHIFT_RANGE_LIMIT } from "@/lib/period-window";
+import { shiftBounds, weekStartKey } from "@/lib/shift-time";
 
 type Period = { id: string; department_id: string; year: number; month: number };
 type Worker = { user_id: string; department_ids: string[]; weekly_hours_limit: number | null; profile: { first_name: string; last_name: string } | null };
@@ -21,22 +22,9 @@ type Finding = {
   detail: string;
 };
 
-function bounds(shift: Shift) {
-  const start = new Date(`${shift.shift_date}T${shift.start_time}`);
-  let end = new Date(`${shift.shift_date}T${shift.end_time}`);
-  if (end <= start) end = new Date(end.getTime() + 24 * 60 * 60 * 1000);
-  return { start, end };
-}
-
 function hours(shift: Shift) {
-  const { start, end } = bounds(shift);
+  const { start, end } = shiftBounds(shift);
   return (end.getTime() - start.getTime()) / 3600000;
-}
-
-function weekStartKey(date: string) {
-  const day = new Date(`${date}T12:00:00`);
-  day.setDate(day.getDate() - day.getDay());
-  return `${day.getFullYear()}-${String(day.getMonth() + 1).padStart(2, "0")}-${String(day.getDate()).padStart(2, "0")}`;
 }
 
 export function ConflictDetectorEnhancer({
@@ -104,12 +92,12 @@ export function ConflictDetectorEnhancer({
 
     const usersInPeriod = [...new Set(assignments.filter((a) => selected.some((s) => s.id === a.shift_id)).map((a) => a.user_id))];
     for (const userId of usersInPeriod) {
-      const userShifts = shifts.filter((shift) => assignments.some((a) => a.shift_id === shift.id && a.user_id === userId)).sort((a, b) => bounds(a).start.getTime() - bounds(b).start.getTime());
+      const userShifts = shifts.filter((shift) => assignments.some((a) => a.shift_id === shift.id && a.user_id === userId)).sort((a, b) => shiftBounds(a).start.getTime() - shiftBounds(b).start.getTime());
       for (let index = 0; index < userShifts.length - 1; index++) {
         const current = userShifts[index];
         const following = userShifts[index + 1];
-        const a = bounds(current);
-        const b = bounds(following);
+        const a = shiftBounds(current);
+        const b = shiftBounds(following);
         if (b.start < a.end) {
           if (selected.some((shift) => shift.id === current.id || shift.id === following.id)) next.push({ key: `overlap-${current.id}-${following.id}-${userId}`, severity: "critical", title: "משמרות חופפות", detail: `${workerName(userId)} משובץ/ת במשמרות שחופפות בזמן.` });
         } else if (minRestHours) {

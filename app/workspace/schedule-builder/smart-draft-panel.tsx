@@ -6,6 +6,7 @@ import { CheckCircle2, Loader2, RefreshCw, Sparkles, WandSparkles } from "lucide
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { isPresent } from "@/lib/utils";
 import { periodShiftRange, SHIFT_RANGE_LIMIT } from "@/lib/period-window";
+import { shiftBounds, shiftHours, shiftsOverlap, weekStartKey } from "@/lib/shift-time";
 
 type Period = { id: string; department_id: string; year: number; month: number; status: string };
 type Worker = { user_id: string; department_ids: string[]; seniority_level: string; weekly_hours_limit: number | null; profile: { first_name: string; last_name: string } | null };
@@ -16,32 +17,6 @@ type Template = { id: string; department_id: string; requires_senior_employee: b
 type Shift = { id: string; schedule_period_id: string; shift_template_id: string | null; shift_date: string; name: string; start_time: string; end_time: string; required_employees: number; status: string };
 type Assignment = { shift_id: string; user_id: string };
 type Suggestion = { shiftId: string; shiftLabel: string; userId: string; workerName: string; score: number; reasons: string[] };
-
-function shiftHours(shift: Shift) {
-  const [startH, startM] = shift.start_time.split(":").map(Number);
-  const [endH, endM] = shift.end_time.split(":").map(Number);
-  let minutes = endH * 60 + endM - (startH * 60 + startM);
-  if (minutes <= 0) minutes += 24 * 60;
-  return minutes / 60;
-}
-
-function bounds(shift: Shift) {
-  const start = new Date(`${shift.shift_date}T${shift.start_time}`);
-  let end = new Date(`${shift.shift_date}T${shift.end_time}`);
-  if (end <= start) end = new Date(end.getTime() + 86400000);
-  return { start, end };
-}
-
-function overlaps(a: Shift, b: Shift) {
-  const aa = bounds(a); const bb = bounds(b);
-  return aa.start < bb.end && bb.start < aa.end;
-}
-
-function weekStartKey(date: string) {
-  const d = new Date(`${date}T12:00:00`);
-  d.setDate(d.getDate() - d.getDay());
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-}
 
 export function SmartDraftPanel({ organizationId, currentUserId, periods, workers, submissions, availability, approvedLeave, templates, minRestHours }: {
   organizationId: string;
@@ -105,10 +80,10 @@ export function SmartDraftPanel({ organizationId, currentUserId, periods, worker
       .reduce((sum, s) => sum + shiftHours(s), 0);
 
     const minGap = (userId: string, candidate: Shift) => {
-      const c = bounds(candidate); let gap = Infinity;
+      const c = shiftBounds(candidate); let gap = Infinity;
       for (const other of allShifts) {
         if (other.id === candidate.id || !planned.some((a) => a.shift_id === other.id && a.user_id === userId)) continue;
-        const b = bounds(other);
+        const b = shiftBounds(other);
         if (b.end <= c.start) gap = Math.min(gap, (c.start.getTime() - b.end.getTime()) / 3600000);
         else if (b.start >= c.end) gap = Math.min(gap, (b.start.getTime() - c.end.getTime()) / 3600000);
       }
@@ -137,7 +112,7 @@ export function SmartDraftPanel({ organizationId, currentUserId, periods, worker
             const status = availabilityStatus(worker.user_id, shift);
             if (status === "unavailable" || status === null) return null;
             if (approvedLeave.some((l) => l.user_id === worker.user_id && shift.shift_date >= l.start_date && shift.shift_date <= l.end_date)) return null;
-            const conflict = allShifts.some((other) => other.id !== shift.id && planned.some((a) => a.shift_id === other.id && a.user_id === worker.user_id) && overlaps(other, shift));
+            const conflict = allShifts.some((other) => other.id !== shift.id && planned.some((a) => a.shift_id === other.id && a.user_id === worker.user_id) && shiftsOverlap(other, shift));
             if (conflict) return null;
             const week = weekStartKey(shift.shift_date);
             const projectedWeek = weeklyHours(worker.user_id, week) + shiftHours(shift);

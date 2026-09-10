@@ -6,6 +6,7 @@ import { ArrowLeftRight, CheckCircle2, Loader2, RefreshCw, ShieldCheck } from "l
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { isPresent } from "@/lib/utils";
 import { periodShiftRange, shiftDateRangeAround, SHIFT_RANGE_LIMIT } from "@/lib/period-window";
+import { shiftBounds, shiftHours, shiftsOverlap, weekStartKey } from "@/lib/shift-time";
 
 type Period = { id: string; department_id: string; year: number; month: number; status: string };
 type Worker = { user_id: string; department_ids: string[]; seniority_level: string; weekly_hours_limit: number | null; profile: { first_name: string; last_name: string } | null };
@@ -16,32 +17,6 @@ type Template = { id: string; requires_senior_employee: boolean };
 type Shift = { id: string; schedule_period_id: string; shift_template_id: string | null; shift_date: string; name: string; start_time: string; end_time: string; required_employees: number; status: string };
 type Assignment = { id: string; shift_id: string; user_id: string };
 type Candidate = { userId: string; name: string; score: number; reasons: string[] };
-
-function shiftHours(shift: Shift) {
-  const [startH, startM] = shift.start_time.split(":").map(Number);
-  const [endH, endM] = shift.end_time.split(":").map(Number);
-  let minutes = endH * 60 + endM - (startH * 60 + startM);
-  if (minutes <= 0) minutes += 1440;
-  return minutes / 60;
-}
-
-function bounds(shift: Shift) {
-  const start = new Date(`${shift.shift_date}T${shift.start_time}`);
-  let end = new Date(`${shift.shift_date}T${shift.end_time}`);
-  if (end <= start) end = new Date(end.getTime() + 86400000);
-  return { start, end };
-}
-
-function overlaps(a: Shift, b: Shift) {
-  const aa = bounds(a); const bb = bounds(b);
-  return aa.start < bb.end && bb.start < aa.end;
-}
-
-function weekStartKey(date: string) {
-  const d = new Date(`${date}T12:00:00`);
-  d.setDate(d.getDate() - d.getDay());
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-}
 
 export function SmartReplacementPanel({ organizationId, currentUserId, periods, workers, submissions, availability, approvedLeave, templates, minRestHours }: {
   organizationId: string;
@@ -119,10 +94,10 @@ export function SmartReplacementPanel({ organizationId, currentUserId, periods, 
     const weeklyHours = (userId: string) => allShifts.filter((s) => weekStartKey(s.shift_date) === week && allAssignments.some((a) => a.shift_id === s.id && a.user_id === userId)).reduce((sum, s) => sum + shiftHours(s), 0);
     const totalHours = (userId: string) => allShifts.filter((s) => allAssignments.some((a) => a.shift_id === s.id && a.user_id === userId)).reduce((sum, s) => sum + shiftHours(s), 0);
     const minGap = (userId: string) => {
-      const c = bounds(shift); let gap = Infinity;
+      const c = shiftBounds(shift); let gap = Infinity;
       for (const other of allShifts) {
         if (other.id === shift.id || !allAssignments.some((a) => a.shift_id === other.id && a.user_id === userId)) continue;
-        const b = bounds(other);
+        const b = shiftBounds(other);
         if (b.end <= c.start) gap = Math.min(gap, (c.start.getTime() - b.end.getTime()) / 3600000);
         else if (b.start >= c.end) gap = Math.min(gap, (b.start.getTime() - c.end.getTime()) / 3600000);
       }
@@ -141,7 +116,7 @@ export function SmartReplacementPanel({ organizationId, currentUserId, periods, 
       const status = availabilityStatus(worker.user_id);
       if (!status || status === "unavailable") return null;
       if (approvedLeave.some((l) => l.user_id === worker.user_id && shift.shift_date >= l.start_date && shift.shift_date <= l.end_date)) return null;
-      if (allShifts.some((other) => other.id !== shift.id && allAssignments.some((a) => a.shift_id === other.id && a.user_id === worker.user_id) && overlaps(other, shift))) return null;
+      if (allShifts.some((other) => other.id !== shift.id && allAssignments.some((a) => a.shift_id === other.id && a.user_id === worker.user_id) && shiftsOverlap(other, shift))) return null;
       if (worker.weekly_hours_limit && weeklyHours(worker.user_id) + shiftHours(shift) > worker.weekly_hours_limit) return null;
       if (minRestHours && minGap(worker.user_id) < minRestHours) return null;
 
@@ -210,7 +185,7 @@ export function SmartReplacementPanel({ organizationId, currentUserId, periods, 
     if (!status || status === "unavailable" || approvedLeave.some((l) => l.user_id === candidate.userId && currentShift.shift_date >= l.start_date && currentShift.shift_date <= l.end_date)) {
       setBusy(""); setCandidates([]); setMessage("זמינות המועמד או Time Off כבר לא מאפשרים את ההחלפה. לא בוצע שינוי; יש לדרג מחדש."); return;
     }
-    if (allShifts.some((other) => other.id !== currentShift.id && allAssignments.some((a) => a.shift_id === other.id && a.user_id === candidate.userId) && overlaps(other, currentShift))) {
+    if (allShifts.some((other) => other.id !== currentShift.id && allAssignments.some((a) => a.shift_id === other.id && a.user_id === candidate.userId) && shiftsOverlap(other, currentShift))) {
       setBusy(""); setCandidates([]); setMessage("למועמד נוצרה חפיפה מאז הדירוג. לא בוצע שינוי; יש לדרג מחדש."); return;
     }
     const week = weekStartKey(currentShift.shift_date);
@@ -219,10 +194,10 @@ export function SmartReplacementPanel({ organizationId, currentUserId, periods, 
       setBusy(""); setCandidates([]); setMessage("החלפה תחרוג ממכסת השעות השבועית של המועמד. לא בוצע שינוי; יש לדרג מחדש."); return;
     }
     if (minRestHours) {
-      const c = bounds(currentShift); let gap = Infinity;
+      const c = shiftBounds(currentShift); let gap = Infinity;
       for (const other of allShifts) {
         if (other.id === currentShift.id || !allAssignments.some((a) => a.shift_id === other.id && a.user_id === candidate.userId)) continue;
-        const b = bounds(other);
+        const b = shiftBounds(other);
         if (b.end <= c.start) gap = Math.min(gap, (c.start.getTime() - b.end.getTime()) / 3600000);
         else if (b.start >= c.end) gap = Math.min(gap, (b.start.getTime() - c.end.getTime()) / 3600000);
       }
