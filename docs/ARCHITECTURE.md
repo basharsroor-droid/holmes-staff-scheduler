@@ -37,9 +37,13 @@ Supabase
 
 ## מודל הנתונים (multi-tenant)
 
-כל טבלה בליבת המוצר נושאת `organization_id` ומוגנת ב-RLS כך שכל שאילתה מסוננת אוטומטית לפי החברות הפעילה של המשתמש המחובר. סכימת המקור: [`db/supabase-scheduler-schema.sql`](../db/supabase-scheduler-schema.sql). שינויים על הסכימה נשמרים כ-migrations רשמיות תחת [`supabase/migrations/`](../supabase/migrations/) — **אין לערוך את מסד הפרודקשן ידנית מחוץ למיגרציה**.
+כל טבלה בליבת המוצר נושאת `organization_id` ומוגנת ב-RLS כך שכל שאילתה מסוננת אוטומטית לפי החברות הפעילה של המשתמש המחובר.
 
-היררכיה: `organizations` → `branches` → (`shift_templates`, `schedule_periods`) → `shifts` → `shift_assignments` → `swap_requests`.
+**מקור האמת לסכימה הוא [`supabase/migrations/`](../supabase/migrations/) בלבד** — רצף המיגרציות המוחלות, לפי סדר. **אין לערוך את מסד הפרודקשן ידנית מחוץ למיגרציה.**
+
+> `db/supabase-scheduler-schema.sql` הוא **snapshot היסטורי מ-8.8.2026** (PR #1) ואינו מתוחזק — הוא לא מכיל את `plans`, `subscriptions`, `leave_requests`, `open_shift_requests`, `schedule_templates`, `push_devices` ואת העמודות שנוספו מאז. הוא נשאר בריפו רק כי `scripts/validate-supabase-schema.mjs` קורא אותו. אל תסתמכו עליו כדי להבין את הסכימה הנוכחית; לתמונה חיה השתמשו ב-`list_tables` מול הפרויקט.
+
+היררכיה: `organizations` → `branches` → `departments` → `schedule_periods` → `shifts` → `shift_assignments` → `swap_requests`.
 
 תפקידים (`organization_memberships.role`): `owner` / `admin` / `manager` / `employee`.
 סטטוס עובד: `invited` / `active` / `suspended` (השעיה לא מוחקת היסטוריה).

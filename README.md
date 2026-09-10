@@ -55,7 +55,7 @@ ShiftPilot היא מערכת SaaS לניהול צוותים שעובדים במ�
 - Vercel עבור Preview ו-Production
 - GitHub Pull Requests ו-CI
 
-הסכמה הראשית מתועדת ב-`db/supabase-scheduler-schema.sql`. שינויים חדשים במסד נשמרים תחת `supabase/migrations/` ומוחלים באמצעות Migration רשמית.
+מקור האמת לסכימה הוא רצף המיגרציות תחת `supabase/migrations/`. שינויים חדשים במסד נשמרים שם ומוחלים באמצעות Migration רשמית — אין לערוך את מסד הפרודקשן ידנית. (`db/supabase-scheduler-schema.sql` הוא snapshot היסטורי מ-8.8.2026 שאינו מתוחזק — ראו `docs/ARCHITECTURE.md`.)
 
 ## אבטחה
 

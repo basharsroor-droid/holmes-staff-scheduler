@@ -13,8 +13,8 @@
 - [ ] **Backup** — לפני deploy עם שינוי סכימה משמעותי (לא תוספת עמודה תמימה): לוודא שריצת הגיבוי הלילית האחרונה הצליחה (`gh run list --workflow=database-backup.yml --limit 1`), או להריץ אחת ידנית (`gh workflow run database-backup.yml`) לפני.
 
 **בדיקת Smoke אחרי כל Deploy לפרודקשן:**
-1. `curl -sL https://www.shiftpilothq.com/api/health` — סטטוס `ok` וה-`commit` תואם למה שזה עתה נדחף.
-2. `curl -sL "https://www.shiftpilothq.com/api/health?deep=1"` — מוודא גם קישוריות אמיתית ל-Supabase, לא רק שהשרת עונה.
+1. `curl -sL "https://www.shiftpilothq.com/api/health?deep=1"` — בבת אחת: סטטוס `ok`, שדה `version` שתואם ל-7 התווים הראשונים של הקומיט שזה עתה נדחף, ו-`dependencies.database: "ok"` שמוודא קישוריות אמיתית ל-Supabase ולא רק שהשרת עונה.
+2. אם רק רוצים לוודא שהשרת חי בלי לגעת במסד: `curl -sL https://www.shiftpilothq.com/api/health` — מחזיר `status` ו-`version` בלבד.
 3. עומס עין אחד על עמוד הבית ועל `/login` — שלא נראה שבור ויזואלית (ה-health check לא תופס בעיות רינדור).
 
 ## Deploy גרוע ב-Production
@@ -41,8 +41,11 @@
 **לעולם לא ידני על פרודקשן.** כל שינוי סכימה:
 1. קובץ חדש תחת `supabase/migrations/` בשם `YYYYMMDDHHMMSS_description.sql`.
 2. הרצה מקומית/Preview לבדיקה.
-3. PR רגיל → CI → מיזוג. ה-migration מוחל אוטומטית על הפרויקט המקושר.
-4. `list_migrations` מול הפרויקט אחרי המיזוג כדי לוודא שהיא נרשמה.
+3. PR רגיל → CI → מיזוג.
+4. **החלה על Production — צעד נפרד.** מיזוג ל-`main` **אינו** מפעיל את המיגרציה בעצמו. יש להריץ `apply_migration` מול הפרויקט (או להמתין ל-workflow `apply-migrations` אם כבר הופעל).
+5. `list_migrations` אחרי ההחלה כדי לוודא שהיא נרשמה, **ולוודא את התוצאה בפועל** — שאילתה על הטבלה שהשתנתה. גרסת ה-migration שנרשמת ב-`supabase_migrations.schema_migrations` מקבלת חותמת זמן חדשה בזמן ההחלה ולא בהכרח תואמת לשם הקובץ.
+
+> **אירוע 8.9.2026 שממנו נלמד הסעיף הזה:** PR #217 (תמחור) מוזג עם CI ירוק, ה-UI עלה עם המחירים החדשים, אבל `public.plans` נשאר במחירים הישנים — המיגרציה לא הוחלה. התוצאה הייתה עמוד תמחור שמציג מסלול `network` שה-RPC דוחה כ-`Invalid plan`. **תמיד לאמת נתונים, לא רק שהמיגרציה "נרשמה".**
 
 ## דליפת מפתח (Secret נחשף)
 
