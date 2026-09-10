@@ -1,0 +1,97 @@
+name: ShiftPilot Staging Workspace E2E
+
+# The real /workspace product, driven end to end in a browser against the
+# STAGING Supabase branch (sqmstwwrdoenfumligmf): availability -> generate ->
+# staff -> publish -> my shifts -> swap -> accept -> approve -> DB assert.
+# See tests/staging/workspace-scheduling-flow.spec.ts and docs/REMEDIATION_PLAN.md (D1).
+#
+# Every run seeds its own throwaway tenant and deletes it afterwards, so runs
+# never share data. Never points at Production: the fixture script refuses any
+# host other than the staging branch.
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+    paths:
+      - "app/workspace/**"
+      - "app/login/**"
+      - "supabase/migrations/**"
+      - "tests/staging/**"
+      - "scripts/staging-workspace-fixture.mjs"
+      - "playwright.staging.config.ts"
+      - ".github/workflows/staging-workspace-e2e.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: shiftpilot-staging-workspace-e2e
+  cancel-in-progress: false
+
+jobs:
+  workspace-flow:
+    name: Real workspace flow on staging
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      STAGING_SUPABASE_URL: https://sqmstwwrdoenfumligmf.supabase.co
+      STAGING_SUPABASE_SECRET_KEY: ${{ secrets.STAGING_SUPABASE_SECRET_KEY }}
+      STAGING_WORKSPACE_FIXTURE_PATH: .staging-workspace-fixture.json
+      # The app under test is built against staging, not production.
+      NEXT_PUBLIC_SUPABASE_URL: https://sqmstwwrdoenfumligmf.supabase.co
+      NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.STAGING_SUPABASE_PUBLISHABLE_KEY }}
+      SUPABASE_SECRET_KEY: ${{ secrets.STAGING_SUPABASE_SECRET_KEY }}
+
+    steps:
+      - name: Check staging credentials
+        id: creds
+        run: |
+          if [ -z "$STAGING_SUPABASE_SECRET_KEY" ] || [ -z "$NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY" ]; then
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "::warning::STAGING_SUPABASE_SECRET_KEY / STAGING_SUPABASE_PUBLISHABLE_KEY not set -- skipping the staging workspace flow."
+          else
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/checkout@v4
+        if: steps.creds.outputs.ready == 'true'
+
+      - uses: actions/setup-node@v4
+        if: steps.creds.outputs.ready == 'true'
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install locked dependencies
+        if: steps.creds.outputs.ready == 'true'
+        run: npm ci
+
+      - name: Build against staging
+        if: steps.creds.outputs.ready == 'true'
+        run: npm run build
+
+      - name: Install Playwright Chromium
+        if: steps.creds.outputs.ready == 'true'
+        run: npx playwright install chromium
+
+      - name: Seed isolated staging tenant
+        if: steps.creds.outputs.ready == 'true'
+        run: node scripts/staging-workspace-fixture.mjs seed
+
+      - name: Run workspace flow
+        if: steps.creds.outputs.ready == 'true'
+        run: npm run test:e2e:staging
+
+      - name: Clean up staging tenant
+        if: always() && steps.creds.outputs.ready == 'true'
+        run: node scripts/staging-workspace-fixture.mjs cleanup
+
+      - name: Upload failure evidence
+        if: failure() && steps.creds.outputs.ready == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: staging-workspace-e2e-${{ github.run_id }}
+          path: test-results
+          if-no-files-found: ignore
+          retention-days: 14
