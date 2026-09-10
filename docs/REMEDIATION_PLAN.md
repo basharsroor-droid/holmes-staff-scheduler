@@ -118,8 +118,9 @@
 
 **D2 · הפעלת ה-workflows הרדומים** — `P1` · `XS`
 > `production-authenticated-e2e` (רץ לאחרונה 21.8), `staging-critical-e2e`, `staging-support-e2e`, `pilot-readiness` — כולם `workflow_dispatch` בלבד; **שלושה מעולם לא רצו.**
-- **ביצוע:** `schedule:` על staging-critical (nightly) ו-production-authenticated (שבועי)
-- **קבלה:** ריצה מוצלחת אחת מתועדת לכל אחד
+- **ביצוע:** `schedule:` לילי על staging-critical ועל staging-workspace (D1). שניהם מדלגים עם אזהרה כל עוד `STAGING_SUPABASE_SECRET_KEY` לא מוגדר
+- **לא בתוכנית (החלטת בעלים, 10.9):** `production-authenticated-e2e` נשאר ידני בלבד, כדי שכל הרצה בעלת הרשאות גבוהות מול פרודקשן תהיה החלטה מפורשת
+- **קבלה:** ריצה לילית מוצלחת אחת מתועדת לכל workflow של staging
 
 **D3 · schema validation אמיתית (או להוריד לו את התואר)** — `P1` · `M`
 > `scripts/validate-supabase-schema.mjs` — 986 שורות, **required status check על `main`**. הוא קורא את `db/supabase-scheduler-schema.sql` — **קובץ מ-PR #1, 8 באוגוסט**, שלא מכיל אף אחת מ-6 הטבלאות החדשות — ומחרוזת-מתאים מול **41 שמות קבצי מיגרציה מקודדים קשיח** (החדש שהוא מכיר: 4.9). **הוא לא מתחבר למסד נתונים.** הוא לא יכול לזהות drift, policy שבורה או אינדקס חסר.
