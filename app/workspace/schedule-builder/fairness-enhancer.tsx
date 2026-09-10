@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { CheckCircle2, RefreshCw, Scale } from "lucide-react";
 
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
+import { shiftHours } from "@/lib/shift-time";
 
 type Period = { id: string; department_id: string; year: number; month: number };
 type Worker = { user_id: string; department_ids: string[]; profile: { first_name: string; last_name: string } | null };
@@ -21,14 +22,6 @@ type WorkerMetric = {
   onlyIfNeededAssigned: number;
 };
 type Finding = { key: string; title: string; detail: string; severity: "warning" | "info" };
-
-function shiftHours(shift: Shift) {
-  const [startH, startM] = shift.start_time.split(":").map(Number);
-  const [endH, endM] = shift.end_time.split(":").map(Number);
-  let minutes = endH * 60 + endM - (startH * 60 + startM);
-  if (minutes <= 0) minutes += 24 * 60;
-  return minutes / 60;
-}
 
 export function FairnessEnhancer({ periods, workers, submissions, availability }: {
   periods: Period[];

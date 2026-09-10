@@ -8,6 +8,7 @@ import { useStatusMessage } from "@/lib/hooks/use-status-message";
 import { getIsraeliHolidaysForMonth, type IsraeliHoliday, type IsraeliHolidayKind } from "@/lib/israeli-holidays";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import type { Database } from "@/types/database";
+import { shiftBounds, shiftHours, weekStartKey } from "@/lib/shift-time";
 
 type AvailabilityStatus = Database["public"]["Enums"]["availability_status"];
 type LeaveType = Database["public"]["Enums"]["leave_type"];
@@ -101,34 +102,13 @@ export function ScheduleBuilderClient({ organizationId, currentUserId, callerRol
     return leaveRequests.find((item) => item.user_id === userId && shift.shift_date >= item.start_date && shift.shift_date <= item.end_date) ?? null;
   }
 
-  function shiftHours(shift: Shift) {
-    const [startH, startM] = shift.start_time.split(":").map(Number);
-    const [endH, endM] = shift.end_time.split(":").map(Number);
-    let minutes = (endH * 60 + endM) - (startH * 60 + startM);
-    if (minutes <= 0) minutes += 24 * 60; // overnight shift, matches the overlap-prevention trigger's convention
-    return minutes / 60;
-  }
-
   // Sunday-Saturday, matching the Israeli work week. `activeShifts` contains
   // every loaded schedule period in the organization, so a week spanning two
   // calendar months is counted as one complete week.
-  function weekStartKey(date: string) {
-    const day = new Date(`${date}T12:00:00`);
-    day.setDate(day.getDate() - day.getDay());
-    return dateKey(day.getFullYear(), day.getMonth() + 1, day.getDate());
-  }
-
   function weeklyHours(userId: string, weekKey: string) {
     return activeShifts
       .filter((item) => weekStartKey(item.shift_date) === weekKey && assignments.some((a) => a.shift_id === item.id && a.user_id === userId))
       .reduce((total, item) => total + shiftHours(item), 0);
-  }
-
-  function shiftBounds(shift: Shift) {
-    const start = new Date(`${shift.shift_date}T${shift.start_time}`);
-    let end = new Date(`${shift.shift_date}T${shift.end_time}`);
-    if (end <= start) end = new Date(end.getTime() + 24 * 60 * 60 * 1000); // overnight
-    return { start, end };
   }
 
   // Smallest gap (hours) between this candidate shift and any OTHER shift
