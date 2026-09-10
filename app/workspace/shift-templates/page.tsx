@@ -9,7 +9,9 @@ export const dynamic = "force-dynamic";
 
 export default async function ShiftTemplatesPage() {
   const supabase = await createSupabaseServerClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user }
+  } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
   const { data: membership } = await supabase
@@ -27,11 +29,23 @@ export default async function ShiftTemplatesPage() {
 
   const [organizationResult, branchesResult, departmentsResult, templatesResult] = await Promise.all([
     supabase.from("organizations").select("name").eq("id", membership.organization_id).single(),
-    supabase.from("branches").select("id, name").eq("organization_id", membership.organization_id).eq("active", true).order("name"),
-    supabase.from("departments").select("id, branch_id, name").eq("organization_id", membership.organization_id).eq("active", true).order("name"),
+    supabase
+      .from("branches")
+      .select("id, name")
+      .eq("organization_id", membership.organization_id)
+      .eq("active", true)
+      .order("name"),
+    supabase
+      .from("departments")
+      .select("id, branch_id, name")
+      .eq("organization_id", membership.organization_id)
+      .eq("active", true)
+      .order("name"),
     supabase
       .from("shift_templates")
-      .select("id, branch_id, department_id, name, shift_type, start_time, end_time, required_employees, requires_senior_employee, active")
+      .select(
+        "id, branch_id, department_id, name, shift_type, start_time, end_time, required_employees, requires_senior_employee, active"
+      )
       .eq("organization_id", membership.organization_id)
       .order("start_time")
   ]);
@@ -47,17 +61,22 @@ export default async function ShiftTemplatesPage() {
   // redirected away entirely whenever membership.branch_id was null (an
   // owner with no personal branch assignment), which would have locked
   // that owner out of managing templates for any branch at all.
-  const selectedBranchId = (membership.branch_id && branches.some((b) => b.id === membership.branch_id))
-    ? membership.branch_id
-    : branches[0]?.id ?? "";
+  const selectedBranchId =
+    membership.branch_id && branches.some((b) => b.id === membership.branch_id)
+      ? membership.branch_id
+      : (branches[0]?.id ?? "");
 
   return (
     <main className="workspace-home" dir="rtl">
       <header className="workspace-subheader">
         <div>
-          <Link href="/workspace" className="back-link"><ArrowRight size={17} /> חזרה לסביבת העסק</Link>
+          <Link href="/workspace" className="back-link">
+            <ArrowRight size={17} /> חזרה לסביבת העסק
+          </Link>
           <p className="eyebrow">{organizationResult.data.name}</p>
-          <h1><Clock3 /> סוגי משמרות</h1>
+          <h1>
+            <Clock3 /> סוגי משמרות
+          </h1>
           <p>מגדירים פעם אחת את שעות המשמרות, מספר העובדים והדרישות. ההגדרות ישמשו בכל חודש עבודה.</p>
         </div>
       </header>

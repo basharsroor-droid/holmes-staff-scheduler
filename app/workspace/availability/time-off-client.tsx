@@ -38,7 +38,11 @@ function statusIcon(status: LeaveStatus) {
   return <Clock3 size={16} />;
 }
 
-export function TimeOffClient({ organizationId, userId, initialRequests }: {
+export function TimeOffClient({
+  organizationId,
+  userId,
+  initialRequests
+}: {
   organizationId: string;
   userId: string;
   initialRequests: LeaveRequest[];
@@ -103,52 +107,101 @@ export function TimeOffClient({ organizationId, userId, initialRequests }: {
       return;
     }
 
-    setRequests((current) => current.map((item) => item.id === id ? { ...item, status: "cancelled" } : item));
+    setRequests((current) => current.map((item) => (item.id === id ? { ...item, status: "cancelled" } : item)));
     setMessage("הבקשה בוטלה.");
   }
 
-  return <section className="template-form-card availability-leave-card-v2">
-    <div>
-      <p className="eyebrow">Time Off</p>
-      <h2>חופשה ומחלה</h2>
-    </div>
-    <p className="auth-secondary">שולחים בקשה למנהל. רק לאחר אישור היא תחסום שיבוץ אוטומטית בבניית הסידור.</p>
+  return (
+    <section className="template-form-card availability-leave-card-v2">
+      <div>
+        <p className="eyebrow">Time Off</p>
+        <h2>חופשה ומחלה</h2>
+      </div>
+      <p className="auth-secondary">שולחים בקשה למנהל. רק לאחר אישור היא תחסום שיבוץ אוטומטית בבניית הסידור.</p>
 
-    <div className="form-pair">
-      <label className="field">
-        <span>סוג היעדרות</span>
-        <select className="input" value={form.leaveType} onChange={(event) => setForm((current) => ({ ...current, leaveType: event.target.value as LeaveType }))}>
-          {Object.entries(leaveTypeLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
-        </select>
-      </label>
-      <label className="field">
-        <span>הערה אופציונלית</span>
-        <input className="input" value={form.note} onChange={(event) => setForm((current) => ({ ...current, note: event.target.value }))} placeholder="לדוגמה: חופשה משפחתית" />
-      </label>
-    </div>
+      <div className="form-pair">
+        <label className="field">
+          <span>סוג היעדרות</span>
+          <select
+            className="input"
+            value={form.leaveType}
+            onChange={(event) => setForm((current) => ({ ...current, leaveType: event.target.value as LeaveType }))}
+          >
+            {Object.entries(leaveTypeLabels).map(([value, label]) => (
+              <option key={value} value={value}>
+                {label}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="field">
+          <span>הערה אופציונלית</span>
+          <input
+            className="input"
+            value={form.note}
+            onChange={(event) => setForm((current) => ({ ...current, note: event.target.value }))}
+            placeholder="לדוגמה: חופשה משפחתית"
+          />
+        </label>
+      </div>
 
-    <div className="form-pair">
-      <label className="field"><span>מתאריך</span><input className="input" type="date" value={form.startDate} onChange={(event) => setForm((current) => ({ ...current, startDate: event.target.value }))} /></label>
-      <label className="field"><span>עד תאריך</span><input className="input" type="date" value={form.endDate} onChange={(event) => setForm((current) => ({ ...current, endDate: event.target.value }))} /></label>
-    </div>
+      <div className="form-pair">
+        <label className="field">
+          <span>מתאריך</span>
+          <input
+            className="input"
+            type="date"
+            value={form.startDate}
+            onChange={(event) => setForm((current) => ({ ...current, startDate: event.target.value }))}
+          />
+        </label>
+        <label className="field">
+          <span>עד תאריך</span>
+          <input
+            className="input"
+            type="date"
+            value={form.endDate}
+            onChange={(event) => setForm((current) => ({ ...current, endDate: event.target.value }))}
+          />
+        </label>
+      </div>
 
-    <button className="button primary" disabled={busy === "create"} onClick={() => void submitRequest()}>
-      {busy === "create" ? <Loader2 className="spin" size={17} /> : <Palmtree size={17} />} שליחת בקשה לאישור
-    </button>
-    <StatusMessage message={message} kind={kind} />
+      <button className="button primary" disabled={busy === "create"} onClick={() => void submitRequest()}>
+        {busy === "create" ? <Loader2 className="spin" size={17} /> : <Palmtree size={17} />} שליחת בקשה לאישור
+      </button>
+      <StatusMessage message={message} kind={kind} />
 
-    {requests.length ? <div className="template-list">
-      {requests.map((request) => <article className="template-item" key={request.id}>
-        <div className="template-main">
-          <strong>{leaveTypeLabels[request.leave_type]}</strong>
-          <span>{new Date(`${request.start_date}T12:00:00`).toLocaleDateString("he-IL")} – {new Date(`${request.end_date}T12:00:00`).toLocaleDateString("he-IL")}{request.note ? ` · ${request.note}` : ""}</span>
-          <span className={`badge ${request.status === "approved" ? "opening" : request.status === "pending" ? "warning" : "critical"}`}>{statusIcon(request.status)} {statusLabels[request.status]}</span>
-          {request.manager_note ? <small>הערת מנהל: {request.manager_note}</small> : null}
+      {requests.length ? (
+        <div className="template-list">
+          {requests.map((request) => (
+            <article className="template-item" key={request.id}>
+              <div className="template-main">
+                <strong>{leaveTypeLabels[request.leave_type]}</strong>
+                <span>
+                  {new Date(`${request.start_date}T12:00:00`).toLocaleDateString("he-IL")} –{" "}
+                  {new Date(`${request.end_date}T12:00:00`).toLocaleDateString("he-IL")}
+                  {request.note ? ` · ${request.note}` : ""}
+                </span>
+                <span
+                  className={`badge ${request.status === "approved" ? "opening" : request.status === "pending" ? "warning" : "critical"}`}
+                >
+                  {statusIcon(request.status)} {statusLabels[request.status]}
+                </span>
+                {request.manager_note ? <small>הערת מנהל: {request.manager_note}</small> : null}
+              </div>
+              {request.status === "pending" || request.status === "approved" ? (
+                <button
+                  className="button danger"
+                  disabled={busy === request.id}
+                  onClick={() => void cancelRequest(request.id)}
+                >
+                  {busy === request.id ? <Loader2 className="spin" size={15} /> : <XCircle size={15} />} ביטול
+                </button>
+              ) : null}
+            </article>
+          ))}
         </div>
-        {(request.status === "pending" || request.status === "approved") ? <button className="button danger" disabled={busy === request.id} onClick={() => void cancelRequest(request.id)}>
-          {busy === request.id ? <Loader2 className="spin" size={15} /> : <XCircle size={15} />} ביטול
-        </button> : null}
-      </article>)}
-    </div> : null}
-  </section>;
+      ) : null}
+    </section>
+  );
 }

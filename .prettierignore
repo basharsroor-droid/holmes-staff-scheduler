@@ -1,0 +1,8 @@
+# F2 (docs/REMEDIATION_PLAN.md): formatting is enforced on app/workspace first.
+# Everything else keeps its current formatting until it's brought in on purpose.
+node_modules
+.next
+coverage
+test-results
+playwright-report
+types/database.ts

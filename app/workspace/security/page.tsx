@@ -10,7 +10,9 @@ export const dynamic = "force-dynamic";
 
 export default async function WorkspaceSecurityPage() {
   const supabase = await createSupabaseServerClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user }
+  } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
   const { data: membership } = await supabase
@@ -22,16 +24,22 @@ export default async function WorkspaceSecurityPage() {
     .maybeSingle();
   if (!membership) redirect("/onboarding");
 
-  return <main className="workspace-home" dir="rtl">
-    <header className="workspace-subheader">
-      <div>
-        <Link href="/workspace" className="back-link"><ArrowRight size={17} /> חזרה לסביבת העבודה</Link>
-        <p className="eyebrow">חשבון אישי</p>
-        <h1><ShieldCheck /> אבטחת חשבון</h1>
-        <p>ניהול אימות דו-שלבי לחשבון שלך. זו הגדרה אישית — לא משפיעה על שאר חברי הצוות.</p>
-      </div>
-    </header>
-    <SecuritySettings />
-    <DeleteAccount />
-  </main>;
+  return (
+    <main className="workspace-home" dir="rtl">
+      <header className="workspace-subheader">
+        <div>
+          <Link href="/workspace" className="back-link">
+            <ArrowRight size={17} /> חזרה לסביבת העבודה
+          </Link>
+          <p className="eyebrow">חשבון אישי</p>
+          <h1>
+            <ShieldCheck /> אבטחת חשבון
+          </h1>
+          <p>ניהול אימות דו-שלבי לחשבון שלך. זו הגדרה אישית — לא משפיעה על שאר חברי הצוות.</p>
+        </div>
+      </header>
+      <SecuritySettings />
+      <DeleteAccount />
+    </main>
+  );
 }

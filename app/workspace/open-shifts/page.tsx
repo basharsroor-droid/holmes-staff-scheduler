@@ -15,7 +15,9 @@ type OpenShiftRequestSummary = {
 
 export default async function OpenShiftsPage() {
   const supabase = await createSupabaseServerClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user }
+  } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
   const { data: membership } = await supabase
@@ -33,27 +35,78 @@ export default async function OpenShiftsPage() {
     .eq("membership_id", membership.id);
   const departmentIds = (departmentMemberships ?? []).map((item) => item.department_id);
   if (!departmentIds.length) {
-    return <main className="workspace-home" dir="rtl"><header className="workspace-subheader"><div><Link href="/workspace" className="back-link"><ArrowRight size={17} /> חזרה לסביבת העבודה</Link><p className="eyebrow">Open Shifts</p><h1><CalendarPlus /> משמרות פתוחות</h1><p>אין לך כרגע שיוך למחלקה פעילה.</p></div></header><OpenShiftsClient initialShifts={[]} /></main>;
+    return (
+      <main className="workspace-home" dir="rtl">
+        <header className="workspace-subheader">
+          <div>
+            <Link href="/workspace" className="back-link">
+              <ArrowRight size={17} /> חזרה לסביבת העבודה
+            </Link>
+            <p className="eyebrow">Open Shifts</p>
+            <h1>
+              <CalendarPlus /> משמרות פתוחות
+            </h1>
+            <p>אין לך כרגע שיוך למחלקה פעילה.</p>
+          </div>
+        </header>
+        <OpenShiftsClient initialShifts={[]} />
+      </main>
+    );
   }
 
   const [{ data: organization }, { data: periods }] = await Promise.all([
     supabase.from("organizations").select("name, pilot_mode").eq("id", membership.organization_id).single(),
-    supabase.from("schedule_periods").select("id, branch_id, department_id").eq("organization_id", membership.organization_id).eq("status", "published").in("department_id", departmentIds)
+    supabase
+      .from("schedule_periods")
+      .select("id, branch_id, department_id")
+      .eq("organization_id", membership.organization_id)
+      .eq("status", "published")
+      .in("department_id", departmentIds)
   ]);
   if (!organization) redirect("/workspace");
   if (organization.pilot_mode) {
-    return <main className="workspace-home" dir="rtl"><header className="workspace-subheader"><div><Link href="/workspace" className="back-link"><ArrowRight size={17} /> חזרה לסביבת העבודה</Link><p className="eyebrow">{organization.name} · פיילוט ראשון</p><h1><CalendarPlus /> משמרות פתוחות</h1><p>Shift Marketplace עדיין לא פעיל בשלב הפיילוט. אם יש משמרת שצריך לאייש, פנו למנהל ישירות.</p></div></header></main>;
+    return (
+      <main className="workspace-home" dir="rtl">
+        <header className="workspace-subheader">
+          <div>
+            <Link href="/workspace" className="back-link">
+              <ArrowRight size={17} /> חזרה לסביבת העבודה
+            </Link>
+            <p className="eyebrow">{organization.name} · פיילוט ראשון</p>
+            <h1>
+              <CalendarPlus /> משמרות פתוחות
+            </h1>
+            <p>Shift Marketplace עדיין לא פעיל בשלב הפיילוט. אם יש משמרת שצריך לאייש, פנו למנהל ישירות.</p>
+          </div>
+        </header>
+      </main>
+    );
   }
 
   const periodIds = (periods ?? []).map((item) => item.id);
   const { data: shifts } = periodIds.length
-    ? await supabase.from("shifts").select("id, schedule_period_id, shift_date, name, start_time, end_time, required_employees, open_for_requests").in("schedule_period_id", periodIds).eq("status", "published").eq("open_for_requests", true).order("shift_date").order("start_time")
+    ? await supabase
+        .from("shifts")
+        .select("id, schedule_period_id, shift_date, name, start_time, end_time, required_employees, open_for_requests")
+        .in("schedule_period_id", periodIds)
+        .eq("status", "published")
+        .eq("open_for_requests", true)
+        .order("shift_date")
+        .order("start_time")
     : { data: [] };
 
   const shiftIds = (shifts ?? []).map((item) => item.id);
   const [{ data: assignments }, { data: requests }] = await Promise.all([
-    shiftIds.length ? supabase.from("shift_assignments").select("shift_id").in("shift_id", shiftIds) : Promise.resolve({ data: [] }),
-    shiftIds.length ? supabase.from("open_shift_requests").select("id, shift_id, status").eq("user_id", user.id).in("shift_id", shiftIds) : Promise.resolve({ data: [] })
+    shiftIds.length
+      ? supabase.from("shift_assignments").select("shift_id").in("shift_id", shiftIds)
+      : Promise.resolve({ data: [] }),
+    shiftIds.length
+      ? supabase
+          .from("open_shift_requests")
+          .select("id, shift_id, status")
+          .eq("user_id", user.id)
+          .in("shift_id", shiftIds)
+      : Promise.resolve({ data: [] })
   ]);
 
   const periodMap = new Map((periods ?? []).map((item) => [item.id, item]));
@@ -68,7 +121,8 @@ export default async function OpenShiftsPage() {
     ((requests ?? []) as OpenShiftRequestSummary[]).map((item) => [item.shift_id, item])
   );
   const assignmentCounts = new Map<string, number>();
-  for (const assignment of assignments ?? []) assignmentCounts.set(assignment.shift_id, (assignmentCounts.get(assignment.shift_id) ?? 0) + 1);
+  for (const assignment of assignments ?? [])
+    assignmentCounts.set(assignment.shift_id, (assignmentCounts.get(assignment.shift_id) ?? 0) + 1);
 
   const openShifts = (shifts ?? [])
     .filter((shift) => (assignmentCounts.get(shift.id) ?? 0) < shift.required_employees)
@@ -89,13 +143,21 @@ export default async function OpenShiftsPage() {
       };
     });
 
-  return <main className="workspace-home" dir="rtl">
-    <header className="workspace-subheader"><div>
-      <Link href="/workspace" className="back-link"><ArrowRight size={17} /> חזרה לסביבת העבודה</Link>
-      <p className="eyebrow">{organization.name}</p>
-      <h1><CalendarPlus /> משמרות פתוחות</h1>
-      <p>בחרו משמרת פתוחה, שלחו בקשה והמנהל יאשר לפני שהסידור יתעדכן.</p>
-    </div></header>
-    <OpenShiftsClient initialShifts={openShifts} />
-  </main>;
+  return (
+    <main className="workspace-home" dir="rtl">
+      <header className="workspace-subheader">
+        <div>
+          <Link href="/workspace" className="back-link">
+            <ArrowRight size={17} /> חזרה לסביבת העבודה
+          </Link>
+          <p className="eyebrow">{organization.name}</p>
+          <h1>
+            <CalendarPlus /> משמרות פתוחות
+          </h1>
+          <p>בחרו משמרת פתוחה, שלחו בקשה והמנהל יאשר לפני שהסידור יתעדכן.</p>
+        </div>
+      </header>
+      <OpenShiftsClient initialShifts={openShifts} />
+    </main>
+  );
 }

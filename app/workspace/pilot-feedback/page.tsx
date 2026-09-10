@@ -4,6 +4,7 @@ import { ArrowRight, MessageSquareText } from "lucide-react";
 
 import { SupportClient } from "@/app/workspace/support/support-client";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { SUPPORT_TICKET_COLUMNS } from "@/lib/support-ticket-columns";
 
 export const dynamic = "force-dynamic";
 
@@ -39,7 +40,9 @@ function feedbackTemplate(role: string) {
 
 export default async function PilotFeedbackPage() {
   const supabase = await createSupabaseServerClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user }
+  } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
   const { data: membership } = await supabase
@@ -51,38 +54,53 @@ export default async function PilotFeedbackPage() {
     .maybeSingle();
   if (!membership) redirect("/workspace");
 
-  const { data: organization } = await supabase.from("organizations").select("name").eq("id", membership.organization_id).single();
+  const { data: organization } = await supabase
+    .from("organizations")
+    .select("name")
+    .eq("id", membership.organization_id)
+    .single();
   if (!organization) redirect("/workspace");
 
-  const { data: tickets } = await supabase.from("support_tickets")
-    .select("id, organization_id, organization_name, created_by, category, priority, subject, description, status, resolution_note, assigned_to, created_at, updated_at, first_responded_at, resolved_at, reopened_count")
+  const { data: tickets } = await supabase
+    .from("support_tickets")
+    .select(SUPPORT_TICKET_COLUMNS)
     .eq("created_by", user.id)
     .order("created_at", { ascending: false })
     .limit(100);
 
   const isEmployee = membership.role === "employee";
-  const subject = isEmployee ? "[Pilot Feedback] משוב עובד — המחזור הראשון" : "[Pilot Feedback] משוב מנהל — המחזור הראשון";
+  const subject = isEmployee
+    ? "[Pilot Feedback] משוב עובד — המחזור הראשון"
+    : "[Pilot Feedback] משוב מנהל — המחזור הראשון";
 
-  return <main className="workspace-home" dir="rtl">
-    <header className="workspace-subheader"><div>
-      <Link href={isEmployee ? "/workspace" : "/workspace/pilot-launch"} className="back-link"><ArrowRight size={17} /> חזרה</Link>
-      <p className="eyebrow">{organization.name} · פיילוט ראשון</p>
-      <h1><MessageSquareText /> משוב על המחזור הראשון</h1>
-      <p>המשוב נשמר כפנייה מסודרת במרכז התמיכה כדי שנוכל לעקוב, לתעד החלטות ולסגור שיפורים לפני הרחבת הפיילוט.</p>
-    </div></header>
+  return (
+    <main className="workspace-home" dir="rtl">
+      <header className="workspace-subheader">
+        <div>
+          <Link href={isEmployee ? "/workspace" : "/workspace/pilot-launch"} className="back-link">
+            <ArrowRight size={17} /> חזרה
+          </Link>
+          <p className="eyebrow">{organization.name} · פיילוט ראשון</p>
+          <h1>
+            <MessageSquareText /> משוב על המחזור הראשון
+          </h1>
+          <p>המשוב נשמר כפנייה מסודרת במרכז התמיכה כדי שנוכל לעקוב, לתעד החלטות ולסגור שיפורים לפני הרחבת הפיילוט.</p>
+        </div>
+      </header>
 
-    <SupportClient
-      organizationId={membership.organization_id}
-      currentUserId={user.id}
-      canManage={false}
-      initialTickets={tickets ?? []}
-      initialCategory="feature"
-      initialPriority="normal"
-      initialSubject={subject}
-      initialDescription={feedbackTemplate(membership.role)}
-      createEyebrow="משוב פיילוט"
-      createHeading={isEmployee ? "איך היה המחזור הראשון מבחינתך?" : "איך עבר מחזור הסידור הראשון?"}
-      descriptionLabel="המשוב שלך"
-    />
-  </main>;
+      <SupportClient
+        organizationId={membership.organization_id}
+        currentUserId={user.id}
+        canManage={false}
+        initialTickets={tickets ?? []}
+        initialCategory="feature"
+        initialPriority="normal"
+        initialSubject={subject}
+        initialDescription={feedbackTemplate(membership.role)}
+        createEyebrow="משוב פיילוט"
+        createHeading={isEmployee ? "איך היה המחזור הראשון מבחינתך?" : "איך עבר מחזור הסידור הראשון?"}
+        descriptionLabel="המשוב שלך"
+      />
+    </main>
+  );
 }

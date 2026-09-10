@@ -63,28 +63,30 @@ export function PushNotificationPermission() {
       return;
     }
 
-    void PushNotifications.checkPermissions().then(async ({ receive }) => {
-      if (receive !== "granted") {
-        if (!cancelled) setState(receive === "denied" ? "denied" : "prompt");
-        return;
-      }
+    void PushNotifications.checkPermissions()
+      .then(async ({ receive }) => {
+        if (receive !== "granted") {
+          if (!cancelled) setState(receive === "denied" ? "denied" : "prompt");
+          return;
+        }
 
-      setBusy(true);
-      try {
-        await registerDevice();
-        if (!cancelled) {
-          setState("granted");
-          setMessage("ההתראות פעילות והמכשיר רשום לקבלת עדכונים.");
+        setBusy(true);
+        try {
+          await registerDevice();
+          if (!cancelled) {
+            setState("granted");
+            setMessage("ההתראות פעילות והמכשיר רשום לקבלת עדכונים.");
+          }
+        } catch {
+          if (!cancelled) {
+            setState("prompt");
+            setMessage("ההרשאה פעילה, אך רישום המכשיר נכשל. לחצו כדי לנסות שוב.");
+          }
+        } finally {
+          if (!cancelled) setBusy(false);
         }
-      } catch {
-        if (!cancelled) {
-          setState("prompt");
-          setMessage("ההרשאה פעילה, אך רישום המכשיר נכשל. לחצו כדי לנסות שוב.");
-        }
-      } finally {
-        if (!cancelled) setBusy(false);
-      }
-    }).catch(() => setState("unavailable"));
+      })
+      .catch(() => setState("unavailable"));
 
     return () => {
       cancelled = true;
@@ -119,7 +121,9 @@ export function PushNotificationPermission() {
       <div className="template-list-heading notification-preferences-heading">
         <div>
           <p className="eyebrow">עדכונים בזמן אמת</p>
-          <h2 id="push-permission-title"><Smartphone size={20} /> התראות במכשיר</h2>
+          <h2 id="push-permission-title">
+            <Smartphone size={20} /> התראות במכשיר
+          </h2>
         </div>
         <span className={`badge ${state === "granted" ? "success" : state === "denied" ? "danger" : "warning"}`}>
           {state === "granted" ? <Bell size={15} /> : <BellOff size={15} />}
@@ -128,12 +132,21 @@ export function PushNotificationPermission() {
       </div>
       <p>קבלת עדכון כאשר סידור מתפרסם, השיבוץ משתנה, הגשת הזמינות נסגרת או בקשת החלפה מתעדכנת.</p>
       {state !== "granted" ? (
-        <button className="button primary" type="button" disabled={busy || state === "checking"} onClick={() => void enable()}>
+        <button
+          className="button primary"
+          type="button"
+          disabled={busy || state === "checking"}
+          onClick={() => void enable()}
+        >
           {busy ? <Loader2 className="spin" size={16} /> : <Bell size={16} />}
           {busy ? "מפעיל..." : state === "denied" ? "בדיקה מחדש" : "הפעלת התראות"}
         </button>
       ) : null}
-      {message ? <p className="form-message" role="status">{message}</p> : null}
+      {message ? (
+        <p className="form-message" role="status">
+          {message}
+        </p>
+      ) : null}
     </section>
   );
 }

@@ -4,16 +4,24 @@ import { ArrowRight, LifeBuoy, Search } from "lucide-react";
 
 import { SupportClient } from "@/app/workspace/support/support-client";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { SUPPORT_TICKET_COLUMNS } from "@/lib/support-ticket-columns";
 
 export const dynamic = "force-dynamic";
 
 export default async function SupportPage() {
   const supabase = await createSupabaseServerClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user }
+  } = await supabase.auth.getUser();
   if (!user) redirect("/login");
 
-  const { data: membership } = await supabase.from("organization_memberships")
-    .select("organization_id, role").eq("user_id", user.id).eq("status", "active").limit(1).maybeSingle();
+  const { data: membership } = await supabase
+    .from("organization_memberships")
+    .select("organization_id, role")
+    .eq("user_id", user.id)
+    .eq("status", "active")
+    .limit(1)
+    .maybeSingle();
   if (!membership) redirect("/workspace");
 
   const [{ data: organization }, { data: supportAgent }] = await Promise.all([
@@ -21,22 +29,42 @@ export default async function SupportPage() {
     supabase.from("platform_support_agents").select("user_id").eq("user_id", user.id).maybeSingle()
   ]);
   if (!organization) redirect("/workspace");
-  const ticketsQuery = supabase.from("support_tickets")
-    .select("id, organization_id, organization_name, created_by, category, priority, subject, description, status, resolution_note, assigned_to, created_at, updated_at, first_responded_at, resolved_at, reopened_count")
-    .order("created_at", { ascending: false }).limit(100);
+  const ticketsQuery = supabase
+    .from("support_tickets")
+    .select(SUPPORT_TICKET_COLUMNS)
+    .order("created_at", { ascending: false })
+    .limit(100);
   const { data: tickets } = supportAgent ? await ticketsQuery : await ticketsQuery.eq("created_by", user.id);
 
-  return <main className="workspace-home" dir="rtl">
-    <header className="workspace-subheader"><div>
-      <Link href="/workspace" className="back-link"><ArrowRight size={17} /> חזרה לסביבת העסק</Link>
-      <p className="eyebrow">{organization.name} · עזרה ושירות</p>
-      <h1><LifeBuoy /> מרכז תמיכה</h1>
-      <p>פותחים פנייה מסודרת, מציינים את רמת הדחיפות ועוקבים אחר הטיפול במקום אחד.</p>
-    </div></header>
-    {!supportAgent ? <Link href="/workspace/help" className="help-callout">
-      <Search size={18} /><span><strong>לפני שפותחים פנייה</strong><small>הרבה תקלות נפוצות אפשר לפתור לבד תוך דקה — כדאי להעיף מבט במרכז העזרה.</small></span>
-    </Link> : null}
-    <SupportClient organizationId={membership.organization_id} currentUserId={user.id}
-      canManage={Boolean(supportAgent)} initialTickets={tickets ?? []} />
-  </main>;
+  return (
+    <main className="workspace-home" dir="rtl">
+      <header className="workspace-subheader">
+        <div>
+          <Link href="/workspace" className="back-link">
+            <ArrowRight size={17} /> חזרה לסביבת העסק
+          </Link>
+          <p className="eyebrow">{organization.name} · עזרה ושירות</p>
+          <h1>
+            <LifeBuoy /> מרכז תמיכה
+          </h1>
+          <p>פותחים פנייה מסודרת, מציינים את רמת הדחיפות ועוקבים אחר הטיפול במקום אחד.</p>
+        </div>
+      </header>
+      {!supportAgent ? (
+        <Link href="/workspace/help" className="help-callout">
+          <Search size={18} />
+          <span>
+            <strong>לפני שפותחים פנייה</strong>
+            <small>הרבה תקלות נפוצות אפשר לפתור לבד תוך דקה — כדאי להעיף מבט במרכז העזרה.</small>
+          </span>
+        </Link>
+      ) : null}
+      <SupportClient
+        organizationId={membership.organization_id}
+        currentUserId={user.id}
+        canManage={Boolean(supportAgent)}
+        initialTickets={tickets ?? []}
+      />
+    </main>
+  );
 }

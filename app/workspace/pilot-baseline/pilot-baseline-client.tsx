@@ -9,7 +9,24 @@ import type { Database } from "@/types/database";
 type Category = Database["public"]["Enums"]["support_ticket_category"];
 type Priority = Database["public"]["Enums"]["support_ticket_priority"];
 type TicketStatus = Database["public"]["Enums"]["support_ticket_status"];
-type Ticket = { id: string; organization_id: string; organization_name: string; created_by: string; category: Category; priority: Priority; subject: string; description: string; status: TicketStatus; resolution_note: string | null; assigned_to: string | null; created_at: string; updated_at: string; first_responded_at: string | null; resolved_at: string | null; reopened_count: number };
+type Ticket = {
+  id: string;
+  organization_id: string;
+  organization_name: string;
+  created_by: string;
+  category: Category;
+  priority: Priority;
+  subject: string;
+  description: string;
+  status: TicketStatus;
+  resolution_note: string | null;
+  assigned_to: string | null;
+  created_at: string;
+  updated_at: string;
+  first_responded_at: string | null;
+  resolved_at: string | null;
+  reopened_count: number;
+};
 
 type Stage = "before" | "after";
 
@@ -44,34 +61,59 @@ export function PilotBaselineClient({
 }) {
   const [stage, setStage] = useState<Stage>("before");
 
-  return <>
-    <section className="template-list-card">
-      <div className="template-list-heading">
-        <div>
-          <p className="eyebrow">שלב המדידה</p>
-          <h2><Timer size={18} /> לפני או אחרי המחזור?</h2>
-          <p>ענו על &quot;לפני&quot; פעם אחת, לפני שהעובדים מתחילים להשתמש ב-ShiftPilot. ענו על &quot;אחרי&quot; בסוף אותו מחזור סידור. ההשוואה בין השניים היא המספר שמוכיח את הערך.</p>
+  return (
+    <>
+      <section className="template-list-card">
+        <div className="template-list-heading">
+          <div>
+            <p className="eyebrow">שלב המדידה</p>
+            <h2>
+              <Timer size={18} /> לפני או אחרי המחזור?
+            </h2>
+            <p>
+              ענו על &quot;לפני&quot; פעם אחת, לפני שהעובדים מתחילים להשתמש ב-ShiftPilot. ענו על &quot;אחרי&quot; בסוף
+              אותו מחזור סידור. ההשוואה בין השניים היא המספר שמוכיח את הערך.
+            </p>
+          </div>
+          <div className="workspace-actions" style={{ display: "flex", gap: "8px" }}>
+            <button
+              type="button"
+              className={stage === "before" ? "button primary" : "button"}
+              onClick={() => setStage("before")}
+            >
+              לפני
+            </button>
+            <button
+              type="button"
+              className={stage === "after" ? "button primary" : "button"}
+              onClick={() => setStage("after")}
+            >
+              אחרי
+            </button>
+          </div>
         </div>
-        <div className="workspace-actions" style={{ display: "flex", gap: "8px" }}>
-          <button type="button" className={stage === "before" ? "button primary" : "button"} onClick={() => setStage("before")}>לפני</button>
-          <button type="button" className={stage === "after" ? "button primary" : "button"} onClick={() => setStage("after")}>אחרי</button>
-        </div>
-      </div>
-    </section>
+      </section>
 
-    <SupportClient
-      key={stage}
-      organizationId={organizationId}
-      currentUserId={currentUserId}
-      canManage={false}
-      initialTickets={initialTickets}
-      initialCategory="feature"
-      initialPriority="normal"
-      initialSubject={stage === "before" ? "[Pilot Baseline - Before] כמה זמן לוקח סידור היום" : "[Pilot Baseline - After] כמה זמן לקח עם ShiftPilot"}
-      initialDescription={stage === "before" ? beforeTemplate : afterTemplate}
-      createEyebrow="Baseline"
-      createHeading={stage === "before" ? "לפני שמתחילים: איך זה עובד היום?" : "אחרי המחזור: איך זה עבד עם ShiftPilot?"}
-      descriptionLabel="התשובות שלך"
-    />
-  </>;
+      <SupportClient
+        key={stage}
+        organizationId={organizationId}
+        currentUserId={currentUserId}
+        canManage={false}
+        initialTickets={initialTickets}
+        initialCategory="feature"
+        initialPriority="normal"
+        initialSubject={
+          stage === "before"
+            ? "[Pilot Baseline - Before] כמה זמן לוקח סידור היום"
+            : "[Pilot Baseline - After] כמה זמן לקח עם ShiftPilot"
+        }
+        initialDescription={stage === "before" ? beforeTemplate : afterTemplate}
+        createEyebrow="Baseline"
+        createHeading={
+          stage === "before" ? "לפני שמתחילים: איך זה עובד היום?" : "אחרי המחזור: איך זה עבד עם ShiftPilot?"
+        }
+        descriptionLabel="התשובות שלך"
+      />
+    </>
+  );
 }
