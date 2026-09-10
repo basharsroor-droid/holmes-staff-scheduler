@@ -24,7 +24,7 @@ export default defineConfig({
     baseURL,
     // Skips the first-visit intro overlay (site-intro.tsx honours it) so it
     // cannot swallow the first click.
-    reducedMotion: "reduce",
+    contextOptions: { reducedMotion: "reduce" },
     locale: "he-IL",
     timezoneId: "Asia/Jerusalem",
     trace: "retain-on-failure",
