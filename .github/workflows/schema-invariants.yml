@@ -1,0 +1,67 @@
+name: Schema invariants
+
+# D3 in docs/REMEDIATION_PLAN.md. Builds a throwaway database from
+# supabase/migrations/ -- exactly what this PR would produce -- and checks the
+# project's schema rules against it (scripts/schema-invariants.sql). Unlike
+# scripts/validate-supabase-schema.mjs, which string-matches files, this looks
+# at a real catalogue, so it catches a missing RLS flag, an unindexed FK or a
+# per-row auth call the moment a migration introduces one.
+#
+# Needs no credentials: nothing here touches production or staging.
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: schema-invariants-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  invariants:
+    name: Schema invariants (migrations replayed from empty)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      DB_URL: postgresql://postgres:postgres@127.0.0.1:54322/postgres
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Build database from supabase/migrations
+        # Starts only Postgres and applies every migration in order, from the
+        # retroactive baseline (20260101000000) onward. A migration that can't
+        # replay from empty fails here -- itself worth knowing.
+        run: supabase db start
+
+      - name: Check schema invariants
+        run: psql "$DB_URL" -v ON_ERROR_STOP=1 -q -f scripts/schema-invariants.sql
+
+      - name: Self-test -- the check must catch a deliberately broken schema
+        # Adds a table without RLS inside a transaction that is never
+        # committed, and requires the invariant check to fail on it. If this
+        # step ever passes the probe, the gate has stopped testing anything.
+        run: |
+          if psql "$DB_URL" -v ON_ERROR_STOP=1 -q \
+               -c "begin; create table public.__invariant_probe (id int);" \
+               -f scripts/schema-invariants.sql 2> probe.err; then
+            echo "::error::Invariant check did NOT catch a table without RLS"
+            exit 1
+          fi
+          grep -q "table_without_rls: public.__invariant_probe" probe.err \
+            || { echo "::error::Check failed, but not for the planted table:"; cat probe.err; exit 1; }
+          echo "Self-test passed: planted table without RLS was reported."
+
+      - name: Stop database
+        if: always()
+        run: supabase stop --no-backup || true
