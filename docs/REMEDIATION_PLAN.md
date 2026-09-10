@@ -98,10 +98,12 @@
 - **ביצוע:** חילוץ למודול יחיד + unit tests (משמרת חוצת חצות, שבוע שמתחיל בראשון, שעון קיץ); מיגרציה שמחליפה ב-guardrail את `date_trunc('week', d)` ב-`d - extract(dow from d)::int` (שבוע שמתחיל בראשון), כך ש-SQL והדפדפן יגדירו "שבוע" אותו דבר.
 - **קבלה:** 0 הגדרות כפולות; SQL והדפדפן מחזירים את אותה תחילת-שבוע לכל תאריך (טסט על שבת, ראשון ושני); כיסוי unit על חוצת-חצות ומעבר שעון.
 
-**C2 · Timezone של הארגון בחישובי זמן** — `P1` · `S`
-> `new Date(\`${shift.shift_date}T${shift.start_time}\`)` נפרש ב-**local time של הדפדפן**. ל-`organizations` יש עמודת `timezone` שלא בשימוש בקוד הזה. מנהל שנוסע לחו״ל יקבל תוצאות overlap שונות. באג שקט, קשה לשחזור.
-- **ביצוע:** להעביר `organization.timezone` לפאנלים; חישובים ב-TZ של הארגון (`Intl.DateTimeFormat` / `temporal` polyfill)
-- **קבלה:** טסט: אותו סידור, דפדפן ב-`Asia/Jerusalem` מול `America/New_York` → תוצאות זהות. תלוי ב-C1.
+**C2 · חישובי זמן בדפדפן זהים לשרת** — `P1` · `S`
+> `new Date(\`${shift.shift_date}T${shift.start_time}\`)` נפרש ב-**local time של הדפדפן**. מנהל שנוסע לחו״ל, או כל דפדפן בלילה של מעבר שעון, יקבל תוצאות overlap ומנוחה שונות מהשרת. באג שקט, קשה לשחזור.
+>
+> **תיקון לתוכנית (10.9, אחרי קריאת ה-SQL החי):** הכיוון המקורי ("לחשב ב-TZ של הארגון") שגוי. השרת עצמו **לא** עובד ב-TZ: טריגר החפיפה (`check_shift_assignment_overlap`, `tsrange`) וה-guardrail של ה-marketplace מחשבים `shift_date + time` כ-`timestamp without time zone`, כלומר שעון-קיר, בלי אזור זמן ובלי שעון קיץ. חישוב ב-TZ של הארגון היה דווקא **יוצר** אי-התאמה לשרת בלילות מעבר שעון. עמודת `timezone` בשימוש נכון רק במקום שבו רגע אמיתי חשוב: תזמון התראות (`enqueue_scheduled_notifications`, `AT TIME ZONE`).
+- **ביצוע:** `shiftBounds` ב-`lib/shift-time.ts` מפרש תאריך ושעה כ-UTC נאיבי (שעון-קיר), כמו השרת. אין צורך להעביר `timezone` לפאנלים
+- **קבלה:** טסט: אותו סידור, דפדפן ב-`Asia/Jerusalem` מול `America/New_York` → תוצאות זהות, כולל לילות מעבר שעון; משמרת 22:00–06:00 = 8 שעות בכל לילה, כמו `tsrange`. תלוי ב-C1.
 
 **C3 · תיעוד היכן כל חוק עסקי נאכף** — `P2` · `S`
 > **תיקון לסקירה ההנדסית (10.9):** נכתב כאן ש"מנוחה מינימלית" ו"שעות שבועיות" קיימים כ-triggers ב-SQL. **זה לא נכון.** אלה עמודות בלבד (`organization_memberships.weekly_hours_limit`, `organizations.min_rest_hours`). הפונקציה היחידה ב-SQL שאוכפת אותן היא `private.assert_shift_marketplace_eligibility` — כלומר רק כשעובד מבקש משמרת פתוחה. **בשיבוצי מנהל הן מייעצות בלבד** ונבדקות רק בדפדפן. ה-triggers שכן רצים על כל `insert` ל-`shift_assignments` הם שלושה: שיוך למחלקה (`enforce_assignment_department`), חופשה מאושרת (`prevent_assignment_during_approved_leave`), וחפיפה (`shift_assignment_overlap_check`).

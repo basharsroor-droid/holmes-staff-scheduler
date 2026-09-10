@@ -19,7 +19,38 @@ test("shiftHours accepts HH:MM:SS as stored by Postgres", () => {
 test("shiftBounds: overnight end rolls to the next day", () => {
   const { start, end } = shiftBounds(shift("2026-09-13", "22:00", "06:00"));
   assert.equal((end.getTime() - start.getTime()) / 3_600_000, 8);
-  assert.equal(end.getDate(), start.getDate() + 1);
+  assert.equal(end.getUTCDate(), start.getUTCDate() + 1);
+});
+
+test("shiftBounds is wall-clock, like the database's tsrange (C2)", () => {
+  // Israel springs forward at 02:00 on Friday 2026-03-27 and falls back on
+  // Sunday 2026-10-25. The overlap trigger computes shift_date + time as a
+  // timestamp without time zone, so these nights are 8 hours there; the
+  // browser must agree whatever its own time zone is.
+  for (const date of ["2026-03-26", "2026-10-24"]) {
+    const { start, end } = shiftBounds(shift(date, "22:00", "06:00"));
+    assert.equal((end.getTime() - start.getTime()) / 3_600_000, 8, date);
+  }
+  const { start } = shiftBounds(shift("2026-09-13", "08:00:00", "16:00:00"));
+  assert.equal(start.toISOString(), "2026-09-13T08:00:00.000Z");
+});
+
+test("shiftBounds agrees with shiftHours on every shift shape", () => {
+  for (const [from, to] of [["08:00", "16:00"], ["22:00", "06:00"], ["08:00", "08:00"], ["23:30", "00:15"]]) {
+    const s = shift("2026-03-26", from, to);
+    const { start, end } = shiftBounds(s);
+    assert.equal((end.getTime() - start.getTime()) / 3_600_000, shiftHours(s), `${from}-${to}`);
+  }
+});
+
+test("rest gap across a DST night is the same as on any other night", () => {
+  const gap = (date, next) => {
+    const a = shiftBounds(shift(date, "14:00", "22:00"));
+    const b = shiftBounds(shift(next, "06:00", "14:00"));
+    return (b.start.getTime() - a.end.getTime()) / 3_600_000;
+  };
+  assert.equal(gap("2026-03-26", "2026-03-27"), 8);
+  assert.equal(gap("2026-09-13", "2026-09-14"), 8);
 });
 
 test("shiftsOverlap: overlapping, touching and overnight", () => {
