@@ -84,6 +84,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     pathname === "/onboarding" ||
     pathname === "/login" ||
     pathname === "/pricing" ||
+    pathname === "/contact" ||
     pathname === "/demo" ||
     pathname === "/terms" ||
     pathname === "/privacy" ||

@@ -1,9 +1,9 @@
+import { escapeHtml } from "@/lib/html";
 type EmailTemplate = { subject: string; preview: string; heading: string; body: string; cta: string; href: string };
 
 const monthNames = ["ינואר", "פברואר", "מרץ", "אפריל", "מאי", "יוני", "יולי", "אוגוסט", "ספטמבר", "אוקטובר", "נובמבר", "דצמבר"];
 
 function text(value: unknown, fallback = "") { return typeof value === "string" ? value : fallback; }
-function escapeHtml(value: string) { return value.replace(/[&<>"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[character] ?? character); }
 
 export function notificationEmail(templateKey: string, payload: Record<string, unknown>, appUrl: string): EmailTemplate {
   const month = typeof payload.month === "number" ? monthNames[payload.month - 1] : "";

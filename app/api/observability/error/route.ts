@@ -4,6 +4,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 
 import { sendEmail } from "@/lib/email/resend";
+import { escapeHtml } from "@/lib/html";
 import { sanitizeErrorMessage, sanitizeRoute } from "@/lib/observability";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -17,10 +18,6 @@ const payloadSchema = z.object({
   route: z.string().max(250),
   source: z.enum(["route-boundary", "global-boundary", "window-error", "unhandled-rejection"])
 }).strict();
-
-function escapeHtml(value: string) {
-  return value.replace(/[&<>"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[character] ?? character);
-}
 
 function sameOrigin(request: Request) {
   const origin = request.headers.get("origin");

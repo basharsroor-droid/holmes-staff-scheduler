@@ -2471,6 +2471,39 @@ a:focus-visible {
 @media(max-width:760px){.pricing-hero{width:100%;min-height:650px;padding:155px 22px 70px;border-radius:0 0 28px 28px}.pricing-hero h1{font-size:clamp(43px,13vw,62px)}.pricing-hero-lead{font-size:16px}.pricing-hero-actions{align-items:stretch;flex-direction:column;gap:17px}.pricing-text-link{align-self:center}.pricing-trust-row{justify-content:flex-start;display:grid;gap:12px;margin-inline:auto}.pricing-section-heading{grid-template-columns:1fr;gap:16px}.pricing-section{padding-top:72px}.pricing-grid{grid-template-columns:1fr}.pricing-card{padding:28px 22px}.pricing-cycle-wrap{align-items:stretch;flex-direction:column;gap:9px;padding:10px}.pricing-cycle-wrap>span{padding:3px 5px}.pricing-cycle button{flex:1;padding:10px 8px;font-size:13px}.pricing-cycle button em{display:block;margin:3px 0 0;background:transparent;padding:0}.pricing-cycle button.active em{color:#2766c7;background:transparent}.pricing-enterprise{grid-template-columns:auto 1fr;padding:24px 20px}.pricing-enterprise ul,.pricing-enterprise-action{grid-column:1/-1}.pricing-enterprise-action{width:100%}.pricing-addons-grid{grid-template-columns:1fr}.pricing-page .process-timeline{grid-template-columns:1fr}}
 @media(max-width:420px){.pricing-cycle button{font-size:12px}.pricing-card{border-radius:20px}.pricing-head{gap:10px}.pricing-head p{min-height:0}.pricing-plan-index{font-size:23px}}
 
+/* ---- /contact — public lead capture -------------------------------------
+   The marketing site had no unauthenticated way to reach us: every "talk to
+   us" link pointed at /support, the internal console, which redirects an
+   anonymous visitor to /login. See docs/REMEDIATION_PLAN.md (H1).           */
+.contact-page .contact-section{padding-top:150px}
+.contact-grid{display:grid;grid-template-columns:1.25fr .85fr;gap:28px;align-items:start}
+.contact-form{padding:30px 28px;border:1px solid #dce4ee;border-radius:24px;background:#fff;box-shadow:0 15px 45px rgba(26,54,95,.06)}
+.contact-form .field>span{color:#344054;font-size:13px;font-weight:800}
+.contact-form .field>span small{margin-inline-start:5px;color:var(--msoft);font-size:12px;font-weight:600}
+.contact-textarea{min-height:132px;resize:vertical;line-height:1.7}
+.contact-form .button{justify-content:center;min-height:50px}
+.contact-fallback{margin:0;text-align:center;color:var(--msoft);font-size:13px}
+.contact-fallback a{color:#2363c4;font-weight:800}
+.contact-hp{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+.contact-sent{display:grid;justify-items:center;gap:12px;padding:56px 28px;text-align:center;border:1px solid #cdd9ff;border-radius:24px;background:linear-gradient(135deg,#eef3ff,#f4efff)}
+.contact-sent svg{color:#2f83ff}
+.contact-sent h2{margin:0;font-size:26px;letter-spacing:-.03em}
+.contact-sent p{margin:0;color:var(--msoft);line-height:1.7}
+.contact-aside{display:grid;gap:18px}
+.contact-assurances{display:grid;gap:14px;margin:0;padding:24px 22px;list-style:none;border:1px solid #dce4ee;border-radius:22px;background:#fff}
+.contact-assurances li{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:start}
+.contact-assurances svg{margin-top:2px;color:#2366cb;flex:0 0 auto}
+.contact-assurances strong{display:block;font-size:14px}
+.contact-assurances small{display:block;margin-top:3px;color:var(--msoft);font-size:13px;line-height:1.6}
+.contact-alt{display:grid;gap:10px;justify-items:start;padding:24px 22px;border-radius:22px;color:#fff;background:linear-gradient(155deg,#071a38,#103a78)}
+.contact-alt h3{margin:0;font-size:18px}
+.contact-alt p{margin:0;color:#b9c9e2;font-size:13.5px;line-height:1.65}
+.contact-alt .button{margin-top:4px}
+.contact-alt .pricing-text-link{color:#9bdcff}
+@media(max-width:900px){.contact-grid{grid-template-columns:1fr}.contact-page .contact-section{padding-top:120px}}
+@media(max-width:620px){.contact-form{padding:24px 18px}.contact-form .form-pair{grid-template-columns:1fr}}
+
+
 @media(max-width:1050px){.pro-nav-links{display:none}.pro-nav{grid-template-columns:1fr auto}.pro-hero{grid-template-columns:1fr;padding:70px 45px}.product-window{max-width:760px}.process-timeline{grid-template-columns:1fr 1fr}.process-timeline::before{display:none}.process-step{text-align:right;display:flex;gap:14px}.process-step>b{margin:0}.capability-grid{grid-template-columns:1fr 1fr}}
 @media(max-width:760px){.shiftpilot-logo.original img{width:180px}.pro-nav{width:min(calc(100% - 24px),1280px);min-height:80px}.pro-nav-actions .ghost-light{display:none}.pro-hero{width:100%;padding:58px 22px;border-radius:0;min-height:auto}.pro-hero h1{font-size:47px}.pro-hero-actions,.hero-assurances{align-items:stretch;flex-direction:column}.product-window{display:none}.proof-strip{padding:20px 0;justify-content:flex-start;overflow:auto}.proof-strip i{display:none}.proof-strip span{white-space:nowrap}.pro-section{padding:75px 0}.comparison-grid,.role-showcase,.security-section,.faq-section{grid-template-columns:1fr}.process-timeline,.capability-grid{grid-template-columns:1fr}.process-step{align-items:flex-start}.example-table-wrap{overflow-x:auto}.example-table{min-width:760px}.security-section{width:100%;margin:50px 0;padding:55px 22px;border-radius:0}.security-copy h2{font-size:37px}.final-cta>div>div:last-child{align-items:stretch;flex-direction:column}.pro-footer{grid-template-columns:1fr}.pro-footer>div{flex-wrap:wrap}.video-intro video{object-fit:contain;background:#071126}}
 
