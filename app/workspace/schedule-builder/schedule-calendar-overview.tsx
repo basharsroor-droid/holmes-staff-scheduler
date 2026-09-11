@@ -21,6 +21,11 @@ type NavigationPeriod = Period & {
   department_id: string;
 };
 
+type MonthNavigationItem = {
+  month: number;
+  period: NavigationPeriod | null;
+};
+
 const monthNames = [
   "ינואר",
   "פברואר",
@@ -54,6 +59,10 @@ export function ScheduleCalendarOverview({ period }: { period: Period | null }) 
   const today = localTodayKey();
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [navigationPeriods, setNavigationPeriods] = useState<NavigationPeriod[]>([]);
+  const [currentContext, setCurrentContext] = useState<{
+    branchId: string;
+    departmentId: string;
+  } | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -70,6 +79,7 @@ export function ScheduleCalendarOverview({ period }: { period: Period | null }) 
       const current = data.find((item) => item.id === period.id);
       if (!current) return;
 
+      setCurrentContext({ branchId: current.branch_id, departmentId: current.department_id });
       setNavigationPeriods(
         data.filter(
           (item) => item.branch_id === current.branch_id && item.department_id === current.department_id
@@ -103,17 +113,35 @@ export function ScheduleCalendarOverview({ period }: { period: Period | null }) 
 
   if (!period || !calendar) return null;
 
-  const currentNavigationIndex = navigationPeriods.findIndex((item) => item.id === period.id);
-  const previousPeriod = currentNavigationIndex > 0 ? navigationPeriods[currentNavigationIndex - 1] : null;
-  const nextPeriod =
-    currentNavigationIndex >= 0 && currentNavigationIndex < navigationPeriods.length - 1
-      ? navigationPeriods[currentNavigationIndex + 1]
-      : null;
+  const yearMonths: MonthNavigationItem[] = Array.from({ length: 12 }, (_, index) => {
+    const month = index + 1;
+    return {
+      month,
+      period: navigationPeriods.find((item) => item.year === period.year && item.month === month) ?? null
+    };
+  });
 
-  const goToPeriod = (periodId: string) => {
+  const goToMonth = (month: number) => {
+    const existing = yearMonths.find((item) => item.month === month)?.period;
     setSelectedDate(null);
-    router.push(`/workspace/schedule-builder?period=${periodId}`);
+    if (existing) {
+      router.push(`/workspace/schedule-builder?period=${existing.id}`);
+      return;
+    }
+    if (!currentContext) return;
+
+    const params = new URLSearchParams({
+      year: String(period.year),
+      month: String(month),
+      branch: currentContext.branchId,
+      department: currentContext.departmentId,
+      return: "schedule-builder"
+    });
+    router.push(`/workspace/work-months?${params.toString()}`);
   };
+
+  const previousMonth = period.month > 1 ? period.month - 1 : null;
+  const nextMonth = period.month < 12 ? period.month + 1 : null;
 
   const effectiveSelectedDate =
     selectedDate ??
@@ -136,12 +164,12 @@ export function ScheduleCalendarOverview({ period }: { period: Period | null }) 
         <span className={styles.holidayLegend}>חגים ומועדים בישראל מסומנים בלוח</span>
       </div>
 
-      <div className={styles.monthNavigation} aria-label="ניווט בין חודשי הסידור">
+      <div className={styles.monthNavigation} aria-label="ניווט בין חודשי השנה">
         <button
           type="button"
           className={styles.monthNavButton}
-          disabled={!previousPeriod}
-          onClick={() => previousPeriod && goToPeriod(previousPeriod.id)}
+          disabled={!previousMonth || !currentContext}
+          onClick={() => previousMonth && goToMonth(previousMonth)}
           aria-label="לחודש הקודם"
         >
           <ChevronRight size={18} />
@@ -151,28 +179,23 @@ export function ScheduleCalendarOverview({ period }: { period: Period | null }) 
         <select
           className={styles.monthSelect}
           aria-label="בחירת חודש"
-          value={period.id}
-          onChange={(event) => goToPeriod(event.target.value)}
-          disabled={!navigationPeriods.length}
+          value={period.month}
+          onChange={(event) => goToMonth(Number(event.target.value))}
+          disabled={!currentContext}
         >
-          {navigationPeriods.length ? (
-            navigationPeriods.map((item) => (
-              <option value={item.id} key={item.id}>
-                {monthNames[item.month - 1]} {item.year}
-              </option>
-            ))
-          ) : (
-            <option value={period.id}>
-              {monthNames[period.month - 1]} {period.year}
+          {yearMonths.map((item) => (
+            <option value={item.month} key={item.month}>
+              {monthNames[item.month - 1]} {period.year}
+              {item.period ? "" : " · טרם נפתח"}
             </option>
-          )}
+          ))}
         </select>
 
         <button
           type="button"
           className={styles.monthNavButton}
-          disabled={!nextPeriod}
-          onClick={() => nextPeriod && goToPeriod(nextPeriod.id)}
+          disabled={!nextMonth || !currentContext}
+          onClick={() => nextMonth && goToMonth(nextMonth)}
           aria-label="לחודש הבא"
         >
           <span>הבא</span>
