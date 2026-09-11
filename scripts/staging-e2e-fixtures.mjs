@@ -15,10 +15,33 @@ if (url.includes("forstsmvakpsreffdiwb")) throw new Error("Refusing to operate o
 
 const admin = createClient(url, secret, { auth: { autoRefreshToken: false, persistSession: false } });
 
+function describeError(error) {
+  const parts = [error.message || error.name || "unknown error"];
+  if (error.status) parts.push(`status ${error.status}`);
+  if (error.code) parts.push(`code ${error.code}`);
+  return parts.join(", ");
+}
+
 async function must(promise, label) {
   const result = await promise;
-  if (result.error) throw new Error(`${label}: ${result.error.message}`);
+  if (result.error) throw new Error(`${label}: ${describeError(result.error)}`);
   return result.data;
+}
+
+// Supabase auth on staging occasionally fails transiently: a network error or
+// timeout that arrives with an empty message and no HTTP status. Retry those
+// (and 5xx) a couple of times; a real rejection (4xx) still fails at once.
+async function mustRetry(run, label, attempts = 3) {
+  for (let attempt = 1; ; attempt++) {
+    const result = await run();
+    if (!result.error) return result.data;
+    const retryable =
+      !result.error.status || result.error.status >= 500 || result.error.name === "AuthRetryableFetchError";
+    if (!retryable || attempt >= attempts)
+      throw new Error(`${label}: ${describeError(result.error)}${attempt > 1 ? ` (after ${attempt} attempts)` : ""}`);
+    console.warn(`${label}: ${describeError(result.error)} -- retrying (${attempt}/${attempts - 1})`);
+    await new Promise((resolve) => setTimeout(resolve, 2000 * attempt));
+  }
 }
 
 async function cleanupFixture(fixture) {
@@ -51,7 +74,7 @@ let organizationId = null;
 
 try {
   const createUser = async (email, firstName, lastName) => {
-    const data = await must(admin.auth.admin.createUser({ email, password, email_confirm: true, user_metadata: { first_name: firstName, last_name: lastName } }), `create user ${email}`);
+    const data = await mustRetry(() => admin.auth.admin.createUser({ email, password, email_confirm: true, user_metadata: { first_name: firstName, last_name: lastName } }), `create user ${email}`);
     createdUsers.push(data.user.id);
     await must(admin.from("profiles").upsert({ id: data.user.id, first_name: firstName, last_name: lastName }), `profile ${email}`);
     return data.user.id;
@@ -97,7 +120,7 @@ try {
   // guards reject any availability write without an authenticated user who
   // owns the submission (the service key has no user).
   const employeeClient = createClient(url, publishableKey, { auth: { autoRefreshToken: false, persistSession: false } });
-  await must(employeeClient.auth.signInWithPassword({ email: employeeEmail, password }), "sign in as employee");
+  await mustRetry(() => employeeClient.auth.signInWithPassword({ email: employeeEmail, password }), "sign in as employee");
   const availabilitySubmission = await must(employeeClient.from("availability_submissions").insert({
     organization_id: organizationId,
     schedule_period_id: period.id,
