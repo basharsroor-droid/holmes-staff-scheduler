@@ -122,7 +122,8 @@ export function EmployeeHolidayCalendar({
         >
           {periods.map((item) => (
             <option value={item.id} key={item.id}>
-              {monthNames[item.month - 1]} {item.year} · {branches.find((branch) => branch.id === item.branch_id)?.name ?? "סניף"}
+              {monthNames[item.month - 1]} {item.year} ·{" "}
+              {branches.find((branch) => branch.id === item.branch_id)?.name ?? "סניף"}
             </option>
           ))}
         </select>
@@ -148,9 +149,13 @@ export function EmployeeHolidayCalendar({
           return (
             <button
               type="button"
-              className={`${styles.dayCell} ${holiday ? styles.holidayDay : ""} ${key === today ? styles.today : ""} ${effectiveSelectedDate === key ? styles.selected : ""}`}
+              className={`${styles.dayCell} ${holiday ? styles.holidayDay : ""} ${
+                key === today ? styles.today : ""
+              } ${effectiveSelectedDate === key ? styles.selected : ""}`}
               onClick={() => setSelectedDate(key)}
-              aria-label={`${day} ${monthNames[period.month - 1]}${holiday ? `, ${holiday.label}` : ""}${dayShifts.length ? `, ${dayShifts.length} משמרות` : ""}`}
+              aria-label={`${day} ${monthNames[period.month - 1]}${holiday ? `, ${holiday.label}` : ""}${
+                dayShifts.length ? `, ${dayShifts.length} משמרות` : ""
+              }`}
               key={key}
             >
               <span className={styles.dayNumber}>{day}</span>
