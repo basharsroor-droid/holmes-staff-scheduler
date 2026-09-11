@@ -2,13 +2,15 @@
 
 import { useCallback, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { CheckCircle2, Loader2, RefreshCw, ShieldCheck, Wrench } from "lucide-react";
+import { Loader2, RefreshCw, ShieldCheck, Wrench } from "lucide-react";
 
 import {
   useScheduleData,
   type ScheduleAssignment,
   type ScheduleShift
 } from "@/app/workspace/schedule-builder/schedule-data";
+import { StatusMessage } from "@/components/workspace/status-message";
+import { useStatusMessage } from "@/lib/hooks/use-status-message";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { isPresent } from "@/lib/utils";
 import { shiftBounds, shiftHours, shiftsOverlap, weekStartKey } from "@/lib/shift-time";
@@ -63,7 +65,7 @@ export function FixMySchedulePanel({
   const [actions, setActions] = useState<RepairAction[]>([]);
   const [unresolved, setUnresolved] = useState(0);
   const [busy, setBusy] = useState<"apply" | "">("");
-  const [message, setMessage] = useState("");
+  const { message, kind, setMessage } = useStatusMessage();
 
   const workerName = useCallback(
     (userId: string) => {
@@ -84,7 +86,7 @@ export function FixMySchedulePanel({
     const period = periods.find((p) => p.id === selectedPeriodId);
     if (!period) return;
     if (period.status === "published") {
-      setMessage("Fix My Schedule עובד על טיוטה בלבד. יש לבטל פרסום לפני שינוי שיבוצים.");
+      setMessage("Fix My Schedule עובד על טיוטה בלבד. יש לבטל פרסום לפני שינוי שיבוצים.", "error");
       return;
     }
 
@@ -264,7 +266,7 @@ export function FixMySchedulePanel({
     const period = periods.find((p) => p.id === selectedPeriodId);
     if (!period || period.status === "published") {
       setActions([]);
-      setMessage("לא ניתן להחיל Fix My Schedule על סידור שפורסם. יש לבטל פרסום ולבנות תוכנית מחדש.");
+      setMessage("לא ניתן להחיל Fix My Schedule על סידור שפורסם. יש לבטל פרסום ולבנות תוכנית מחדש.", "error");
       return;
     }
     if (!window.confirm(`להחיל ${actions.length} פעולות תיקון על הטיוטה? הפעולה אינה מפרסמת את הסידור.`)) return;
@@ -285,7 +287,7 @@ export function FixMySchedulePanel({
     if (!currentPeriod || currentPeriod.status === "published") {
       setBusy("");
       setActions([]);
-      setMessage("התקופה פורסמה מאז יצירת התוכנית. לא בוצע שינוי; בטל פרסום ובנה תוכנית מחדש.");
+      setMessage("התקופה פורסמה מאז יצירת התוכנית. לא בוצע שינוי; בטל פרסום ובנה תוכנית מחדש.", "error");
       return;
     }
 
@@ -300,7 +302,7 @@ export function FixMySchedulePanel({
       if (!currentShift) {
         setBusy("");
         setActions([]);
-        setMessage("אחת המשמרות השתנתה מאז יצירת התוכנית. לא בוצע שינוי; יש לבנות תוכנית מחדש.");
+        setMessage("אחת המשמרות השתנתה מאז יצירת התוכנית. לא בוצע שינוי; יש לבנות תוכנית מחדש.", "error");
         return;
       }
       if (
@@ -309,14 +311,14 @@ export function FixMySchedulePanel({
       ) {
         setBusy("");
         setActions([]);
-        setMessage("השיבוצים השתנו מאז יצירת התוכנית. לא בוצע שינוי; יש לבנות תוכנית מחדש.");
+        setMessage("השיבוצים השתנו מאז יצירת התוכנית. לא בוצע שינוי; יש לבנות תוכנית מחדש.", "error");
         return;
       }
       if (action.kind === "add") {
         if (currentAssignments.some((a) => a.shift_id === action.shiftId && a.user_id === action.userId)) {
           setBusy("");
           setActions([]);
-          setMessage("השיבוצים השתנו מאז יצירת התוכנית. לא בוצע שינוי; יש לבנות תוכנית מחדש.");
+          setMessage("השיבוצים השתנו מאז יצירת התוכנית. לא בוצע שינוי; יש לבנות תוכנית מחדש.", "error");
           return;
         }
         const projectedCount =
@@ -326,7 +328,7 @@ export function FixMySchedulePanel({
         if (projectedCount > currentShift.required_employees) {
           setBusy("");
           setActions([]);
-          setMessage("הכיסוי במשמרת השתנה מאז יצירת התוכנית. לא בוצע שינוי; יש לבנות תוכנית מחדש.");
+          setMessage("הכיסוי במשמרת השתנה מאז יצירת התוכנית. לא בוצע שינוי; יש לבנות תוכנית מחדש.", "error");
           return;
         }
       }
@@ -342,7 +344,10 @@ export function FixMySchedulePanel({
         .eq("user_id", action.userId);
       if (error) {
         setBusy("");
-        setMessage("החלת התיקון נעצרה בגלל שגיאה. הסידור לא פורסם; יש לרענן ולבדוק את הטיוטה לפני ניסיון נוסף.");
+        setMessage(
+          "החלת התיקון נעצרה בגלל שגיאה. הסידור לא פורסם; יש לרענן ולבדוק את הטיוטה לפני ניסיון נוסף.",
+          "error"
+        );
         return;
       }
     }
@@ -356,7 +361,10 @@ export function FixMySchedulePanel({
       const { error } = await db.from("shift_assignments").insert(rows);
       if (error) {
         setBusy("");
-        setMessage("חלק מפעולות ההסרה בוצעו, אך הוספת מחליפים נכשלה. הסידור לא פורסם; יש לרענן ולבדוק את הטיוטה.");
+        setMessage(
+          "חלק מפעולות ההסרה בוצעו, אך הוספת מחליפים נכשלה. הסידור לא פורסם; יש לרענן ולבדוק את הטיוטה.",
+          "error"
+        );
         return;
       }
     }
@@ -415,18 +423,13 @@ export function FixMySchedulePanel({
           </div>
         </div>
       ) : null}
+      <StatusMessage message={message} kind={kind} />
       {message ? (
-        <div className="submission-banner open">
-          <CheckCircle2 size={18} />
-          <div>
-            <strong>{message}</strong>
-            <span>
-              {actions.length
-                ? `${removals} הסרות · ${additions} הוספות${unresolved ? ` · ${unresolved} מקומות נשארו ללא פתרון בטוח` : ""}`
-                : "שום שינוי לא בוצע אוטומטית."}
-            </span>
-          </div>
-        </div>
+        <p className="card-muted">
+          {actions.length
+            ? `${removals} הסרות · ${additions} הוספות${unresolved ? ` · ${unresolved} מקומות נשארו ללא פתרון בטוח` : ""}`
+            : "שום שינוי לא בוצע אוטומטית."}
+        </p>
       ) : null}
 
       {actions.length ? (
