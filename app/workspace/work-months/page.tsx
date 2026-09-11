@@ -81,8 +81,10 @@ export default async function WorkMonthsPage({
     : "";
   const requestedYear = typeof requested.year === "string" ? Number(requested.year) : NaN;
   const requestedMonth = typeof requested.month === "string" ? Number(requested.month) : NaN;
-  const initialYear = Number.isInteger(requestedYear) && requestedYear >= 2020 && requestedYear <= 2100 ? requestedYear : null;
-  const initialMonth = Number.isInteger(requestedMonth) && requestedMonth >= 1 && requestedMonth <= 12 ? requestedMonth : null;
+  const initialYear =
+    Number.isInteger(requestedYear) && requestedYear >= 2020 && requestedYear <= 2100 ? requestedYear : null;
+  const initialMonth =
+    Number.isInteger(requestedMonth) && requestedMonth >= 1 && requestedMonth <= 12 ? requestedMonth : null;
   const returnToScheduleBuilder = requested.return === "schedule-builder";
   const selectedBranchId = validBranch || membership.branch_id || branches[0]?.id || "";
 
