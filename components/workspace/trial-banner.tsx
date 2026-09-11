@@ -6,9 +6,9 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 // workspace home. No enforcement yet -- expiry handling comes with the billing
 // screen slice.
 const STATUS_WARNING: Partial<Record<string, string>> = {
-  past_due: "התשלום נכשל — יש לעדכן את אמצעי התשלום כדי להמשיך.",
-  grace_period: "תקופת חסד פעילה — המנוי ממתין לחידוש תשלום.",
-  read_only: "החשבון במצב צפייה בלבד. תשלום יפעיל אותו מחדש."
+  past_due: "התשלום נכשל — יש לעדכן את אמצעי התשלום כדי להמשיך",
+  grace_period: "תקופת חסד פעילה — המנוי ממתין לחידוש תשלום",
+  read_only: "החשבון במצב צפייה בלבד — תשלום יפעיל אותו מחדש"
 };
 
 // Milliseconds until the trial ends; negative once it has ended. (It used to
@@ -33,7 +33,7 @@ export async function TrialBanner({ organizationId }: { organizationId: string }
     if (left !== null && left <= 0) {
       return (
         <div className="trial-pill warn" role="status">
-          <b>תקופת הניסיון הסתיימה. כדי להמשיך לעבוד בלי הפרעה, בחרו מסלול.</b>
+          <b>תקופת הניסיון הסתיימה — כדי להמשיך לעבוד בלי הפרעה, בחרו מסלול</b>
           <Link href="/pricing">מסלולים ומחירים</Link>
         </div>
       );

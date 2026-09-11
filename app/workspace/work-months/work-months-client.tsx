@@ -109,17 +109,17 @@ export function WorkMonthsClient({
   async function createPeriod() {
     setMessage("");
     if (!form.branchId || !form.departmentId || !form.opensAt || !form.closesAt) {
-      setMessage("יש לבחור סניף, מחלקה ותאריכי פתיחה וסגירה.", "error");
+      setMessage("יש לבחור סניף, מחלקה ותאריכי פתיחה וסגירה", "error");
       return;
     }
     const opens = new Date(form.opensAt);
     const closes = new Date(form.closesAt);
     if (Number.isNaN(opens.getTime()) || Number.isNaN(closes.getTime()) || closes <= opens) {
-      setMessage("מועד סיום ההגשה חייב להיות מאוחר ממועד הפתיחה.", "error");
+      setMessage("מועד סיום ההגשה חייב להיות מאוחר ממועד הפתיחה", "error");
       return;
     }
     if (!departmentTemplates.length) {
-      setMessage("יש להגדיר לפחות סוג משמרת פעיל אחד במחלקה לפני פתיחת חודש.", "error");
+      setMessage("יש להגדיר לפחות סוג משמרת פעיל אחד במחלקה לפני פתיחת חודש", "error");
       return;
     }
 
@@ -145,13 +145,13 @@ export function WorkMonthsClient({
 
     if (error || !data) {
       setMessage(
-        error?.message.includes("duplicate") ? "כבר קיים חודש עבודה כזה בסניף." : "לא הצלחנו לפתוח את חודש העבודה.",
+        error?.message.includes("duplicate") ? "כבר קיים חודש עבודה כזה בסניף" : "לא הצלחנו לפתוח את חודש העבודה",
         "error"
       );
       return;
     }
     setPeriods((current) => [data, ...current]);
-    setMessage("חודש העבודה נפתח בהצלחה להגשת זמינות.");
+    setMessage("חודש העבודה נפתח בהצלחה להגשת זמינות");
   }
 
   async function changeStatus(period: Period, status: PeriodStatus) {
@@ -164,11 +164,11 @@ export function WorkMonthsClient({
       .eq("organization_id", organizationId);
     setBusyId(null);
     if (error) {
-      setMessage("לא הצלחנו לעדכן את מצב החודש.", "error");
+      setMessage("לא הצלחנו לעדכן את מצב החודש", "error");
       return;
     }
     setPeriods((current) => current.map((item) => (item.id === period.id ? { ...item, status } : item)));
-    setMessage(status === "collecting" ? "חלון ההגשה נפתח מחדש." : "חלון ההגשה נסגר והחודש עבר להכנת סידור.");
+    setMessage(status === "collecting" ? "חלון ההגשה נפתח מחדש" : "חלון ההגשה נסגר והחודש עבר להכנת סידור");
   }
 
   return (
@@ -239,7 +239,7 @@ export function WorkMonthsClient({
           />
         </label>
         <label className="field">
-          <span>דדליין להגשה</span>
+          <span>מועד אחרון להגשה</span>
           <input
             className="input"
             type="datetime-local"
@@ -268,7 +268,7 @@ export function WorkMonthsClient({
             <h2>{periods.length ? `${periods.length} חודשים` : "עדיין לא נפתח חודש"}</h2>
           </div>
           <span className="status-chip active">
-            <CheckCircle2 size={14} /> נשמר ב־Supabase
+            <CheckCircle2 size={14} /> נשמר
           </span>
         </div>
         <div className="template-list">
@@ -294,7 +294,7 @@ export function WorkMonthsClient({
                 </div>
                 <div className="template-meta">
                   <span>פתיחה: {new Date(period.submission_opens_at).toLocaleDateString("he-IL")}</span>
-                  <span>דדליין: {new Date(period.submission_closes_at).toLocaleDateString("he-IL")}</span>
+                  <span>מועד אחרון: {new Date(period.submission_closes_at).toLocaleDateString("he-IL")}</span>
                   <span className="status-chip">
                     {collecting
                       ? "איסוף זמינות"
@@ -328,7 +328,7 @@ export function WorkMonthsClient({
             <EmptyState
               icon={CalendarDays}
               iconSize={38}
-              description="פתח את החודש הראשון כדי שהעובדים יוכלו להגיש זמינות."
+              description="פתחו את החודש הראשון כדי שהעובדים יוכלו להגיש זמינות"
             />
           ) : null}
         </div>

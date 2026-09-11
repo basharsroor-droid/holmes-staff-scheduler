@@ -26,12 +26,12 @@ const monthNames = [
 ];
 
 function scheduleDetails(payload: unknown, branches: Map<string, string>) {
-  if (!payload || typeof payload !== "object" || Array.isArray(payload)) return "סידור עבודה חדש זמין.";
+  if (!payload || typeof payload !== "object" || Array.isArray(payload)) return "סידור עבודה חדש זמין";
   const value = payload as Record<string, unknown>;
   const month = typeof value.month === "number" ? monthNames[value.month - 1] : "";
   const year = typeof value.year === "number" ? String(value.year) : "";
   const branch = typeof value.branch_id === "string" ? branches.get(value.branch_id) : "";
-  return [month, year, branch].filter(Boolean).join(" · ") || "סידור עבודה חדש זמין.";
+  return [month, year, branch].filter(Boolean).join(" · ") || "סידור עבודה חדש זמין";
 }
 
 function notificationCopy(templateKey: string, payload: unknown, branches: Map<string, string>) {
@@ -40,7 +40,7 @@ function notificationCopy(templateKey: string, payload: unknown, branches: Map<s
   }
 
   if (templateKey === "shift_assignment_changed")
-    return { title: "השיבוץ שלך עודכן", details: "בוצע שינוי במשמרת שפורסמה.", href: "/workspace/my-shifts" };
+    return { title: "השיבוץ שלך עודכן", details: "בוצע שינוי במשמרת שפורסמה", href: "/workspace/my-shifts" };
   if (templateKey === "shift_reminder")
     return {
       title: "המשמרת מתחילה בעוד כשעה",
@@ -48,23 +48,23 @@ function notificationCopy(templateKey: string, payload: unknown, branches: Map<s
       href: "/workspace/my-shifts"
     };
   if (templateKey === "availability_reminder")
-    return { title: "תזכורת להגשת זמינות", details: "חלון ההגשה עומד להיסגר.", href: "/workspace/availability" };
+    return { title: "תזכורת להגשת זמינות", details: "חלון ההגשה עומד להיסגר", href: "/workspace/availability" };
   if (templateKey === "availability_closing")
     return {
       title: "הגשת הזמינות נסגרת היום",
-      details: "זו ההזדמנות האחרונה להשלים את ההגשה.",
+      details: "זו ההזדמנות האחרונה להשלים את ההגשה",
       href: "/workspace/availability"
     };
 
   const swapCopy: Record<string, { title: string; details: string }> = {
-    swap_request_received: { title: "התקבלה בקשת החלפה", details: "עובד/ת מבקש/ת להחליף איתך משמרת." },
-    swap_waiting_manager: { title: "החלפה ממתינה לאישור מנהל", details: "שני העובדים אישרו והבקשה מוכנה להחלטה." },
-    swap_approved: { title: "החלפת המשמרת אושרה", details: "הסידור עודכן בהתאם להחלפה שאושרה." },
-    swap_rejected: { title: "בקשת ההחלפה נדחתה", details: "הבקשה נסגרה ללא שינוי בסידור." },
-    swap_cancelled: { title: "בקשת ההחלפה בוטלה", details: "הבקשה בוטלה ללא שינוי בסידור." }
+    swap_request_received: { title: "התקבלה בקשת החלפה", details: "עובד/ת מבקש/ת להחליף איתך משמרת" },
+    swap_waiting_manager: { title: "החלפה ממתינה לאישור מנהל", details: "שני העובדים אישרו והבקשה מוכנה להחלטה" },
+    swap_approved: { title: "החלפת המשמרת אושרה", details: "הסידור עודכן בהתאם להחלפה שאושרה" },
+    swap_rejected: { title: "בקשת ההחלפה נדחתה", details: "הבקשה נסגרה ללא שינוי בסידור" },
+    swap_cancelled: { title: "בקשת ההחלפה בוטלה", details: "הבקשה בוטלה ללא שינוי בסידור" }
   };
   return {
-    ...(swapCopy[templateKey] ?? { title: "עדכון חדש", details: "יש עדכון חדש במערכת." }),
+    ...(swapCopy[templateKey] ?? { title: "עדכון חדש", details: "יש עדכון חדש במערכת" }),
     href: "/workspace/shift-swaps"
   };
 }
@@ -127,7 +127,7 @@ export default async function NotificationsPage() {
           <h1>
             <Bell /> התראות
           </h1>
-          <p>עדכונים חשובים על סידורי עבודה ופעולות שממתינות לך.</p>
+          <p>עדכונים חשובים על סידורי עבודה ופעולות שממתינות לך</p>
         </div>
         <MarkNotificationsReadButton unreadCount={unreadCount} />
       </header>
@@ -178,7 +178,7 @@ export default async function NotificationsPage() {
             icon={Bell}
             iconSize={42}
             title="אין עדיין התראות"
-            description="כאשר מנהל יפרסם סידור עבודה, העדכון יופיע כאן."
+            description="כאשר מנהל יפרסם סידור עבודה, העדכון יופיע כאן"
           />
         ) : null}
       </section>

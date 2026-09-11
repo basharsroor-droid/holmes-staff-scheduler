@@ -91,7 +91,7 @@ export default async function ManagerCommandCenterPage() {
             <h1>
               <Activity /> מרכז שליטה למנהל
             </h1>
-            <p>אין לך כרגע מחלקה פעילה לניהול.</p>
+            <p>אין לך כרגע מחלקה פעילה לניהול</p>
           </div>
         </header>
       </main>
@@ -156,8 +156,8 @@ export default async function ManagerCommandCenterPage() {
           href: "/workspace/schedule-builder",
           label: `לטפל ב-${understaffed} משמרות עם כיסוי חסר`,
           detail: pilotMode
-            ? "פתחו את בדיקת הקונפליקטים וקבלו תמונה ברורה של הבעיה לפני ביצוע שינוי."
-            : "פתחו את בדיקת הקונפליקטים או את כלי תיקון הסידור וקבלו תוכנית תיקון מוסברת לפני ביצוע שינוי.",
+            ? "פתחו את בדיקת הקונפליקטים וקבלו תמונה ברורה של הבעיה לפני ביצוע שינוי"
+            : "פתחו את בדיקת הקונפליקטים או את כלי תיקון הסידור וקבלו תוכנית תיקון מוסברת לפני ביצוע שינוי",
           priority: "critical"
         }
       : null,
@@ -165,7 +165,7 @@ export default async function ManagerCommandCenterPage() {
       ? {
           href: "/workspace/open-shifts",
           label: `להכריע ב-${pendingMarketplace} בקשות למשמרות פתוחות`,
-          detail: "בדקו את הזכאות המעודכנת לפני אישור. ההחלטה נשארת אצל המנהל.",
+          detail: "בדקו את הזכאות המעודכנת לפני אישור — ההחלטה נשארת אצל המנהל",
           priority: "warning"
         }
       : null,
@@ -173,7 +173,7 @@ export default async function ManagerCommandCenterPage() {
       ? {
           href: "/workspace/schedule-builder",
           label: `לבדוק ${pendingLeave} בקשות חופשה או היעדרות`,
-          detail: "אישור בקשת היעדרות הופך מיד לאילוץ קשיח ומונע שיבוץ בטווח המאושר.",
+          detail: "אישור בקשת היעדרות הופך מיד לאילוץ קשיח ומונע שיבוץ בטווח המאושר",
           priority: "warning"
         }
       : null,
@@ -181,7 +181,7 @@ export default async function ManagerCommandCenterPage() {
       ? {
           href: "/workspace/shift-swaps",
           label: `להכריע ב-${pendingSwaps} בקשות החלפה`,
-          detail: "בדקו את הבקשה והעובד החלופי לפני אישור. ההחלפה לא מתבצעת ללא אישור מנהל.",
+          detail: "בדקו את הבקשה ואת העובד המחליף לפני אישור — ההחלפה לא מתבצעת בלי אישור מנהל",
           priority: "warning"
         }
       : null
@@ -198,7 +198,7 @@ export default async function ManagerCommandCenterPage() {
           <h1>
             <Activity /> מרכז שליטה למנהל
           </h1>
-          <p>כל מה שדורש תשומת לב והפעולה הבאה במקום אחד — בלי לפרסם או לשנות סידור אוטומטית.</p>
+          <p>כל מה שדורש תשומת לב והפעולה הבאה במקום אחד — בלי לפרסם או לשנות סידור אוטומטית</p>
         </div>
       </header>
 
@@ -206,7 +206,7 @@ export default async function ManagerCommandCenterPage() {
         <section className="template-list-card">
           <EmptyState icon={CalendarRange} iconSize={44}>
             <h2>עדיין לא נפתחה תקופת עבודה</h2>
-            <p>כדי לקבל תמונת מצב אמיתית על כיסוי, בקשות והמלצות פעולה, פתחו קודם חודש עבודה.</p>
+            <p>כדי לקבל תמונת מצב אמיתית על כיסוי, בקשות והמלצות פעולה, פתחו קודם חודש עבודה</p>
             <Link className="button primary" href="/workspace/work-months">
               <PlusCircle size={16} /> פתיחת תקופת עבודה
             </Link>
@@ -264,7 +264,7 @@ export default async function ManagerCommandCenterPage() {
                   <span>
                     <strong>Shift Marketplace</strong>
                     <small>
-                      {openShifts} משמרות פתוחות · {pendingMarketplace} בקשות ממתינות.
+                      {openShifts} משמרות פתוחות · {pendingMarketplace} בקשות ממתינות
                     </small>
                   </span>
                   <span className={`status-chip ${pendingMarketplace ? "warning" : "active"}`}>
@@ -276,7 +276,7 @@ export default async function ManagerCommandCenterPage() {
                 <Palmtree />
                 <span>
                   <strong>חופשות והיעדרויות</strong>
-                  <small>בקשות שממתינות לאישור מנהל.</small>
+                  <small>בקשות שממתינות לאישור מנהל</small>
                 </span>
                 <span className={`status-chip ${pendingLeave ? "warning" : "active"}`}>{pendingLeave}</span>
               </Link>
@@ -284,7 +284,7 @@ export default async function ManagerCommandCenterPage() {
                 <Repeat2 />
                 <span>
                   <strong>החלפות משמרת</strong>
-                  <small>בקשות שכבר הגיעו לשלב אישור המנהל.</small>
+                  <small>בקשות שכבר הגיעו לשלב אישור המנהל</small>
                 </span>
                 <span className={`status-chip ${pendingSwaps ? "warning" : "active"}`}>{pendingSwaps}</span>
               </Link>
@@ -292,7 +292,7 @@ export default async function ManagerCommandCenterPage() {
                 <Users />
                 <span>
                   <strong>צוות והרשאות</strong>
-                  <small>ניהול עובדים, תפקידים והרשאות.</small>
+                  <small>ניהול עובדים, תפקידים והרשאות</small>
                 </span>
                 <span className="status-chip active">פתיחה</span>
               </Link>
@@ -303,7 +303,7 @@ export default async function ManagerCommandCenterPage() {
               <div>
                 <p className="eyebrow">המלצות פעולה</p>
                 <h2>הפעולות הבאות</h2>
-                <p>המלצות בלבד. כל שינוי משמעותי נשאר בשליטת המנהל.</p>
+                <p>המלצות בלבד — כל שינוי משמעותי נשאר בשליטת המנהל</p>
               </div>
             </div>
             {actions.length ? (
@@ -323,7 +323,7 @@ export default async function ManagerCommandCenterPage() {
                 <div>
                   <CheckCircle2 />
                   <strong>אין כרגע פעולות דחופות</strong>
-                  <span>הכיסוי מלא ואין בקשות שממתינות להחלטת מנהל.</span>
+                  <span>הכיסוי מלא ואין בקשות שממתינות להחלטת מנהל</span>
                 </div>
               </div>
             )}
@@ -340,7 +340,7 @@ export default async function ManagerCommandCenterPage() {
                   <span>
                     <strong>ShiftPilot Score ובדיקת קונפליקטים</strong>
                     <small>
-                      ציון בריאות והוגנות, יצירת טיוטה חכמה, תיקון סידור והחלפה חכמה — הכול לבדיקה לפני אישור.
+                      ציון בריאות והוגנות, יצירת טיוטה חכמה, תיקון סידור והחלפה חכמה — הכול לבדיקה לפני אישור
                     </small>
                   </span>
                   <span className="status-chip active">פתיחה</span>

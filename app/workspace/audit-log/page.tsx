@@ -85,7 +85,7 @@ export default async function AuditLogPage() {
           <h1>
             <History /> יומן פעילות
           </h1>
-          <p>מאה פעולות הניהול האחרונות. היומן נכתב אוטומטית במסד הנתונים ואינו כולל סיסמאות, מיילים או Tokens.</p>
+          <p>מאה פעולות הניהול האחרונות — היומן נכתב אוטומטית ואינו כולל סיסמאות, מיילים או מפתחות גישה</p>
         </div>
       </header>
 
@@ -96,7 +96,7 @@ export default async function AuditLogPage() {
             <h2>פעולות אחרונות</h2>
           </div>
           <span className="badge success">
-            <ShieldCheck size={15} /> בעלים ו-Admin בלבד
+            <ShieldCheck size={15} /> בעלים ומנהלי מערכת בלבד
           </span>
         </div>
 
@@ -139,7 +139,7 @@ export default async function AuditLogPage() {
             icon={History}
             iconSize={40}
             title="עדיין אין פעולות מתועדות"
-            description="שינויים חדשים בעסק, בצוות, במשמרות ובחודשי העבודה יופיעו כאן אוטומטית."
+            description="שינויים חדשים בעסק, בצוות, במשמרות ובחודשי העבודה יופיעו כאן אוטומטית"
           />
         )}
       </section>

@@ -134,11 +134,11 @@ export function CoverageRulesEnhancer({
       if (!missingSenior) return;
       const message = [
         missingStaff ? `חסר כוח אדם ב-${missingStaff} משמרות` : null,
-        missingSenior ? `חסר עובד/ת senior ב-${missingSenior} משמרות שמחייבות זאת` : null
+        missingSenior ? `חסר עובד/ת בכיר/ה ב-${missingSenior} משמרות שמחייבות זאת` : null
       ]
         .filter(Boolean)
         .join("\n");
-      if (!window.confirm(`${message}.\n\nאלה חריגי Coverage Rules. לפרסם בכל זאת?`)) {
+      if (!window.confirm(`${message}.\n\nאלה חריגות מכללי הכיסוי. לפרסם בכל זאת?`)) {
         event.preventDefault();
         event.stopPropagation();
         event.stopImmediatePropagation();
@@ -173,8 +173,8 @@ export function CoverageRulesEnhancer({
           </h2>
           <p>
             {issues.length
-              ? "ShiftPilot מציג רק את החריגים שדורשים החלטת מנהל לפני פרסום."
-              : "כל המשמרות עומדות כרגע בדרישות כוח האדם וה-senior שהוגדרו."}
+              ? "ShiftPilot מציגה רק את החריגים שדורשים החלטת מנהל לפני פרסום"
+              : "כל המשמרות עומדות כרגע בדרישות כוח האדם והעובדים הבכירים שהוגדרו"}
           </p>
         </div>
         <div className="coverage-rules-summary">
@@ -186,7 +186,7 @@ export function CoverageRulesEnhancer({
           <span>
             <AlertTriangle size={16} />
             <strong>{missingSeniorCount}</strong>
-            <small>חוסר senior</small>
+            <small>חוסר בעובד בכיר</small>
           </span>
         </div>
       </div>
@@ -197,11 +197,11 @@ export function CoverageRulesEnhancer({
               <strong>{issue.shiftLabel}</strong>
               <span>
                 {issue.missingEmployees ? `חסרים ${issue.missingEmployees} עובד/ים` : "כמות עובדים תקינה"}
-                {issue.missingSenior ? " · נדרש senior" : ""}
+                {issue.missingSenior ? " · נדרש עובד בכיר" : ""}
               </span>
             </article>
           ))}
-          {issues.length > 8 ? <small>ועוד {issues.length - 8} חריגים בסידור.</small> : null}
+          {issues.length > 8 ? <small>ועוד {issues.length - 8} חריגים בסידור</small> : null}
         </div>
       ) : null}
       <style jsx global>{`

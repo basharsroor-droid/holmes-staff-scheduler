@@ -77,12 +77,12 @@ export function PushNotificationPermission() {
           await registerDevice();
           if (!cancelled) {
             setState("granted");
-            setMessage("ההתראות פעילות והמכשיר רשום לקבלת עדכונים.");
+            setMessage("ההתראות פעילות והמכשיר רשום לקבלת עדכונים");
           }
         } catch {
           if (!cancelled) {
             setState("prompt");
-            setMessage("ההרשאה פעילה, אך רישום המכשיר נכשל. לחצו כדי לנסות שוב.", "error");
+            setMessage("ההרשאה פעילה, אך רישום המכשיר נכשל — לחצו כדי לנסות שוב", "error");
           }
         } finally {
           if (!cancelled) setBusy(false);
@@ -102,15 +102,15 @@ export function PushNotificationPermission() {
       const permission = await PushNotifications.requestPermissions();
       if (permission.receive !== "granted") {
         setState("denied");
-        setMessage("ההרשאה נחסמה. ניתן להפעיל התראות דרך הגדרות ה־iPhone.", "error");
+        setMessage("ההרשאה נחסמה — אפשר להפעיל התראות בהגדרות ה־iPhone", "error");
         return;
       }
 
       await registerDevice();
       setState("granted");
-      setMessage("ההתראות הופעלו בהצלחה במכשיר הזה.");
+      setMessage("ההתראות הופעלו בהצלחה במכשיר הזה");
     } catch {
-      setMessage("לא הצלחנו לרשום את המכשיר להתראות. אפשר לנסות שוב.", "error");
+      setMessage("לא הצלחנו לרשום את המכשיר להתראות — אפשר לנסות שוב", "error");
     } finally {
       setBusy(false);
     }
@@ -132,7 +132,7 @@ export function PushNotificationPermission() {
           {state === "checking" ? "בודק..." : state === "granted" ? "פעיל" : state === "denied" ? "חסום" : "לא הופעל"}
         </span>
       </div>
-      <p>קבלת עדכון כאשר סידור מתפרסם, השיבוץ משתנה, הגשת הזמינות נסגרת או בקשת החלפה מתעדכנת.</p>
+      <p>קבלת עדכון כאשר סידור מתפרסם, השיבוץ משתנה, הגשת הזמינות נסגרת או בקשת החלפה מתעדכנת</p>
       {state !== "granted" ? (
         <button
           className="button primary"

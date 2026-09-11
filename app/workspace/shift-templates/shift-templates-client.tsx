@@ -74,15 +74,15 @@ export function ShiftTemplatesClient({
   async function addTemplate() {
     setMessage("");
     if (!branchId || !departmentId) {
-      setMessage("יש לבחור סניף ומחלקה.", "error");
+      setMessage("יש לבחור סניף ומחלקה", "error");
       return;
     }
     if (form.name.trim().length < 2 || !form.startTime || !form.endTime) {
-      setMessage("יש להזין שם משמרת ושעות התחלה וסיום.", "error");
+      setMessage("יש להזין שם משמרת ושעות התחלה וסיום", "error");
       return;
     }
     if (form.startTime === form.endTime) {
-      setMessage("שעת ההתחלה ושעת הסיום אינן יכולות להיות זהות.", "error");
+      setMessage("שעת ההתחלה ושעת הסיום אינן יכולות להיות זהות", "error");
       return;
     }
 
@@ -106,7 +106,7 @@ export function ShiftTemplatesClient({
 
     if (error || !data) {
       setMessage(
-        error?.message.includes("duplicate") ? "כבר קיימת משמרת בשם הזה בסניף." : "לא הצלחנו לשמור את המשמרת. נסה שוב.",
+        error?.message.includes("duplicate") ? "כבר קיימת משמרת בשם הזה בסניף" : "לא הצלחנו לשמור את המשמרת — נסו שוב",
         "error"
       );
       return;
@@ -114,7 +114,7 @@ export function ShiftTemplatesClient({
 
     addToList([data]);
     setForm(emptyForm);
-    setMessage("המשמרת נשמרה בהצלחה.");
+    setMessage("המשמרת נשמרה בהצלחה");
   }
 
   // I1: one click adds a ready-made set of shift types for the selected
@@ -123,7 +123,7 @@ export function ShiftTemplatesClient({
   async function applyPreset(preset: BusinessPreset) {
     setMessage("");
     if (!branchId || !departmentId) {
-      setMessage("יש לבחור סניף ומחלקה.", "error");
+      setMessage("יש לבחור סניף ומחלקה", "error");
       return;
     }
     setBusy(true);
@@ -148,8 +148,8 @@ export function ShiftTemplatesClient({
     if (error || !data) {
       setMessage(
         error?.message.includes("duplicate")
-          ? "חלק ממשמרות התבנית כבר קיימות בסניף בשם הזה. אפשר להוסיף משמרות ידנית."
-          : "לא הצלחנו להוסיף את משמרות התבנית. נסה שוב.",
+          ? "חלק ממשמרות התבנית כבר קיימות בסניף בשם הזה — אפשר להוסיף משמרות ידנית"
+          : "לא הצלחנו להוסיף את משמרות התבנית — נסו שוב",
         "error"
       );
       return;
@@ -157,7 +157,7 @@ export function ShiftTemplatesClient({
 
     addToList(data);
     setMessage(
-      `נוספו ${data.length} סוגי משמרות לפי תבנית "${preset.label}". אפשר להוסיף משמרות נוספות או לכבות כאלה שלא מתאימות.`
+      `נוספו ${data.length} סוגי משמרות לפי תבנית "${preset.label}" — אפשר להוסיף משמרות נוספות או לכבות כאלה שלא מתאימות`
     );
   }
 
@@ -171,7 +171,7 @@ export function ShiftTemplatesClient({
       .eq("organization_id", organizationId);
 
     if (error) {
-      setMessage("לא הצלחנו לעדכן את המשמרת.", "error");
+      setMessage("לא הצלחנו לעדכן את המשמרת", "error");
       return;
     }
     setTemplates((current) =>
@@ -273,7 +273,7 @@ export function ShiftTemplatesClient({
           />
           <span>
             <strong>נדרש עובד בכיר</strong>
-            <small>המערכת תתריע אם אין במשמרת עובד ותיק או אחראי.</small>
+            <small>המערכת תתריע אם אין במשמרת עובד ותיק או אחראי</small>
           </span>
         </label>
         <button className="button primary" disabled={busy || !branchId || !departmentId} onClick={addTemplate}>
@@ -294,7 +294,7 @@ export function ShiftTemplatesClient({
             </h2>
           </div>
           <span className="status-chip active">
-            <Check size={14} /> נשמר ב־Supabase
+            <Check size={14} /> נשמר
           </span>
         </div>
         <div className="template-list">
@@ -331,7 +331,7 @@ export function ShiftTemplatesClient({
             <EmptyState
               icon={Clock3}
               iconSize={36}
-              description="הוסף את המשמרת הראשונה, או התחל מתבנית מוכנה לפי סוג העסק."
+              description="הוסיפו את המשמרת הראשונה, או התחילו מתבנית מוכנה לפי סוג העסק"
             >
               <div className="actions shift-template-presets" role="group" aria-label="התחלה מהירה מתבנית">
                 {BUSINESS_PRESETS.map((preset) => (

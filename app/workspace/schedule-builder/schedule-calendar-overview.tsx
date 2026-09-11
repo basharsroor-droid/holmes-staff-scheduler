@@ -161,7 +161,7 @@ export function ScheduleCalendarOverview({ period }: { period: Period | null }) 
             })}
           </div>
         ) : (
-          <p className={styles.noShifts}>אין משמרות ביום הזה.</p>
+          <p className={styles.noShifts}>אין משמרות ביום הזה</p>
         )}
       </div>
     </section>

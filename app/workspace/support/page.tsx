@@ -47,7 +47,7 @@ export default async function SupportPage() {
           <h1>
             <LifeBuoy /> מרכז תמיכה
           </h1>
-          <p>פותחים פנייה מסודרת, מציינים את רמת הדחיפות ועוקבים אחר הטיפול במקום אחד.</p>
+          <p>פותחים פנייה מסודרת, מציינים את רמת הדחיפות ועוקבים אחר הטיפול במקום אחד</p>
         </div>
       </header>
       {!supportAgent ? (
@@ -55,7 +55,7 @@ export default async function SupportPage() {
           <Search size={18} />
           <span>
             <strong>לפני שפותחים פנייה</strong>
-            <small>הרבה תקלות נפוצות אפשר לפתור לבד תוך דקה — כדאי להעיף מבט במרכז העזרה.</small>
+            <small>הרבה תקלות נפוצות אפשר לפתור לבד תוך דקה — כדאי להעיף מבט במרכז העזרה</small>
           </span>
         </Link>
       ) : null}

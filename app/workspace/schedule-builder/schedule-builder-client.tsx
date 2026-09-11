@@ -275,19 +275,19 @@ export function ScheduleBuilderClient({
   async function saveMinRestHours() {
     const parsed = minRestDraft.trim() ? Number(minRestDraft) : null;
     if (parsed !== null && (!Number.isInteger(parsed) || parsed <= 0)) {
-      setMessage("מגבלת שעות המנוחה חייבת להיות מספר שלם חיובי, או ריקה לביטול המגבלה.", "error");
+      setMessage("מגבלת שעות המנוחה חייבת להיות מספר שלם חיובי, או ריקה לביטול המגבלה", "error");
       setMinRestDraft(minRestHours?.toString() ?? "");
       return;
     }
     if (parsed === minRestHours) return;
     const { error } = await supabase.from("organizations").update({ min_rest_hours: parsed }).eq("id", organizationId);
     if (error) {
-      setMessage("עדכון מגבלת המנוחה נכשל.", "error");
+      setMessage("עדכון מגבלת המנוחה נכשל", "error");
       setMinRestDraft(minRestHours?.toString() ?? "");
       return;
     }
     setMinRestHours(parsed);
-    setMessage("מגבלת המנוחה עודכנה.");
+    setMessage("מגבלת המנוחה עודכנה");
   }
 
   async function generateMonth() {
@@ -320,11 +320,11 @@ export function ScheduleBuilderClient({
       );
     setBusy("");
     if (error || !data) {
-      setMessage("יצירת משמרות החודש נכשלה. נסה שוב.", "error");
+      setMessage("יצירת משמרות החודש נכשלה — נסו שוב", "error");
       return;
     }
     setShifts((current) => [...current.filter((item) => item.schedule_period_id !== period.id), ...data]);
-    setMessage(`נוצרו ${data.length} משמרות לחודש.`);
+    setMessage(`נוצרו ${data.length} משמרות לחודש`);
   }
 
   async function duplicateFromPrevious() {
@@ -337,7 +337,7 @@ export function ScheduleBuilderClient({
     });
     if (error || !data || !data.length) {
       setBusy("");
-      setMessage("שכפול הסידור נכשל.", "error");
+      setMessage("שכפול הסידור נכשל", "error");
       return;
     }
     const result = data[0];
@@ -373,7 +373,7 @@ export function ScheduleBuilderClient({
     if (!period) return;
     if (
       !window.confirm(
-        `לבטל את כל משמרות ה-${new Date(`${date}T12:00:00`).toLocaleDateString("he-IL")}? העובדים המשובצים יוסרו מהמשמרות, והפעולה לא הפיכה.`
+        `לבטל את כל משמרות ה-${new Date(`${date}T12:00:00`).toLocaleDateString("he-IL")}? העובדים המשובצים יוסרו מהמשמרות, והפעולה לא הפיכה`
       )
     )
       return;
@@ -385,7 +385,7 @@ export function ScheduleBuilderClient({
     });
     setBusy("");
     if (error || !data || !data.length) {
-      setMessage("ביטול המשמרות נכשל.", "error");
+      setMessage("ביטול המשמרות נכשל", "error");
       return;
     }
     const result = data[0];
@@ -396,7 +396,7 @@ export function ScheduleBuilderClient({
       current.map((item) => (cancelledIds.has(item.id) ? { ...item, status: "cancelled" } : item))
     );
     setAssignments((current) => current.filter((item) => !cancelledIds.has(item.shift_id)));
-    setMessage(`בוטלו ${result.shifts_cancelled} משמרות (${result.assignments_removed} שיבוצים הוסרו).`);
+    setMessage(`בוטלו ${result.shifts_cancelled} משמרות (${result.assignments_removed} שיבוצים הוסרו)`);
   }
 
   async function assign(shift: Shift, userId: string) {
@@ -407,7 +407,7 @@ export function ScheduleBuilderClient({
       const { error } = await supabase.from("shift_assignments").delete().eq("id", existing.id);
       setBusy("");
       if (error) {
-        setMessage("הסרת השיבוץ נכשלה.", "error");
+        setMessage("הסרת השיבוץ נכשלה", "error");
         return;
       }
       setAssignments((current) => current.filter((item) => item.id !== existing.id));
@@ -415,19 +415,19 @@ export function ScheduleBuilderClient({
     }
     if (hasConflict(userId, shift)) {
       setBusy("");
-      setMessage(`${workerName(userId)} כבר משובץ/ת במשמרת חופפת.`, "error");
+      setMessage(`${workerName(userId)} כבר משובץ/ת במשמרת חופפת`, "error");
       return;
     }
     const status = workerAvailability(userId, shift);
     if (status === "unavailable") {
       setBusy("");
-      setMessage(`${workerName(userId)} סימן/ה שאינו/ה זמין/ה למשמרת הזאת.`, "error");
+      setMessage(`${workerName(userId)} סימן/ה שאינו/ה זמין/ה למשמרת הזאת`, "error");
       return;
     }
     const leave = workerLeave(userId, shift);
     if (leave) {
       setBusy("");
-      setMessage(`${workerName(userId)} ${leaveTypeLabels[leave.leave_type]} בתאריך הזה.`, "error");
+      setMessage(`${workerName(userId)} ${leaveTypeLabels[leave.leave_type]} בתאריך הזה`, "error");
       return;
     }
     const limit = periodWorkers.find((item) => item.user_id === userId)?.weekly_hours_limit;
@@ -466,7 +466,7 @@ export function ScheduleBuilderClient({
       .single();
     setBusy("");
     if (error || !data) {
-      setMessage("שמירת השיבוץ נכשלה.", "error");
+      setMessage("שמירת השיבוץ נכשלה", "error");
       return;
     }
     setAssignments((current) => [...current, data]);
@@ -483,14 +483,14 @@ export function ScheduleBuilderClient({
     const { error } = await supabase.rpc("publish_schedule_period", { target_period_id: period.id });
     setBusy("");
     if (error) {
-      setMessage("פרסום הסידור נכשל. לא בוצע שינוי חלקי.", "error");
+      setMessage("פרסום הסידור נכשל, ולא בוצע שינוי חלקי", "error");
       return;
     }
     setShifts((current) =>
       current.map((item) => (item.schedule_period_id === period.id ? { ...item, status: "published" } : item))
     );
     setPeriodStatusOverrides((current) => ({ ...current, [period.id]: "published" }));
-    setMessage("הסידור פורסם בהצלחה לצוות.");
+    setMessage("הסידור פורסם בהצלחה לצוות");
   }
 
   async function unpublish() {
@@ -501,14 +501,14 @@ export function ScheduleBuilderClient({
     const { error } = await supabase.rpc("unpublish_schedule_period", { target_period_id: period.id });
     setBusy("");
     if (error) {
-      setMessage("ביטול הפרסום נכשל.", "error");
+      setMessage("ביטול הפרסום נכשל", "error");
       return;
     }
     setShifts((current) =>
       current.map((item) => (item.schedule_period_id === period.id ? { ...item, status: "draft" } : item))
     );
     setPeriodStatusOverrides((current) => ({ ...current, [period.id]: "draft" }));
-    setMessage("הפרסום בוטל. הסידור חזר לטיוטה ואינו גלוי לעובדים.");
+    setMessage("הפרסום בוטל — הסידור חזר לטיוטה ואינו גלוי לעובדים");
   }
 
   function exportCsv() {
@@ -554,7 +554,7 @@ export function ScheduleBuilderClient({
           icon={CalendarRange}
           iconSize={42}
           title="אין עדיין חודש עבודה"
-          description="פתח חודש עבודה לפני בניית הסידור."
+          description="פתחו חודש עבודה לפני בניית הסידור"
         />
       </section>
     );
@@ -628,7 +628,7 @@ export function ScheduleBuilderClient({
           )}
           {periodShifts.length ? (
             <button className="button" onClick={exportCsv}>
-              <FileDown size={16} /> ייצוא ל-Excel
+              <FileDown size={16} /> ייצוא ל־Excel
             </button>
           ) : null}
           {periodShifts.length ? (
@@ -646,7 +646,7 @@ export function ScheduleBuilderClient({
               value={duplicateSourceId}
               onChange={(event) => setDuplicateSourceId(event.target.value)}
             >
-              <option value="">שכפול מחודש קודם...</option>
+              <option value="">שכפול מחודש קודם..</option>
               {duplicateCandidates.map((item) => (
                 <option value={item.id} key={item.id}>
                   {monthNames[item.month - 1]} {item.year}
@@ -682,7 +682,7 @@ export function ScheduleBuilderClient({
             <AlertTriangle />
             <div>
               <strong>אין סוגי משמרות פעילים בסניף</strong>
-              <span>יש להגדיר סוגי משמרות לפני יצירת הסידור.</span>
+              <span>יש להגדיר סוגי משמרות לפני יצירת הסידור</span>
             </div>
           </div>
         ) : null}
@@ -766,7 +766,7 @@ export function ScheduleBuilderClient({
           })}
         </div>
         {!periodShifts.length && periodTemplates.length ? (
-          <EmptyState icon={CalendarRange} iconSize={38} description="לחץ על יצירת משמרות החודש כדי להתחיל לשבץ." />
+          <EmptyState icon={CalendarRange} iconSize={38} description="לחצו על יצירת משמרות החודש כדי להתחיל לשבץ" />
         ) : null}
         <StatusMessage message={message} kind={kind} />
       </div>

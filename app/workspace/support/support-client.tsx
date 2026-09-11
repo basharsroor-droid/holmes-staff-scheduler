@@ -121,7 +121,7 @@ export function SupportClient({
 
   async function createTicket() {
     if (subject.trim().length < 4 || description.trim().length < 10) {
-      setMessage("יש לכתוב כותרת ותיאור מפורט של הבעיה.", "error");
+      setMessage("יש לכתוב כותרת ותיאור מפורט של הבעיה", "error");
       return;
     }
     setBusy("create");
@@ -143,7 +143,7 @@ export function SupportClient({
       .single();
     setBusy("");
     if (error || !data) {
-      setMessage("פתיחת הפנייה נכשלה. נסו שוב בעוד רגע.", "error");
+      setMessage("פתיחת הפנייה נכשלה — נסו שוב בעוד רגע", "error");
       return;
     }
     setTickets((current) => [data, ...current]);
@@ -152,13 +152,13 @@ export function SupportClient({
     setCategory(initialCategory);
     setPriority(initialPriority);
     setIncludeTechnicalContext(false);
-    setMessage("הפנייה נפתחה בהצלחה ונשמרה במרכז התמיכה.");
+    setMessage("הפנייה נפתחה בהצלחה ונשמרה במרכז התמיכה");
   }
 
   async function updateTicket(ticket: Ticket, status: TicketStatus) {
     const resolutionNote = notes[ticket.id]?.trim() || null;
     if (["resolved", "closed"].includes(status) && !resolutionNote) {
-      setMessage("יש לכתוב עדכון ללקוח לפני פתרון או סגירת הפנייה.", "error");
+      setMessage("יש לכתוב עדכון ללקוח לפני פתרון או סגירת הפנייה", "error");
       return;
     }
     setBusy(ticket.id);
@@ -169,7 +169,7 @@ export function SupportClient({
       .eq("id", ticket.id);
     setBusy("");
     if (error) {
-      setMessage("עדכון הפנייה נכשל.", "error");
+      setMessage("עדכון הפנייה נכשל", "error");
       return;
     }
     setTickets((current) =>
@@ -185,7 +185,7 @@ export function SupportClient({
           : item
       )
     );
-    setMessage("סטטוס הפנייה עודכן.");
+    setMessage("סטטוס הפנייה עודכן");
   }
 
   return (
@@ -245,7 +245,7 @@ export function SupportClient({
               maxLength={4000}
               value={description}
               onChange={(event) => setDescription(event.target.value)}
-              placeholder="מה ניסיתם לעשות, באיזה מסך ומה בדיוק הופיע? אין לכתוב סיסמאות או מפתחות API."
+              placeholder="מה ניסיתם לעשות, באיזה מסך ומה בדיוק הופיע? בלי סיסמאות או מפתחות API"
             />
           </label>
           <label className="checkbox-row">
@@ -370,12 +370,12 @@ export function SupportClient({
             {!tickets.length ? (
               <>
                 <h2>עדיין אין פניות</h2>
-                <p>פנייה חדשה שתפתחו תופיע כאן עם סטטוס הטיפול.</p>
+                <p>פנייה חדשה שתפתחו תופיע כאן עם סטטוס הטיפול</p>
               </>
             ) : (
               <>
                 <h2>{filter === "open" ? "אין פניות שממתינות לטיפול" : "אין פניות שטופלו עדיין"}</h2>
-                <p>אפשר לעבור ל&quot;{filterLabels.all}&quot; כדי לראות את כל הפניות.</p>
+                <p>אפשר לעבור ל&quot;{filterLabels.all}&quot; כדי לראות את כל הפניות</p>
               </>
             )}
           </EmptyState>

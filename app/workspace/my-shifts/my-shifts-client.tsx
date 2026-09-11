@@ -148,7 +148,7 @@ export function MyShiftsClient({
           icon={CalendarDays}
           iconSize={42}
           title="עדיין אין סידור שפורסם"
-          description="כשהמנהל יפרסם את הסידור הראשון, המשמרות שלך יופיעו כאן."
+          description="כשהמנהל יפרסם את הסידור הראשון, המשמרות שלך יופיעו כאן"
         />
       </section>
     );
@@ -163,7 +163,7 @@ export function MyShiftsClient({
               <h2>{upcoming.name}</h2>
             </div>
             <span className="badge success">
-              <CheckCircle2 size={15} /> משובצ/ת
+              <CheckCircle2 size={15} /> משובץ/ת
             </span>
           </div>
           <div className="workspace-stats next-shift-stats">
@@ -244,7 +244,7 @@ export function MyShiftsClient({
                 )
               }
             >
-              <CalendarPlus size={16} /> הוסף את החודש ליומן
+              <CalendarPlus size={16} /> הוספת החודש ליומן
             </button>
           </div>
         </div>
@@ -303,7 +303,7 @@ export function MyShiftsClient({
                       downloadCalendar([shift], branches, periods, `shiftpilot-${shift.shift_date}-${shift.name}.ics`)
                     }
                   >
-                    <CalendarPlus size={16} /> הוסף ליומן
+                    <CalendarPlus size={16} /> הוספה ליומן
                   </button>
                   <ShiftReminderButton
                     shiftId={shift.id}
@@ -318,7 +318,7 @@ export function MyShiftsClient({
           })}
         </div>
         {!visibleShifts.length ? (
-          <EmptyState icon={CalendarDays} iconSize={38} description="לא שובצת למשמרות בחודש הזה." />
+          <EmptyState icon={CalendarDays} iconSize={38} description="לא שובצת למשמרות בחודש הזה" />
         ) : null}
       </section>
     </div>

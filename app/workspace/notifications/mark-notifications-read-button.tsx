@@ -20,10 +20,10 @@ export function MarkNotificationsReadButton({ unreadCount }: { unreadCount: numb
     const { error } = await supabase.rpc("mark_my_notifications_read");
     setBusy(false);
     if (error) {
-      setMessage("לא הצלחנו לסמן את ההתראות כנקראו.", "error");
+      setMessage("לא הצלחנו לסמן את ההתראות כנקראו", "error");
       return;
     }
-    setMessage("כל ההתראות סומנו כנקראו.");
+    setMessage("כל ההתראות סומנו כנקראו");
     router.refresh();
   }
 

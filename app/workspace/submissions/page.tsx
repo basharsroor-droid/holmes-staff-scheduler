@@ -104,7 +104,7 @@ export default async function SubmissionsPage() {
           <h1>
             <ClipboardCheck /> מעקב הגשות
           </h1>
-          <p>רואים מי שלח זמינות, מי שמר טיוטה ומי עדיין חסר — עם פירוט מלא לכל עובד.</p>
+          <p>רואים מי שלח זמינות, מי שמר טיוטה ומי עדיין חסר — עם פירוט מלא לכל עובד</p>
         </div>
       </header>
       <SubmissionsClient

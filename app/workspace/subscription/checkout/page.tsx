@@ -88,7 +88,7 @@ export default async function CheckoutPage({
           <h1>
             <CreditCard /> בחירת מסלול ותשלום
           </h1>
-          <p>בוחרים מסלול ומחזור חיוב, ורואים בדיוק כמה ישולם ומתי. המחירים לפני מע״מ.</p>
+          <p>בוחרים מסלול ומחזור חיוב ורואים בדיוק כמה ישולם ומתי · המחירים לפני מע״מ</p>
         </div>
       </header>
 
@@ -116,7 +116,7 @@ export default async function CheckoutPage({
           })}
         </div>
         <p className="card-muted" style={{ marginTop: 10 }}>
-          {plan.tagline}. צריכים יותר מ-{getPlan("network").maxBranches} סניפים או התאמה מיוחדת?{" "}
+          {plan.tagline} · צריכים יותר מ-{getPlan("network").maxBranches} סניפים או התאמה מיוחדת?{" "}
           <Link href="/workspace/support">בקשת הצעה מותאמת</Link>
         </p>
       </section>
@@ -149,8 +149,8 @@ export default async function CheckoutPage({
             <div>
               <strong>העסק כבר חורג מהמכסות של מסלול {plan.name}</strong>
               <span>
-                {overQuota.map((row) => `${row.label}: ${row.used} מתוך ${row.max}`).join(" · ")}. כדי לעבור למסלול הזה
-                צריך קודם לצמצם, או לבחור מסלול גדול יותר.
+                {overQuota.map((row) => `${row.label}: ${row.used} מתוך ${row.max}`).join(" · ")} — כדי לעבור למסלול הזה
+                צריך קודם לצמצם, או לבחור מסלול גדול יותר
               </span>
             </div>
           </div>
@@ -198,7 +198,7 @@ export default async function CheckoutPage({
                 <small>
                   {period === "annual" ? "פעם בשנה" : "פעם בחודש"},{" "}
                   {usage?.subscription_status === "trialing" ? "החל מסיום תקופת הניסיון" : "החל מתקופת החיוב הבאה"} ·
-                  לפני מע״מ · פרטי החיוב יישלחו ל-{user.email}
+                  לפני מע״מ · פרטי החיוב יישלחו ל־{user.email}
                 </small>
               </span>
             </div>
@@ -210,8 +210,8 @@ export default async function CheckoutPage({
           <div>
             <strong>התשלום המקוון יופעל בקרוב</strong>
             <span>
-              פרטי הכרטיס יוזנו רק אצל חברת הסליקה — ShiftPilot לא שומרת מספר כרטיס. עד אז, מעבר מסלול נעשה{" "}
-              <Link href="/workspace/support">מול הצוות שלנו</Link>.
+              פרטי הכרטיס יוזנו רק אצל חברת הסליקה — ShiftPilot לא שומרת מספר כרטיס, ועד אז מעבר מסלול נעשה{" "}
+              <Link href="/workspace/support">מול הצוות שלנו</Link>
             </span>
           </div>
         </div>

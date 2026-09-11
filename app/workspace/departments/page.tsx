@@ -72,7 +72,7 @@ export default async function DepartmentsPage() {
           <h1>
             <Network /> סניפים ומחלקות
           </h1>
-          <p>יוצרים מחלקות בכל סניף ומגדירים בדיוק לאילו אזורים כל מנהל ועובד שייכים.</p>
+          <p>יוצרים מחלקות בכל סניף ומגדירים בדיוק לאילו אזורים כל מנהל ועובד שייכים</p>
         </div>
       </header>
       <DepartmentsClient

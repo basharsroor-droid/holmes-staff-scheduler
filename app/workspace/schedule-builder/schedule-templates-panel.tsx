@@ -68,7 +68,7 @@ export function ScheduleTemplatesPanel({
 
   async function saveTemplate() {
     if (!sourcePeriodId || !templateName.trim()) {
-      setMessage("בחר חודש מקור ותן לתבנית שם.", "error");
+      setMessage("בחרו חודש מקור ותנו לתבנית שם", "error");
       return;
     }
     setBusy("save");
@@ -79,7 +79,7 @@ export function ScheduleTemplatesPanel({
     });
     setBusy("");
     if (error || !data) {
-      setMessage("שמירת התבנית נכשלה.", "error");
+      setMessage("שמירת התבנית נכשלה", "error");
       return;
     }
     setTemplates((current) => [
@@ -94,16 +94,16 @@ export function ScheduleTemplatesPanel({
       ...current
     ]);
     setTemplateName("");
-    setMessage("התבנית נשמרה בלי שיבוצי עובדים ובלי זמינות ישנה.");
+    setMessage("התבנית נשמרה בלי שיבוצי עובדים ובלי זמינות ישנה");
   }
 
   async function applyTemplate() {
     if (!targetPeriodId || !templateId) {
-      setMessage("בחר תבנית וחודש יעד ריק.", "error");
+      setMessage("בחרו תבנית וחודש יעד ריק", "error");
       return;
     }
     if (target?.shift_count) {
-      setMessage("אפשר להחיל תבנית רק על חודש שאין בו עדיין משמרות.", "error");
+      setMessage("אפשר להחיל תבנית רק על חודש שאין בו עדיין משמרות", "error");
       return;
     }
     setBusy("apply");
@@ -114,29 +114,29 @@ export function ScheduleTemplatesPanel({
     });
     setBusy("");
     if (error || !data?.length) {
-      setMessage("החלת התבנית נכשלה.", "error");
+      setMessage("החלת התבנית נכשלה", "error");
       return;
     }
     const result = data[0];
     setMessage(
-      `נוצרו ${result.shifts_created} משמרות טיוטה${result.items_skipped ? `, ${result.items_skipped} פריטים דולגו כי אין יום מקביל בחודש` : ""}.`
+      `נוצרו ${result.shifts_created} משמרות טיוטה${result.items_skipped ? `, ${result.items_skipped} פריטים דולגו כי אין יום מקביל בחודש` : ""}`
     );
     router.refresh();
   }
 
   async function removeTemplate(id: string) {
-    if (!window.confirm("למחוק את התבנית? סידורים שכבר נוצרו ממנה לא יימחקו.")) return;
+    if (!window.confirm("למחוק את התבנית? סידורים שכבר נוצרו ממנה לא יימחקו")) return;
     setBusy(`delete:${id}`);
     setMessage("");
     const { error } = await supabase.rpc("delete_schedule_template", { target_template_id: id });
     setBusy("");
     if (error) {
-      setMessage("מחיקת התבנית נכשלה.", "error");
+      setMessage("מחיקת התבנית נכשלה", "error");
       return;
     }
     setTemplates((current) => current.filter((item) => item.id !== id));
     if (templateId === id) setTemplateId("");
-    setMessage("התבנית נמחקה.");
+    setMessage("התבנית נמחקה");
   }
 
   return (
@@ -145,7 +145,7 @@ export function ScheduleTemplatesPanel({
         <div>
           <p className="eyebrow">Schedule Templates</p>
           <h2>תבניות סידור לשימוש חוזר</h2>
-          <p>שומרים את מבנה המשמרות בלבד — בלי עובדים, בלי זמינות ישנה ובלי אילוצים אישיים.</p>
+          <p>שומרים את מבנה המשמרות בלבד — בלי עובדים, בלי זמינות ישנה ובלי אילוצים אישיים</p>
         </div>
       </div>
 
@@ -153,7 +153,7 @@ export function ScheduleTemplatesPanel({
         <label>
           חודש מקור
           <select className="input" value={sourcePeriodId} onChange={(e) => setSourcePeriodId(e.target.value)}>
-            <option value="">בחר חודש עם משמרות</option>
+            <option value="">בחירת חודש עם משמרות</option>
             {periods
               .filter((p) => p.shift_count > 0)
               .map((p) => (
@@ -180,7 +180,7 @@ export function ScheduleTemplatesPanel({
           disabled={!!busy || !sourcePeriodId || !templateName.trim()}
           onClick={() => void saveTemplate()}
         >
-          {busy === "save" ? <Loader2 className="spin" size={16} /> : <Save size={16} />} שמור כתבנית
+          {busy === "save" ? <Loader2 className="spin" size={16} /> : <Save size={16} />} שמירה כתבנית
         </button>
       </div>
 
@@ -197,7 +197,7 @@ export function ScheduleTemplatesPanel({
               setTemplateId("");
             }}
           >
-            <option value="">בחר חודש ריק</option>
+            <option value="">בחירת חודש ריק</option>
             {periods
               .filter((p) => p.shift_count === 0)
               .map((p) => (
@@ -215,7 +215,7 @@ export function ScheduleTemplatesPanel({
             onChange={(e) => setTemplateId(e.target.value)}
             disabled={!targetPeriodId}
           >
-            <option value="">בחר תבנית מתאימה</option>
+            <option value="">בחירת תבנית מתאימה</option>
             {applicableTemplates.map((t) => (
               <option key={t.id} value={t.id}>
                 {t.name} · {t.item_count} משמרות
@@ -230,7 +230,7 @@ export function ScheduleTemplatesPanel({
           disabled={!!busy || !targetPeriodId || !templateId}
           onClick={() => void applyTemplate()}
         >
-          {busy === "apply" ? <Loader2 className="spin" size={16} /> : <CopyPlus size={16} />} החל תבנית על החודש
+          {busy === "apply" ? <Loader2 className="spin" size={16} /> : <CopyPlus size={16} />} החלת התבנית על החודש
         </button>
       </div>
 
@@ -253,7 +253,7 @@ export function ScheduleTemplatesPanel({
           ))}
         </div>
       ) : (
-        <EmptyState description="עדיין לא נשמרו תבניות." />
+        <EmptyState description="עדיין לא נשמרו תבניות" />
       )}
 
       <StatusMessage message={message} kind={kind} />

@@ -81,9 +81,9 @@ export default async function AvailabilityPage() {
             {organizationResult.data.name} · {branchResult.data.name}
           </p>
           <h1>
-            <CalendarCheck /> זמינות ו-Time Off
+            <CalendarCheck /> זמינות וחופשות
           </h1>
-          <p>מסמנים זמינות למשמרות ושולחים בקשות חופשה או מחלה לאישור המנהל.</p>
+          <p>מסמנים זמינות למשמרות ושולחים בקשות חופשה או מחלה לאישור המנהל</p>
         </div>
       </header>
 
