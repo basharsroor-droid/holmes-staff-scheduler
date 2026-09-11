@@ -943,6 +943,10 @@ const legalPageSource = readFileSync(
   new URL("../components/legal/legal-page.tsx", import.meta.url),
   "utf8"
 );
+const legalBackLinksSource = readFileSync(
+  new URL("../components/legal/legal-back-links.tsx", import.meta.url),
+  "utf8"
+);
 for (const requiredRule of [
   "verifyCurrentPassword",
   "signInWithPassword",
@@ -965,14 +969,22 @@ for (const requiredRule of [
   }
 }
 
-for (const requiredRule of [
-  "createSupabaseServerClient",
-  "supabase.auth.getUser()",
-  'user ? "/workspace" : "/"',
-  'user ? "חזרה למערכת" : "חזרה לאתר"'
-]) {
+// The legal pages know the user on the server and pass it down; the header
+// links (components/legal/legal-back-links.tsx) send a signed-in user back to
+// the workspace and a signed-out user inside the native app back to login,
+// never to the marketing site the app does not show.
+for (const requiredRule of ["createSupabaseServerClient", "supabase.auth.getUser()", "signedIn={!!user}"]) {
   if (!legalPageSource.includes(requiredRule)) {
     failures.push(`authenticated legal-page return navigation is missing: ${requiredRule}`);
+  }
+}
+for (const requiredRule of [
+  "isNativeApp()",
+  'signedIn ? "/workspace" : nativeApp ? "/login" : "/"',
+  'signedIn ? "חזרה למערכת" : nativeApp ? "חזרה לכניסה" : "חזרה לאתר"'
+]) {
+  if (!legalBackLinksSource.includes(requiredRule)) {
+    failures.push(`legal-page return navigation is missing: ${requiredRule}`);
   }
 }
 
