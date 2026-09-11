@@ -77,9 +77,12 @@ try {
   const period = await must(admin.from("schedule_periods").insert({ organization_id: organizationId, branch_id: branch.id, department_id: department.id, year, month: 1, status: "published", submission_opens_at: `${year}-01-01T00:00:00Z`, submission_closes_at: `${year}-01-07T00:00:00Z`, published_at: new Date().toISOString(), created_by: ownerId }).select("id").single(), "create schedule period");
   const template = await must(admin.from("shift_templates").insert({ organization_id: organizationId, branch_id: branch.id, department_id: department.id, name: "E2E Morning", shift_type: "opening", start_time: "08:00", end_time: "16:00", required_employees: 1 }).select("id").single(), "create shift template");
 
+  // Every row in a bulk insert must list the same columns: PostgREST sends a
+  // column missing from one row as NULL (not the column default), and
+  // shifts.open_for_requests is NOT NULL.
   const shifts = await must(admin.from("shifts").insert([
     { organization_id: organizationId, schedule_period_id: period.id, shift_template_id: template.id, shift_date: `${year}-01-10`, name: "E2E Marketplace", start_time: "08:00", end_time: "16:00", required_employees: 1, status: "published", open_for_requests: true, opened_at: new Date().toISOString(), opened_by: managerId },
-    { organization_id: organizationId, schedule_period_id: period.id, shift_template_id: template.id, shift_date: `${year}-01-20`, name: "E2E Time Off Block", start_time: "08:00", end_time: "16:00", required_employees: 1, status: "published" }
+    { organization_id: organizationId, schedule_period_id: period.id, shift_template_id: template.id, shift_date: `${year}-01-20`, name: "E2E Time Off Block", start_time: "08:00", end_time: "16:00", required_employees: 1, status: "published", open_for_requests: false }
   ]).select("id,shift_date"), "create shifts");
   const marketplaceShift = shifts.find((shift) => shift.shift_date === `${year}-01-10`);
   const leaveShift = shifts.find((shift) => shift.shift_date === `${year}-01-20`);
