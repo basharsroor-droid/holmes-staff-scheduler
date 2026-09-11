@@ -22,39 +22,25 @@ import {
 import { AnimatePresence, motion } from "motion/react";
 
 import { Dock, DockIcon, DockItem, DockLabel } from "@/components/ui/dock";
-import type { AuthUser } from "@/lib/auth-config";
-import { AUTH_USER_KEY, DEMO_USER_KEY } from "@/lib/local-storage-keys";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 
-const workspaceEmployeePrimary = [
+// Rendered only inside /workspace (see components/layout/app-shell.tsx).
+
+const employeePrimary = [
   { href: "/workspace", label: "בית", icon: Home },
   { href: "/workspace/availability", label: "זמינות", icon: CalendarCheck },
   { href: "/workspace/my-shifts", label: "משמרות", icon: CalendarDays },
   { href: "/workspace/shift-swaps", label: "החלפות", icon: Repeat2 }
 ];
 
-const workspaceManagerPrimary = [
+const managerPrimary = [
   { href: "/workspace", label: "בית", icon: Home },
   { href: "/workspace/schedule-builder", label: "סידור", icon: CalendarRange },
   { href: "/workspace/employees", label: "עובדים", icon: Users },
   { href: "/workspace/command-center", label: "ניהול", icon: CalendarCheck }
 ];
 
-const legacyEmployeePrimary = [
-  { href: "/availability", label: "זמינות", icon: CalendarCheck },
-  { href: "/my-shifts", label: "משמרות", icon: CalendarDays },
-  { href: "/schedule", label: "סידור", icon: CalendarRange },
-  { href: "/swap-requests", label: "החלפות", icon: Repeat2 }
-];
-
-const legacyManagerPrimary = [
-  { href: "/manager", label: "בית", icon: Home },
-  { href: "/manager/schedule", label: "סידור", icon: CalendarRange },
-  { href: "/admin/employees", label: "עובדים", icon: Users },
-  { href: "/schedule", label: "לוח", icon: CalendarDays }
-];
-
-const workspaceEmployeeMore = [
+const employeeMore = [
   { href: "/workspace/notifications", label: "התראות", icon: Bell },
   { href: "/workspace/support", label: "תמיכה", icon: LifeBuoy },
   { href: "/workspace/help", label: "מרכז עזרה", icon: CircleHelp },
@@ -63,7 +49,7 @@ const workspaceEmployeeMore = [
   { href: "/privacy", label: "מדיניות פרטיות", icon: ShieldCheck }
 ];
 
-const workspaceManagerMore = [
+const managerMore = [
   { href: "/workspace/shift-templates", label: "סוגי משמרות", icon: Settings },
   { href: "/workspace/work-months", label: "חודשי עבודה", icon: CalendarDays },
   { href: "/workspace/submissions", label: "מעקב הגשות", icon: CalendarCheck },
@@ -77,21 +63,6 @@ const workspaceManagerMore = [
   { href: "/privacy", label: "מדיניות פרטיות", icon: ShieldCheck }
 ];
 
-const legacyEmployeeMore = [
-  { href: "/manager-requests", label: "בקשות להנהלה", icon: CalendarCheck },
-  { href: "/demo/help", label: "עזרה ותמיכה", icon: LifeBuoy },
-  { href: "/terms", label: "תנאי שימוש", icon: Settings },
-  { href: "/privacy", label: "מדיניות פרטיות", icon: ShieldCheck }
-];
-
-const legacyManagerMore = [
-  { href: "/swap-requests", label: "החלפות", icon: Repeat2 },
-  { href: "/admin/shift-templates", label: "תבניות", icon: Settings },
-  { href: "/demo/help", label: "עזרה ותמיכה", icon: LifeBuoy },
-  { href: "/terms", label: "תנאי שימוש", icon: Settings },
-  { href: "/privacy", label: "מדיניות פרטיות", icon: ShieldCheck }
-];
-
 type DockRole = "employee" | "manager";
 
 export function MobileAppDock() {
@@ -99,56 +70,40 @@ export function MobileAppDock() {
   const router = useRouter();
   const [role, setRole] = useState<DockRole>("employee");
   const [moreOpen, setMoreOpen] = useState(false);
-  const isWorkspace = pathname.startsWith("/workspace");
 
   useEffect(() => {
     let cancelled = false;
 
     async function resolveRole() {
-      if (isWorkspace) {
-        try {
-          const supabase = createSupabaseBrowserClient();
-          const { data: { user } } = await supabase.auth.getUser();
-          if (!user || cancelled) return;
-          const { data } = await supabase
-            .from("organization_memberships")
-            .select("role")
-            .eq("user_id", user.id)
-            .eq("status", "active")
-            .limit(1)
-            .maybeSingle();
-          if (!cancelled) setRole(data?.role === "employee" ? "employee" : "manager");
-        } catch {
-          if (!cancelled) setRole("employee");
-        }
-        return;
-      }
-
-      const raw = window.localStorage.getItem(AUTH_USER_KEY) ?? window.sessionStorage.getItem(AUTH_USER_KEY);
-      if (!raw) return;
       try {
-        const user = JSON.parse(raw) as AuthUser;
-        if (!cancelled) setRole(user.role === "employee" ? "employee" : "manager");
+        const supabase = createSupabaseBrowserClient();
+        const {
+          data: { user }
+        } = await supabase.auth.getUser();
+        if (!user || cancelled) return;
+        const { data } = await supabase
+          .from("organization_memberships")
+          .select("role")
+          .eq("user_id", user.id)
+          .eq("status", "active")
+          .limit(1)
+          .maybeSingle();
+        if (!cancelled) setRole(data?.role === "employee" ? "employee" : "manager");
       } catch {
         if (!cancelled) setRole("employee");
       }
     }
 
     void resolveRole();
-    return () => { cancelled = true; };
-  }, [isWorkspace]);
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => setMoreOpen(false), [pathname]);
 
-  const primaryItems = useMemo(() => {
-    if (isWorkspace) return role === "employee" ? workspaceEmployeePrimary : workspaceManagerPrimary;
-    return role === "employee" ? legacyEmployeePrimary : legacyManagerPrimary;
-  }, [isWorkspace, role]);
-
-  const moreItems = useMemo(() => {
-    if (isWorkspace) return role === "employee" ? workspaceEmployeeMore : workspaceManagerMore;
-    return role === "employee" ? legacyEmployeeMore : legacyManagerMore;
-  }, [isWorkspace, role]);
+  const primaryItems = useMemo(() => (role === "employee" ? employeePrimary : managerPrimary), [role]);
+  const moreItems = useMemo(() => (role === "employee" ? employeeMore : managerMore), [role]);
 
   function isActive(href: string) {
     return pathname === href || (href !== "/workspace" && pathname.startsWith(`${href}/`));
@@ -156,19 +111,10 @@ export function MobileAppDock() {
 
   async function logout() {
     setMoreOpen(false);
-    if (isWorkspace) {
-      const supabase = createSupabaseBrowserClient();
-      await supabase.auth.signOut();
-      router.replace("/login");
-      router.refresh();
-      return;
-    }
-
-    window.localStorage.removeItem(AUTH_USER_KEY);
-    window.localStorage.removeItem(DEMO_USER_KEY);
-    window.sessionStorage.removeItem(AUTH_USER_KEY);
-    window.sessionStorage.removeItem(DEMO_USER_KEY);
-    router.replace("/");
+    const supabase = createSupabaseBrowserClient();
+    await supabase.auth.signOut();
+    router.replace("/login");
+    router.refresh();
   }
 
   return (
@@ -184,7 +130,9 @@ export function MobileAppDock() {
               return (
                 <Link key={item.href} href={item.href} className="contents">
                   <DockItem label={item.label} active={isActive(item.href)}>
-                    <DockIcon><Icon className="h-5 w-5" /></DockIcon>
+                    <DockIcon>
+                      <Icon className="h-5 w-5" />
+                    </DockIcon>
                     <DockLabel>{item.label}</DockLabel>
                   </DockItem>
                 </Link>

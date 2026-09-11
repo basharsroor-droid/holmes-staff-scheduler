@@ -90,11 +90,14 @@ test("anonymous visitors cannot enter the workspace", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "כניסה למערכת" })).toBeVisible();
 });
 
-test("demo remains available without a SaaS session", async ({ page }) => {
+test("the demo page is a public product tour that leads to the free trial", async ({ page }) => {
   await page.goto("/demo");
 
   await expect(page).toHaveURL(/\/demo$/);
-  await expect(page.locator("body")).toContainText(/ShiftPilot/i);
+  await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+  await expect(page.locator("main a[href='/onboarding']").first()).toBeVisible();
+  // No shared demo account and no mock login (F1): the tour never asks for credentials.
+  await expect(page.locator("input[type='password']")).toHaveCount(0);
 });
 
 // PWA foundation (roadmap phase 7, step 1). Two things caught real bugs

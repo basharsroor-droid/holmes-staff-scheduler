@@ -18,6 +18,12 @@ on:
     branches: [main]
     paths:
       - "app/workspace/**"
+      # The workspace renders through the root layout, components/ and lib/
+      # (app-shell, mobile dock, Supabase clients), so changes there must run
+      # this flow too.
+      - "app/layout.tsx"
+      - "components/**"
+      - "lib/**"
       - "app/login/**"
       - "supabase/migrations/**"
       - "tests/staging/**"
