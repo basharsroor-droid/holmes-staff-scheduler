@@ -2,12 +2,19 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
-const INTRO_KEY = "shiftpilot_code_intro_seen_v1";
+import { isNativeApp } from "@/lib/native-app";
 
-// G3 in docs/REMEDIATION_PLAN.md: the 3.6s intro plays once per browser,
-// ever (localStorage), not once per session -- returning visitors and
-// people opening the site in a new tab go straight to the page. The
-// animation itself is unchanged.
+const INTRO_KEY = "shiftpilot_code_intro_seen_v1";
+const NATIVE_MARKER = "ShiftPilotNativeApp";
+const WEB_INTRO_DURATION_MS = 3600;
+const NATIVE_INTRO_DURATION_MS = 1500;
+
+// G3 in docs/REMEDIATION_PLAN.md: on the public website the intro plays
+// once per browser ever (localStorage), not once per session. The native
+// app is different: the opening animation is part of the app launch
+// experience, so it plays on each fresh WebView/app launch. RootLayout is
+// not remounted on ordinary in-app navigation, so this does not replay
+// while moving between screens.
 const tagline = "THE EASY WAY TO YOUR NEXT SHIFT".split(" ");
 
 // Reported live (2026-08-19): the site/app was visible for a beat before
@@ -33,7 +40,8 @@ const tagline = "THE EASY WAY TO YOUR NEXT SHIFT".split(" ");
 // React's own overlay is ready to take its place.
 export const introPrebootScript = `(function(){try{
   if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-  if (localStorage.getItem("${INTRO_KEY}")) return;
+  var nativeApp = navigator.userAgent.indexOf("${NATIVE_MARKER}") !== -1;
+  if (!nativeApp && localStorage.getItem("${INTRO_KEY}")) return;
   document.documentElement.classList.add("si-lock");
   var el = document.createElement("div");
   el.id = "si-preboot";
@@ -47,13 +55,14 @@ export function SiteIntro() {
   const [visible, setVisible] = useState(false);
   const [started, setStarted] = useState(false);
   const [leaving, setLeaving] = useState(false);
+  const [nativeApp, setNativeApp] = useState(false);
   const leavingRef = useRef(false);
 
   const finish = useCallback(() => {
     if (leavingRef.current) return;
     leavingRef.current = true;
     setLeaving(true);
-    window.localStorage.setItem(INTRO_KEY, "1");
+    if (!isNativeApp()) window.localStorage.setItem(INTRO_KEY, "1");
     window.setTimeout(() => {
       document.documentElement.classList.remove("si-lock");
       setVisible(false);
@@ -61,7 +70,13 @@ export function SiteIntro() {
   }, []);
 
   useEffect(() => {
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches || window.localStorage.getItem(INTRO_KEY)) return;
+    const inNativeApp = isNativeApp();
+    setNativeApp(inNativeApp);
+    if (
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches ||
+      (!inNativeApp && window.localStorage.getItem(INTRO_KEY))
+    )
+      return;
     document.documentElement.classList.add("si-lock");
     // Hand off from the preboot placeholder (see introPrebootScript above)
     // to this real, interactive overlay -- same background, so removing
@@ -91,9 +106,11 @@ export function SiteIntro() {
       height = canvas.height = canvas.clientHeight * ratio;
       const count = Math.min(Math.round((width * height) / (18000 * ratio * ratio)), 140);
       particles = Array.from({ length: count }, () => ({
-        x: Math.random() * width, y: Math.random() * height,
+        x: Math.random() * width,
+        y: Math.random() * height,
         radius: Math.random() * 1.4 * ratio + 0.3,
-        phase: Math.random() * Math.PI * 2, speed: 0.4 + Math.random() * 0.8
+        phase: Math.random() * Math.PI * 2,
+        speed: 0.4 + Math.random() * 0.8
       }));
     }
 
@@ -113,33 +130,59 @@ export function SiteIntro() {
     resize();
     window.addEventListener("resize", resize);
     animationFrame = window.requestAnimationFrame(draw);
-    const autoFinish = window.setTimeout(finish, 3600);
+    const autoFinish = window.setTimeout(finish, nativeApp ? NATIVE_INTRO_DURATION_MS : WEB_INTRO_DURATION_MS);
 
     return () => {
       window.clearTimeout(autoFinish);
       window.cancelAnimationFrame(animationFrame);
       window.removeEventListener("resize", resize);
     };
-  }, [finish, visible]);
+  }, [finish, nativeApp, visible]);
 
   if (!visible) return null;
 
-  return <div className={`si-overlay ${started ? "si-started" : ""} ${leaving ? "si-exit" : ""}`} role="presentation" aria-hidden="true">
-    <canvas ref={canvasRef} className="si-canvas" />
-    <div className="si-content">
-      <div className="si-logo">
-        <span className="si-streaks"><span /><span /><span /></span>
-        <span className="si-word si-word--1">Shift</span><span className="si-word si-word--2">Pilot</span>
+  return (
+    <div
+      className={`si-overlay ${started ? "si-started" : ""} ${leaving ? "si-exit" : ""}`}
+      role="presentation"
+      aria-hidden="true"
+    >
+      <canvas ref={canvasRef} className="si-canvas" />
+      <div className="si-content">
+        <div className="si-logo">
+          <span className="si-streaks">
+            <span />
+            <span />
+            <span />
+          </span>
+          <span className="si-word si-word--1">Shift</span>
+          <span className="si-word si-word--2">Pilot</span>
+        </div>
+        <div className="si-swoosh-wrap">
+          <svg className="si-swoosh-svg" viewBox="0 0 470 100" preserveAspectRatio="xMidYMid meet">
+            <defs>
+              <linearGradient id="si-swoosh-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor="var(--intro-blue)" />
+                <stop offset="45%" stopColor="var(--intro-blue2)" />
+                <stop offset="80%" stopColor="var(--intro-purple)" />
+                <stop offset="100%" stopColor="var(--intro-purple2)" />
+              </linearGradient>
+            </defs>
+            <path className="si-swoosh-path" d="M 8 55 C 90 95, 300 95, 460 18" />
+            <path className="si-plane" fill="url(#si-swoosh-gradient)" d="M -10 -8 L 15 0 L -10 8 L -3 0 Z" />
+          </svg>
+        </div>
+        <div className="si-tagline">
+          {tagline.map((word, index) => (
+            <span style={{ animationDelay: `${1.9 + index * 0.06}s` }} key={word}>
+              {word}
+            </span>
+          ))}
+        </div>
       </div>
-      <div className="si-swoosh-wrap">
-        <svg className="si-swoosh-svg" viewBox="0 0 470 100" preserveAspectRatio="xMidYMid meet">
-          <defs><linearGradient id="si-swoosh-gradient" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stopColor="var(--intro-blue)" /><stop offset="45%" stopColor="var(--intro-blue2)" /><stop offset="80%" stopColor="var(--intro-purple)" /><stop offset="100%" stopColor="var(--intro-purple2)" /></linearGradient></defs>
-          <path className="si-swoosh-path" d="M 8 55 C 90 95, 300 95, 460 18" />
-          <path className="si-plane" fill="url(#si-swoosh-gradient)" d="M -10 -8 L 15 0 L -10 8 L -3 0 Z" />
-        </svg>
-      </div>
-      <div className="si-tagline">{tagline.map((word, index) => <span style={{ animationDelay: `${1.9 + index * 0.06}s` }} key={word}>{word}</span>)}</div>
+      <button type="button" className="si-skip" aria-label="דילוג על הפתיח" onClick={finish}>
+        דילוג »
+      </button>
     </div>
-    <button type="button" className="si-skip" aria-label="דילוג על הפתיח" onClick={finish}>דילוג »</button>
-  </div>;
+  );
 }
