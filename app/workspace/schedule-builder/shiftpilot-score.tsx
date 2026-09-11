@@ -136,7 +136,7 @@ export function ShiftPilotScore({
       { key: "overlap", label: "משמרות חופפות", count: overlap, points: overlap * 15, severity: "critical" },
       {
         key: "leave",
-        label: "שיבוץ בזמן Time Off",
+        label: "שיבוץ בזמן חופשה",
         count: leaveConflict,
         points: leaveConflict * 15,
         severity: "critical"
@@ -182,7 +182,7 @@ export function ShiftPilotScore({
           <h2>
             <Gauge size={20} /> ShiftPilot Score
           </h2>
-          <p className="card-muted">ציון בריאות שקוף לסידור — כל נקודה שיורדת מוסברת למנהל.</p>
+          <p className="card-muted">ציון בריאות שקוף לסידור — כל נקודה שיורדת מוסברת למנהל</p>
         </div>
         <button
           type="button"
@@ -190,7 +190,7 @@ export function ShiftPilotScore({
           disabled={refreshing || !selectedPeriodId}
           onClick={() => startRefresh(() => router.refresh())}
         >
-          <RefreshCw size={15} /> {refreshing ? "מחשב..." : "חשב מחדש"}
+          <RefreshCw size={15} /> {refreshing ? "מחשב..." : "חישוב מחדש"}
         </button>
       </div>
       <div className="workspace-stats schedule-stats">
@@ -222,7 +222,7 @@ export function ShiftPilotScore({
         <div className="submission-banner open">
           <div>
             <strong>100/100 — הסידור נקי</strong>
-            <span>לא נמצאו כרגע גורמים שמורידים את הציון.</span>
+            <span>לא נמצאו כרגע גורמים שמורידים את הציון</span>
           </div>
         </div>
       ) : (
@@ -245,7 +245,7 @@ export function ShiftPilotScore({
         </div>
       )}
       <p className="card-muted" style={{ marginTop: 10 }}>
-        הציון הוא כלי הסבר תפעולי, לא החלטת AI: Critical מוריד יותר מ־Warning, והמנהל רואה בדיוק למה.
+        הציון הוא כלי הסבר תפעולי, לא החלטה אוטומטית: בעיה קריטית מורידה יותר מאזהרה, והמנהל רואה בדיוק למה
       </p>
     </section>
   );

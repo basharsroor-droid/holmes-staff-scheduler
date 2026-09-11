@@ -84,7 +84,7 @@ export default async function SubscriptionPage() {
           <h1>
             <CreditCard /> המנוי שלי
           </h1>
-          <p>המסלול, תקופת הניסיון והשימוש מול המכסות של העסק.</p>
+          <p>המסלול, תקופת הניסיון והשימוש מול המכסות של העסק</p>
         </div>
       </header>
 
@@ -94,7 +94,7 @@ export default async function SubscriptionPage() {
             <div>
               <strong>לא נמצא מנוי לעסק</strong>
               <span>
-                נראה שהמנוי עדיין לא הוגדר. <Link href="/workspace/support">פנו לתמיכה</Link> ונסדר את זה.
+                נראה שהמנוי עדיין לא הוגדר — <Link href="/workspace/support">פנו לתמיכה</Link> ונסדר את זה
               </span>
             </div>
           </div>
@@ -144,7 +144,7 @@ export default async function SubscriptionPage() {
                   <strong>
                     מבצע השקה: {LAUNCH_OFFER.discountPercent}% הנחה על {LAUNCH_OFFER.months} החיובים החודשיים הראשונים
                   </strong>
-                  <span>העסק שלכם זכאי למבצע כי נפתח עד {LAUNCH_OFFER.endsOn.split("-").reverse().join(".")}.</span>
+                  <span>העסק שלכם זכאי למבצע כי נפתח עד {LAUNCH_OFFER.endsOn.split("-").reverse().join(".")}</span>
                 </div>
               </div>
             </section>
@@ -191,7 +191,7 @@ export default async function SubscriptionPage() {
                 <p className="eyebrow">שינוי מסלול</p>
                 <h2>צריכים מסלול אחר?</h2>
                 <p className="card-muted">
-                  תשלום ושינוי מסלול מתוך המערכת יופעלו בקרוב. עד אז, שינוי מסלול נעשה מול הצוות שלנו — בלי לאבד נתונים.
+                  תשלום ושינוי מסלול מתוך המערכת יופעלו בקרוב, ועד אז שינוי מסלול נעשה מול הצוות שלנו — בלי לאבד נתונים
                 </p>
               </div>
             </div>

@@ -7,7 +7,7 @@ export const productConfig = {
   // which used shortName when it was still "SP".
   monogram: "SP",
   tagline: "ניהול סידור עבודה פשוט לכל עסק",
-  description: "מערכת לניהול זמינות, שיבוצים, החלפות וסידור עבודה לעובדים."
+  description: "מערכת לניהול זמינות, שיבוצים, החלפות וסידור עבודה לעובדים"
 };
 
 export type Organization = {

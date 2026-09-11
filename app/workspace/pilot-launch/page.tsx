@@ -22,7 +22,7 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 // workspaces saw the wrong frequency.
 const cadenceLabels: Record<string, string> = {
   weekly: "שבועית",
-  biweekly: "דו-שבועית",
+  biweekly: "דו־שבועית",
   monthly: "חודשית",
   custom: "מותאמת אישית"
 };
@@ -200,43 +200,43 @@ export default async function PilotLaunchPage() {
       complete: (baselineBeforeCount ?? 0) > 0,
       href: "/workspace/pilot-baseline",
       title: "נמדד Baseline לפני הפיילוט",
-      description: "כמה זמן ותיקונים לוקח היום להכין סידור בלי ShiftPilot — כדי שיהיה למה להשוות."
+      description: "כמה זמן ותיקונים לוקח היום להכין סידור בלי ShiftPilot — כדי שיהיה למה להשוות"
     },
     {
       complete: (templateCount ?? 0) > 0,
       href: "/workspace/shift-templates",
       title: "סוגי משמרות הוגדרו",
-      description: "לפחות תבנית משמרת פעילה אחת מוכנה לשימוש."
+      description: "לפחות תבנית משמרת פעילה אחת מוכנה לשימוש"
     },
     {
       complete: Boolean(activePeriod),
       href: "/workspace/work-months",
       title: "תקופת עבודה נפתחה",
-      description: "קיים חודש עבודה שאפשר לעבוד עליו."
+      description: "קיים חודש עבודה שאפשר לעבוד עליו"
     },
     {
       complete: employeeCount > 0,
       href: "/workspace/employees",
       title: "צוות הפיילוט מחובר",
-      description: "לפחות עובד אחד פעיל נמצא בתחום הניהול שלך."
+      description: "לפחות עובד אחד פעיל נמצא בתחום הניהול שלך"
     },
     {
       complete: submittedCount > 0,
       href: "/workspace/submissions",
       title: "התקבלה הגשת זמינות אמיתית",
-      description: "לפחות עובד אחד שלח זמינות למחזור הנוכחי."
+      description: "לפחות עובד אחד שלח זמינות למחזור הנוכחי"
     },
     {
       complete: published,
       href: "/workspace/schedule-builder",
       title: "הסידור הראשון פורסם",
-      description: "הפרסום נעשה במפורש על ידי מנהל לאחר בדיקה."
+      description: "הפרסום נעשה במפורש על ידי מנהל לאחר בדיקה"
     },
     {
       complete: published && (baselineAfterCount ?? 0) > 0,
       href: "/workspace/pilot-baseline",
       title: "מחזור 1 נסגר — נמדד After",
-      description: "המחזור נחשב גמור רק אחרי שנמדד הזמן בפועל מול ה-Baseline, לא רק כשהסידור פורסם."
+      description: "המחזור נחשב גמור רק אחרי שנמדד הזמן בפועל מול ה־Baseline, לא רק כשהסידור פורסם"
     }
   ];
 
@@ -258,10 +258,10 @@ export default async function PilotLaunchPage() {
             <Rocket /> מרכז השקת הפיילוט
           </h1>
           <p>
-            תמונת מצב אחת מהגדרת העסק ועד פרסום הסידור הראשון. הנתונים כאן נקראים מהמערכת ואינם מפרסמים או משנים סידור.
+            תמונת מצב אחת מהגדרת העסק ועד פרסום הסידור הראשון — הנתונים כאן נקראים מהמערכת ואינם מפרסמים או משנים סידור
           </p>
           {organization.pilot_mode ? (
-            <p>כלי ה-Intelligence מוסתרים כרגע כדי לשמור על מחזור פשוט. הם ייפתחו בהדרגה אחרי שמחזור 1 ייסגר.</p>
+            <p>הכלים החכמים מוסתרים כרגע כדי לשמור על מחזור פשוט, וייפתחו בהדרגה אחרי שמחזור 1 ייסגר</p>
           ) : null}
         </div>
       </header>
@@ -314,7 +314,7 @@ export default async function PilotLaunchPage() {
             <h2 id="pilot-launch-steps">
               {completedSteps} מתוך {launchSteps.length} אבני דרך הושלמו
             </h2>
-            <p>כל שלב נחשב מושלם רק לפי נתון קיים ב-ShiftPilot, לא לפי סימון ידני.</p>
+            <p>כל שלב נחשב מושלם רק לפי נתון קיים ב־ShiftPilot, לא לפי סימון ידני</p>
           </div>
           <div className="pilot-progress" aria-label={`${progress}% הושלמו`}>
             <strong>{progress}%</strong>
@@ -352,7 +352,7 @@ export default async function PilotLaunchPage() {
             <span>
               <strong>מעקב הגשות</strong>
               <small>
-                {submittedCount} עובדים הגישו מתוך {employeeCount} עובדים פעילים בתחום הניהול.
+                {submittedCount} עובדים הגישו מתוך {employeeCount} עובדים פעילים בתחום הניהול
               </small>
             </span>
             <span className="status-chip active">פתיחה</span>
@@ -361,7 +361,7 @@ export default async function PilotLaunchPage() {
             <Gauge />
             <span>
               <strong>בדיקה ובניית סידור</strong>
-              <small>כיסוי נוכחי {coverage}%. פרסום נשאר פעולה מפורשת של המנהל.</small>
+              <small>כיסוי נוכחי {coverage}% — הפרסום נשאר פעולה מפורשת של המנהל</small>
             </span>
             <span className="status-chip active">פתיחה</span>
           </Link>
@@ -369,7 +369,7 @@ export default async function PilotLaunchPage() {
             <Users />
             <span>
               <strong>מרכז שליטה למנהל</strong>
-              <small>חוסרים, בקשות והחלטות שמחכות לטיפול.</small>
+              <small>חוסרים, בקשות והחלטות שמחכות לטיפול</small>
             </span>
             <span className="status-chip active">פתיחה</span>
           </Link>
@@ -378,8 +378,8 @@ export default async function PilotLaunchPage() {
             <span>
               <strong>מדידת Baseline (לפני / אחרי)</strong>
               <small>
-                {baselineBeforeCount ?? 0} מדידת &quot;לפני&quot; · {baselineAfterCount ?? 0} מדידת &quot;אחרי&quot;. זה
-                מה שהופך את החיסכון בזמן למספר אמיתי.
+                {baselineBeforeCount ?? 0} מדידת &quot;לפני&quot; · {baselineAfterCount ?? 0} מדידת &quot;אחרי&quot; —
+                זה מה שהופך את החיסכון בזמן למספר אמיתי
               </small>
             </span>
             <span className="status-chip active">פתיחה</span>
@@ -388,7 +388,7 @@ export default async function PilotLaunchPage() {
             <MessageSquareText />
             <span>
               <strong>משוב מהמחזור הראשון</strong>
-              <small>{pilotFeedbackCount ?? 0} משובי פיילוט נשמרו עד עכשיו. המשוב נכנס למרכז התמיכה למעקב.</small>
+              <small>{pilotFeedbackCount ?? 0} משובי פיילוט נשמרו עד עכשיו, והם נכנסים למרכז התמיכה למעקב</small>
             </span>
             <span className="status-chip active">פתיחה</span>
           </Link>
@@ -401,7 +401,7 @@ export default async function PilotLaunchPage() {
             <CheckCircle2 />
             <strong>מחזור 1 נסגר</strong>
             <span>
-              הסידור פורסם ונמדד After מול ה-Baseline. עכשיו אפשר להחליט אילו כלי Intelligence לפתוח בהדרגה במחזור הבא.
+              הסידור פורסם ונמדד After מול ה־Baseline — עכשיו אפשר להחליט אילו כלים חכמים לפתוח בהדרגה במחזור הבא
             </span>
           </div>
         </section>
@@ -410,7 +410,7 @@ export default async function PilotLaunchPage() {
           <div>
             <CheckCircle2 />
             <strong>הסידור הראשון פורסם</strong>
-            <span>נשאר רק למדוד After מול ה-Baseline לפני שסוגרים את מחזור 1 ומחליטים מה לפתוח הלאה.</span>
+            <span>נשאר רק למדוד After מול ה־Baseline לפני שסוגרים את מחזור 1 ומחליטים מה לפתוח הלאה</span>
           </div>
         </section>
       ) : null}

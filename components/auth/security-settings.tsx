@@ -32,7 +32,7 @@ export function SecuritySettings() {
     const { data, error } = await supabase.auth.mfa.listFactors();
     setLoading(false);
     if (error) {
-      setMessage("לא הצלחנו לטעון את פרטי האימות הדו-שלבי.", "error");
+      setMessage("לא הצלחנו לטעון את פרטי האימות הדו־שלבי", "error");
       return;
     }
     setFactors((data.totp ?? []) as Factor[]);
@@ -49,7 +49,7 @@ export function SecuritySettings() {
     const { data, error } = await supabase.auth.mfa.enroll({ factorType: "totp" });
     setBusy(false);
     if (error) {
-      setMessage("לא הצלחנו להתחיל את ההרשמה. נסו שוב.", "error");
+      setMessage("לא הצלחנו להתחיל את ההרשמה — נסו שוב", "error");
       return;
     }
     setPendingFactorId(data.id);
@@ -68,31 +68,31 @@ export function SecuritySettings() {
 
   async function verifyEnroll() {
     if (!pendingFactorId || code.trim().length < 6) {
-      setMessage("יש להזין את הקוד בן 6 הספרות מהאפליקציה.", "error");
+      setMessage("יש להזין את הקוד בן 6 הספרות מהאפליקציה", "error");
       return;
     }
     setBusy(true);
     const { error } = await supabase.auth.mfa.challengeAndVerify({ factorId: pendingFactorId, code: code.trim() });
     setBusy(false);
     if (error) {
-      setMessage("הקוד שגוי או שפג תוקפו. ודאו שהאפליקציה מסונכרנת ונסו שוב.", "error");
+      setMessage("הקוד שגוי או שפג תוקפו — ודאו שהאפליקציה מסונכרנת ונסו שוב", "error");
       return;
     }
-    setMessage("אימות דו-שלבי הופעל בהצלחה. בכניסה הבאה יידרש קוד מהאפליקציה.", "success");
+    setMessage("אימות דו־שלבי הופעל בהצלחה — בכניסה הבאה יידרש קוד מהאפליקציה", "success");
     cancelEnroll();
     void loadFactors();
   }
 
   async function removeFactor(factor: Factor) {
-    if (!window.confirm("להסיר את שיטת האימות הדו-שלבי? הכניסה הבאה לא תדרוש קוד נוסף, עד שתפעילו מחדש.")) return;
+    if (!window.confirm("להסיר את שיטת האימות הדו־שלבי? הכניסה הבאה לא תדרוש קוד נוסף, עד שתפעילו מחדש")) return;
     setBusy(true);
     const { error } = await supabase.auth.mfa.unenroll({ factorId: factor.id });
     setBusy(false);
     if (error) {
-      setMessage("לא הצלחנו להסיר את שיטת האימות.", "error");
+      setMessage("לא הצלחנו להסיר את שיטת האימות", "error");
       return;
     }
-    setMessage("אימות דו-שלבי הוסר מהחשבון.", "success");
+    setMessage("אימות דו־שלבי הוסר מהחשבון", "success");
     void loadFactors();
   }
 
@@ -103,7 +103,7 @@ export function SecuritySettings() {
       <div className="template-list-heading">
         <div>
           <p className="eyebrow">אבטחת חשבון</p>
-          <h2 id="security-settings-title"><ShieldCheck size={20} /> אימות דו-שלבי (MFA)</h2>
+          <h2 id="security-settings-title"><ShieldCheck size={20} /> אימות דו־שלבי (MFA)</h2>
         </div>
       </div>
       <p>
@@ -114,13 +114,13 @@ export function SecuritySettings() {
       </p>
 
       {loading ? (
-        <p className="card-muted">בודקים את מצב האימות הדו-שלבי בחשבון...</p>
+        <p className="card-muted">בודקים את מצב האימות הדו־שלבי בחשבון..</p>
       ) : verifiedFactor ? (
         <div className="security-factor-row">
           <span className="security-factor-info">
             <ShieldCheck size={16} color="var(--primary)" />
             <span>
-              <strong>אימות דו-שלבי פעיל</strong>
+              <strong>אימות דו־שלבי פעיל</strong>
               <small>הופעל {new Date(verifiedFactor.created_at).toLocaleDateString("he-IL")}</small>
             </span>
           </span>
@@ -133,14 +133,14 @@ export function SecuritySettings() {
           <div className="security-enroll-steps">
             <p>
               <strong>1.</strong> סרקו את הקוד עם אפליקציית אימות, או הזינו את
-              המפתח ידנית.
+              המפתח ידנית
             </p>
             {qrCode ? (
               // eslint-disable-next-line @next/next/no-img-element -- data: URI SVG from Supabase, not an app asset Next/Image can optimize
-              <img src={qrCode} alt="קוד QR להפעלת אימות דו-שלבי" width={180} height={180} className="security-qr" />
+              <img src={qrCode} alt="קוד QR להפעלת אימות דו־שלבי" width={180} height={180} className="security-qr" />
             ) : null}
             {secret ? <p className="card-muted mono-secret">מפתח ידני: {secret}</p> : null}
-            <p><strong>2.</strong> הזינו את הקוד בן 6 הספרות שהאפליקציה מציגה.</p>
+            <p><strong>2.</strong> הזינו את הקוד בן 6 הספרות שהאפליקציה מציגה</p>
             <label className="field">
               <span>קוד אימות</span>
               <input
@@ -164,13 +164,13 @@ export function SecuritySettings() {
         </div>
       ) : (
         <button className="button primary" disabled={busy} onClick={() => void startEnroll()}>
-          <Smartphone size={15} /> הפעלת אימות דו-שלבי
+          <Smartphone size={15} /> הפעלת אימות דו־שלבי
         </button>
       )}
 
       {!loading && !verifiedFactor && !enrolling ? (
         <p className="card-muted security-off-note">
-          <ShieldOff size={14} /> לא פעיל כרגע בחשבון הזה.
+          <ShieldOff size={14} /> לא פעיל כרגע בחשבון הזה
         </p>
       ) : null}
 

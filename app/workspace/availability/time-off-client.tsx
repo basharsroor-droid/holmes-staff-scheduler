@@ -62,11 +62,11 @@ export function TimeOffClient({
   async function submitRequest() {
     setMessage("");
     if (!form.startDate || !form.endDate) {
-      setMessage("יש לבחור תאריך התחלה וסיום.", "error");
+      setMessage("יש לבחור תאריך התחלה וסיום", "error");
       return;
     }
     if (form.endDate < form.startDate) {
-      setMessage("תאריך הסיום חייב להיות אחרי תאריך ההתחלה.", "error");
+      setMessage("תאריך הסיום חייב להיות אחרי תאריך ההתחלה", "error");
       return;
     }
 
@@ -87,13 +87,13 @@ export function TimeOffClient({
     setBusy("");
 
     if (error || !data) {
-      setMessage("לא הצלחנו לשלוח את בקשת החופשה.", "error");
+      setMessage("לא הצלחנו לשלוח את בקשת החופשה", "error");
       return;
     }
 
     setRequests((current) => [data as LeaveRequest, ...current]);
     setForm({ leaveType: "vacation", startDate: "", endDate: "", note: "" });
-    setMessage("הבקשה נשלחה למנהל לאישור.");
+    setMessage("הבקשה נשלחה למנהל לאישור");
   }
 
   async function cancelRequest(id: string) {
@@ -103,12 +103,12 @@ export function TimeOffClient({
     setBusy("");
 
     if (error || !data) {
-      setMessage("לא הצלחנו לבטל את הבקשה.", "error");
+      setMessage("לא הצלחנו לבטל את הבקשה", "error");
       return;
     }
 
     setRequests((current) => current.map((item) => (item.id === id ? { ...item, status: "cancelled" } : item)));
-    setMessage("הבקשה בוטלה.");
+    setMessage("הבקשה בוטלה");
   }
 
   return (
@@ -117,7 +117,7 @@ export function TimeOffClient({
         <p className="eyebrow">Time Off</p>
         <h2>חופשה ומחלה</h2>
       </div>
-      <p className="auth-secondary">שולחים בקשה למנהל. רק לאחר אישור היא תחסום שיבוץ אוטומטית בבניית הסידור.</p>
+      <p className="auth-secondary">שולחים בקשה למנהל — רק אחרי שהיא מאושרת היא חוסמת שיבוץ בבניית הסידור</p>
 
       <div className="form-pair">
         <label className="field">

@@ -24,17 +24,17 @@ type OpenShift = {
 type Eligibility = { eligible: boolean; reason: string | null; loading?: boolean };
 
 function eligibilityReason(reason: string | null) {
-  if (!reason) return "לא ניתן לבקש את המשמרת כרגע.";
-  if (reason.includes("approved time off")) return "יש לך Time Off מאושר בתאריך הזה.";
-  if (reason.includes("not available")) return "לא הוגשה זמינות מתאימה למשמרת הזו.";
-  if (reason.includes("overlapping shift")) return "המשמרת חופפת לשיבוץ קיים שלך.";
-  if (reason.includes("Weekly hours")) return "המשמרת תחרוג ממגבלת השעות השבועית שלך.";
-  if (reason.includes("Minimum rest")) return "המשמרת לא משאירה את זמן המנוחה המינימלי הנדרש.";
-  if (reason.includes("already assigned")) return "את/ה כבר משובץ/ת למשמרת הזו.";
-  if (reason.includes("fully staffed")) return "המשמרת כבר אוישה במלואה.";
-  if (reason.includes("department")) return "המשמרת אינה במחלקה שאליה את/ה משויך/ת.";
-  if (reason.includes("not open")) return "המשמרת כבר אינה פתוחה לבקשות.";
-  return "המשמרת אינה עומדת כרגע בכללי הזכאות שלך.";
+  if (!reason) return "לא ניתן לבקש את המשמרת כרגע";
+  if (reason.includes("approved time off")) return "יש לך חופשה מאושרת בתאריך הזה";
+  if (reason.includes("not available")) return "לא הוגשה זמינות מתאימה למשמרת הזו";
+  if (reason.includes("overlapping shift")) return "המשמרת חופפת לשיבוץ קיים שלך";
+  if (reason.includes("Weekly hours")) return "המשמרת תחרוג ממגבלת השעות השבועית שלך";
+  if (reason.includes("Minimum rest")) return "המשמרת לא משאירה את זמן המנוחה המינימלי הנדרש";
+  if (reason.includes("already assigned")) return "כבר שובצת למשמרת הזו";
+  if (reason.includes("fully staffed")) return "המשמרת כבר אוישה במלואה";
+  if (reason.includes("department")) return "המשמרת אינה במחלקה שאליה שויכת";
+  if (reason.includes("not open")) return "המשמרת כבר אינה פתוחה לבקשות";
+  return "המשמרת אינה עומדת כרגע בכללי הזכאות שלך";
 }
 
 export function OpenShiftsClient({ initialShifts }: { initialShifts: OpenShift[] }) {
@@ -88,7 +88,7 @@ export function OpenShiftsClient({ initialShifts }: { initialShifts: OpenShift[]
       setMessage(
         error?.message
           ? eligibilityReason(error.message)
-          : "שליחת הבקשה נכשלה. ייתכן שהמשמרת כבר אוישה או נסגרה לבקשות.",
+          : "שליחת הבקשה נכשלה — ייתכן שהמשמרת כבר אוישה או נסגרה לבקשות",
         "error"
       );
       return;
@@ -105,7 +105,7 @@ export function OpenShiftsClient({ initialShifts }: { initialShifts: OpenShift[]
           : item
       )
     );
-    setMessage("הבקשה נשלחה למנהל לאישור. הסידור עדיין לא השתנה.");
+    setMessage("הבקשה נשלחה למנהל לאישור — הסידור עדיין לא השתנה");
   }
 
   async function cancelRequest(shiftId: string, requestId: string) {
@@ -116,7 +116,7 @@ export function OpenShiftsClient({ initialShifts }: { initialShifts: OpenShift[]
     });
     setBusy("");
     if (error) {
-      setMessage("ביטול הבקשה נכשל.", "error");
+      setMessage("ביטול הבקשה נכשל", "error");
       return;
     }
     setShifts((current) =>
@@ -131,7 +131,7 @@ export function OpenShiftsClient({ initialShifts }: { initialShifts: OpenShift[]
           : item
       )
     );
-    setMessage("הבקשה בוטלה.");
+    setMessage("הבקשה בוטלה");
   }
 
   if (!shifts.length) {
@@ -141,7 +141,7 @@ export function OpenShiftsClient({ initialShifts }: { initialShifts: OpenShift[]
           icon={Store}
           iconSize={42}
           title="אין כרגע הזדמנויות פתוחות"
-          description="כשמנהל יפתח משמרת לאיוש, היא תופיע כאן ב־Shift Marketplace."
+          description="כשמנהל יפתח משמרת לאיוש, היא תופיע כאן"
         />
       </section>
     );
@@ -155,7 +155,7 @@ export function OpenShiftsClient({ initialShifts }: { initialShifts: OpenShift[]
           <h2>
             <Store size={20} /> Shift Marketplace
           </h2>
-          <p>המערכת בודקת את הזכאות שלך לפני שליחת בקשה. בקשה מאושרת רק אחרי בדיקה נוספת ואישור מנהל.</p>
+          <p>המערכת בודקת את הזכאות שלך לפני שליחת בקשה — ובקשה מאושרת רק אחרי בדיקה נוספת ואישור מנהל</p>
         </div>
       </div>
       <div className="grid">
@@ -229,7 +229,7 @@ export function OpenShiftsClient({ initialShifts }: { initialShifts: OpenShift[]
                     ) : (
                       <CheckCircle2 size={16} />
                     )}{" "}
-                    בקש/י את המשמרת
+                    בקשת המשמרת
                   </button>
                 )}
               </div>

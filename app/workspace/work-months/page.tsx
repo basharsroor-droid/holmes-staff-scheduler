@@ -68,7 +68,7 @@ export default async function WorkMonthsPage() {
           <h1>
             <CalendarDays /> חודשי עבודה
           </h1>
-          <p>פותחים חודש להגשת זמינות, קובעים דדליין וממשיכים להכנת הסידור.</p>
+          <p>פותחים חודש להגשת זמינות, קובעים מועד אחרון וממשיכים להכנת הסידור</p>
         </div>
       </header>
       <SetupStepGuide step="work-month" complete={(periodsResult.data ?? []).length > 0} />

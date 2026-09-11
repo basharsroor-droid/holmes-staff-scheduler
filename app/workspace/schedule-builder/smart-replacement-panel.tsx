@@ -86,7 +86,7 @@ export function SmartReplacementPanel({
     if (!period || !shift || !outgoingUserId) return;
     if (period.status === "published") {
       setCandidates([]);
-      setMessage("Smart Replacement עובד על טיוטה בלבד. יש לבטל פרסום לפני שינוי שיבוצים.", "error");
+      setMessage("Smart Replacement עובד על טיוטה בלבד — יש לבטל את הפרסום לפני שינוי שיבוצים", "error");
       return;
     }
     setMessage("");
@@ -100,7 +100,7 @@ export function SmartReplacementPanel({
     if (!targetAssignments.some((a) => a.user_id === outgoingUserId)) {
       setSelectedShiftId("");
       setOutgoingUserId("");
-      setMessage("השיבוץ שנבחר השתנה על הלוח. יש לבחור משמרת ועובד/ת מחדש.", "error");
+      setMessage("השיבוץ שנבחר השתנה על הלוח — יש לבחור משמרת ועובד/ת מחדש", "error");
       return;
     }
 
@@ -197,8 +197,8 @@ export function SmartReplacementPanel({
           score += 3;
           reasons.push("עובד/ת בכיר/ה");
         }
-        if (replacementMustBeSenior) reasons.push("שומר/ת על דרישת Senior במשמרת");
-        reasons.push("ללא חפיפה, Time Off או חריגת מנוחה/שעות");
+        if (replacementMustBeSenior) reasons.push("שומר/ת על דרישת העובד הבכיר במשמרת");
+        reasons.push("ללא חפיפה, חופשה או חריגה בשעות ובמנוחה");
         return { userId: worker.user_id, name: workerName(worker.user_id), score: Math.round(score), reasons };
       })
       .filter(isPresent)
@@ -207,8 +207,8 @@ export function SmartReplacementPanel({
     setCandidates(ranked);
     setMessage(
       ranked.length
-        ? `נמצאו ${ranked.length} מחליפים בטוחים. המועמד המוביל מדורג לפי זמינות, העדפות, מגבלות ו-Fairness.`
-        : "לא נמצא מחליף שעומד בכל המגבלות הנוכחיות."
+        ? `נמצאו ${ranked.length} מחליפים בטוחים — המועמד המוביל מדורג לפי זמינות, העדפות, מגבלות והוגנות`
+        : "לא נמצא מחליף שעומד בכל המגבלות הנוכחיות"
     );
   }, [
     approvedLeave,
@@ -234,12 +234,12 @@ export function SmartReplacementPanel({
       if (!period || !shift || !outgoingUserId) return;
       if (period.status === "published") {
         setCandidates([]);
-        setMessage("לא ניתן לבצע Smart Replacement על סידור שפורסם. יש לבטל פרסום ולדרג מחדש.", "error");
+        setMessage("לא ניתן לבצע Smart Replacement על סידור שפורסם — יש לבטל את הפרסום ולדרג מחדש", "error");
         return;
       }
       if (
         !window.confirm(
-          `להחליף את ${workerName(outgoingUserId)} ב-${candidate.name} במשמרת ${shift.shift_date} ${shift.name}? הפעולה אינה מפרסמת את הסידור.`
+          `להחליף את ${workerName(outgoingUserId)} ב-${candidate.name} במשמרת ${shift.shift_date} ${shift.name}? הפעולה אינה מפרסמת את הסידור`
         )
       )
         return;
@@ -265,7 +265,7 @@ export function SmartReplacementPanel({
       if (!currentPeriod || currentPeriod.status === "published") {
         setBusy("");
         setCandidates([]);
-        setMessage("התקופה פורסמה מאז הדירוג. לא בוצע שינוי; בטל פרסום ודרג מחדש.", "error");
+        setMessage("התקופה פורסמה מאז הדירוג, ולא בוצע שינוי — בטלו את הפרסום ודרגו מחדש", "error");
         return;
       }
 
@@ -274,7 +274,7 @@ export function SmartReplacementPanel({
       if (!currentShift || currentShift.schedule_period_id !== selectedPeriodId) {
         setBusy("");
         setCandidates([]);
-        setMessage("המשמרת השתנתה מאז הדירוג. לא בוצע שינוי; יש לטעון ולדרג מחדש.", "error");
+        setMessage("המשמרת השתנתה מאז הדירוג, ולא בוצע שינוי — יש לטעון ולדרג מחדש", "error");
         return;
       }
       const allIds = allShifts.map((s) => s.id);
@@ -289,7 +289,7 @@ export function SmartReplacementPanel({
       ) {
         setBusy("");
         setCandidates([]);
-        setMessage("השיבוץ השתנה מאז הדירוג. לא בוצע שינוי; יש לחשב מועמדים מחדש.", "error");
+        setMessage("השיבוץ השתנה מאז הדירוג, ולא בוצע שינוי — יש לחשב מועמדים מחדש", "error");
         return;
       }
 
@@ -298,7 +298,7 @@ export function SmartReplacementPanel({
       if (!candidateWorker || !candidateWorker.department_ids.includes(period.department_id)) {
         setBusy("");
         setCandidates([]);
-        setMessage("המועמד כבר לא שייך למחלקה המתאימה. לא בוצע שינוי; יש לדרג מחדש.", "error");
+        setMessage("המועמד כבר לא שייך למחלקה המתאימה, ולא בוצע שינוי — יש לדרג מחדש", "error");
         return;
       }
       const sub = submissions.find(
@@ -325,7 +325,7 @@ export function SmartReplacementPanel({
       ) {
         setBusy("");
         setCandidates([]);
-        setMessage("זמינות המועמד או Time Off כבר לא מאפשרים את ההחלפה. לא בוצע שינוי; יש לדרג מחדש.", "error");
+        setMessage("זמינות המועמד או חופשה מאושרת כבר לא מאפשרות את ההחלפה, ולא בוצע שינוי — יש לדרג מחדש", "error");
         return;
       }
       if (
@@ -338,7 +338,7 @@ export function SmartReplacementPanel({
       ) {
         setBusy("");
         setCandidates([]);
-        setMessage("למועמד נוצרה חפיפה מאז הדירוג. לא בוצע שינוי; יש לדרג מחדש.", "error");
+        setMessage("למועמד נוצרה חפיפה מאז הדירוג, ולא בוצע שינוי — יש לדרג מחדש", "error");
         return;
       }
       const week = weekStartKey(currentShift.shift_date);
@@ -355,7 +355,7 @@ export function SmartReplacementPanel({
       ) {
         setBusy("");
         setCandidates([]);
-        setMessage("החלפה תחרוג ממכסת השעות השבועית של המועמד. לא בוצע שינוי; יש לדרג מחדש.", "error");
+        setMessage("ההחלפה תחרוג ממכסת השעות השבועית של המועמד, ולא בוצע שינוי — יש לדרג מחדש", "error");
         return;
       }
       if (minRestHours) {
@@ -374,7 +374,7 @@ export function SmartReplacementPanel({
         if (gap < minRestHours) {
           setBusy("");
           setCandidates([]);
-          setMessage("מנוחת המינימום של המועמד כבר לא נשמרת. לא בוצע שינוי; יש לדרג מחדש.", "error");
+          setMessage("מנוחת המינימום של המועמד כבר לא נשמרת, ולא בוצע שינוי — יש לדרג מחדש", "error");
           return;
         }
       }
@@ -393,7 +393,7 @@ export function SmartReplacementPanel({
       ) {
         setBusy("");
         setCandidates([]);
-        setMessage("ההחלפה תפגע בכיסוי Senior שנדרש למשמרת. לא בוצע שינוי; יש לדרג מחדש.", "error");
+        setMessage("ההחלפה תפגע בדרישת העובד הבכיר במשמרת, ולא בוצע שינוי — יש לדרג מחדש", "error");
         return;
       }
 
@@ -408,14 +408,14 @@ export function SmartReplacementPanel({
       if (replaceError) {
         setBusy("");
         setCandidates([]);
-        setMessage("ההחלפה נכשלה ולא בוצע שום שינוי בטיוטה. יש לרענן ולדרג מחדש.", "error");
+        setMessage("ההחלפה נכשלה ולא בוצע שום שינוי בטיוטה — יש לרענן ולדרג מחדש", "error");
         return;
       }
       setBusy("");
       setCandidates([]);
       setSelectedShiftId("");
       setOutgoingUserId("");
-      setMessage("ההחלפה בוצעה בטיוטה.");
+      setMessage("ההחלפה בוצעה בטיוטה");
       // Re-render the page with fresh rows; the shared schedule data (and so the
       // board and every panel) picks them up.
       router.refresh();
@@ -451,7 +451,7 @@ export function SmartReplacementPanel({
             <ArrowLeftRight size={20} /> Smart Replacement
           </h2>
           <p className="card-muted">
-            בחר/י עובד/ת משובץ/ת והמערכת תדרג מחליפים בטוחים עם הסבר ברור. שום החלפה לא מתבצעת בלי אישור מפורש.
+            בחרו עובד/ת משובץ/ת והמערכת תדרג מחליפים בטוחים עם הסבר ברור — שום החלפה לא מתבצעת בלי אישור מפורש
           </p>
         </div>
         <button
@@ -460,7 +460,7 @@ export function SmartReplacementPanel({
           disabled={busy !== "" || !selectedShiftId || !outgoingUserId || published}
           onClick={() => rank()}
         >
-          <RefreshCw size={15} /> דרג מחליפים
+          <RefreshCw size={15} /> דירוג מחליפים
         </button>
       </div>
 
@@ -477,7 +477,7 @@ export function SmartReplacementPanel({
             }}
             disabled={published}
           >
-            <option value="">בחר משמרת</option>
+            <option value="">בחירת משמרת</option>
             {shifts.map((s) => (
               <option key={s.id} value={s.id}>
                 {s.shift_date} · {s.name} · {s.start_time.slice(0, 5)}-{s.end_time.slice(0, 5)}
@@ -496,7 +496,7 @@ export function SmartReplacementPanel({
             }}
             disabled={!selectedShiftId || published}
           >
-            <option value="">בחר עובד/ת</option>
+            <option value="">בחירת עובד/ת</option>
             {shiftAssignments.map((a) => (
               <option key={a.id} value={a.user_id}>
                 {workerName(a.user_id)}
@@ -511,7 +511,7 @@ export function SmartReplacementPanel({
           <ShieldCheck size={18} />
           <div>
             <strong>התקופה מפורסמת</strong>
-            <span>Smart Replacement לא משנה סידור שכבר פורסם. בטל/י פרסום לפני החלפה.</span>
+            <span>Smart Replacement לא משנה סידור שכבר פורסם — בטלו את הפרסום לפני ההחלפה</span>
           </div>
         </div>
       ) : null}
@@ -534,7 +534,7 @@ export function SmartReplacementPanel({
                   disabled={busy !== "" || published}
                   onClick={() => void apply(candidate)}
                 >
-                  {busy === "apply" ? <Loader2 size={14} /> : <ArrowLeftRight size={14} />} החלף
+                  {busy === "apply" ? <Loader2 size={14} /> : <ArrowLeftRight size={14} />} החלפה
                 </button>
               </div>
             </article>
@@ -542,7 +542,7 @@ export function SmartReplacementPanel({
         </div>
       ) : null}
       <p className="card-muted" style={{ marginTop: 10 }}>
-        Smart Replacement מאמת מחדש לפני ההחלפה את סטטוס התקופה, השיבוצים, הכיסוי, המנוחה, השעות ודרישת Senior.
+        Smart Replacement מאמת מחדש לפני ההחלפה את סטטוס התקופה, השיבוצים, הכיסוי, המנוחה, השעות ודרישת העובד הבכיר
       </p>
     </section>
   );

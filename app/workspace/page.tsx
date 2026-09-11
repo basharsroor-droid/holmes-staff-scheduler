@@ -122,7 +122,7 @@ export default async function WorkspacePage() {
           <p className="eyebrow">סביבת עבודה מאובטחת</p>
           <h1>שלום, {organization.name}</h1>
           <p>
-            {isEmployee ? "מכאן מגישים זמינות, רואים משמרות ומנהלים החלפות." : "מכאן מנהלים את הצוות, הזמינות והסידור."}
+            {isEmployee ? "מכאן מגישים זמינות, רואים משמרות ומנהלים החלפות" : "מכאן מנהלים את הצוות, הזמינות והסידור"}
           </p>
         </div>
         <div className="role-pill">{isEmployee ? "עובד/ת" : membership.role === "owner" ? "בעל/ת העסק" : "מנהל/ת"}</div>
@@ -162,7 +162,7 @@ export default async function WorkspacePage() {
                 <CalendarCheck />
                 <span>
                   <strong>הגשת זמינות</strong>
-                  <small>סימון משמרות ושליחה למנהל.</small>
+                  <small>סימון משמרות ושליחה למנהל</small>
                 </span>
                 <span className="status-chip active">פתיחה</span>
               </Link>
@@ -170,7 +170,7 @@ export default async function WorkspacePage() {
                 <CalendarDays />
                 <span>
                   <strong>המשמרות שלי</strong>
-                  <small>צפייה בסידור שפורסם ובמשמרת הקרובה.</small>
+                  <small>צפייה בסידור שפורסם ובמשמרת הקרובה</small>
                 </span>
                 <span className="status-chip active">פתיחה</span>
               </Link>
@@ -178,7 +178,7 @@ export default async function WorkspacePage() {
                 <Repeat2 />
                 <span>
                   <strong>החלפת משמרת</strong>
-                  <small>פתיחת בקשה ומעקב אחר האישורים.</small>
+                  <small>פתיחת בקשה ומעקב אחר האישורים</small>
                 </span>
                 <span className="status-chip active">פתיחה</span>
               </Link>
@@ -186,7 +186,7 @@ export default async function WorkspacePage() {
                 <MessageSquareText />
                 <span>
                   <strong>משוב על הפיילוט</strong>
-                  <small>ספרו מה היה ברור, מבלבל או חסר במחזור הראשון.</small>
+                  <small>ספרו מה היה ברור, מבלבל או חסר במחזור הראשון</small>
                 </span>
                 <span className="status-chip active">פתיחה</span>
               </Link>
@@ -194,7 +194,7 @@ export default async function WorkspacePage() {
                 <Bell />
                 <span>
                   <strong>התראות</strong>
-                  <small>סידורים חדשים ועדכונים חשובים.</small>
+                  <small>סידורים חדשים ועדכונים חשובים</small>
                 </span>
                 <span className={`status-chip ${notificationsResult.count ? "warning" : "active"}`}>
                   {notificationsResult.count ?? 0} חדשות
@@ -204,7 +204,7 @@ export default async function WorkspacePage() {
                 <LifeBuoy />
                 <span>
                   <strong>מרכז תמיכה</strong>
-                  <small>פתיחת פנייה ומעקב אחר הטיפול.</small>
+                  <small>פתיחת פנייה ומעקב אחר הטיפול</small>
                 </span>
                 <span className="status-chip active">פתיחה</span>
               </Link>
@@ -212,7 +212,7 @@ export default async function WorkspacePage() {
                 <Search />
                 <span>
                   <strong>מרכז עזרה</strong>
-                  <small>שאלות ותקלות נפוצות עם פתרון.</small>
+                  <small>שאלות ותקלות נפוצות עם פתרון</small>
                 </span>
                 <span className="status-chip active">פתיחה</span>
               </Link>
@@ -220,7 +220,7 @@ export default async function WorkspacePage() {
                 <ShieldCheck />
                 <span>
                   <strong>אבטחת חשבון</strong>
-                  <small>הפעלת אימות דו-שלבי (MFA).</small>
+                  <small>הפעלת אימות דו־שלבי (MFA)</small>
                 </span>
                 <span className="status-chip active">פתיחה</span>
               </Link>
@@ -259,7 +259,7 @@ export default async function WorkspacePage() {
                 <div>
                   <p className="eyebrow">הכנת הפיילוט</p>
                   <h2 id="pilot-readiness-title">שלושה צעדים עד להגשת זמינות ראשונה</h2>
-                  <p>השלימו את ההגדרות לפי הסדר. הנתונים נשמרים רק בעסק ובסניף שלכם.</p>
+                  <p>השלימו את ההגדרות לפי הסדר — הנתונים נשמרים רק בעסק ובסניף שלכם</p>
                 </div>
                 <div className="pilot-progress" aria-label={`${pilotProgress}% הושלמו`}>
                   <strong>{pilotProgress}%</strong>
@@ -292,7 +292,7 @@ export default async function WorkspacePage() {
                 <span>
                   <p className="eyebrow">מוכנים לבדיקה</p>
                   <h2>הגדרות הפיילוט הושלמו</h2>
-                  <p>אפשר להתחיל בהגשת זמינות, לבדוק את ההגשות ולבנות סידור ראשון.</p>
+                  <p>אפשר להתחיל בהגשת זמינות, לבדוק את ההגשות ולבנות סידור ראשון</p>
                 </span>
               </div>
               <Link className="button primary" href="/workspace/submissions">
@@ -311,7 +311,7 @@ export default async function WorkspacePage() {
                 <Activity />
                 <span>
                   <strong>מרכז שליטה למנהל</strong>
-                  <small>בריאות הסידור, חוסרים, בקשות ממתינות והמלצות פעולה במקום אחד.</small>
+                  <small>בריאות הסידור, חוסרים, בקשות ממתינות והמלצות פעולה במקום אחד</small>
                 </span>
                 <span className="status-chip active">פתיחה</span>
               </Link>
@@ -319,7 +319,7 @@ export default async function WorkspacePage() {
                 <Rocket />
                 <span>
                   <strong>מרכז השקת הפיילוט</strong>
-                  <small>התקדמות מהגדרת העסק ועד פרסום הסידור הראשון, כולל הגשות וכיסוי.</small>
+                  <small>התקדמות מהגדרת העסק ועד פרסום הסידור הראשון, כולל הגשות וכיסוי</small>
                 </span>
                 <span className="status-chip active">פתיחה</span>
               </Link>
@@ -336,7 +336,7 @@ export default async function WorkspacePage() {
                 <Network />
                 <span>
                   <strong>ניהול סניפים ומחלקות</strong>
-                  <small>שיוך מנהלים ועובדים לאזור העבודה המדויק שלהם.</small>
+                  <small>שיוך מנהלים ועובדים לאזור העבודה המדויק שלהם</small>
                 </span>
                 <span className="status-chip active">פתיחה</span>
               </Link>
@@ -353,7 +353,7 @@ export default async function WorkspacePage() {
                 <Users />
                 <span>
                   <strong>ניהול עובדים</strong>
-                  <small>הזמנות, תפקידים והרשאות.</small>
+                  <small>הזמנות, תפקידים והרשאות</small>
                 </span>
                 <span className="status-chip active">פתיחה</span>
               </Link>
@@ -361,7 +361,7 @@ export default async function WorkspacePage() {
                 <Settings />
                 <span>
                   <strong>סוגי משמרות</strong>
-                  <small>שעות, כמות עובדים ודרישות.</small>
+                  <small>שעות, כמות עובדים ודרישות</small>
                 </span>
                 <span className="status-chip active">פתיחה</span>
               </Link>
@@ -369,7 +369,7 @@ export default async function WorkspacePage() {
                 <CalendarDays />
                 <span>
                   <strong>חודשי עבודה</strong>
-                  <small>פתיחת הגשת זמינות וקביעת דדליין.</small>
+                  <small>פתיחת הגשת זמינות וקביעת מועד אחרון</small>
                 </span>
                 <span className="status-chip active">פתיחה</span>
               </Link>
@@ -377,7 +377,7 @@ export default async function WorkspacePage() {
                 <ClipboardCheck />
                 <span>
                   <strong>מעקב הגשות</strong>
-                  <small>מי הגיש, מי חסר ופירוט הזמינות.</small>
+                  <small>מי הגיש, מי חסר ופירוט הזמינות</small>
                 </span>
                 <span className="status-chip active">פתיחה</span>
               </Link>
@@ -385,7 +385,7 @@ export default async function WorkspacePage() {
                 <CalendarRange />
                 <span>
                   <strong>בניית סידור</strong>
-                  <small>יצירת משמרות, שיבוץ ופרסום לצוות.</small>
+                  <small>יצירת משמרות, שיבוץ ופרסום לצוות</small>
                 </span>
                 <span className="status-chip active">פתיחה</span>
               </Link>
@@ -393,7 +393,7 @@ export default async function WorkspacePage() {
                 <Repeat2 />
                 <span>
                   <strong>בקשות החלפה</strong>
-                  <small>אישור החלפות ועדכון הסידור.</small>
+                  <small>אישור החלפות ועדכון הסידור</small>
                 </span>
                 <span className="status-chip active">פתיחה</span>
               </Link>
@@ -401,7 +401,7 @@ export default async function WorkspacePage() {
                 <Bell />
                 <span>
                   <strong>התראות</strong>
-                  <small>סידורים חדשים ועדכונים חשובים.</small>
+                  <small>סידורים חדשים ועדכונים חשובים</small>
                 </span>
                 <span className={`status-chip ${notificationsResult.count ? "warning" : "active"}`}>
                   {notificationsResult.count ?? 0} חדשות
@@ -411,7 +411,7 @@ export default async function WorkspacePage() {
                 <LifeBuoy />
                 <span>
                   <strong>מרכז תמיכה</strong>
-                  <small>פתיחת פניות ומעקב אחר טיפול בבעיות.</small>
+                  <small>פתיחת פניות ומעקב אחר טיפול בבעיות</small>
                 </span>
                 <span className="status-chip active">פתיחה</span>
               </Link>
@@ -419,7 +419,7 @@ export default async function WorkspacePage() {
                 <Search />
                 <span>
                   <strong>מרכז עזרה</strong>
-                  <small>שאלות ותקלות נפוצות עם פתרון.</small>
+                  <small>שאלות ותקלות נפוצות עם פתרון</small>
                 </span>
                 <span className="status-chip active">פתיחה</span>
               </Link>
@@ -427,7 +427,7 @@ export default async function WorkspacePage() {
                 <ShieldCheck />
                 <span>
                   <strong>אבטחת חשבון</strong>
-                  <small>הפעלת אימות דו-שלבי (MFA).</small>
+                  <small>הפעלת אימות דו־שלבי (MFA)</small>
                 </span>
                 <span className="status-chip active">פתיחה</span>
               </Link>
@@ -437,7 +437,7 @@ export default async function WorkspacePage() {
                     <CreditCard />
                     <span>
                       <strong>המנוי שלי</strong>
-                      <small>מסלול, תקופת ניסיון ושימוש מול המכסות.</small>
+                      <small>מסלול, תקופת ניסיון ושימוש מול המכסות</small>
                     </span>
                     <span className="status-chip active">פתיחה</span>
                   </Link>
@@ -445,7 +445,7 @@ export default async function WorkspacePage() {
                     <History />
                     <span>
                       <strong>יומן פעילות</strong>
-                      <small>מעקב מאובטח אחר פעולות ניהול.</small>
+                      <small>מעקב מאובטח אחר פעולות ניהול</small>
                     </span>
                     <span className="status-chip active">פתיחה</span>
                   </Link>

@@ -117,7 +117,7 @@ export function ShiftSwapsClient({
     const original = assignments.find((item) => item.id === originalAssignmentId);
     const target = assignments.find((item) => item.id === targetAssignmentId);
     if (!original || !target || !reason.trim()) {
-      setMessage("יש לבחור שתי משמרות ולכתוב סיבה לבקשה.", "error");
+      setMessage("יש לבחור שתי משמרות ולכתוב סיבה לבקשה", "error");
       return;
     }
     setBusy("create");
@@ -139,7 +139,7 @@ export function ShiftSwapsClient({
       .single();
     setBusy("");
     if (error || !data) {
-      setMessage("פתיחת בקשת ההחלפה נכשלה.", "error");
+      setMessage("פתיחת בקשת ההחלפה נכשלה", "error");
       return;
     }
     setRequests((current) => [data, ...current]);
@@ -147,7 +147,7 @@ export function ShiftSwapsClient({
     setTargetAssignmentId("");
     setReason("");
     void addEvent(data.id, "created", data.reason);
-    setMessage("הבקשה נשלחה לעובד/ת השני/ה.");
+    setMessage("הבקשה נשלחה לעובד/ת השני/ה");
   }
 
   async function updateStatus(request: Request, status: SwapStatus, note?: string | null) {
@@ -162,7 +162,7 @@ export function ShiftSwapsClient({
     const { error } = await supabase.from("swap_requests").update(patch).eq("id", request.id);
     setBusy("");
     if (error) {
-      setMessage("עדכון הבקשה נכשל.", "error");
+      setMessage("עדכון הבקשה נכשל", "error");
       return false;
     }
     setRequests((current) => current.map((item) => (item.id === request.id ? { ...item, ...patch } : item)));
@@ -176,7 +176,7 @@ export function ShiftSwapsClient({
       (item) => item.shift_id === request.target_shift_id && item.user_id === request.target_user_id
     );
     if (!original || !target || !request.target_user_id) {
-      setMessage("השיבוצים השתנו מאז פתיחת הבקשה. לא ניתן לאשר אותה.", "error");
+      setMessage("השיבוצים השתנו מאז פתיחת הבקשה, ולכן לא ניתן לאשר אותה", "error");
       return;
     }
 
@@ -190,7 +190,7 @@ export function ShiftSwapsClient({
     setBusy("");
 
     if (error) {
-      setMessage("אישור ההחלפה נכשל. לא בוצע שינוי חלקי.", "error");
+      setMessage("אישור ההחלפה נכשל, ולא בוצע שינוי חלקי", "error");
       return;
     }
 
@@ -209,7 +209,7 @@ export function ShiftSwapsClient({
         item.id === request.id ? { ...item, status: "approved", manager_note: note, decided_at: decidedAt } : item
       )
     );
-    setMessage("ההחלפה אושרה והסידור עודכן.");
+    setMessage("ההחלפה אושרה והסידור עודכן");
   }
 
   return (
@@ -269,7 +269,7 @@ export function ShiftSwapsClient({
           >
             {busy === "create" ? <Loader2 className="spin" size={16} /> : <Send size={16} />} שליחת בקשה
           </button>
-          {!myAssignments.length ? <p className="card-muted">אין כרגע משמרות עתידיות שניתן להחליף.</p> : null}
+          {!myAssignments.length ? <p className="card-muted">אין כרגע משמרות עתידיות שניתן להחליף</p> : null}
         </section>
       ) : null}
 
@@ -367,7 +367,7 @@ export function ShiftSwapsClient({
           })}
         </div>
         {!visibleRequests.length ? (
-          <EmptyState icon={Repeat2} iconSize={38} description="אין כרגע בקשות החלפה." />
+          <EmptyState icon={Repeat2} iconSize={38} description="אין כרגע בקשות החלפה" />
         ) : null}
         <StatusMessage message={message} kind={kind} />
       </section>

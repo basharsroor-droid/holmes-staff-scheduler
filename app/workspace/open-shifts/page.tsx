@@ -46,7 +46,7 @@ export default async function OpenShiftsPage() {
             <h1>
               <CalendarPlus /> משמרות פתוחות
             </h1>
-            <p>אין לך כרגע שיוך למחלקה פעילה.</p>
+            <p>אין לך כרגע שיוך למחלקה פעילה</p>
           </div>
         </header>
         <OpenShiftsClient initialShifts={[]} />
@@ -76,7 +76,7 @@ export default async function OpenShiftsPage() {
             <h1>
               <CalendarPlus /> משמרות פתוחות
             </h1>
-            <p>Shift Marketplace עדיין לא פעיל בשלב הפיילוט. אם יש משמרת שצריך לאייש, פנו למנהל ישירות.</p>
+            <p>איוש משמרות פתוחות עדיין לא פעיל בשלב הפיילוט — אם יש משמרת שצריך לאייש, פנו ישירות למנהל</p>
           </div>
         </header>
       </main>
@@ -154,7 +154,7 @@ export default async function OpenShiftsPage() {
           <h1>
             <CalendarPlus /> משמרות פתוחות
           </h1>
-          <p>בחרו משמרת פתוחה, שלחו בקשה והמנהל יאשר לפני שהסידור יתעדכן.</p>
+          <p>בחרו משמרת פתוחה, שלחו בקשה והמנהל יאשר לפני שהסידור יתעדכן</p>
         </div>
       </header>
       <OpenShiftsClient initialShifts={openShifts} />

@@ -46,12 +46,12 @@ export function TimeOffApprovalPanel({ initialRequests }: { initialRequests: Pen
     setBusy("");
 
     if (error) {
-      setMessage("לא הצלחנו לעדכן את בקשת החופשה.", "error");
+      setMessage("לא הצלחנו לעדכן את בקשת החופשה", "error");
       return;
     }
 
     setRequests((current) => current.filter((request) => request.id !== id));
-    setMessage(decision === "approved" ? "בקשת החופשה אושרה והשיבוץ ייחסם בטווח התאריכים." : "בקשת החופשה נדחתה.");
+    setMessage(decision === "approved" ? "בקשת החופשה אושרה והשיבוץ ייחסם בטווח התאריכים" : "בקשת החופשה נדחתה");
 
     // Refresh the server-rendered approved Time Off list immediately so the
     // ScheduleBuilderClient receives the new hard constraint without requiring
@@ -120,7 +120,7 @@ export function TimeOffApprovalPanel({ initialRequests }: { initialRequests: Pen
           iconSize={38}
           headingLevel={3}
           title="אין בקשות שממתינות לטיפול"
-          description="בקשות חדשות יופיעו כאן לפני שהן משפיעות על הסידור."
+          description="בקשות חדשות יופיעו כאן לפני שהן משפיעות על הסידור"
         />
       )}
     </section>

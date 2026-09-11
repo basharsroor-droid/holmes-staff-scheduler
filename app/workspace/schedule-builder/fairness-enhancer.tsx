@@ -95,7 +95,7 @@ export function FairnessEnhancer({
           key: "hours-gap",
           severity: "warning",
           title: "פער שעות משמעותי",
-          detail: `${high.name} עם ${high.assignedHours} ש׳ לעומת ${low.name} עם ${low.assignedHours} ש׳ — פער של ${gap} שעות בין עובדים עם זמינות בתקופה.`
+          detail: `${high.name} עם ${high.assignedHours} ש׳ לעומת ${low.name} עם ${low.assignedHours} ש׳ — פער של ${gap} שעות בין עובדים עם זמינות בתקופה`
         });
     }
 
@@ -112,7 +112,7 @@ export function FairnessEnhancer({
           key: "preferred-gap",
           severity: "info",
           title: "פער במימוש העדפות",
-          detail: `${high.name} קיבל/ה ${Math.round(high.preferredRate * 100)}% מההעדפות שסומנו, לעומת ${Math.round(low.preferredRate * 100)}% אצל ${low.name}.`
+          detail: `${high.name} קיבל/ה ${Math.round(high.preferredRate * 100)}% מההעדפות שסומנו, לעומת ${Math.round(low.preferredRate * 100)}% אצל ${low.name}`
         });
     }
 
@@ -125,7 +125,7 @@ export function FairnessEnhancer({
           key: "only-if-needed",
           severity: "warning",
           title: "עומס משמרות ‘רק אם צריך’",
-          detail: `${burdened.name} קיבל/ה ${burdened.onlyIfNeededAssigned} שיבוצים שסומנו ‘רק אם צריך’, יותר משמעותית משאר הצוות.`
+          detail: `${burdened.name} קיבל/ה ${burdened.onlyIfNeededAssigned} שיבוצים שסומנו ‘רק אם צריך’, יותר משמעותית משאר הצוות`
         });
     }
 
@@ -141,7 +141,7 @@ export function FairnessEnhancer({
             <Scale size={20} /> Fairness
           </h2>
           <p className="card-muted">
-            בודק פערי שעות והעדפות רק בין עובדים עם הזדמנויות רלוונטיות — ללא שינוי אוטומטי בשיבוץ.
+            בודק פערי שעות והעדפות רק בין עובדים עם הזדמנויות רלוונטיות — ללא שינוי אוטומטי בשיבוץ
           </p>
         </div>
         <button
@@ -159,7 +159,7 @@ export function FairnessEnhancer({
           <CheckCircle2 size={18} />
           <div>
             <strong>לא נמצאו פערים משמעותיים</strong>
-            <span>החלוקה הנוכחית לא חוצה את ספי האזהרה של Fairness.</span>
+            <span>החלוקה הנוכחית לא חוצה את ספי האזהרה של בדיקת ההוגנות</span>
           </div>
         </div>
       ) : null}
@@ -201,8 +201,8 @@ export function FairnessEnhancer({
         </div>
       ) : null}
       <p className="card-muted" style={{ marginTop: 10 }}>
-        Fairness הוא כלי החלטה בלבד. פער יכול להיות מוצדק בגלל זמינות, תפקיד או צורך עסקי — המנהל נשאר בעל ההחלטה
-        הסופית.
+        בדיקת ההוגנות היא כלי עזר בלבד — פער יכול להיות מוצדק בגלל זמינות, תפקיד או צורך עסקי, וההחלטה הסופית נשארת אצל
+        המנהל
       </p>
     </section>
   );

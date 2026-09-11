@@ -37,7 +37,7 @@ export function DeleteAccount() {
       if (!active) return;
       setLoading(false);
       if (!response.ok) {
-        setMessage("לא הצלחנו לטעון את פרטי החשבון.", "error");
+        setMessage("לא הצלחנו לטעון את פרטי החשבון", "error");
         return;
       }
       const data = await response.json();
@@ -73,15 +73,15 @@ export function DeleteAccount() {
       if (response.status === 409 && data.organizationsToDelete) {
         setOrganizations(data.organizationsToDelete);
         setAcknowledged(false);
-        setMessage("מצב הבעלות בעסק השתנה. בדוק שוב את הפרטים למטה לפני המחיקה.", "error");
+        setMessage("מצב הבעלות בעסק השתנה — בדקו שוב את הפרטים למטה לפני המחיקה", "error");
         return;
       }
       if (response.status === 403 && data.errorCode === "REAUTHENTICATION_FAILED") {
         setPassword("");
-        setMessage("הסיסמה אינה נכונה. הזן את הסיסמה הנוכחית של החשבון ונסה שוב.", "error");
+        setMessage("הסיסמה אינה נכונה — הזינו את הסיסמה הנוכחית של החשבון ונסו שוב", "error");
         return;
       }
-      setMessage("מחיקת החשבון נכשלה. נסה שוב, ואם זה חוזר פנה לתמיכה.", "error");
+      setMessage("מחיקת החשבון נכשלה — נסו שוב, ואם זה חוזר, פנו לתמיכה", "error");
       return;
     }
 
@@ -108,27 +108,27 @@ export function DeleteAccount() {
       </p>
 
       {loading ? (
-        <p className="card-muted">טוענים את פרטי החשבון...</p>
+        <p className="card-muted">טוענים את פרטי החשבון..</p>
       ) : (
         <>
           {deletionBlocked ? (
             <div className="danger-zone-warning" role="status">
               <p>
                 <AlertTriangle size={16} aria-hidden="true" />{" "}
-                <strong>זהו חשבון בסביבת ההדגמה המשותפת.</strong>
+                <strong>זהו חשבון בסביבת ההדגמה המשותפת</strong>
               </p>
-              <p>כדי שההדגמה תישאר זמינה ובטוחה, לא ניתן למחוק את החשבון או את סביבת ההדגמה.</p>
+              <p>כדי שההדגמה תישאר זמינה ובטוחה, לא ניתן למחוק את החשבון או את סביבת ההדגמה</p>
             </div>
           ) : null}
           {organizations.length > 0 ? (
             <div className="danger-zone-warning" role="alert">
               <p>
                 <AlertTriangle size={16} aria-hidden="true" />{" "}
-                <strong>אתה הבעלים הפעיל היחיד של {organizations.length === 1 ? "עסק" : "העסקים"} הבא{organizations.length === 1 ? "" : "ים"}.</strong>
+                <strong>רק לך יש בעלות פעילה על {organizations.length === 1 ? "העסק" : "העסקים"} הבא{organizations.length === 1 ? "" : "ים"}</strong>
               </p>
               <p>
                 מחיקת החשבון תמחק {organizations.length === 1 ? "אותו" : "אותם"} לגמרי — כולל
-                הסניפים, הסידורים והמשמרות — וכל שאר חברי הצוות יאבדו גישה.
+                הסניפים, הסידורים והמשמרות — וכל שאר חברי הצוות יאבדו גישה
               </p>
               <ul>
                 {organizations.map((organization) => (
@@ -139,8 +139,8 @@ export function DeleteAccount() {
                 ))}
               </ul>
               <p className="card-muted">
-                רוצה שהעסק ימשיך לפעול בלעדיך? העבר קודם את הבעלות לחבר צוות אחר
-                דרך ניהול הצוות, ואז חזור לכאן — המחיקה תיגע רק בחשבון שלך.
+                רוצים שהעסק ימשיך לפעול בלעדיכם? העבירו קודם את הבעלות לחבר צוות אחר
+                דרך ניהול הצוות, ואז חזרו לכאן — המחיקה תיגע רק בחשבון שלכם
               </p>
             </div>
           ) : null}
@@ -155,13 +155,13 @@ export function DeleteAccount() {
                     onChange={(event) => setAcknowledged(event.target.checked)}
                   />
                   <span>
-                    אני מבין ש{organizations.length === 1 ? "העסק" : "העסקים"} שלמעלה
-                    {organizations.length === 1 ? " יימחק" : " יימחקו"} יחד עם החשבון שלי.
+                    אני מבין/ה ש{organizations.length === 1 ? "העסק" : "העסקים"} שלמעלה
+                    {organizations.length === 1 ? " יימחק" : " יימחקו"} יחד עם החשבון שלי
                   </span>
                 </label>
               ) : null}
               <label className="field">
-                <span>להמשך, הקלד את כתובת המייל של החשבון: <strong>{email}</strong></span>
+                <span>כדי להמשיך, הקלידו את כתובת המייל של החשבון: <strong>{email}</strong></span>
                 <input
                   className="input"
                   type="email"
@@ -172,7 +172,7 @@ export function DeleteAccount() {
                 />
               </label>
               <label className="field">
-                <span>לאימות שזה באמת אתה, הזן את הסיסמה הנוכחית של החשבון:</span>
+                <span>לאימות זהות, הזינו את הסיסמה הנוכחית של החשבון:</span>
                 <input
                   className="input"
                   type="password"

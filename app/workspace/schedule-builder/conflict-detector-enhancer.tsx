@@ -73,7 +73,7 @@ export function ConflictDetectorEnhancer({
           key: `coverage-${shift.id}`,
           severity: "critical",
           title: "כיסוי חסר",
-          detail: `${shift.shift_date} · ${shift.name}: ${assigned.length}/${shift.required_employees} משובצים.`
+          detail: `${shift.shift_date} · ${shift.name}: ${assigned.length}/${shift.required_employees} משובצים`
         });
       }
       for (const assignment of assigned) {
@@ -87,8 +87,8 @@ export function ConflictDetectorEnhancer({
           next.push({
             key: `leave-${shift.id}-${assignment.user_id}`,
             severity: "critical",
-            title: "שיבוץ בזמן Time Off",
-            detail: `${workerName(assignment.user_id)} משובץ/ת ב-${shift.shift_date} בזמן חופשה מאושרת.`
+            title: "שיבוץ בזמן חופשה",
+            detail: `${workerName(assignment.user_id)} משובץ/ת ב-${shift.shift_date} בזמן חופשה מאושרת`
           });
 
         const submission = submissions.find(
@@ -111,7 +111,7 @@ export function ConflictDetectorEnhancer({
             key: `availability-${shift.id}-${assignment.user_id}`,
             severity: "critical",
             title: "שיבוץ בניגוד לזמינות",
-            detail: `${workerName(assignment.user_id)} סימן/ה לא זמין/ה ל-${shift.name} ב-${shift.shift_date}.`
+            detail: `${workerName(assignment.user_id)} סימן/ה לא זמין/ה ל-${shift.name} ב-${shift.shift_date}`
           });
       }
     }
@@ -134,7 +134,7 @@ export function ConflictDetectorEnhancer({
               key: `overlap-${current.id}-${following.id}-${userId}`,
               severity: "critical",
               title: "משמרות חופפות",
-              detail: `${workerName(userId)} משובץ/ת במשמרות שחופפות בזמן.`
+              detail: `${workerName(userId)} משובץ/ת במשמרות שחופפות בזמן`
             });
         } else if (minRestHours) {
           const gap = (b.start.getTime() - a.end.getTime()) / 3600000;
@@ -143,7 +143,7 @@ export function ConflictDetectorEnhancer({
               key: `rest-${current.id}-${following.id}-${userId}`,
               severity: "warning",
               title: "מנוחה קצרה",
-              detail: `${workerName(userId)} מקבל/ת ${Math.round(gap * 10) / 10} שעות מנוחה בלבד (מינימום: ${minRestHours}).`
+              detail: `${workerName(userId)} מקבל/ת ${Math.round(gap * 10) / 10} שעות מנוחה בלבד (מינימום: ${minRestHours})`
             });
         }
       }
@@ -166,7 +166,7 @@ export function ConflictDetectorEnhancer({
               key: `hours-${userId}-${week}`,
               severity: "warning",
               title: "חריגה ממכסת שעות",
-              detail: `${workerName(userId)} מגיע/ה ל-${Math.round(total * 10) / 10} שעות בשבוע שמתחיל ${week} (מכסה: ${limit}).`
+              detail: `${workerName(userId)} מגיע/ה ל-${Math.round(total * 10) / 10} שעות בשבוע שמתחיל ${week} (מכסה: ${limit})`
             });
         }
       }
@@ -196,7 +196,7 @@ export function ConflictDetectorEnhancer({
           <h2>
             <ShieldAlert size={20} /> Conflict Detector
           </h2>
-          <p className="card-muted">בדיקת סיכונים חיה לפני פרסום — ללא שינוי אוטומטי בשיבוצים.</p>
+          <p className="card-muted">בדיקת סיכונים חיה לפני פרסום — ללא שינוי אוטומטי בשיבוצים</p>
         </div>
         <button
           type="button"
@@ -212,7 +212,7 @@ export function ConflictDetectorEnhancer({
           <CheckCircle2 size={18} />
           <div>
             <strong>לא נמצאו התנגשויות</strong>
-            <span>הסידור הנוכחי נקי מהסיכונים שהמערכת בודקת כרגע.</span>
+            <span>הסידור הנוכחי נקי מהסיכונים שהמערכת בודקת כרגע</span>
           </div>
         </div>
       ) : null}
@@ -221,7 +221,7 @@ export function ConflictDetectorEnhancer({
           <AlertTriangle size={18} />
           <div>
             <strong>{critical.length} בעיות קריטיות לפני פרסום</strong>
-            <span>מומלץ לפתור אותן לפני שמפרסמים לצוות.</span>
+            <span>מומלץ לפתור אותן לפני שמפרסמים לצוות</span>
           </div>
         </div>
       ) : null}
@@ -243,7 +243,7 @@ export function ConflictDetectorEnhancer({
       </div>
       {warnings.length ? (
         <p className="card-muted" style={{ marginTop: 10 }}>
-          {warnings.length} אזהרות הן advisory בלבד — המנהל נשאר בעל ההחלטה הסופית.
+          {warnings.length} אזהרות לידיעה בלבד — ההחלטה הסופית נשארת אצל המנהל
         </p>
       ) : null}
     </section>

@@ -74,7 +74,7 @@ export function ShiftReminderButton({
 
       const permission = await LocalNotifications.requestPermissions();
       if (permission.display !== "granted") {
-        setMessage("כדי לקבל תזכורת, יש לאפשר התראות בהגדרות ה־iPhone.");
+        setMessage("כדי לקבל תזכורת, יש לאפשר התראות בהגדרות ה־iPhone");
         return;
       }
 
@@ -92,7 +92,7 @@ export function ShiftReminderButton({
       setScheduled(true);
       setMessage("תזכורת נקבעה לשעה לפני המשמרת");
     } catch {
-      setMessage("לא הצלחנו לעדכן את התזכורת. אפשר לנסות שוב.");
+      setMessage("לא הצלחנו לעדכן את התזכורת — אפשר לנסות שוב");
     } finally {
       setBusy(false);
     }

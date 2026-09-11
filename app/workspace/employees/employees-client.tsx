@@ -91,7 +91,7 @@ export function EmployeesClient({
     setBusyId(null);
     if (error) {
       // Promoting or re-activating a member can hit the plan's seat limit (J3).
-      setMessage(planLimitMessage(error) ?? "לא הצלחנו לעדכן את העובד. בדוק את ההרשאות ונסה שוב.", "error");
+      setMessage(planLimitMessage(error) ?? "לא הצלחנו לעדכן את העובד — בדקו את ההרשאות ונסו שוב", "error");
       return;
     }
     setEmployees((current) => current.map((employee) => (employee.id === id ? { ...employee, ...changes } : employee)));
@@ -100,8 +100,8 @@ export function EmployeesClient({
     // showing someone who can no longer work it.
     setMessage(
       changes.status === "suspended"
-        ? "העובד הושבת, וכל השיבוצים העתידיים שלו הוסרו אוטומטית מהסידור."
-        : "פרטי העובד עודכנו בהצלחה."
+        ? "העובד הושבת, וכל השיבוצים העתידיים שלו הוסרו אוטומטית מהסידור"
+        : "פרטי העובד עודכנו בהצלחה"
     );
   }
 
@@ -109,7 +109,7 @@ export function EmployeesClient({
     const raw = hoursDraft[employee.id] ?? "";
     const parsed = raw.trim() ? Number(raw) : null;
     if (parsed !== null && (!Number.isInteger(parsed) || parsed <= 0)) {
-      setMessage("מגבלת השעות השבועית חייבת להיות מספר שלם חיובי, או ריקה לביטול המגבלה.", "error");
+      setMessage("מגבלת השעות השבועית חייבת להיות מספר שלם חיובי, או ריקה לביטול המגבלה", "error");
       setHoursDraft((current) => ({ ...current, [employee.id]: employee.weekly_hours_limit?.toString() ?? "" }));
       return;
     }
@@ -131,7 +131,7 @@ export function EmployeesClient({
   async function inviteEmployee() {
     setMessage("");
     if (!form.firstName.trim() || !form.email.includes("@") || !form.branchId) {
-      setMessage("יש להזין שם פרטי, מייל תקין וסניף.", "error");
+      setMessage("יש להזין שם פרטי, מייל תקין וסניף", "error");
       return;
     }
     setInviteBusy(true);
@@ -148,8 +148,8 @@ export function EmployeesClient({
       setInviteBusy(false);
       setMessage(
         invitationError?.message.includes("already a member")
-          ? "כתובת המייל כבר שייכת לחבר צוות בעסק."
-          : (planLimitMessage(invitationError) ?? "לא הצלחנו ליצור את ההזמנה."),
+          ? "כתובת המייל כבר שייכת לחבר צוות בעסק"
+          : (planLimitMessage(invitationError) ?? "לא הצלחנו ליצור את ההזמנה"),
         "error"
       );
       return;
@@ -159,8 +159,8 @@ export function EmployeesClient({
     if (emailError) {
       setMessage(
         emailError.message.toLowerCase().includes("rate limit")
-          ? "ההזמנה נשמרה, אך קיימת כרגע מגבלת שליחת מיילים. אפשר לשלוח שוב מאוחר יותר."
-          : "ההזמנה נשמרה, אך שליחת המייל נכשלה.",
+          ? "ההזמנה נשמרה, אך כרגע יש מגבלה על שליחת מיילים — אפשר לשלוח שוב מאוחר יותר"
+          : "ההזמנה נשמרה, אך שליחת המייל נכשלה",
         "error"
       );
       return;
@@ -182,7 +182,7 @@ export function EmployeesClient({
       ...current.filter((item) => !(item.email === normalizedEmail && item.status === "pending"))
     ]);
     setForm((current) => ({ ...current, firstName: "", lastName: "", email: "", role: "employee" }));
-    setMessage("ההזמנה נשלחה בהצלחה.");
+    setMessage("ההזמנה נשלחה בהצלחה");
   }
 
   async function resendInvitation(invitation: Invitation) {
@@ -200,7 +200,7 @@ export function EmployeesClient({
     });
     if (renewalError || !token) {
       setBusyId(null);
-      setMessage(planLimitMessage(renewalError) ?? "לא הצלחנו לחדש את תוקף ההזמנה.", "error");
+      setMessage(planLimitMessage(renewalError) ?? "לא הצלחנו לחדש את תוקף ההזמנה", "error");
       return;
     }
     const expiresAt = new Date(Date.now() + 7 * 86400000).toISOString();
@@ -213,7 +213,7 @@ export function EmployeesClient({
     // Hebrew message for it (e.g. "יש להמתין עוד X שניות") -- show that
     // instead of a generic failure message when we have it.
     setMessage(
-      error ? error.message || "לא הצלחנו לשלוח את ההזמנה מחדש." : "ההזמנה נשלחה מחדש.",
+      error ? error.message || "לא הצלחנו לשלוח את ההזמנה מחדש" : "ההזמנה נשלחה מחדש",
       error ? "error" : "success"
     );
   }
@@ -223,13 +223,13 @@ export function EmployeesClient({
     const { error } = await supabase.rpc("revoke_organization_invitation", { invitation_token: invitation.token });
     setBusyId(null);
     if (error) {
-      setMessage("לא הצלחנו לבטל את ההזמנה.", "error");
+      setMessage("לא הצלחנו לבטל את ההזמנה", "error");
       return;
     }
     setInvitations((current) =>
       current.map((item) => (item.id === invitation.id ? { ...item, status: "revoked" } : item))
     );
-    setMessage("ההזמנה בוטלה.");
+    setMessage("ההזמנה בוטלה");
   }
 
   async function transferOwnership(employee: Employee) {
@@ -247,7 +247,7 @@ export function EmployeesClient({
     const { error } = await supabase.rpc("transfer_organization_ownership", { target_user_id: employee.user_id });
     setBusyId(null);
     if (error) {
-      setMessage("העברת הבעלות נכשלה. ייתכן שהמשתמש כבר אינו חבר פעיל בעסק.", "error");
+      setMessage("העברת הבעלות נכשלה — ייתכן שהמשתמש כבר אינו חבר פעיל בעסק", "error");
       return;
     }
     setEmployees((current) =>
@@ -257,7 +257,7 @@ export function EmployeesClient({
         return item;
       })
     );
-    setMessage(`הבעלות הועברה ל${name}. התפקיד שלך עודכן ל"מנהל מערכת".`);
+    setMessage(`הבעלות הועברה ל${name}, והתפקיד שלך עודכן ל"מנהל מערכת"`);
   }
 
   return (
@@ -410,7 +410,7 @@ export function EmployeesClient({
                 <div className="template-main">
                   <strong>
                     {name}
-                    {isSelf ? " (אתה)" : ""}
+                    {isSelf ? " (אני)" : ""}
                   </strong>
                   <span>
                     {employee.employee_number ? `מספר עובד ${employee.employee_number}` : roleLabels[employee.role]}
@@ -499,7 +499,7 @@ export function EmployeesClient({
             );
           })}
           {!employees.length ? (
-            <EmptyState icon={Users} iconSize={36} description="עדיין אין עובדים בסביבת העבודה." />
+            <EmptyState icon={Users} iconSize={36} description="עדיין אין עובדים בסביבת העבודה" />
           ) : null}
         </div>
       </section>

@@ -131,13 +131,13 @@ export function SubmissionsClient({
       .eq("id", submission.id);
     setBusyId(null);
     if (error) {
-      setMessage("לא הצלחנו לשמור את הערת המנהל.", "error");
+      setMessage("לא הצלחנו לשמור את הערת המנהל", "error");
       return;
     }
     setSubmissions((current) =>
       current.map((item) => (item.id === submission.id ? { ...item, manager_note: managerNote } : item))
     );
-    setMessage("הערת המנהל נשמרה.");
+    setMessage("הערת המנהל נשמרה");
   }
 
   if (!periods.length)
@@ -147,7 +147,7 @@ export function SubmissionsClient({
           icon={ClipboardCheck}
           iconSize={42}
           title="אין עדיין חודשי עבודה"
-          description="פתח חודש עבודה כדי להתחיל לקבל הגשות."
+          description="פתחו חודש עבודה כדי להתחיל לקבל הגשות"
         />
       </section>
     );
@@ -231,7 +231,7 @@ export function SubmissionsClient({
                   ? "ההגשה נסגרה"
                   : "הסידור פורסם"}
             </strong>
-            <span>דדליין: {new Date(period.submission_closes_at).toLocaleString("he-IL")}</span>
+            <span>מועד אחרון: {new Date(period.submission_closes_at).toLocaleString("he-IL")}</span>
           </div>
         </div>
       ) : null}
@@ -295,7 +295,7 @@ export function SubmissionsClient({
                         })}
                         {!submissionEntries.length ? (
                           <tr>
-                            <td colSpan={4}>העובד עדיין לא סימן משמרות.</td>
+                            <td colSpan={4}>העובד עדיין לא סימן משמרות</td>
                           </tr>
                         ) : null}
                       </tbody>
@@ -322,7 +322,7 @@ export function SubmissionsClient({
           );
         })}
         {!visibleWorkers.length ? (
-          <EmptyState icon={ClipboardCheck} iconSize={38} description="אין עובדים בקטגוריה שנבחרה." />
+          <EmptyState icon={ClipboardCheck} iconSize={38} description="אין עובדים בקטגוריה שנבחרה" />
         ) : null}
       </div>
       <StatusMessage message={message} kind={kind} />

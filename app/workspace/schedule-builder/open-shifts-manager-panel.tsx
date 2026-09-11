@@ -44,14 +44,14 @@ export function OpenShiftsManagerPanel({
     });
     setBusy("");
     if (error) {
-      setMessage(makeOpen ? "פתיחת המשמרת לבקשות נכשלה." : "סגירת המשמרת לבקשות נכשלה.", "error");
+      setMessage(makeOpen ? "פתיחת המשמרת לבקשות נכשלה" : "סגירת המשמרת לבקשות נכשלה", "error");
       return;
     }
     setShifts((current) =>
       current.map((item) => (item.id === shiftId ? { ...item, open_for_requests: makeOpen } : item))
     );
     if (!makeOpen) setRequests((current) => current.filter((item) => item.shift_id !== shiftId));
-    setMessage(makeOpen ? "המשמרת פתוחה כעת לבקשות עובדים." : "המשמרת נסגרה לבקשות.");
+    setMessage(makeOpen ? "המשמרת פתוחה כעת לבקשות עובדים" : "המשמרת נסגרה לבקשות");
     router.refresh();
   }
 
@@ -61,11 +61,11 @@ export function OpenShiftsManagerPanel({
     const { error } = await supabase.rpc("decide_open_shift_request", { target_request_id: requestId, decision });
     setBusy("");
     if (error) {
-      setMessage("עדכון הבקשה נכשל. ייתכן שהמשמרת כבר אוישה או נסגרה.", "error");
+      setMessage("עדכון הבקשה נכשל — ייתכן שהמשמרת כבר אוישה או נסגרה", "error");
       return;
     }
     setRequests((current) => current.filter((item) => item.id !== requestId));
-    setMessage(decision === "approved" ? "הבקשה אושרה והעובד שובץ למשמרת." : "הבקשה נדחתה.");
+    setMessage(decision === "approved" ? "הבקשה אושרה והעובד שובץ למשמרת" : "הבקשה נדחתה");
     router.refresh();
   }
 
@@ -78,7 +78,7 @@ export function OpenShiftsManagerPanel({
         <div>
           <p className="eyebrow">Open Shifts</p>
           <h2>איוש משמרות פתוחות</h2>
-          <p>פתח משמרת לאיוש, קבל בקשות מהצוות ואשר מועמד אחד. רק אישור יוצר שיבוץ בפועל.</p>
+          <p>פותחים משמרת לאיוש, מקבלים בקשות מהצוות ומאשרים מועמד אחד — רק האישור יוצר שיבוץ בפועל</p>
         </div>
       </div>
       <div className="grid">
@@ -143,7 +143,7 @@ export function OpenShiftsManagerPanel({
                   ))}
                 </div>
               ) : shift.open_for_requests ? (
-                <p>עדיין לא התקבלו בקשות.</p>
+                <p>עדיין לא התקבלו בקשות</p>
               ) : null}
             </article>
           );

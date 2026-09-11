@@ -96,7 +96,7 @@ export function EmployeePreferenceEnhancer() {
         <div>
           <p className="eyebrow">Employee Preferences</p>
           <h2>סדר עדיפויות חכם לשיבוץ</h2>
-          <p>בכל משמרת העובדים מסודרים אוטומטית לפי ההעדפה שהם הגישו. ההחלטה נשארת תמיד אצל המנהל.</p>
+          <p>בכל משמרת העובדים מסודרים אוטומטית לפי ההעדפה שהגישו — וההחלטה נשארת תמיד אצל המנהל</p>
         </div>
         <div className="preference-decision-items">
           <span>

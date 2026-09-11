@@ -40,7 +40,7 @@ async function submitAvailability(page: Page) {
   await choices.nth(1).selectOption("available");
   await page.getByRole("button", { name: /שליחה למנהל/ }).click();
   // The deadline banner also reads "הזמינות נשלחה"; assert the success message.
-  await expect(page.getByText("הזמינות נשלחה למנהל בהצלחה.")).toBeVisible();
+  await expect(page.getByText("הזמינות נשלחה למנהל בהצלחה")).toBeVisible();
 }
 
 test("availability -> schedule -> publish -> swap -> approval", async ({ browser }) => {
@@ -73,7 +73,7 @@ test("availability -> schedule -> publish -> swap -> approval", async ({ browser
   await test.step("the employee sees the published shift", async () => {
     await alice.goto("/workspace/my-shifts");
     await expect(alice.getByText("עדיין אין סידור שפורסם")).toHaveCount(0);
-    await expect(alice.getByText("לא שובצת למשמרות בחודש הזה.")).toHaveCount(0);
+    await expect(alice.getByText("לא שובצת למשמרות בחודש הזה")).toHaveCount(0);
     await expect(alice.getByText(fixture.templateName).first()).toBeVisible();
   });
 
@@ -85,7 +85,7 @@ test("availability -> schedule -> publish -> swap -> approval", async ({ browser
     await target.selectOption(await bobOption.getAttribute("value") ?? "");
     await alice.getByLabel("סיבת ההחלפה").fill("E2E swap");
     await alice.getByRole("button", { name: /שליחת בקשה/ }).click();
-    await expect(alice.getByText("הבקשה נשלחה לעובד/ת השני/ה.")).toBeVisible();
+    await expect(alice.getByText("הבקשה נשלחה לעובד/ת השני/ה")).toBeVisible();
   });
 
   await test.step("Bob accepts and forwards to the manager", async () => {
@@ -98,7 +98,7 @@ test("availability -> schedule -> publish -> swap -> approval", async ({ browser
   await test.step("the manager approves", async () => {
     await owner.goto("/workspace/shift-swaps");
     await owner.getByRole("button", { name: /אישור והחלפה/ }).click();
-    await expect(owner.getByText("ההחלפה אושרה והסידור עודכן.")).toBeVisible();
+    await expect(owner.getByText("ההחלפה אושרה והסידור עודכן")).toBeVisible();
   });
 
   await test.step("the database shows the assignments exchanged", async () => {

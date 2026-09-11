@@ -82,7 +82,7 @@ export function SmartDraftPanel({
     const period = periods.find((p) => p.id === selectedPeriodId);
     if (!period) return;
     if (period.status === "published") {
-      setMessage("Smart Draft עובד על טיוטה בלבד. יש לבטל פרסום לפני שינוי שיבוצים.", "error");
+      setMessage("Smart Draft עובד על טיוטה בלבד — יש לבטל את הפרסום לפני שינוי שיבוצים", "error");
       return;
     }
 
@@ -189,7 +189,7 @@ export function SmartDraftPanel({
             score -= Math.min(25, hours / 4);
             reasons.push(`${Math.round(hours * 10) / 10} שעות משובצות כרגע`);
             if (worker.seniority_level === "senior") score += 2;
-            if (needSenior) reasons.push("משלים/ה דרישת Senior למשמרת");
+            if (needSenior) reasons.push("משלים/ה את דרישת העובד הבכיר במשמרת");
             return { worker, score, reasons };
           })
           .filter(isPresent)
@@ -217,8 +217,8 @@ export function SmartDraftPanel({
     setUnfilled(missing);
     setMessage(
       next.length
-        ? `נוצרה הצעה ל-${next.length} שיבוצים חדשים.`
-        : "לא נמצאו שיבוצים חדשים שאפשר להציע תחת המגבלות הנוכחיות."
+        ? `נוצרה הצעה ל-${next.length} שיבוצים חדשים`
+        : "לא נמצאו שיבוצים חדשים שאפשר להציע תחת המגבלות הנוכחיות"
     );
   }, [
     approvedLeave,
@@ -239,10 +239,10 @@ export function SmartDraftPanel({
     const period = periods.find((p) => p.id === selectedPeriodId);
     if (!period || period.status === "published") {
       setSuggestions([]);
-      setMessage("לא ניתן להחיל Smart Draft על סידור שפורסם. יש לבטל פרסום ולחשב הצעה מחדש.", "error");
+      setMessage("לא ניתן להחיל Smart Draft על סידור שפורסם — יש לבטל את הפרסום ולחשב הצעה מחדש", "error");
       return;
     }
-    if (!window.confirm(`להחיל ${suggestions.length} שיבוצים מוצעים על הטיוטה? הפעולה לא מפרסמת את הסידור לצוות.`))
+    if (!window.confirm(`להחיל ${suggestions.length} שיבוצים מוצעים על הטיוטה? הפעולה לא מפרסמת את הסידור לצוות`))
       return;
 
     setBusy("apply");
@@ -264,7 +264,7 @@ export function SmartDraftPanel({
     if (!currentPeriod || currentPeriod.status === "published") {
       setBusy("");
       setSuggestions([]);
-      setMessage("התקופה פורסמה מאז יצירת ההצעה. לא בוצע שינוי; בטל פרסום וחשב הצעה מחדש.", "error");
+      setMessage("התקופה פורסמה מאז יצירת ההצעה, ולא בוצע שינוי — בטלו את הפרסום וחשבו הצעה מחדש", "error");
       return;
     }
 
@@ -280,20 +280,20 @@ export function SmartDraftPanel({
       if (!shift || shift.status === "cancelled") {
         setBusy("");
         setSuggestions([]);
-        setMessage("אחת המשמרות השתנתה מאז יצירת ההצעה. לא בוצע שינוי; יש לחשב Smart Draft מחדש.", "error");
+        setMessage("אחת המשמרות השתנתה מאז יצירת ההצעה, ולא בוצע שינוי — יש לחשב Smart Draft מחדש", "error");
         return;
       }
       if (currentAssignments.some((a) => a.shift_id === suggestion.shiftId && a.user_id === suggestion.userId)) {
         setBusy("");
         setSuggestions([]);
-        setMessage("השיבוצים השתנו מאז יצירת ההצעה. לא בוצע שינוי; יש לחשב Smart Draft מחדש.", "error");
+        setMessage("השיבוצים השתנו מאז יצירת ההצעה, ולא בוצע שינוי — יש לחשב Smart Draft מחדש", "error");
         return;
       }
       const currentCount = currentAssignments.filter((a) => a.shift_id === suggestion.shiftId).length;
       if (currentCount >= shift.required_employees) {
         setBusy("");
         setSuggestions([]);
-        setMessage("אחת המשמרות כבר מלאה. לא בוצע שינוי; יש לחשב Smart Draft מחדש.", "error");
+        setMessage("אחת המשמרות כבר מלאה, ולא בוצע שינוי — יש לחשב Smart Draft מחדש", "error");
         return;
       }
     }
@@ -307,12 +307,12 @@ export function SmartDraftPanel({
     const { error } = await db.from("shift_assignments").insert(rows);
     setBusy("");
     if (error) {
-      setMessage("החלת Smart Draft נכשלה. לא פורסם שום סידור; יש לרענן ולבדוק את הטיוטה.", "error");
+      setMessage("החלת Smart Draft נכשלה ושום סידור לא פורסם — יש לרענן ולבדוק את הטיוטה", "error");
       return;
     }
     setSuggestions([]);
     setUnfilled(0);
-    setMessage("Smart Draft הוחל על הטיוטה.");
+    setMessage("Smart Draft הוחל על הטיוטה");
     // Re-render the page with fresh rows; the shared schedule data (and so the
     // board and every panel) picks them up.
     router.refresh();
@@ -330,7 +330,7 @@ export function SmartDraftPanel({
             <WandSparkles size={20} /> Smart Draft
           </h2>
           <p className="card-muted">
-            מייצר הצעת שיבוץ מוסברת לפי זמינות, העדפות, מגבלות וכיסוי. שום דבר לא נשמר בלי אישור המנהל.
+            מייצר הצעת שיבוץ מוסברת לפי זמינות, העדפות, מגבלות וכיסוי — ושום דבר לא נשמר בלי אישור המנהל
           </p>
         </div>
         <div className="button-row">
@@ -340,7 +340,7 @@ export function SmartDraftPanel({
             disabled={busy !== "" || !selectedPeriodId || published}
             onClick={() => generate()}
           >
-            <RefreshCw size={15} /> חשב הצעה
+            <RefreshCw size={15} /> חישוב הצעה
           </button>
           <button
             type="button"
@@ -348,7 +348,7 @@ export function SmartDraftPanel({
             disabled={busy !== "" || !suggestions.length || published}
             onClick={() => void apply()}
           >
-            {busy === "apply" ? <Loader2 size={15} /> : <Sparkles size={15} />} החל על הטיוטה
+            {busy === "apply" ? <Loader2 size={15} /> : <Sparkles size={15} />} החלה על הטיוטה
           </button>
         </div>
       </div>
@@ -357,12 +357,12 @@ export function SmartDraftPanel({
         <div className="submission-banner">
           <div>
             <strong>הסידור פורסם</strong>
-            <span>Smart Draft מושבת עד לביטול הפרסום כדי למנוע שינוי שיבוצים שכבר נשלחו לעובדים.</span>
+            <span>Smart Draft מושבת עד לביטול הפרסום כדי למנוע שינוי שיבוצים שכבר נשלחו לעובדים</span>
           </div>
         </div>
       ) : null}
       <StatusMessage message={message} kind={kind} />
-      {unfilled ? <p className="card-muted">{unfilled} מקומות נשארו ללא מועמד שעומד בכל המגבלות.</p> : null}
+      {unfilled ? <p className="card-muted">{unfilled} מקומות נשארו ללא מועמד שעומד בכל המגבלות</p> : null}
 
       {suggestions.length ? (
         <div className="template-list" style={{ marginTop: 12 }}>
@@ -385,7 +385,7 @@ export function SmartDraftPanel({
         <p className="card-muted">מוצגות 20 ההצעות הראשונות מתוך {suggestions.length}.</p>
       ) : null}
       <p className="card-muted" style={{ marginTop: 10 }}>
-        Smart Draft לעולם לא מפרסם סידור. לפני החלה הוא מאמת מחדש שהתקופה עדיין טיוטה ושהמשמרות לא השתנו.
+        Smart Draft לעולם לא מפרסם סידור — לפני ההחלה הוא מאמת מחדש שהתקופה עדיין טיוטה ושהמשמרות לא השתנו
       </p>
     </section>
   );

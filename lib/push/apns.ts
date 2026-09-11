@@ -85,11 +85,11 @@ export async function sendApnsPush(message: PushMessage) {
 
 export function pushCopy(templateKey: string, payload: Record<string, unknown>) {
   const shift = typeof payload.name === "string" ? payload.name : "המשמרת";
-  if (templateKey === "schedule_published") return { title: "סידור העבודה פורסם", body: "הסידור החדש זמין לצפייה.", route: "/workspace/my-shifts" };
-  if (templateKey === "shift_assignment_changed") return { title: "השיבוץ שלך עודכן", body: `בוצע שינוי ב${shift}.`, route: "/workspace/my-shifts" };
+  if (templateKey === "schedule_published") return { title: "סידור העבודה פורסם", body: "הסידור החדש זמין לצפייה", route: "/workspace/my-shifts" };
+  if (templateKey === "shift_assignment_changed") return { title: "השיבוץ שלך עודכן", body: `בוצע שינוי ב${shift}`, route: "/workspace/my-shifts" };
   if (templateKey === "shift_reminder") return { title: "המשמרת מתחילה בעוד כשעה", body: shift, route: "/workspace/my-shifts" };
-  if (templateKey === "availability_reminder") return { title: "תזכורת להגשת זמינות", body: "חלון ההגשה עומד להיסגר.", route: "/workspace/availability" };
-  if (templateKey === "availability_closing") return { title: "הגשת הזמינות נסגרת היום", body: "מומלץ להשלים את ההגשה עכשיו.", route: "/workspace/availability" };
-  if (templateKey.startsWith("swap_")) return { title: "עדכון בהחלפת משמרת", body: "יש עדכון חדש בבקשת ההחלפה.", route: "/workspace/shift-swaps" };
-  return { title: "עדכון חדש מ־ShiftPilot", body: "יש עדכון חדש במערכת.", route: "/workspace/notifications" };
+  if (templateKey === "availability_reminder") return { title: "תזכורת להגשת זמינות", body: "חלון ההגשה עומד להיסגר", route: "/workspace/availability" };
+  if (templateKey === "availability_closing") return { title: "הגשת הזמינות נסגרת היום", body: "מומלץ להשלים את ההגשה עכשיו", route: "/workspace/availability" };
+  if (templateKey.startsWith("swap_")) return { title: "עדכון בהחלפת משמרת", body: "יש עדכון חדש בבקשת ההחלפה", route: "/workspace/shift-swaps" };
+  return { title: "עדכון חדש מ־ShiftPilot", body: "יש עדכון חדש במערכת", route: "/workspace/notifications" };
 }

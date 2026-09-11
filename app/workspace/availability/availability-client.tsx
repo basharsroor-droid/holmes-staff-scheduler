@@ -167,7 +167,7 @@ export function AvailabilityClient({
     const submissionId = await ensureSubmission();
     if (!submissionId) {
       setBusy(false);
-      setMessage("לא הצלחנו לפתוח את טופס הזמינות.", "error");
+      setMessage("לא הצלחנו לפתוח את טופס הזמינות", "error");
       return;
     }
 
@@ -175,7 +175,7 @@ export function AvailabilityClient({
     const selected = Object.entries(choices).filter(([key, choice]) => key.startsWith(periodPrefix) && choice.status);
     if (finalSubmit && !selected.length) {
       setBusy(false);
-      setMessage("יש לסמן לפחות משמרת אחת לפני השליחה.", "error");
+      setMessage("יש לסמן לפחות משמרת אחת לפני השליחה", "error");
       return;
     }
 
@@ -196,7 +196,7 @@ export function AvailabilityClient({
         .upsert(rows, { onConflict: "submission_id,shift_date,shift_template_id" });
       if (error) {
         setBusy(false);
-        setMessage("שמירת הזמינות נכשלה.", "error");
+        setMessage("שמירת הזמינות נכשלה", "error");
         return;
       }
     }
@@ -209,21 +209,21 @@ export function AvailabilityClient({
       .eq("user_id", userId);
     setBusy(false);
     if (error) {
-      setMessage("לא הצלחנו לעדכן את מצב ההגשה.", "error");
+      setMessage("לא הצלחנו לעדכן את מצב ההגשה", "error");
       return;
     }
     setSubmittedByPeriod((current) => ({ ...current, [period.id]: submittedAt }));
-    setMessage(finalSubmit ? "הזמינות נשלחה למנהל בהצלחה." : "הטיוטה נשמרה.");
+    setMessage(finalSubmit ? "הזמינות נשלחה למנהל בהצלחה" : "הטיוטה נשמרה");
   }
 
   async function addLeaveRequest() {
     setLeaveMessage("");
     if (!leaveForm.startDate || !leaveForm.endDate) {
-      setLeaveMessage("יש לבחור תאריך התחלה וסיום.", "error");
+      setLeaveMessage("יש לבחור תאריך התחלה וסיום", "error");
       return;
     }
     if (leaveForm.endDate < leaveForm.startDate) {
-      setLeaveMessage("תאריך הסיום חייב להיות אחרי תאריך ההתחלה.", "error");
+      setLeaveMessage("תאריך הסיום חייב להיות אחרי תאריך ההתחלה", "error");
       return;
     }
     setLeaveBusy(true);
@@ -241,12 +241,12 @@ export function AvailabilityClient({
       .single();
     setLeaveBusy(false);
     if (error || !data) {
-      setLeaveMessage("לא הצלחנו לשמור את הבקשה.", "error");
+      setLeaveMessage("לא הצלחנו לשמור את הבקשה", "error");
       return;
     }
     setLeaveRequests((current) => [data, ...current]);
     setLeaveForm({ leaveType: "vacation", startDate: "", endDate: "", note: "" });
-    setLeaveMessage("הבקשה נשמרה. המנהל יראה אותה בבניית הסידור.");
+    setLeaveMessage("הבקשה נשמרה — המנהל יראה אותה בבניית הסידור");
   }
 
   async function removeLeaveRequest(id: string) {
@@ -255,7 +255,7 @@ export function AvailabilityClient({
     const { error } = await supabase.from("leave_requests").delete().eq("id", id).eq("user_id", userId);
     setLeaveBusy(false);
     if (error) {
-      setLeaveMessage("ביטול הבקשה נכשל.", "error");
+      setLeaveMessage("ביטול הבקשה נכשל", "error");
       return;
     }
     setLeaveRequests((current) => current.filter((item) => item.id !== id));
@@ -268,7 +268,7 @@ export function AvailabilityClient({
         <h2>דיווח על ימי היעדרות</h2>
       </div>
       <p className="auth-secondary">
-        דיווח כאן חוסם שיבוץ אוטומטית בבניית הסידור בטווח התאריכים שנבחר, בלי קשר לתקופת ההגשה.
+        דיווח כאן חוסם שיבוץ אוטומטית בבניית הסידור בטווח התאריכים שנבחר, בלי קשר לתקופת ההגשה
       </p>
       <div className="form-pair">
         <label className="field">
@@ -349,7 +349,7 @@ export function AvailabilityClient({
             icon={CalendarCheck}
             iconSize={42}
             title="אין כרגע חודש פתוח להגשה"
-            description="המנהל עדיין לא פתח תקופת זמינות חדשה."
+            description="המנהל עדיין לא פתח תקופת זמינות חדשה"
           />
         </section>
       </div>
@@ -390,7 +390,7 @@ export function AvailabilityClient({
                       ? "הזמינות נשלחה"
                       : "ההגשה פתוחה"}
               </strong>
-              <span>דדליין: {new Date(period.submission_closes_at).toLocaleString("he-IL")}</span>
+              <span>מועד אחרון: {new Date(period.submission_closes_at).toLocaleString("he-IL")}</span>
             </div>
           </div>
         ) : null}

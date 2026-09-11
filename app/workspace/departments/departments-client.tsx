@@ -60,7 +60,7 @@ export function DepartmentsClient({
   async function createDepartment() {
     setMessage("");
     if (!branchId || name.trim().length < 2) {
-      setMessage("יש לבחור סניף ולהזין שם מחלקה באורך שני תווים לפחות.", "error");
+      setMessage("יש לבחור סניף ולהזין שם מחלקה באורך שני תווים לפחות", "error");
       return;
     }
     setCreating(true);
@@ -73,15 +73,15 @@ export function DepartmentsClient({
     if (error || !data) {
       setMessage(
         error?.message.toLowerCase().includes("duplicate")
-          ? "כבר קיימת מחלקה בשם הזה בסניף."
-          : (planLimitMessage(error) ?? "לא הצלחנו ליצור את המחלקה."),
+          ? "כבר קיימת מחלקה בשם הזה בסניף"
+          : (planLimitMessage(error) ?? "לא הצלחנו ליצור את המחלקה"),
         "error"
       );
       return;
     }
     setDepartments((current) => [...current, data].sort((a, b) => a.name.localeCompare(b.name, "he")));
     setName("");
-    setMessage("המחלקה נוצרה בהצלחה.");
+    setMessage("המחלקה נוצרה בהצלחה");
   }
 
   async function toggleDepartment(department: Department) {
@@ -95,13 +95,13 @@ export function DepartmentsClient({
     setBusyId(null);
     if (error) {
       // Re-activating a department can hit the plan's department limit (J3).
-      setMessage(planLimitMessage(error) ?? "לא הצלחנו לעדכן את המחלקה.", "error");
+      setMessage(planLimitMessage(error) ?? "לא הצלחנו לעדכן את המחלקה", "error");
       return;
     }
     setDepartments((current) =>
       current.map((item) => (item.id === department.id ? { ...item, active: !item.active } : item))
     );
-    setMessage(department.active ? "המחלקה הושבתה. ההיסטוריה נשמרה." : "המחלקה הופעלה מחדש.");
+    setMessage(department.active ? "המחלקה הושבתה וההיסטוריה נשמרה" : "המחלקה הופעלה מחדש");
   }
 
   async function setMemberDepartment(member: Member, departmentId: string, checked: boolean) {
@@ -110,7 +110,7 @@ export function DepartmentsClient({
       ? [...new Set([...currentIds, departmentId])]
       : currentIds.filter((id) => id !== departmentId);
     if (member.role === "employee" && nextIds.length === 0) {
-      setMessage("עובד חייב להישאר משויך למחלקה אחת לפחות.", "error");
+      setMessage("עובד חייב להישאר משויך למחלקה אחת לפחות", "error");
       return;
     }
     setBusyId(member.id);
@@ -121,14 +121,14 @@ export function DepartmentsClient({
     });
     setBusyId(null);
     if (error) {
-      setMessage("לא הצלחנו לעדכן את שיוך המחלקות.", "error");
+      setMessage("לא הצלחנו לעדכן את שיוך המחלקות", "error");
       return;
     }
     setAssignments((current) => [
       ...current.filter((item) => item.membership_id !== member.id),
       ...nextIds.map((id, index) => ({ department_id: id, membership_id: member.id, is_primary: index === 0 }))
     ]);
-    setMessage("שיוך המחלקות נשמר.");
+    setMessage("שיוך המחלקות נשמר");
   }
 
   return (
@@ -152,7 +152,7 @@ export function DepartmentsClient({
           <ShieldCheck />
           <span>
             <strong>גישה לפי תפקיד</strong>
-            <small>בעלים רואה הכול, מנהל סניף רואה את הסניף, ומנהל מחלקה רואה רק מחלקות ששויכו אליו.</small>
+            <small>בעלים רואה הכול, מנהל סניף רואה את הסניף, ומנהל מחלקה רואה רק מחלקות ששויכו אליו</small>
           </span>
         </div>
         {canCreate ? (
@@ -224,7 +224,7 @@ export function DepartmentsClient({
               <h2>שיוך למחלקות</h2>
             </div>
             <span className="status-chip active">
-              <ShieldCheck size={14} /> מוגן ב־RLS
+              <ShieldCheck size={14} /> הרשאות מאובטחות
             </span>
           </div>
           <div className="department-members">
@@ -274,7 +274,7 @@ export function DepartmentsClient({
               );
             })}
             {!branchMembers.length ? (
-              <EmptyState icon={UserRound} iconSize={36} description="עדיין אין מנהלים או עובדים בסניף הזה." />
+              <EmptyState icon={UserRound} iconSize={36} description="עדיין אין מנהלים או עובדים בסניף הזה" />
             ) : null}
           </div>
         </section>

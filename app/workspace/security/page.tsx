@@ -35,7 +35,7 @@ export default async function WorkspaceSecurityPage() {
           <h1>
             <ShieldCheck /> אבטחת חשבון
           </h1>
-          <p>ניהול אימות דו-שלבי לחשבון שלך. זו הגדרה אישית — לא משפיעה על שאר חברי הצוות.</p>
+          <p>ניהול אימות דו־שלבי לחשבון שלך — הגדרה אישית שלא משפיעה על שאר חברי הצוות</p>
         </div>
       </header>
       <SecuritySettings />

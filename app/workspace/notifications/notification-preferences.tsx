@@ -15,11 +15,11 @@ export type PreferenceValues = {
 };
 
 const labels: Array<{ key: keyof PreferenceValues; title: string; detail: string }> = [
-  { key: "schedule_published", title: "פרסום סידור עבודה", detail: "מייל כאשר סידור חדש מתפרסם." },
-  { key: "shift_changes", title: "שינויים בשיבוץ", detail: "מייל כאשר מוסיפים או מסירים אותך ממשמרת שפורסמה." },
-  { key: "shift_reminders", title: "תזכורת לפני משמרת", detail: "תזכורת כשעה לפני תחילת המשמרת." },
-  { key: "availability_reminders", title: "הגשת זמינות", detail: "תזכורת לפני הסגירה והודעה ביום הנעילה." },
-  { key: "swap_updates", title: "החלפות משמרת", detail: "בקשות חדשות, אישורים ודחיות." }
+  { key: "schedule_published", title: "פרסום סידור עבודה", detail: "מייל כאשר סידור חדש מתפרסם" },
+  { key: "shift_changes", title: "שינויים בשיבוץ", detail: "מייל כאשר מוסיפים או מסירים אותך ממשמרת שפורסמה" },
+  { key: "shift_reminders", title: "תזכורת לפני משמרת", detail: "תזכורת כשעה לפני תחילת המשמרת" },
+  { key: "availability_reminders", title: "הגשת זמינות", detail: "תזכורת לפני הסגירה והודעה ביום הנעילה" },
+  { key: "swap_updates", title: "החלפות משמרת", detail: "בקשות חדשות, אישורים ודחיות" }
 ];
 
 export function NotificationPreferences({
@@ -42,7 +42,7 @@ export function NotificationPreferences({
       .from("notification_preferences")
       .upsert({ organization_id: organizationId, user_id: userId, ...values, updated_at: new Date().toISOString() });
     setSaving(false);
-    setMessage(error ? "לא הצלחנו לשמור את העדפות המייל." : "העדפות המייל נשמרו.", error ? "error" : "success");
+    setMessage(error ? "לא הצלחנו לשמור את העדפות המייל" : "העדפות המייל נשמרו", error ? "error" : "success");
   }
 
   return (
@@ -59,7 +59,7 @@ export function NotificationPreferences({
           {saving ? "שומר..." : "שמירה"}
         </button>
       </div>
-      <p>התראות חיוניות לחשבון ולאבטחה ימשיכו להישלח. כאן אפשר לבחור אילו עדכוני עבודה יגיעו גם למייל.</p>
+      <p>התראות חיוניות לחשבון ולאבטחה ימשיכו להישלח — כאן בוחרים אילו עדכוני עבודה יגיעו גם למייל</p>
       <div className="notification-preferences-list">
         {labels.map((item) => (
           <label className="notification-preference" key={item.key}>

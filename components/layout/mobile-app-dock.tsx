@@ -169,7 +169,7 @@ export function MobileAppDock() {
             >
               <div className="mb-3 flex items-center justify-between">
                 <div>
-                  <strong className="block text-base text-slate-900">עוד ב-ShiftPilot</strong>
+                  <strong className="block text-base text-slate-900">עוד ב־ShiftPilot</strong>
                   <small className="text-slate-600">{role === "employee" ? "כלים לעובד/ת" : "כלי ניהול והגדרות"}</small>
                 </div>
                 <button
