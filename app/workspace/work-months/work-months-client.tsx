@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { CalendarDays, CalendarPlus, CheckCircle2, Clock3, Loader2, Lock, RotateCcw } from "lucide-react";
 
 import { StatusMessage } from "@/components/workspace/status-message";
@@ -59,7 +60,11 @@ export function WorkMonthsClient({
   departments,
   templates,
   initialPeriods,
-  selectedBranchId
+  selectedBranchId,
+  initialDepartmentId,
+  initialYear,
+  initialMonth,
+  returnToScheduleBuilder
 }: {
   organizationId: string;
   currentUserId: string;
@@ -68,8 +73,13 @@ export function WorkMonthsClient({
   templates: Template[];
   initialPeriods: Period[];
   selectedBranchId: string;
+  initialDepartmentId: string;
+  initialYear: number | null;
+  initialMonth: number | null;
+  returnToScheduleBuilder: boolean;
 }) {
   const supabase = useMemo(() => createSupabaseBrowserClient(), []);
+  const router = useRouter();
   const nextMonth = useMemo(() => {
     const date = new Date();
     date.setMonth(date.getMonth() + 1, 1);
@@ -82,12 +92,14 @@ export function WorkMonthsClient({
     date.setHours(23, 59, 0, 0);
     return date;
   }, []);
+  const defaultDepartmentId =
+    initialDepartmentId || departments.find((department) => department.branch_id === selectedBranchId)?.id || "";
   const [periods, setPeriods] = useState(initialPeriods);
   const [form, setForm] = useState({
     branchId: selectedBranchId,
-    departmentId: departments.find((department) => department.branch_id === selectedBranchId)?.id ?? "",
-    year: nextMonth.getFullYear(),
-    month: nextMonth.getMonth() + 1,
+    departmentId: defaultDepartmentId,
+    year: initialYear ?? nextMonth.getFullYear(),
+    month: initialMonth ?? nextMonth.getMonth() + 1,
     opensAt: localDateTime(defaultOpen),
     closesAt: localDateTime(defaultClose)
   });
@@ -152,6 +164,9 @@ export function WorkMonthsClient({
     }
     setPeriods((current) => [data, ...current]);
     setMessage("חודש העבודה נפתח בהצלחה להגשת זמינות");
+    if (returnToScheduleBuilder) {
+      router.push(`/workspace/schedule-builder?period=${data.id}`);
+    }
   }
 
   async function changeStatus(period: Period, status: PeriodStatus) {
@@ -178,6 +193,12 @@ export function WorkMonthsClient({
           <p className="eyebrow">חודש חדש</p>
           <h2>פתיחת הגשת זמינות</h2>
         </div>
+        {returnToScheduleBuilder ? (
+          <div className="card-muted">
+            <strong>החודש שבחרתם עדיין לא נפתח</strong>
+            <p className="auth-secondary">קבעו את חלון הגשת הזמינות. לאחר הפתיחה תחזרו אוטומטית לסידור של החודש הזה</p>
+          </div>
+        ) : null}
         <div className="form-pair">
           <label className="field">
             <span>סניף</span>
