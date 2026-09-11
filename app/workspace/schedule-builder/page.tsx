@@ -15,6 +15,7 @@ import { SmartDraftPanel } from "@/app/workspace/schedule-builder/smart-draft-pa
 import { SmartReplacementPanel } from "@/app/workspace/schedule-builder/smart-replacement-panel";
 import { TimeOffApprovalPanel } from "@/app/workspace/schedule-builder/time-off-approval-panel";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { EmptyState } from "@/components/workspace/empty-state";
 
 export const dynamic = "force-dynamic";
 
@@ -303,14 +304,12 @@ export default async function ScheduleBuilderPage() {
           />
           {pilotMode && (
             <section className="template-list-card">
-              <div className="empty-template-state">
-                <CalendarRange size={32} />
-                <h2>מצב פיילוט פעיל</h2>
-                <p>
-                  כדי לשמור על מחזור סידור פשוט וברור, כלי ה-Intelligence (ציון בריאות, הוגנות, טיוטה חכמה, תיקון סידור,
-                  החלפה חכמה ומשמרות פתוחות) מוסתרים בשלב זה. הם ייפתחו בהדרגה אחרי מחזור ראשון נקי.
-                </p>
-              </div>
+              <EmptyState
+                icon={CalendarRange}
+                iconSize={32}
+                title="מצב פיילוט פעיל"
+                description="כדי לשמור על מחזור סידור פשוט וברור, כלי ה-Intelligence (ציון בריאות, הוגנות, טיוטה חכמה, תיקון סידור, החלפה חכמה ומשמרות פתוחות) מוסתרים בשלב זה. הם ייפתחו בהדרגה אחרי מחזור ראשון נקי."
+              />
             </section>
           )}
           {!pilotMode && (

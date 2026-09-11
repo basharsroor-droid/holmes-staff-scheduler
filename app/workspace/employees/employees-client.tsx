@@ -8,6 +8,7 @@ import { useStatusMessage } from "@/lib/hooks/use-status-message";
 import { planLimitMessage } from "@/lib/plan-limit-errors";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import type { Database } from "@/types/database";
+import { EmptyState } from "@/components/workspace/empty-state";
 
 type Role = Database["public"]["Enums"]["member_role"];
 type Status = Database["public"]["Enums"]["member_status"];
@@ -498,10 +499,7 @@ export function EmployeesClient({
             );
           })}
           {!employees.length ? (
-            <div className="empty-template-state">
-              <Users size={36} />
-              <p>עדיין אין עובדים בסביבת העבודה.</p>
-            </div>
+            <EmptyState icon={Users} iconSize={36} description="עדיין אין עובדים בסביבת העבודה." />
           ) : null}
         </div>
       </section>

@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { StatusMessage } from "@/components/workspace/status-message";
 import { useStatusMessage } from "@/lib/hooks/use-status-message";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
+import { EmptyState } from "@/components/workspace/empty-state";
 
 type Period = {
   id: string;
@@ -252,9 +253,7 @@ export function ScheduleTemplatesPanel({
           ))}
         </div>
       ) : (
-        <div className="empty-template-state">
-          <p>עדיין לא נשמרו תבניות.</p>
-        </div>
+        <EmptyState description="עדיין לא נשמרו תבניות." />
       )}
 
       <StatusMessage message={message} kind={kind} />

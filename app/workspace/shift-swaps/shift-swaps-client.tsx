@@ -7,6 +7,7 @@ import { StatusMessage } from "@/components/workspace/status-message";
 import { useStatusMessage } from "@/lib/hooks/use-status-message";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import type { Database } from "@/types/database";
+import { EmptyState } from "@/components/workspace/empty-state";
 
 type SwapStatus = Database["public"]["Enums"]["swap_status"];
 type Shift = { id: string; shift_date: string; name: string; start_time: string; end_time: string; status: string };
@@ -362,10 +363,7 @@ export function ShiftSwapsClient({
           })}
         </div>
         {!visibleRequests.length ? (
-          <div className="empty-template-state">
-            <Repeat2 size={38} />
-            <p>אין כרגע בקשות החלפה.</p>
-          </div>
+          <EmptyState icon={Repeat2} iconSize={38} description="אין כרגע בקשות החלפה." />
         ) : null}
         <StatusMessage message={message} kind={kind} />
       </section>

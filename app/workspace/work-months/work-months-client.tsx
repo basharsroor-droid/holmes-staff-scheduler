@@ -7,6 +7,7 @@ import { StatusMessage } from "@/components/workspace/status-message";
 import { useStatusMessage } from "@/lib/hooks/use-status-message";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import type { Database } from "@/types/database";
+import { EmptyState } from "@/components/workspace/empty-state";
 
 type PeriodStatus = Database["public"]["Enums"]["schedule_status"];
 type Branch = { id: string; name: string };
@@ -324,10 +325,11 @@ export function WorkMonthsClient({
             );
           })}
           {!periods.length ? (
-            <div className="empty-template-state">
-              <CalendarDays size={38} />
-              <p>פתח את החודש הראשון כדי שהעובדים יוכלו להגיש זמינות.</p>
-            </div>
+            <EmptyState
+              icon={CalendarDays}
+              iconSize={38}
+              description="פתח את החודש הראשון כדי שהעובדים יוכלו להגיש זמינות."
+            />
           ) : null}
         </div>
       </section>

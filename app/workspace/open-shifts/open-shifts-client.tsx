@@ -6,6 +6,7 @@ import { AlertTriangle, CheckCircle2, Loader2, ShieldCheck, Store, XCircle } fro
 import { StatusMessage } from "@/components/workspace/status-message";
 import { useStatusMessage } from "@/lib/hooks/use-status-message";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
+import { EmptyState } from "@/components/workspace/empty-state";
 
 type OpenShift = {
   id: string;
@@ -136,11 +137,12 @@ export function OpenShiftsClient({ initialShifts }: { initialShifts: OpenShift[]
   if (!shifts.length) {
     return (
       <section className="template-list-card">
-        <div className="empty-template-state">
-          <Store size={42} />
-          <h2>אין כרגע הזדמנויות פתוחות</h2>
-          <p>כשמנהל יפתח משמרת לאיוש, היא תופיע כאן ב־Shift Marketplace.</p>
-        </div>
+        <EmptyState
+          icon={Store}
+          iconSize={42}
+          title="אין כרגע הזדמנויות פתוחות"
+          description="כשמנהל יפתח משמרת לאיוש, היא תופיע כאן ב־Shift Marketplace."
+        />
       </section>
     );
   }

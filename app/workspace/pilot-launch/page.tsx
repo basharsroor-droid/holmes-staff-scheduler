@@ -212,7 +212,7 @@ export default async function PilotLaunchPage() {
       complete: Boolean(activePeriod),
       href: "/workspace/work-months",
       title: "תקופת עבודה נפתחה",
-      description: "קיימת תקופה שבועית או חודשית שאפשר לעבוד עליה."
+      description: "קיים חודש עבודה שאפשר לעבוד עליו."
     },
     {
       complete: employeeCount > 0,

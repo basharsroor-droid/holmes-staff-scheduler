@@ -7,6 +7,7 @@ import { useStatusMessage } from "@/lib/hooks/use-status-message";
 import { planLimitMessage } from "@/lib/plan-limit-errors";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import type { Database } from "@/types/database";
+import { EmptyState } from "@/components/workspace/empty-state";
 
 type Role = Database["public"]["Enums"]["member_role"];
 type Branch = { id: string; name: string };
@@ -273,10 +274,7 @@ export function DepartmentsClient({
               );
             })}
             {!branchMembers.length ? (
-              <div className="empty-template-state">
-                <UserRound size={36} />
-                <p>עדיין אין מנהלים או עובדים בסניף הזה.</p>
-              </div>
+              <EmptyState icon={UserRound} iconSize={36} description="עדיין אין מנהלים או עובדים בסניף הזה." />
             ) : null}
           </div>
         </section>

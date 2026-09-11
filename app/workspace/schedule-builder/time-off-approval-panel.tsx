@@ -7,6 +7,7 @@ import { CheckCircle2, Clock3, Loader2, Palmtree, XCircle } from "lucide-react";
 import { StatusMessage } from "@/components/workspace/status-message";
 import { useStatusMessage } from "@/lib/hooks/use-status-message";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
+import { EmptyState } from "@/components/workspace/empty-state";
 
 type LeaveType = "vacation" | "sick";
 
@@ -114,11 +115,13 @@ export function TimeOffApprovalPanel({ initialRequests }: { initialRequests: Pen
           ))}
         </div>
       ) : (
-        <div className="empty-template-state">
-          <CheckCircle2 size={38} />
-          <h3>אין בקשות שממתינות לטיפול</h3>
-          <p>בקשות חדשות יופיעו כאן לפני שהן משפיעות על הסידור.</p>
-        </div>
+        <EmptyState
+          icon={CheckCircle2}
+          iconSize={38}
+          headingLevel={3}
+          title="אין בקשות שממתינות לטיפול"
+          description="בקשות חדשות יופיעו כאן לפני שהן משפיעות על הסידור."
+        />
       )}
     </section>
   );
