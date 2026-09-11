@@ -49,6 +49,17 @@ async function mustRetry(run, label, attempts = 3) {
 // (it did, 2026-09-11, until the availability guards allowed cascade deletes).
 async function cleanupFixture(fixture) {
   const failures = [];
+  // operational_events' FKs are ON DELETE SET NULL (production keeps anonymous
+  // metrics after an account is deleted), so a run's events must go while they
+  // still point at its tenant -- afterwards nothing links them to the run.
+  const eventScope = [
+    fixture?.organizationId && `organization_id.eq.${fixture.organizationId}`,
+    ...(fixture?.userIds ?? []).map((userId) => `actor_user_id.eq.${userId}`)
+  ].filter(Boolean);
+  if (eventScope.length) {
+    const { error } = await admin.from("operational_events").delete().or(eventScope.join(","));
+    if (error) failures.push(`operational events cleanup: ${error.message}`);
+  }
   if (fixture?.organizationId) {
     const { error } = await admin.from("organizations").delete().eq("id", fixture.organizationId);
     if (error) failures.push(`organization cleanup: ${error.message}`);
