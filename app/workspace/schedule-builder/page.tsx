@@ -310,7 +310,11 @@ export default async function ScheduleBuilderPage({
         <ScheduleCalendarOverview
           period={
             selectedPeriod
-              ? { id: selectedPeriod.id, year: selectedPeriod.year, month: selectedPeriod.month }
+              ? {
+                  id: selectedPeriod.id,
+                  year: selectedPeriod.year,
+                  month: selectedPeriod.month
+                }
               : null
           }
         />
