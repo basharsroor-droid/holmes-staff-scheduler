@@ -26,6 +26,7 @@ import {
 import { LogoutButton } from "@/app/workspace/logout-button";
 import { BrandLogo } from "@/components/brand/brand-logo";
 import { TrialBanner } from "@/components/workspace/trial-banner";
+import { SETUP_STEPS, type SetupStepKey } from "@/lib/setup-steps";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
@@ -97,26 +98,14 @@ export default async function WorkspacePage() {
   if (!organization) redirect("/onboarding");
   const isEmployee = membership.role === "employee";
 
-  const pilotSteps = [
-    {
-      complete: (templatesResult.count ?? 0) > 0,
-      href: "/workspace/shift-templates",
-      title: "הגדרת סוגי משמרות",
-      description: "הוסיפו פתיחה, אמצע וסגירה עם השעות והתקן האמיתיים."
-    },
-    {
-      complete: (periodsResult.count ?? 0) > 0,
-      href: "/workspace/work-months",
-      title: "פתיחת חודש עבודה",
-      description: "בחרו חודש וקבעו מתי העובדים יכולים להגיש זמינות."
-    },
-    {
-      complete: (membersResult.count ?? 0) > 1,
-      href: "/workspace/employees",
-      title: "הזמנת צוות הפיילוט",
-      description: "הזמינו מנהל/ת ולפחות שני עובדי בדיקה במייל."
-    }
-  ];
+  // Titles, descriptions and links come from lib/setup-steps.ts, shared with the
+  // in-step guides on each setup screen (I1).
+  const stepComplete: Record<SetupStepKey, boolean> = {
+    "shift-types": (templatesResult.count ?? 0) > 0,
+    "work-month": (periodsResult.count ?? 0) > 0,
+    team: (membersResult.count ?? 0) > 1
+  };
+  const pilotSteps = SETUP_STEPS.map((step) => ({ ...step, complete: stepComplete[step.key] }));
   const completedPilotSteps = pilotSteps.filter((step) => step.complete).length;
   const pilotProgress = Math.round((completedPilotSteps / pilotSteps.length) * 100);
 

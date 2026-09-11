@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { ArrowRight, Users } from "lucide-react";
 
 import { EmployeesClient } from "@/app/workspace/employees/employees-client";
+import { SetupStepGuide } from "@/components/workspace/setup-step-guide";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
@@ -71,6 +72,10 @@ export default async function EmployeesPage() {
           <p>מזמינים עובדים ומנהלים במייל ומנהלים תפקידים והרשאות ללא מחיקת היסטוריה.</p>
         </div>
       </header>
+      <SetupStepGuide
+        step="team"
+        complete={(membershipsResult.data ?? []).filter((item) => item.status === "active").length > 1}
+      />
       <EmployeesClient
         branches={branchesResult.data ?? []}
         callerRole={membership.role}

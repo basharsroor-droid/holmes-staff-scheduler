@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { ArrowRight, Clock3 } from "lucide-react";
 
 import { ShiftTemplatesClient } from "@/app/workspace/shift-templates/shift-templates-client";
+import { SetupStepGuide } from "@/components/workspace/setup-step-guide";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
@@ -80,6 +81,8 @@ export default async function ShiftTemplatesPage() {
           <p>מגדירים פעם אחת את שעות המשמרות, מספר העובדים והדרישות. ההגדרות ישמשו בכל חודש עבודה.</p>
         </div>
       </header>
+
+      <SetupStepGuide step="shift-types" complete={(templatesResult.data ?? []).some((template) => template.active)} />
 
       <ShiftTemplatesClient
         branches={branches}

@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { ArrowRight, CalendarDays } from "lucide-react";
 
 import { WorkMonthsClient } from "@/app/workspace/work-months/work-months-client";
+import { SetupStepGuide } from "@/components/workspace/setup-step-guide";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
@@ -70,6 +71,7 @@ export default async function WorkMonthsPage() {
           <p>פותחים חודש להגשת זמינות, קובעים דדליין וממשיכים להכנת הסידור.</p>
         </div>
       </header>
+      <SetupStepGuide step="work-month" complete={(periodsResult.data ?? []).length > 0} />
       <WorkMonthsClient
         branches={branchesResult.data ?? []}
         departments={departmentsResult.data ?? []}
