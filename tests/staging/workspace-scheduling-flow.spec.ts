@@ -122,4 +122,18 @@ test("availability -> schedule -> publish -> swap -> approval", async ({ browser
     const { data: swaps } = await admin.from("swap_requests").select("status").eq("requested_by", fixture.alice.userId);
     expect(swaps?.map((swap) => swap.status)).toEqual(["approved"]);
   });
+
+  await test.step("a manager starts an empty department from a ready template", async () => {
+    await owner.goto("/workspace/shift-templates");
+    await owner.getByLabel("מחלקה").selectOption({ label: "E2E Empty" });
+    await owner
+      .getByRole("group", { name: "התחלה מהירה מתבנית" })
+      .getByRole("button", { name: /מסעדה/ })
+      .click();
+    await expect(owner.getByText(/נוספו 2 סוגי משמרות/)).toBeVisible();
+    const rows = owner.locator(".shift-template-row");
+    await expect(rows).toHaveCount(2);
+    await expect(rows.filter({ hasText: "בוקר" })).toHaveCount(1);
+    await expect(rows.filter({ hasText: "ערב" })).toHaveCount(1);
+  });
 });

@@ -127,6 +127,10 @@ try {
     .insert({ organization_id: organizationId, name: "E2E Branch" }).select("id").single(), "create branch");
   const department = await must(admin.from("departments")
     .insert({ organization_id: organizationId, branch_id: branch.id, name: "E2E Floor" }).select("id").single(), "create department");
+  // A second department with no shift types: the flow starts it from a ready
+  // template (I1). The owner has organization scope, so no memberships needed.
+  await must(admin.from("departments")
+    .insert({ organization_id: organizationId, branch_id: branch.id, name: "E2E Empty" }), "create empty department");
 
   const joinedAt = new Date().toISOString();
   const memberships = await must(admin.from("organization_memberships").insert([
