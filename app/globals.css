@@ -3358,6 +3358,15 @@ html.si-lock, html.si-lock body {
 }
 .pilot-readiness-head p:not(.eyebrow),
 .pilot-ready p:not(.eyebrow) { margin: 0; color: #63718a; }
+/* I1: in-step guide at the top of each setup screen (setup-step-guide.tsx). */
+.setup-step-howto {
+  display: grid;
+  gap: 8px;
+  margin: 18px 0 14px;
+  padding-inline-start: 22px;
+  color: #33415c;
+  line-height: 1.65;
+}
 .pilot-progress {
   width: 100px;
   height: 100px;
