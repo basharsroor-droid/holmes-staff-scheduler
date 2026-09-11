@@ -18,6 +18,7 @@ type Worker = {
   role: string;
   profile: { id: string; first_name: string; last_name: string; color: string } | null;
 };
+type ColleagueName = { id: string; first_name: string; last_name: string; color: string };
 type Request = {
   id: string;
   original_assignment_id: string;
@@ -46,6 +47,7 @@ export function ShiftSwapsClient({
   shifts,
   assignments: initialAssignments,
   workers,
+  colleagueNames,
   requests: initialRequests
 }: {
   organizationId: string;
@@ -54,6 +56,7 @@ export function ShiftSwapsClient({
   shifts: Shift[];
   assignments: Assignment[];
   workers: Worker[];
+  colleagueNames: ColleagueName[];
   requests: Request[];
 }) {
   const supabase = useMemo(() => createSupabaseBrowserClient(), []);
@@ -84,7 +87,8 @@ export function ShiftSwapsClient({
   }
 
   function name(userId: string | null) {
-    const profile = workers.find((item) => item.user_id === userId)?.profile;
+    const profile =
+      workers.find((item) => item.user_id === userId)?.profile ?? colleagueNames.find((item) => item.id === userId);
     return profile ? `${profile.first_name} ${profile.last_name}`.trim() : "עובד/ת";
   }
 
