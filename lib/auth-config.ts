@@ -1,5 +1,3 @@
-import { defaultBranchId, defaultOrganizationId } from "@/lib/app-config";
-
 // Short aliases for the three seeded demo accounts, so the email field also
 // accepts "owner", "manager" or "employee" on their own.
 //
@@ -24,49 +22,3 @@ export function resolveLoginEmail(input: string): string {
   if (value.includes("@")) return value;
   return DEMO_ACCOUNT_ALIASES[value.toLowerCase()] ?? value;
 }
-
-// These accounts exist only inside the browser-based /demo sandbox. They do
-// not authenticate against Supabase, create a server session or grant access
-// to any production data. Keeping them here makes that boundary explicit.
-export const LOCAL_DEMO_USERS = [
-  {
-    id: "emp-demo-worker",
-    firstName: "עובד דמו",
-    lastName: "",
-    username: "employee",
-    nationalId: "111111111",
-    email: "employee@example.com",
-    role: "employee" as const,
-    organizationId: defaultOrganizationId,
-    branchId: defaultBranchId,
-    emailVerified: true,
-    mustChangePassword: false
-  },
-  {
-    id: "emp-demo-manager",
-    firstName: "מנהלת דמו",
-    lastName: "",
-    username: "manager",
-    nationalId: "222222222",
-    email: "manager@example.com",
-    role: "manager" as const,
-    organizationId: defaultOrganizationId,
-    branchId: defaultBranchId,
-    emailVerified: true,
-    mustChangePassword: false
-  }
-];
-
-export type AuthUser = {
-  id: string;
-  firstName: string;
-  lastName: string;
-  nationalId: string;
-  username?: string;
-  email: string;
-  role: "employee" | "manager" | "admin";
-  organizationId: string;
-  branchId: string;
-  emailVerified: boolean;
-  mustChangePassword?: boolean;
-};

@@ -3,11 +3,8 @@ import { Heebo } from "next/font/google";
 import type { ReactNode } from "react";
 
 import "@/app/globals.css";
-import "@/app/pilot-touch-targets.css";
 import "@/app/mobile-manager-schedule.css";
-import "@/app/mobile-touch-target-fixes.css";
 import "@/app/final-schedule-calendar.css";
-import "@/app/my-shifts-date-nav.css";
 
 import { WebAnalytics } from "@/components/analytics/web-analytics";
 import { introPrebootScript, SiteIntro } from "@/components/brand/site-intro";
