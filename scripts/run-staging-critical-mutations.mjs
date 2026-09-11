@@ -69,9 +69,10 @@ if (!blocked.error || !blocked.error.message.includes("approved time off")) {
   throw new Error(`Expected approved Time Off assignment to be blocked, got: ${blocked.error?.message ?? "no error"}`);
 }
 
-// Cadence: staging fixture is weekly and the column must reject unsupported values.
+// Cadence: the product is monthly-only (plan item I3), so the staging fixture
+// is monthly, and the column must still reject unsupported values.
 const cadence = await must(admin.from("organizations").select("schedule_cadence").eq("id", fixture.organizationId).single(), "read schedule cadence");
-if (cadence.schedule_cadence !== "weekly") throw new Error(`Expected weekly cadence, got ${cadence.schedule_cadence}`);
+if (cadence.schedule_cadence !== "monthly") throw new Error(`Expected monthly cadence, got ${cadence.schedule_cadence}`);
 const invalidCadence = await admin.from("organizations").update({ schedule_cadence: "hourly" }).eq("id", fixture.organizationId);
 if (!invalidCadence.error) throw new Error("Invalid schedule cadence unexpectedly succeeded");
 
