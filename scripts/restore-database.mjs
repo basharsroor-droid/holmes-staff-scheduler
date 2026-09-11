@@ -105,22 +105,47 @@ async function countRows(client, table) {
   return rows[0].n;
 }
 
-async function insertableColumns(client, table) {
+async function targetColumns(client, table) {
   const { rows } = await client.query(
-    `select column_name::text as name from information_schema.columns
-     where table_schema = 'public' and table_name = $1
-       and is_generated = 'NEVER' and identity_generation is distinct from 'ALWAYS'`,
+    `select column_name::text as name, is_generated::text as generated, identity_generation::text as identity
+     from information_schema.columns
+     where table_schema = 'public' and table_name = $1`,
     [table]
   );
-  return new Set(rows.map((row) => row.name));
+  return {
+    all: new Set(rows.map((row) => row.name)),
+    // Computed by Postgres from other columns: never inserted, recomputed.
+    generated: new Set(rows.filter((row) => row.generated !== "NEVER").map((row) => row.name)),
+    // GENERATED ALWAYS AS IDENTITY (audit_logs.id): the restored ids must be
+    // kept, which Postgres only allows with OVERRIDING SYSTEM VALUE.
+    identityAlways: rows.some((row) => row.identity === "ALWAYS")
+  };
+}
+
+// Restored rows keep their ids, so each sequence must start after them --
+// otherwise the first new row in the restored database collides.
+async function syncSequences(client) {
+  const e = (name) => client.escapeIdentifier(name);
+  const { rows } = await client.query(`
+    select table_name::text as table_name, column_name::text as column_name,
+      pg_get_serial_sequence(format('public.%I', table_name), column_name) as sequence
+    from information_schema.columns
+    where table_schema = 'public' and pg_get_serial_sequence(format('public.%I', table_name), column_name) is not null`);
+  for (const row of rows) {
+    await client.query(
+      `select setval($1, coalesce((select max(${e(row.column_name)}) from public.${e(row.table_name)}), 0) + 1, false)`,
+      [row.sequence]
+    );
+  }
+  console.log(`Sequences moved past the restored ids: ${rows.length}`);
 }
 
 async function insertRows(client, table, rows) {
   if (!rows.length) return;
   const e = (name) => client.escapeIdentifier(name);
-  const target = await insertableColumns(client, table);
-  const columns = Object.keys(rows[0]);
-  const unknown = columns.filter((column) => !target.has(column));
+  const target = await targetColumns(client, table);
+  const columns = Object.keys(rows[0]).filter((column) => !target.generated.has(column));
+  const unknown = columns.filter((column) => !target.all.has(column));
   if (unknown.length) throw new Error(`${table}: the backup has columns the target doesn't: ${unknown.join(", ")}`);
 
   const key = BACKUP_TABLES[table].key;
@@ -131,7 +156,7 @@ async function insertRows(client, table, rows) {
 
   for (let start = 0; start < rows.length; start += BATCH_SIZE) {
     await client.query(
-      `insert into ${qualified} (${list})
+      `insert into ${qualified} (${list}) ${target.identityAlways ? "overriding system value" : ""}
        select ${list} from jsonb_populate_recordset(null::${qualified}, $1::jsonb)
        ${conflict}`,
       [JSON.stringify(rows.slice(start, start + BATCH_SIZE))]
@@ -254,6 +279,7 @@ async function stagingRestore(path, { rollback }) {
       await insertRows(client, table, payload.tables[table].map((row) => anonymizeRow(table, row)));
     }
     await client.query("set local session_replication_role = origin");
+    await syncSequences(client);
 
     const orphans = await foreignKeyOrphans(client);
     if (orphans.length) throw new Error(`Foreign keys broken after the restore:\n  ${orphans.join("\n  ")}`);
