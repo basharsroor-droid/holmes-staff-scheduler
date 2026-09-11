@@ -1,11 +1,17 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { ArrowLeftRight, CheckCircle2, Loader2, RefreshCw, ShieldCheck } from "lucide-react";
 
+import {
+  useScheduleData,
+  type ScheduleAssignment,
+  type ScheduleShift
+} from "@/app/workspace/schedule-builder/schedule-data";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { isPresent } from "@/lib/utils";
-import { periodShiftRange, shiftDateRangeAround, SHIFT_RANGE_LIMIT } from "@/lib/period-window";
+import { shiftDateRangeAround, SHIFT_RANGE_LIMIT } from "@/lib/period-window";
 import { shiftBounds, shiftHours, shiftsOverlap, weekStartKey } from "@/lib/shift-time";
 
 type Period = { id: string; department_id: string; year: number; month: number; status: string };
@@ -20,18 +26,8 @@ type Submission = { id: string; schedule_period_id: string; user_id: string; sub
 type Availability = { submission_id: string; shift_template_id: string; shift_date: string; status: string };
 type Leave = { user_id: string; start_date: string; end_date: string };
 type Template = { id: string; requires_senior_employee: boolean };
-type Shift = {
-  id: string;
-  schedule_period_id: string;
-  shift_template_id: string | null;
-  shift_date: string;
-  name: string;
-  start_time: string;
-  end_time: string;
-  required_employees: number;
-  status: string;
-};
-type Assignment = { id: string; shift_id: string; user_id: string };
+type Shift = ScheduleShift;
+type Assignment = ScheduleAssignment;
 type Candidate = { userId: string; name: string; score: number; reasons: string[] };
 
 export function SmartReplacementPanel({
@@ -56,14 +52,23 @@ export function SmartReplacementPanel({
   minRestHours: number | null;
 }) {
   const supabase = useMemo(() => createSupabaseBrowserClient(), []);
-  const [selectedPeriodId, setSelectedPeriodId] = useState(periods[0]?.id ?? "");
-  const [shifts, setShifts] = useState<Shift[]>([]);
-  const [assignments, setAssignments] = useState<Assignment[]>([]);
+  const router = useRouter();
+  const { selectedPeriodId, shifts: windowShifts, assignments } = useScheduleData();
   const [selectedShiftId, setSelectedShiftId] = useState("");
   const [outgoingUserId, setOutgoingUserId] = useState("");
   const [candidates, setCandidates] = useState<Candidate[]>([]);
-  const [busy, setBusy] = useState<"load" | "rank" | "apply" | "">("");
+  const [busy, setBusy] = useState<"rank" | "apply" | "">("");
   const [message, setMessage] = useState("");
+
+  // The selected month's shifts, from the shared schedule data (B3) -- they
+  // follow the board live instead of being fetched when the panel mounts.
+  const shifts = useMemo(
+    () =>
+      windowShifts
+        .filter((s) => s.schedule_period_id === selectedPeriodId && s.status !== "cancelled")
+        .sort((a, b) => `${a.shift_date} ${a.start_time}`.localeCompare(`${b.shift_date} ${b.start_time}`)),
+    [selectedPeriodId, windowShifts]
+  );
 
   const workerName = useCallback(
     (userId: string) => {
@@ -73,36 +78,7 @@ export function SmartReplacementPanel({
     [workers]
   );
 
-  const loadPeriod = useCallback(
-    async (periodId: string) => {
-      setBusy("load");
-      setMessage("");
-      setCandidates([]);
-      setSelectedShiftId("");
-      setOutgoingUserId("");
-      const db = supabase;
-      const { data: shiftRows } = await db
-        .from("shifts")
-        .select(
-          "id, schedule_period_id, shift_template_id, shift_date, name, start_time, end_time, required_employees, status"
-        )
-        .eq("schedule_period_id", periodId)
-        .neq("status", "cancelled")
-        .order("shift_date")
-        .order("start_time");
-      const nextShifts = (shiftRows ?? []) as Shift[];
-      const ids = nextShifts.map((s) => s.id);
-      const { data: assignmentRows } = ids.length
-        ? await db.from("shift_assignments").select("id, shift_id, user_id").in("shift_id", ids)
-        : { data: [] };
-      setShifts(nextShifts);
-      setAssignments((assignmentRows ?? []) as Assignment[]);
-      setBusy("");
-    },
-    [supabase]
-  );
-
-  const rank = useCallback(async () => {
+  const rank = useCallback(() => {
     const period = periods.find((p) => p.id === selectedPeriodId);
     const shift = shifts.find((s) => s.id === selectedShiftId);
     if (!period || !shift || !outgoingUserId) return;
@@ -111,32 +87,18 @@ export function SmartReplacementPanel({
       setMessage("Smart Replacement עובד על טיוטה בלבד. יש לבטל פרסום לפני שינוי שיבוצים.");
       return;
     }
-    setBusy("rank");
     setMessage("");
     setCandidates([]);
-    const db = supabase;
-    const range = periodShiftRange(period.year, period.month);
-    const { data: allShiftRows } = await db
-      .from("shifts")
-      .select(
-        "id, schedule_period_id, shift_template_id, shift_date, name, start_time, end_time, required_employees, status"
-      )
-      .gte("shift_date", range.from)
-      .lte("shift_date", range.to)
-      .neq("status", "cancelled")
-      .limit(SHIFT_RANGE_LIMIT);
-    const allShifts = (allShiftRows ?? []) as Shift[];
-    const allIds = allShifts.map((s) => s.id);
-    const { data: allAssignmentRows } = allIds.length
-      ? await db.from("shift_assignments").select("id, shift_id, user_id").in("shift_id", allIds)
-      : { data: [] };
-    const allAssignments = (allAssignmentRows ?? []) as Assignment[];
+    // The selected month plus a week either side -- what the overlap, weekly
+    // hours and rest checks need.
+    const allShifts = windowShifts.filter((s) => s.status !== "cancelled");
+    const allAssignments = assignments;
     const periodWorkers = workers.filter((w) => w.department_ids.includes(period.department_id));
     const targetAssignments = allAssignments.filter((a) => a.shift_id === shift.id);
     if (!targetAssignments.some((a) => a.user_id === outgoingUserId)) {
-      setBusy("");
-      setMessage("השיבוץ שנבחר השתנה מאז טעינת המסך. רעננתי את הרשימה כדי למנוע החלפה על מידע ישן.");
-      await loadPeriod(selectedPeriodId);
+      setSelectedShiftId("");
+      setOutgoingUserId("");
+      setMessage("השיבוץ שנבחר השתנה על הלוח. יש לבחור משמרת ועובד/ת מחדש.");
       return;
     }
 
@@ -241,7 +203,6 @@ export function SmartReplacementPanel({
       .sort((a, b) => b.score - a.score || a.userId.localeCompare(b.userId)) as Candidate[];
 
     setCandidates(ranked);
-    setBusy("");
     setMessage(
       ranked.length
         ? `נמצאו ${ranked.length} מחליפים בטוחים. המועמד המוביל מדורג לפי זמינות, העדפות, מגבלות ו-Fairness.`
@@ -249,8 +210,8 @@ export function SmartReplacementPanel({
     );
   }, [
     approvedLeave,
+    assignments,
     availability,
-    loadPeriod,
     minRestHours,
     outgoingUserId,
     periods,
@@ -258,8 +219,8 @@ export function SmartReplacementPanel({
     selectedShiftId,
     shifts,
     submissions,
-    supabase,
     templates,
+    windowShifts,
     workerName,
     workers
   ]);
@@ -285,6 +246,8 @@ export function SmartReplacementPanel({
       const db = supabase;
       const range = shiftDateRangeAround(shift.shift_date);
 
+      // Re-read the database before writing: the ranking was built from the
+      // data on screen, and another manager may have changed the month since.
       const [{ data: currentPeriod }, { data: allShiftRows }] = await Promise.all([
         db.from("schedule_periods").select("id, status").eq("id", selectedPeriodId).single(),
         db
@@ -446,17 +409,22 @@ export function SmartReplacementPanel({
         setMessage("ההחלפה נכשלה ולא בוצע שום שינוי בטיוטה. יש לרענן ולדרג מחדש.");
         return;
       }
-      setMessage("ההחלפה בוצעה בטיוטה. מרענן את הסידור...");
-      window.location.reload();
+      setBusy("");
+      setCandidates([]);
+      setSelectedShiftId("");
+      setOutgoingUserId("");
+      setMessage("ההחלפה בוצעה בטיוטה.");
+      // Re-render the page with fresh rows; the shared schedule data (and so the
+      // board and every panel) picks them up.
+      router.refresh();
     },
     [
       approvedLeave,
       availability,
-      currentUserId,
       minRestHours,
-      organizationId,
       outgoingUserId,
       periods,
+      router,
       selectedPeriodId,
       selectedShiftId,
       shifts,
@@ -467,22 +435,6 @@ export function SmartReplacementPanel({
       workers
     ]
   );
-
-  useEffect(() => {
-    const sync = () => {
-      const select = document.querySelector<HTMLSelectElement>(".schedule-period-select");
-      const next = select?.value ?? periods[0]?.id ?? "";
-      if (next && next !== selectedPeriodId) setSelectedPeriodId(next);
-    };
-    sync();
-    const root = document.querySelector(".schedule-workbench");
-    root?.addEventListener("change", sync);
-    return () => root?.removeEventListener("change", sync);
-  }, [periods, selectedPeriodId]);
-
-  useEffect(() => {
-    if (selectedPeriodId) void loadPeriod(selectedPeriodId);
-  }, [loadPeriod, selectedPeriodId]);
 
   const shiftAssignments = assignments.filter((a) => a.shift_id === selectedShiftId);
   const selectedPeriod = periods.find((p) => p.id === selectedPeriodId);
@@ -504,9 +456,9 @@ export function SmartReplacementPanel({
           type="button"
           className="button"
           disabled={busy !== "" || !selectedShiftId || !outgoingUserId || published}
-          onClick={() => void rank()}
+          onClick={() => rank()}
         >
-          {busy === "rank" ? <Loader2 size={15} /> : <RefreshCw size={15} />} דרג מחליפים
+          <RefreshCw size={15} /> דרג מחליפים
         </button>
       </div>
 
@@ -521,7 +473,7 @@ export function SmartReplacementPanel({
               setCandidates([]);
               setMessage("");
             }}
-            disabled={busy === "load" || published}
+            disabled={published}
           >
             <option value="">בחר משמרת</option>
             {shifts.map((s) => (

@@ -1,11 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { CheckCircle2, Loader2, RefreshCw, Sparkles, WandSparkles } from "lucide-react";
 
+import { useScheduleData, type ScheduleShift } from "@/app/workspace/schedule-builder/schedule-data";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { isPresent } from "@/lib/utils";
-import { periodShiftRange, SHIFT_RANGE_LIMIT } from "@/lib/period-window";
 import { shiftBounds, shiftHours, shiftsOverlap, weekStartKey } from "@/lib/shift-time";
 
 type Period = { id: string; department_id: string; year: number; month: number; status: string };
@@ -20,17 +21,7 @@ type Submission = { id: string; schedule_period_id: string; user_id: string; sub
 type Availability = { submission_id: string; shift_template_id: string; shift_date: string; status: string };
 type Leave = { user_id: string; start_date: string; end_date: string };
 type Template = { id: string; department_id: string; requires_senior_employee: boolean };
-type Shift = {
-  id: string;
-  schedule_period_id: string;
-  shift_template_id: string | null;
-  shift_date: string;
-  name: string;
-  start_time: string;
-  end_time: string;
-  required_employees: number;
-  status: string;
-};
+type Shift = ScheduleShift;
 type Assignment = { shift_id: string; user_id: string };
 type Suggestion = {
   shiftId: string;
@@ -63,10 +54,11 @@ export function SmartDraftPanel({
   minRestHours: number | null;
 }) {
   const supabase = useMemo(() => createSupabaseBrowserClient(), []);
-  const [selectedPeriodId, setSelectedPeriodId] = useState(periods[0]?.id ?? "");
+  const router = useRouter();
+  const { selectedPeriodId, shifts: windowShifts, assignments: windowAssignments } = useScheduleData();
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [unfilled, setUnfilled] = useState(0);
-  const [busy, setBusy] = useState<"plan" | "apply" | "">("");
+  const [busy, setBusy] = useState<"apply" | "">("");
   const [message, setMessage] = useState("");
 
   const workerName = useCallback(
@@ -77,179 +69,168 @@ export function SmartDraftPanel({
     [workers]
   );
 
-  const generate = useCallback(
-    async (periodId: string) => {
-      if (!periodId) return;
-      setBusy("plan");
-      setMessage("");
-      setSuggestions([]);
-      setUnfilled(0);
-      const period = periods.find((p) => p.id === periodId);
-      if (!period) {
-        setBusy("");
-        return;
-      }
-      if (period.status === "published") {
-        setBusy("");
-        setMessage("Smart Draft עובד על טיוטה בלבד. יש לבטל פרסום לפני שינוי שיבוצים.");
-        return;
-      }
+  // Plans from the shared schedule data -- the selected month plus a week
+  // either side, the same rows the board shows (B3). No fetch here; apply()
+  // re-reads the database before writing.
+  const generate = useCallback(() => {
+    if (!selectedPeriodId) return;
+    setMessage("");
+    setSuggestions([]);
+    setUnfilled(0);
+    const period = periods.find((p) => p.id === selectedPeriodId);
+    if (!period) return;
+    if (period.status === "published") {
+      setMessage("Smart Draft עובד על טיוטה בלבד. יש לבטל פרסום לפני שינוי שיבוצים.");
+      return;
+    }
 
-      const db = supabase;
-      const range = periodShiftRange(period.year, period.month);
-      const { data: allShiftRows } = await db
-        .from("shifts")
-        .select(
-          "id, schedule_period_id, shift_template_id, shift_date, name, start_time, end_time, required_employees, status"
+    const allShifts = windowShifts.filter((s) => s.status !== "cancelled");
+    const existing: Assignment[] = windowAssignments;
+    const periodShifts = allShifts.filter((s) => s.schedule_period_id === selectedPeriodId);
+    const periodWorkers = workers.filter((w) => w.department_ids.includes(period.department_id));
+    const planned: Assignment[] = [...existing];
+    const next: Suggestion[] = [];
+    let missing = 0;
+
+    const assignedHours = (userId: string) =>
+      allShifts
+        .filter((s) => planned.some((a) => a.shift_id === s.id && a.user_id === userId))
+        .reduce((sum, s) => sum + shiftHours(s), 0);
+
+    const weeklyHours = (userId: string, week: string) =>
+      allShifts
+        .filter(
+          (s) => weekStartKey(s.shift_date) === week && planned.some((a) => a.shift_id === s.id && a.user_id === userId)
         )
-        .gte("shift_date", range.from)
-        .lte("shift_date", range.to)
-        .neq("status", "cancelled")
-        .limit(SHIFT_RANGE_LIMIT);
-      const allShifts = (allShiftRows ?? []) as Shift[];
-      const shiftIds = allShifts.map((s) => s.id);
-      const { data: assignmentRows } = shiftIds.length
-        ? await db.from("shift_assignments").select("shift_id, user_id").in("shift_id", shiftIds)
-        : { data: [] };
-      const existing = (assignmentRows ?? []) as Assignment[];
-      const periodShifts = allShifts.filter((s) => s.schedule_period_id === periodId);
-      const periodWorkers = workers.filter((w) => w.department_ids.includes(period.department_id));
-      const planned: Assignment[] = [...existing];
-      const next: Suggestion[] = [];
-      let missing = 0;
+        .reduce((sum, s) => sum + shiftHours(s), 0);
 
-      const assignedHours = (userId: string) =>
-        allShifts
-          .filter((s) => planned.some((a) => a.shift_id === s.id && a.user_id === userId))
-          .reduce((sum, s) => sum + shiftHours(s), 0);
-
-      const weeklyHours = (userId: string, week: string) =>
-        allShifts
-          .filter(
-            (s) =>
-              weekStartKey(s.shift_date) === week && planned.some((a) => a.shift_id === s.id && a.user_id === userId)
-          )
-          .reduce((sum, s) => sum + shiftHours(s), 0);
-
-      const minGap = (userId: string, candidate: Shift) => {
-        const c = shiftBounds(candidate);
-        let gap = Infinity;
-        for (const other of allShifts) {
-          if (other.id === candidate.id || !planned.some((a) => a.shift_id === other.id && a.user_id === userId))
-            continue;
-          const b = shiftBounds(other);
-          if (b.end <= c.start) gap = Math.min(gap, (c.start.getTime() - b.end.getTime()) / 3600000);
-          else if (b.start >= c.end) gap = Math.min(gap, (b.start.getTime() - c.end.getTime()) / 3600000);
-        }
-        return gap;
-      };
-
-      const availabilityStatus = (userId: string, shift: Shift) => {
-        const sub = submissions.find(
-          (s) => s.schedule_period_id === periodId && s.user_id === userId && s.submitted_at
-        );
-        if (!sub || !shift.shift_template_id) return null;
-        return (
-          availability.find(
-            (a) =>
-              a.submission_id === sub.id &&
-              a.shift_date === shift.shift_date &&
-              a.shift_template_id === shift.shift_template_id
-          )?.status ?? null
-        );
-      };
-
-      for (const shift of [...periodShifts].sort((a, b) =>
-        `${a.shift_date} ${a.start_time}`.localeCompare(`${b.shift_date} ${b.start_time}`)
-      )) {
-        const already = planned.filter((a) => a.shift_id === shift.id).length;
-        let slots = Math.max(0, shift.required_employees - already);
-        while (slots > 0) {
-          const template = templates.find((t) => t.id === shift.shift_template_id);
-          const alreadySenior = planned.some(
-            (a) =>
-              a.shift_id === shift.id &&
-              periodWorkers.find((w) => w.user_id === a.user_id)?.seniority_level === "senior"
-          );
-          const needSenior = !!template?.requires_senior_employee && !alreadySenior;
-
-          const candidates = periodWorkers
-            .filter((worker) => !planned.some((a) => a.shift_id === shift.id && a.user_id === worker.user_id))
-            .map((worker) => {
-              const reasons: string[] = [];
-              if (needSenior && worker.seniority_level !== "senior") return null;
-              const status = availabilityStatus(worker.user_id, shift);
-              if (status === "unavailable" || status === null) return null;
-              if (
-                approvedLeave.some(
-                  (l) =>
-                    l.user_id === worker.user_id && shift.shift_date >= l.start_date && shift.shift_date <= l.end_date
-                )
-              )
-                return null;
-              const conflict = allShifts.some(
-                (other) =>
-                  other.id !== shift.id &&
-                  planned.some((a) => a.shift_id === other.id && a.user_id === worker.user_id) &&
-                  shiftsOverlap(other, shift)
-              );
-              if (conflict) return null;
-              const week = weekStartKey(shift.shift_date);
-              const projectedWeek = weeklyHours(worker.user_id, week) + shiftHours(shift);
-              if (worker.weekly_hours_limit && projectedWeek > worker.weekly_hours_limit) return null;
-              if (minRestHours && minGap(worker.user_id, shift) < minRestHours) return null;
-
-              let score = 50;
-              if (status === "preferred") {
-                score += 30;
-                reasons.push("משמרת מועדפת");
-              } else if (status === "available") {
-                score += 20;
-                reasons.push("זמין/ה");
-              } else if (status === "only_if_needed") {
-                score += 5;
-                reasons.push("רק אם צריך");
-              }
-
-              const hours = assignedHours(worker.user_id);
-              score -= Math.min(25, hours / 4);
-              reasons.push(`${Math.round(hours * 10) / 10} שעות משובצות כרגע`);
-              if (worker.seniority_level === "senior") score += 2;
-              if (needSenior) reasons.push("משלים/ה דרישת Senior למשמרת");
-              return { worker, score, reasons };
-            })
-            .filter(isPresent)
-            .sort((a, b) => b.score - a.score || a.worker.user_id.localeCompare(b.worker.user_id));
-
-          const chosen = candidates[0];
-          if (!chosen) {
-            missing += slots;
-            break;
-          }
-          planned.push({ shift_id: shift.id, user_id: chosen.worker.user_id });
-          next.push({
-            shiftId: shift.id,
-            shiftLabel: `${shift.shift_date} · ${shift.name} · ${shift.start_time.slice(0, 5)}-${shift.end_time.slice(0, 5)}`,
-            userId: chosen.worker.user_id,
-            workerName: workerName(chosen.worker.user_id),
-            score: Math.round(chosen.score),
-            reasons: chosen.reasons
-          });
-          slots -= 1;
-        }
+    const minGap = (userId: string, candidate: Shift) => {
+      const c = shiftBounds(candidate);
+      let gap = Infinity;
+      for (const other of allShifts) {
+        if (other.id === candidate.id || !planned.some((a) => a.shift_id === other.id && a.user_id === userId))
+          continue;
+        const b = shiftBounds(other);
+        if (b.end <= c.start) gap = Math.min(gap, (c.start.getTime() - b.end.getTime()) / 3600000);
+        else if (b.start >= c.end) gap = Math.min(gap, (b.start.getTime() - c.end.getTime()) / 3600000);
       }
+      return gap;
+    };
 
-      setSuggestions(next);
-      setUnfilled(missing);
-      setBusy("");
-      setMessage(
-        next.length
-          ? `נוצרה הצעה ל-${next.length} שיבוצים חדשים.`
-          : "לא נמצאו שיבוצים חדשים שאפשר להציע תחת המגבלות הנוכחיות."
+    const availabilityStatus = (userId: string, shift: Shift) => {
+      const sub = submissions.find(
+        (s) => s.schedule_period_id === selectedPeriodId && s.user_id === userId && s.submitted_at
       );
-    },
-    [approvedLeave, availability, minRestHours, periods, submissions, supabase, templates, workerName, workers]
-  );
+      if (!sub || !shift.shift_template_id) return null;
+      return (
+        availability.find(
+          (a) =>
+            a.submission_id === sub.id &&
+            a.shift_date === shift.shift_date &&
+            a.shift_template_id === shift.shift_template_id
+        )?.status ?? null
+      );
+    };
+
+    for (const shift of [...periodShifts].sort((a, b) =>
+      `${a.shift_date} ${a.start_time}`.localeCompare(`${b.shift_date} ${b.start_time}`)
+    )) {
+      const already = planned.filter((a) => a.shift_id === shift.id).length;
+      let slots = Math.max(0, shift.required_employees - already);
+      while (slots > 0) {
+        const template = templates.find((t) => t.id === shift.shift_template_id);
+        const alreadySenior = planned.some(
+          (a) =>
+            a.shift_id === shift.id && periodWorkers.find((w) => w.user_id === a.user_id)?.seniority_level === "senior"
+        );
+        const needSenior = !!template?.requires_senior_employee && !alreadySenior;
+
+        const candidates = periodWorkers
+          .filter((worker) => !planned.some((a) => a.shift_id === shift.id && a.user_id === worker.user_id))
+          .map((worker) => {
+            const reasons: string[] = [];
+            if (needSenior && worker.seniority_level !== "senior") return null;
+            const status = availabilityStatus(worker.user_id, shift);
+            if (status === "unavailable" || status === null) return null;
+            if (
+              approvedLeave.some(
+                (l) =>
+                  l.user_id === worker.user_id && shift.shift_date >= l.start_date && shift.shift_date <= l.end_date
+              )
+            )
+              return null;
+            const conflict = allShifts.some(
+              (other) =>
+                other.id !== shift.id &&
+                planned.some((a) => a.shift_id === other.id && a.user_id === worker.user_id) &&
+                shiftsOverlap(other, shift)
+            );
+            if (conflict) return null;
+            const week = weekStartKey(shift.shift_date);
+            const projectedWeek = weeklyHours(worker.user_id, week) + shiftHours(shift);
+            if (worker.weekly_hours_limit && projectedWeek > worker.weekly_hours_limit) return null;
+            if (minRestHours && minGap(worker.user_id, shift) < minRestHours) return null;
+
+            let score = 50;
+            if (status === "preferred") {
+              score += 30;
+              reasons.push("משמרת מועדפת");
+            } else if (status === "available") {
+              score += 20;
+              reasons.push("זמין/ה");
+            } else if (status === "only_if_needed") {
+              score += 5;
+              reasons.push("רק אם צריך");
+            }
+
+            const hours = assignedHours(worker.user_id);
+            score -= Math.min(25, hours / 4);
+            reasons.push(`${Math.round(hours * 10) / 10} שעות משובצות כרגע`);
+            if (worker.seniority_level === "senior") score += 2;
+            if (needSenior) reasons.push("משלים/ה דרישת Senior למשמרת");
+            return { worker, score, reasons };
+          })
+          .filter(isPresent)
+          .sort((a, b) => b.score - a.score || a.worker.user_id.localeCompare(b.worker.user_id));
+
+        const chosen = candidates[0];
+        if (!chosen) {
+          missing += slots;
+          break;
+        }
+        planned.push({ shift_id: shift.id, user_id: chosen.worker.user_id });
+        next.push({
+          shiftId: shift.id,
+          shiftLabel: `${shift.shift_date} · ${shift.name} · ${shift.start_time.slice(0, 5)}-${shift.end_time.slice(0, 5)}`,
+          userId: chosen.worker.user_id,
+          workerName: workerName(chosen.worker.user_id),
+          score: Math.round(chosen.score),
+          reasons: chosen.reasons
+        });
+        slots -= 1;
+      }
+    }
+
+    setSuggestions(next);
+    setUnfilled(missing);
+    setMessage(
+      next.length
+        ? `נוצרה הצעה ל-${next.length} שיבוצים חדשים.`
+        : "לא נמצאו שיבוצים חדשים שאפשר להציע תחת המגבלות הנוכחיות."
+    );
+  }, [
+    approvedLeave,
+    availability,
+    minRestHours,
+    periods,
+    selectedPeriodId,
+    submissions,
+    templates,
+    windowAssignments,
+    windowShifts,
+    workerName,
+    workers
+  ]);
 
   const apply = useCallback(async () => {
     if (!suggestions.length) return;
@@ -266,6 +247,8 @@ export function SmartDraftPanel({
     setMessage("");
     const db = supabase;
 
+    // Re-read the database before writing: the suggestion was built from the
+    // data on screen, and another manager may have changed the month since.
     const [{ data: currentPeriod }, { data: periodShiftRows }] = await Promise.all([
       db.from("schedule_periods").select("id, status").eq("id", selectedPeriodId).single(),
       db
@@ -325,22 +308,13 @@ export function SmartDraftPanel({
       setMessage("החלת Smart Draft נכשלה. לא פורסם שום סידור; יש לרענן ולבדוק את הטיוטה.");
       return;
     }
-    setMessage("Smart Draft הוחל על הטיוטה. מרענן את המסך...");
-    window.location.reload();
-  }, [currentUserId, organizationId, periods, selectedPeriodId, suggestions, supabase]);
-
-  useEffect(() => {
-    const sync = () => {
-      const select = document.querySelector<HTMLSelectElement>(".schedule-period-select");
-      setSelectedPeriodId(select?.value ?? periods[0]?.id ?? "");
-      setSuggestions([]);
-      setUnfilled(0);
-    };
-    sync();
-    const root = document.querySelector(".schedule-workbench");
-    root?.addEventListener("change", sync);
-    return () => root?.removeEventListener("change", sync);
-  }, [periods]);
+    setSuggestions([]);
+    setUnfilled(0);
+    setMessage("Smart Draft הוחל על הטיוטה.");
+    // Re-render the page with fresh rows; the shared schedule data (and so the
+    // board and every panel) picks them up.
+    router.refresh();
+  }, [currentUserId, organizationId, periods, router, selectedPeriodId, suggestions, supabase]);
 
   const selectedPeriod = periods.find((p) => p.id === selectedPeriodId);
   const published = selectedPeriod?.status === "published";
@@ -362,9 +336,9 @@ export function SmartDraftPanel({
             type="button"
             className="button"
             disabled={busy !== "" || !selectedPeriodId || published}
-            onClick={() => void generate(selectedPeriodId)}
+            onClick={() => generate()}
           >
-            {busy === "plan" ? <Loader2 size={15} /> : <RefreshCw size={15} />} חשב הצעה
+            <RefreshCw size={15} /> חשב הצעה
           </button>
           <button
             type="button"

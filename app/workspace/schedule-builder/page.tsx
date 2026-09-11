@@ -9,6 +9,7 @@ import { FairnessEnhancer } from "@/app/workspace/schedule-builder/fairness-enha
 import { FixMySchedulePanel } from "@/app/workspace/schedule-builder/fix-my-schedule-panel";
 import { OpenShiftsManagerPanel } from "@/app/workspace/schedule-builder/open-shifts-manager-panel";
 import { ScheduleBuilderClient } from "@/app/workspace/schedule-builder/schedule-builder-client";
+import { ScheduleDataProvider } from "@/app/workspace/schedule-builder/schedule-data";
 import { ScheduleTemplatesPanel } from "@/app/workspace/schedule-builder/schedule-templates-panel";
 import { ShiftPilotScore } from "@/app/workspace/schedule-builder/shiftpilot-score";
 import { SmartDraftPanel } from "@/app/workspace/schedule-builder/smart-draft-panel";
@@ -286,24 +287,14 @@ export default async function ScheduleBuilderPage({
         </div>
       </header>
 
-      {/* Keyed by month: choosing another month navigates (?period=), and the
-          builder remounts with that month's server data instead of keeping
-          the previous month's local state. */}
-      <ScheduleBuilderClient
+      {/* One copy of the month's data for the board and every panel (B3). Keyed by
+          month: choosing another month navigates (?period=), and everything
+          below remounts with that month's server data. */}
+      <ScheduleDataProvider
         key={selectedPeriod?.id ?? "none"}
-        assignments={assignments ?? []}
-        availability={availability ?? []}
-        branches={branchesResult.data ?? []}
-        departments={departmentsResult.data ?? []}
-        callerRole={membership.role}
-        currentUserId={user.id}
-        initialMinRestHours={organizationResult.data.min_rest_hours}
-        leaveRequests={approvedTimeOff}
-        organizationId={organizationId}
-        periods={periods}
         selectedPeriodId={selectedPeriod?.id ?? ""}
-        periodShiftCounts={periodShiftCounts}
-        shifts={(shifts ?? []).map((shift) => ({
+        initialAssignments={assignments ?? []}
+        initialShifts={(shifts ?? []).map((shift) => ({
           id: shift.id,
           schedule_period_id: shift.schedule_period_id,
           shift_template_id: shift.shift_template_id,
@@ -314,107 +305,120 @@ export default async function ScheduleBuilderPage({
           required_employees: shift.required_employees,
           status: shift.status
         }))}
-        submissions={submissions ?? []}
-        templates={templatesResult.data ?? []}
-        workers={workers}
-      />
+      >
+        <ScheduleBuilderClient
+          availability={availability ?? []}
+          branches={branchesResult.data ?? []}
+          departments={departmentsResult.data ?? []}
+          callerRole={membership.role}
+          currentUserId={user.id}
+          initialMinRestHours={organizationResult.data.min_rest_hours}
+          leaveRequests={approvedTimeOff}
+          organizationId={organizationId}
+          periods={periods}
+          periodShiftCounts={periodShiftCounts}
+          submissions={submissions ?? []}
+          templates={templatesResult.data ?? []}
+          workers={workers}
+        />
 
-      <details className="schedule-tools-disclosure">
-        <summary>
-          <span className="schedule-tools-summary-icon">
-            <Settings2 size={20} />
-          </span>
-          <span>
-            <strong>כלי ניהול ובקרה</strong>
-            <small>בקשות חופשה, תבניות, בדיקות, הוגנות וכלים חכמים</small>
-          </span>
-          <ChevronDown className="schedule-tools-chevron" size={20} />
-        </summary>
-        <div className="schedule-tools-content">
-          <TimeOffApprovalPanel initialRequests={pendingTimeOff} />
-          {!pilotMode && (
-            <OpenShiftsManagerPanel initialShifts={managerOpenShifts} initialRequests={managerOpenShiftRequests} />
-          )}
-          <CoverageRulesEnhancer workers={coverageWorkers} templates={coverageTemplates} />
-          <ScheduleTemplatesPanel periods={templatePeriods} initialTemplates={reusableTemplates} />
-          <EmployeePreferenceEnhancer />
-          <ConflictDetectorEnhancer
-            periods={periods}
-            workers={workers}
-            submissions={submissions ?? []}
-            availability={availability ?? []}
-            approvedLeave={approvedTimeOff}
-            minRestHours={organizationResult.data.min_rest_hours}
-          />
-          {pilotMode && (
-            <section className="template-list-card">
-              <EmptyState
-                icon={CalendarRange}
-                iconSize={32}
-                title="מצב פיילוט פעיל"
-                description="כדי לשמור על מחזור סידור פשוט וברור, כלי ה-Intelligence (ציון בריאות, הוגנות, טיוטה חכמה, תיקון סידור, החלפה חכמה ומשמרות פתוחות) מוסתרים בשלב זה. הם ייפתחו בהדרגה אחרי מחזור ראשון נקי."
+        <details className="schedule-tools-disclosure">
+          <summary>
+            <span className="schedule-tools-summary-icon">
+              <Settings2 size={20} />
+            </span>
+            <span>
+              <strong>כלי ניהול ובקרה</strong>
+              <small>בקשות חופשה, תבניות, בדיקות, הוגנות וכלים חכמים</small>
+            </span>
+            <ChevronDown className="schedule-tools-chevron" size={20} />
+          </summary>
+          <div className="schedule-tools-content">
+            <TimeOffApprovalPanel initialRequests={pendingTimeOff} />
+            {!pilotMode && (
+              <OpenShiftsManagerPanel initialShifts={managerOpenShifts} initialRequests={managerOpenShiftRequests} />
+            )}
+            <CoverageRulesEnhancer workers={coverageWorkers} templates={coverageTemplates} />
+            <ScheduleTemplatesPanel periods={templatePeriods} initialTemplates={reusableTemplates} />
+            <EmployeePreferenceEnhancer />
+            <ConflictDetectorEnhancer
+              periods={periods}
+              workers={workers}
+              submissions={submissions ?? []}
+              availability={availability ?? []}
+              approvedLeave={approvedTimeOff}
+              minRestHours={organizationResult.data.min_rest_hours}
+            />
+            {pilotMode && (
+              <section className="template-list-card">
+                <EmptyState
+                  icon={CalendarRange}
+                  iconSize={32}
+                  title="מצב פיילוט פעיל"
+                  description="כדי לשמור על מחזור סידור פשוט וברור, כלי ה-Intelligence (ציון בריאות, הוגנות, טיוטה חכמה, תיקון סידור, החלפה חכמה ומשמרות פתוחות) מוסתרים בשלב זה. הם ייפתחו בהדרגה אחרי מחזור ראשון נקי."
+                />
+              </section>
+            )}
+            {!pilotMode && (
+              <ShiftPilotScore
+                periods={periods}
+                workers={workers}
+                submissions={submissions ?? []}
+                availability={availability ?? []}
+                approvedLeave={approvedTimeOff}
+                minRestHours={organizationResult.data.min_rest_hours}
               />
-            </section>
-          )}
-          {!pilotMode && (
-            <ShiftPilotScore
-              periods={periods}
-              workers={workers}
-              submissions={submissions ?? []}
-              availability={availability ?? []}
-              approvedLeave={approvedTimeOff}
-              minRestHours={organizationResult.data.min_rest_hours}
-            />
-          )}
-          {!pilotMode && (
-            <FairnessEnhancer
-              periods={periods}
-              workers={workers}
-              submissions={submissions ?? []}
-              availability={availability ?? []}
-            />
-          )}
-          {!pilotMode && (
-            <FixMySchedulePanel
-              organizationId={organizationId}
-              currentUserId={user.id}
-              periods={periods}
-              workers={workers}
-              submissions={submissions ?? []}
-              availability={availability ?? []}
-              approvedLeave={approvedTimeOff}
-              templates={templatesResult.data ?? []}
-              minRestHours={organizationResult.data.min_rest_hours}
-            />
-          )}
-          {!pilotMode && (
-            <SmartReplacementPanel
-              organizationId={organizationId}
-              currentUserId={user.id}
-              periods={periods}
-              workers={workers}
-              submissions={submissions ?? []}
-              availability={availability ?? []}
-              approvedLeave={approvedTimeOff}
-              templates={templatesResult.data ?? []}
-              minRestHours={organizationResult.data.min_rest_hours}
-            />
-          )}
-          {!pilotMode && (
-            <SmartDraftPanel
-              organizationId={organizationId}
-              currentUserId={user.id}
-              periods={periods}
-              workers={workers}
-              submissions={submissions ?? []}
-              availability={availability ?? []}
-              approvedLeave={approvedTimeOff}
-              templates={templatesResult.data ?? []}
-              minRestHours={organizationResult.data.min_rest_hours}
-            />
-          )}
-        </div>
-      </details>
+            )}
+            {!pilotMode && (
+              <FairnessEnhancer
+                periods={periods}
+                workers={workers}
+                submissions={submissions ?? []}
+                availability={availability ?? []}
+              />
+            )}
+            {!pilotMode && (
+              <FixMySchedulePanel
+                organizationId={organizationId}
+                currentUserId={user.id}
+                periods={periods}
+                workers={workers}
+                submissions={submissions ?? []}
+                availability={availability ?? []}
+                approvedLeave={approvedTimeOff}
+                templates={templatesResult.data ?? []}
+                minRestHours={organizationResult.data.min_rest_hours}
+              />
+            )}
+            {!pilotMode && (
+              <SmartReplacementPanel
+                organizationId={organizationId}
+                currentUserId={user.id}
+                periods={periods}
+                workers={workers}
+                submissions={submissions ?? []}
+                availability={availability ?? []}
+                approvedLeave={approvedTimeOff}
+                templates={templatesResult.data ?? []}
+                minRestHours={organizationResult.data.min_rest_hours}
+              />
+            )}
+            {!pilotMode && (
+              <SmartDraftPanel
+                organizationId={organizationId}
+                currentUserId={user.id}
+                periods={periods}
+                workers={workers}
+                submissions={submissions ?? []}
+                availability={availability ?? []}
+                approvedLeave={approvedTimeOff}
+                templates={templatesResult.data ?? []}
+                minRestHours={organizationResult.data.min_rest_hours}
+              />
+            )}
+          </div>
+        </details>
+      </ScheduleDataProvider>
     </main>
   );
 }

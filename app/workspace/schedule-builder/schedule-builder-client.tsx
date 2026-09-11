@@ -17,6 +17,7 @@ import {
   UserPlus
 } from "lucide-react";
 
+import { useScheduleData } from "@/app/workspace/schedule-builder/schedule-data";
 import { StatusMessage } from "@/components/workspace/status-message";
 import { useStatusMessage } from "@/lib/hooks/use-status-message";
 import { getIsraeliHolidaysForMonth, type IsraeliHoliday, type IsraeliHolidayKind } from "@/lib/israeli-holidays";
@@ -121,14 +122,11 @@ export function ScheduleBuilderClient({
   currentUserId,
   callerRole,
   periods,
-  selectedPeriodId,
   periodShiftCounts,
   branches,
   departments,
   templates,
   workers,
-  shifts: initialShifts,
-  assignments: initialAssignments,
   submissions,
   availability,
   leaveRequests,
@@ -138,14 +136,11 @@ export function ScheduleBuilderClient({
   currentUserId: string;
   callerRole: string;
   periods: Period[];
-  selectedPeriodId: string;
   periodShiftCounts: Record<string, number>;
   branches: Branch[];
   departments: Department[];
   templates: Template[];
   workers: Worker[];
-  shifts: Shift[];
-  assignments: Assignment[];
   submissions: Submission[];
   availability: Availability[];
   leaveRequests: LeaveRequest[];
@@ -153,8 +148,9 @@ export function ScheduleBuilderClient({
 }) {
   const supabase = useMemo(() => createSupabaseBrowserClient(), []);
   const router = useRouter();
-  const [shifts, setShifts] = useState(initialShifts);
-  const [assignments, setAssignments] = useState(initialAssignments);
+  // Shared with the intelligence panels (schedule-data.tsx, B3): assigning here
+  // updates what every panel computes from, live.
+  const { selectedPeriodId, shifts, setShifts, assignments, setAssignments } = useScheduleData();
   const [busy, setBusy] = useState("");
   const { message, kind, setMessage } = useStatusMessage();
   // `periods` is server-rendered data passed in as a prop, so it never
