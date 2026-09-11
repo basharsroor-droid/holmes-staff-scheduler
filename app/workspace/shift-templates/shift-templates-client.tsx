@@ -1,10 +1,11 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Check, Clock3, Loader2, Plus, Power, ShieldCheck, Users } from "lucide-react";
+import { Check, Clock3, Loader2, Plus, Power, ShieldCheck, Sparkles, Users } from "lucide-react";
 
 import { StatusMessage } from "@/components/workspace/status-message";
 import { useStatusMessage } from "@/lib/hooks/use-status-message";
+import { BUSINESS_PRESETS, type BusinessPreset } from "@/lib/shift-template-presets";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { EmptyState } from "@/components/workspace/empty-state";
 
@@ -22,6 +23,9 @@ type ShiftTemplate = {
   requires_senior_employee: boolean;
   active: boolean;
 };
+
+const TEMPLATE_COLUMNS =
+  "id, branch_id, department_id, name, shift_type, start_time, end_time, required_employees, requires_senior_employee, active";
 
 const emptyForm = {
   name: "",
@@ -63,6 +67,10 @@ export function ShiftTemplatesClient({
     setDepartmentId(departments.find((department) => department.branch_id === nextBranchId)?.id ?? "");
   }
 
+  function addToList(rows: ShiftTemplate[]) {
+    setTemplates((current) => [...current, ...rows].sort((a, b) => a.start_time.localeCompare(b.start_time)));
+  }
+
   async function addTemplate() {
     setMessage("");
     if (!branchId || !departmentId) {
@@ -92,9 +100,7 @@ export function ShiftTemplatesClient({
         required_employees: form.requiredEmployees,
         requires_senior_employee: form.requiresSenior
       })
-      .select(
-        "id, branch_id, department_id, name, shift_type, start_time, end_time, required_employees, requires_senior_employee, active"
-      )
+      .select(TEMPLATE_COLUMNS)
       .single();
     setBusy(false);
 
@@ -106,9 +112,53 @@ export function ShiftTemplatesClient({
       return;
     }
 
-    setTemplates((current) => [...current, data].sort((a, b) => a.start_time.localeCompare(b.start_time)));
+    addToList([data]);
     setForm(emptyForm);
     setMessage("המשמרת נשמרה בהצלחה.");
+  }
+
+  // I1: one click adds a ready-made set of shift types for the selected
+  // department (lib/shift-template-presets.ts). Inserted together, so a
+  // failure adds nothing.
+  async function applyPreset(preset: BusinessPreset) {
+    setMessage("");
+    if (!branchId || !departmentId) {
+      setMessage("יש לבחור סניף ומחלקה.", "error");
+      return;
+    }
+    setBusy(true);
+    const { data, error } = await supabase
+      .from("shift_templates")
+      .insert(
+        preset.templates.map((template) => ({
+          organization_id: organizationId,
+          branch_id: branchId,
+          department_id: departmentId,
+          name: template.name,
+          shift_type: template.shiftType,
+          start_time: template.startTime,
+          end_time: template.endTime,
+          required_employees: template.requiredEmployees,
+          requires_senior_employee: template.requiresSenior
+        }))
+      )
+      .select(TEMPLATE_COLUMNS);
+    setBusy(false);
+
+    if (error || !data) {
+      setMessage(
+        error?.message.includes("duplicate")
+          ? "חלק ממשמרות התבנית כבר קיימות בסניף בשם הזה. אפשר להוסיף משמרות ידנית."
+          : "לא הצלחנו להוסיף את משמרות התבנית. נסה שוב.",
+        "error"
+      );
+      return;
+    }
+
+    addToList(data);
+    setMessage(
+      `נוספו ${data.length} סוגי משמרות לפי תבנית "${preset.label}". אפשר להוסיף משמרות נוספות או לכבות כאלה שלא מתאימות.`
+    );
   }
 
   async function toggleTemplate(template: ShiftTemplate) {
@@ -278,7 +328,25 @@ export function ShiftTemplatesClient({
             </article>
           ))}
           {!departmentTemplates.length ? (
-            <EmptyState icon={Clock3} iconSize={36} description="הוסף את המשמרת הראשונה כדי להתחיל לבנות חודש עבודה." />
+            <EmptyState
+              icon={Clock3}
+              iconSize={36}
+              description="הוסף את המשמרת הראשונה, או התחל מתבנית מוכנה לפי סוג העסק."
+            >
+              <div className="actions shift-template-presets" role="group" aria-label="התחלה מהירה מתבנית">
+                {BUSINESS_PRESETS.map((preset) => (
+                  <button
+                    type="button"
+                    className="button"
+                    key={preset.key}
+                    disabled={busy || !branchId || !departmentId}
+                    onClick={() => void applyPreset(preset)}
+                  >
+                    <Sparkles size={16} /> {preset.label}
+                  </button>
+                ))}
+              </div>
+            </EmptyState>
           ) : null}
         </div>
       </div>
