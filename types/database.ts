@@ -2089,6 +2089,15 @@ export type Database = {
         Args: { target_template_id: string }
         Returns: undefined
       }
+      department_colleague_names: {
+        Args: never
+        Returns: {
+          color: string
+          first_name: string
+          id: string
+          last_name: string
+        }[]
+      }
       duplicate_schedule_period: {
         Args: { source_period_id: string; target_period_id: string }
         Returns: {

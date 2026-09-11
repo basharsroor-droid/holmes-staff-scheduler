@@ -25,32 +25,41 @@ export default async function ShiftSwapsPage() {
   const organizationId = membership.organization_id;
   const isManager = ["owner", "admin", "manager"].includes(membership.role);
 
-  const [{ data: organization }, { data: memberships }, { data: shifts }, { data: assignments }, { data: requests }] =
-    await Promise.all([
-      supabase.from("organizations").select("name").eq("id", organizationId).single(),
-      supabase
-        .from("organization_memberships")
-        .select("id, user_id, branch_id, role")
-        .eq("organization_id", organizationId)
-        .eq("status", "active")
-        .in("role", ["employee", "manager"]),
-      supabase
-        .from("shifts")
-        .select("id, shift_date, name, start_time, end_time, status")
-        .eq("organization_id", organizationId)
-        .eq("status", "published")
-        .gte("shift_date", new Date().toISOString().slice(0, 10))
-        .order("shift_date")
-        .order("start_time"),
-      supabase.from("shift_assignments").select("id, shift_id, user_id").eq("organization_id", organizationId),
-      supabase
-        .from("swap_requests")
-        .select(
-          "id, original_assignment_id, requested_by, target_user_id, target_shift_id, reason, status, manager_note, created_at, decided_at"
-        )
-        .eq("organization_id", organizationId)
-        .order("created_at", { ascending: false })
-    ]);
+  // Employees can read only their own profile (it holds phone), so colleague
+  // names for the swap picker come from a names-only RPC.
+  const [
+    { data: organization },
+    { data: memberships },
+    { data: shifts },
+    { data: assignments },
+    { data: requests },
+    { data: colleagueNames }
+  ] = await Promise.all([
+    supabase.from("organizations").select("name").eq("id", organizationId).single(),
+    supabase
+      .from("organization_memberships")
+      .select("id, user_id, branch_id, role")
+      .eq("organization_id", organizationId)
+      .eq("status", "active")
+      .in("role", ["employee", "manager"]),
+    supabase
+      .from("shifts")
+      .select("id, shift_date, name, start_time, end_time, status")
+      .eq("organization_id", organizationId)
+      .eq("status", "published")
+      .gte("shift_date", new Date().toISOString().slice(0, 10))
+      .order("shift_date")
+      .order("start_time"),
+    supabase.from("shift_assignments").select("id, shift_id, user_id").eq("organization_id", organizationId),
+    supabase
+      .from("swap_requests")
+      .select(
+        "id, original_assignment_id, requested_by, target_user_id, target_shift_id, reason, status, manager_note, created_at, decided_at"
+      )
+      .eq("organization_id", organizationId)
+      .order("created_at", { ascending: false }),
+    supabase.rpc("department_colleague_names")
+  ]);
   if (!organization) redirect("/workspace");
 
   const userIds = (memberships ?? []).map((item) => item.user_id);
@@ -86,6 +95,7 @@ export default async function ShiftSwapsPage() {
         requests={requests ?? []}
         shifts={shifts ?? []}
         workers={workers}
+        colleagueNames={colleagueNames ?? []}
       />
     </main>
   );
