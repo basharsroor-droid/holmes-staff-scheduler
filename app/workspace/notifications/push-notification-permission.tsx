@@ -3,6 +3,8 @@
 import { Capacitor } from "@capacitor/core";
 import { Bell, BellOff, Loader2, Smartphone } from "lucide-react";
 import { useEffect, useState } from "react";
+import { StatusMessage } from "@/components/workspace/status-message";
+import { useStatusMessage } from "@/lib/hooks/use-status-message";
 import { PushNotifications, type PushToken } from "@/lib/native/push-notifications";
 
 type PushState = "checking" | "unavailable" | "prompt" | "granted" | "denied";
@@ -54,7 +56,7 @@ async function registerDevice() {
 export function PushNotificationPermission() {
   const [state, setState] = useState<PushState>("checking");
   const [busy, setBusy] = useState(false);
-  const [message, setMessage] = useState("");
+  const { message, kind, setMessage } = useStatusMessage();
 
   useEffect(() => {
     let cancelled = false;
@@ -80,7 +82,7 @@ export function PushNotificationPermission() {
         } catch {
           if (!cancelled) {
             setState("prompt");
-            setMessage("ההרשאה פעילה, אך רישום המכשיר נכשל. לחצו כדי לנסות שוב.");
+            setMessage("ההרשאה פעילה, אך רישום המכשיר נכשל. לחצו כדי לנסות שוב.", "error");
           }
         } finally {
           if (!cancelled) setBusy(false);
@@ -91,7 +93,7 @@ export function PushNotificationPermission() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [setMessage]);
 
   async function enable() {
     setBusy(true);
@@ -100,7 +102,7 @@ export function PushNotificationPermission() {
       const permission = await PushNotifications.requestPermissions();
       if (permission.receive !== "granted") {
         setState("denied");
-        setMessage("ההרשאה נחסמה. ניתן להפעיל התראות דרך הגדרות ה־iPhone.");
+        setMessage("ההרשאה נחסמה. ניתן להפעיל התראות דרך הגדרות ה־iPhone.", "error");
         return;
       }
 
@@ -108,7 +110,7 @@ export function PushNotificationPermission() {
       setState("granted");
       setMessage("ההתראות הופעלו בהצלחה במכשיר הזה.");
     } catch {
-      setMessage("לא הצלחנו לרשום את המכשיר להתראות. אפשר לנסות שוב.");
+      setMessage("לא הצלחנו לרשום את המכשיר להתראות. אפשר לנסות שוב.", "error");
     } finally {
       setBusy(false);
     }
@@ -142,11 +144,7 @@ export function PushNotificationPermission() {
           {busy ? "מפעיל..." : state === "denied" ? "בדיקה מחדש" : "הפעלת התראות"}
         </button>
       ) : null}
-      {message ? (
-        <p className="form-message" role="status">
-          {message}
-        </p>
-      ) : null}
+      <StatusMessage message={message} kind={kind} />
     </section>
   );
 }

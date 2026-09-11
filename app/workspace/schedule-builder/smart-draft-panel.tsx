@@ -2,9 +2,11 @@
 
 import { useCallback, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { CheckCircle2, Loader2, RefreshCw, Sparkles, WandSparkles } from "lucide-react";
+import { Loader2, RefreshCw, Sparkles, WandSparkles } from "lucide-react";
 
 import { useScheduleData, type ScheduleShift } from "@/app/workspace/schedule-builder/schedule-data";
+import { StatusMessage } from "@/components/workspace/status-message";
+import { useStatusMessage } from "@/lib/hooks/use-status-message";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { isPresent } from "@/lib/utils";
 import { shiftBounds, shiftHours, shiftsOverlap, weekStartKey } from "@/lib/shift-time";
@@ -59,7 +61,7 @@ export function SmartDraftPanel({
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [unfilled, setUnfilled] = useState(0);
   const [busy, setBusy] = useState<"apply" | "">("");
-  const [message, setMessage] = useState("");
+  const { message, kind, setMessage } = useStatusMessage();
 
   const workerName = useCallback(
     (userId: string) => {
@@ -80,7 +82,7 @@ export function SmartDraftPanel({
     const period = periods.find((p) => p.id === selectedPeriodId);
     if (!period) return;
     if (period.status === "published") {
-      setMessage("Smart Draft עובד על טיוטה בלבד. יש לבטל פרסום לפני שינוי שיבוצים.");
+      setMessage("Smart Draft עובד על טיוטה בלבד. יש לבטל פרסום לפני שינוי שיבוצים.", "error");
       return;
     }
 
@@ -237,7 +239,7 @@ export function SmartDraftPanel({
     const period = periods.find((p) => p.id === selectedPeriodId);
     if (!period || period.status === "published") {
       setSuggestions([]);
-      setMessage("לא ניתן להחיל Smart Draft על סידור שפורסם. יש לבטל פרסום ולחשב הצעה מחדש.");
+      setMessage("לא ניתן להחיל Smart Draft על סידור שפורסם. יש לבטל פרסום ולחשב הצעה מחדש.", "error");
       return;
     }
     if (!window.confirm(`להחיל ${suggestions.length} שיבוצים מוצעים על הטיוטה? הפעולה לא מפרסמת את הסידור לצוות.`))
@@ -262,7 +264,7 @@ export function SmartDraftPanel({
     if (!currentPeriod || currentPeriod.status === "published") {
       setBusy("");
       setSuggestions([]);
-      setMessage("התקופה פורסמה מאז יצירת ההצעה. לא בוצע שינוי; בטל פרסום וחשב הצעה מחדש.");
+      setMessage("התקופה פורסמה מאז יצירת ההצעה. לא בוצע שינוי; בטל פרסום וחשב הצעה מחדש.", "error");
       return;
     }
 
@@ -278,20 +280,20 @@ export function SmartDraftPanel({
       if (!shift || shift.status === "cancelled") {
         setBusy("");
         setSuggestions([]);
-        setMessage("אחת המשמרות השתנתה מאז יצירת ההצעה. לא בוצע שינוי; יש לחשב Smart Draft מחדש.");
+        setMessage("אחת המשמרות השתנתה מאז יצירת ההצעה. לא בוצע שינוי; יש לחשב Smart Draft מחדש.", "error");
         return;
       }
       if (currentAssignments.some((a) => a.shift_id === suggestion.shiftId && a.user_id === suggestion.userId)) {
         setBusy("");
         setSuggestions([]);
-        setMessage("השיבוצים השתנו מאז יצירת ההצעה. לא בוצע שינוי; יש לחשב Smart Draft מחדש.");
+        setMessage("השיבוצים השתנו מאז יצירת ההצעה. לא בוצע שינוי; יש לחשב Smart Draft מחדש.", "error");
         return;
       }
       const currentCount = currentAssignments.filter((a) => a.shift_id === suggestion.shiftId).length;
       if (currentCount >= shift.required_employees) {
         setBusy("");
         setSuggestions([]);
-        setMessage("אחת המשמרות כבר מלאה. לא בוצע שינוי; יש לחשב Smart Draft מחדש.");
+        setMessage("אחת המשמרות כבר מלאה. לא בוצע שינוי; יש לחשב Smart Draft מחדש.", "error");
         return;
       }
     }
@@ -305,7 +307,7 @@ export function SmartDraftPanel({
     const { error } = await db.from("shift_assignments").insert(rows);
     setBusy("");
     if (error) {
-      setMessage("החלת Smart Draft נכשלה. לא פורסם שום סידור; יש לרענן ולבדוק את הטיוטה.");
+      setMessage("החלת Smart Draft נכשלה. לא פורסם שום סידור; יש לרענן ולבדוק את הטיוטה.", "error");
       return;
     }
     setSuggestions([]);
@@ -359,15 +361,8 @@ export function SmartDraftPanel({
           </div>
         </div>
       ) : null}
-      {message ? (
-        <div className="submission-banner open">
-          <CheckCircle2 size={18} />
-          <div>
-            <strong>{message}</strong>
-            {unfilled ? <span>{unfilled} מקומות נשארו ללא מועמד שעומד בכל המגבלות.</span> : null}
-          </div>
-        </div>
-      ) : null}
+      <StatusMessage message={message} kind={kind} />
+      {unfilled ? <p className="card-muted">{unfilled} מקומות נשארו ללא מועמד שעומד בכל המגבלות.</p> : null}
 
       {suggestions.length ? (
         <div className="template-list" style={{ marginTop: 12 }}>
