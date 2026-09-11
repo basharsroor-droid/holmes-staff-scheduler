@@ -52,7 +52,9 @@ function priceBlock(plan: Plan, cycle: Cycle) {
 function quotaLine(plan: Plan) {
   if (plan.maxActiveEmployees === null) return "עובדים, מחלקות ומנהלים לפי התאמה";
   const branches = (plan.maxBranches ?? 1) > 1 ? `${plan.maxBranches} סניפים · ` : "";
-  return `${branches}עד ${plan.maxActiveEmployees} עובדים · ${plan.maxDepartments} מחלקות · ${plan.maxManagers} מנהלים`;
+  // "מחלקה אחת", not "1 מחלקות".
+  const count = (n: number | null, one: string, many: string) => (n === 1 ? one : `${n} ${many}`);
+  return `${branches}עד ${plan.maxActiveEmployees} עובדים · ${count(plan.maxDepartments, "מחלקה אחת", "מחלקות")} · ${count(plan.maxManagers, "מנהל אחד", "מנהלים")}`;
 }
 
 export function PricingPlans() {
