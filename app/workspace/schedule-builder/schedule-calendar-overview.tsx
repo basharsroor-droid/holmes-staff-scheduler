@@ -51,9 +51,7 @@ export function ScheduleCalendarOverview({ period }: { period: Period | null }) 
     const daysInMonth = new Date(period.year, period.month, 0).getDate();
     const firstWeekday = new Date(period.year, period.month - 1, 1).getDay();
     const holidays = getIsraeliHolidaysForMonth(period.year, period.month);
-    const monthShifts = shifts.filter(
-      (shift) => shift.schedule_period_id === period.id && shift.status !== "cancelled"
-    );
+    const monthShifts = shifts.filter((shift) => shift.schedule_period_id === period.id && shift.status !== "cancelled");
 
     return {
       daysInMonth,
@@ -70,13 +68,8 @@ export function ScheduleCalendarOverview({ period }: { period: Period | null }) 
     (today.startsWith(`${period.year}-${String(period.month).padStart(2, "0")}-`)
       ? today
       : dateKey(period.year, period.month, 1));
-  const selectedShifts = calendar.monthShifts.filter(
-    (shift) => shift.shift_date === effectiveSelectedDate
-  );
-  const blankCells = Array.from(
-    { length: calendar.firstWeekday },
-    (_, index) => `blank-${index}`
-  );
+  const selectedShifts = calendar.monthShifts.filter((shift) => shift.shift_date === effectiveSelectedDate);
+  const blankCells = Array.from({ length: calendar.firstWeekday }, (_, index) => `blank-${index}`);
   const dayCells = Array.from({ length: calendar.daysInMonth }, (_, index) => index + 1);
 
   return (
@@ -106,14 +99,10 @@ export function ScheduleCalendarOverview({ period }: { period: Period | null }) 
           const dayShifts = calendar.monthShifts.filter((shift) => shift.shift_date === key);
           const holiday = calendar.holidays.get(key);
           const assigned = dayShifts.reduce(
-            (total, shift) =>
-              total + assignments.filter((assignment) => assignment.shift_id === shift.id).length,
+            (total, shift) => total + assignments.filter((assignment) => assignment.shift_id === shift.id).length,
             0
           );
-          const required = dayShifts.reduce(
-            (total, shift) => total + shift.required_employees,
-            0
-          );
+          const required = dayShifts.reduce((total, shift) => total + shift.required_employees, 0);
           const complete = required > 0 && assigned >= required;
 
           return (
@@ -158,15 +147,12 @@ export function ScheduleCalendarOverview({ period }: { period: Period | null }) 
         {selectedShifts.length ? (
           <div className={styles.shiftStrip}>
             {selectedShifts.map((shift) => {
-              const assigned = assignments.filter(
-                (assignment) => assignment.shift_id === shift.id
-              ).length;
+              const assigned = assignments.filter((assignment) => assignment.shift_id === shift.id).length;
               return (
                 <span className={styles.shiftPill} key={shift.id}>
                   <strong>{shift.name}</strong>
                   <small>
-                    {shift.start_time.slice(0, 5)}–{shift.end_time.slice(0, 5)} · {assigned}/
-                    {shift.required_employees}
+                    {shift.start_time.slice(0, 5)}–{shift.end_time.slice(0, 5)} · {assigned}/{shift.required_employees}
                   </small>
                 </span>
               );
