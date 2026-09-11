@@ -1,25 +1,16 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useMemo, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { CheckCircle2, RefreshCw, Scale } from "lucide-react";
 
-import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
+import { useScheduleData, type ScheduleShift } from "@/app/workspace/schedule-builder/schedule-data";
 import { shiftHours } from "@/lib/shift-time";
 
 type Period = { id: string; department_id: string; year: number; month: number };
 type Worker = { user_id: string; department_ids: string[]; profile: { first_name: string; last_name: string } | null };
 type Submission = { id: string; schedule_period_id: string; user_id: string; submitted_at: string | null };
 type Availability = { submission_id: string; shift_template_id: string; shift_date: string; status: string };
-type Shift = {
-  id: string;
-  schedule_period_id: string;
-  shift_template_id: string | null;
-  shift_date: string;
-  start_time: string;
-  end_time: string;
-  status: string;
-};
-type Assignment = { shift_id: string; user_id: string };
 type WorkerMetric = {
   userId: string;
   name: string;
@@ -31,6 +22,9 @@ type WorkerMetric = {
 };
 type Finding = { key: string; title: string; detail: string; severity: "warning" | "info" };
 
+// Recomputed from the shared schedule data (schedule-data.tsx) whenever the
+// board changes -- no fetch and no DOM watching (B3). "Recheck" refreshes the
+// server data to pick up other managers' changes.
 export function FairnessEnhancer({
   periods,
   workers,
@@ -42,157 +36,101 @@ export function FairnessEnhancer({
   submissions: Submission[];
   availability: Availability[];
 }) {
-  const supabase = useMemo(() => createSupabaseBrowserClient(), []);
-  const [selectedPeriodId, setSelectedPeriodId] = useState(periods[0]?.id ?? "");
-  const [metrics, setMetrics] = useState<WorkerMetric[]>([]);
-  const [findings, setFindings] = useState<Finding[]>([]);
-  const [checking, setChecking] = useState(false);
+  const router = useRouter();
+  const [refreshing, startRefresh] = useTransition();
+  const { selectedPeriodId, shifts: windowShifts, assignments } = useScheduleData();
 
-  const workerName = useCallback(
-    (userId: string) => {
+  const { metrics, findings } = useMemo(() => {
+    const period = periods.find((item) => item.id === selectedPeriodId);
+    if (!period) return { metrics: [] as WorkerMetric[], findings: [] as Finding[] };
+
+    const workerName = (userId: string) => {
       const profile = workers.find((worker) => worker.user_id === userId)?.profile;
       return profile ? `${profile.first_name} ${profile.last_name}`.trim() : "עובד/ת";
-    },
-    [workers]
-  );
-
-  const scan = useCallback(
-    async (periodId: string) => {
-      if (!periodId) return;
-      setChecking(true);
-      const period = periods.find((item) => item.id === periodId);
-      if (!period) {
-        setChecking(false);
-        return;
-      }
-
-      const db = supabase;
-      const { data: shiftRows } = await db
-        .from("shifts")
-        .select("id, schedule_period_id, shift_template_id, shift_date, start_time, end_time, status")
-        .eq("schedule_period_id", periodId)
-        .neq("status", "cancelled");
-      const shifts = (shiftRows ?? []) as Shift[];
-      const shiftIds = shifts.map((shift) => shift.id);
-      const { data: assignmentRows } = shiftIds.length
-        ? await db.from("shift_assignments").select("shift_id, user_id").in("shift_id", shiftIds)
-        : { data: [] };
-      const assignments = (assignmentRows ?? []) as Assignment[];
-      const periodWorkers = workers.filter((worker) => worker.department_ids.includes(period.department_id));
-
-      const nextMetrics = periodWorkers
-        .map((worker): WorkerMetric => {
-          const submission = submissions.find(
-            (item) => item.schedule_period_id === periodId && item.user_id === worker.user_id && item.submitted_at
-          );
-          const entries = submission ? availability.filter((item) => item.submission_id === submission.id) : [];
-          const eligibleEntries = entries.filter((entry) => entry.status !== "unavailable");
-          const preferredEntries = entries.filter((entry) => entry.status === "preferred");
-          const assignedShifts = shifts.filter((shift) =>
-            assignments.some((assignment) => assignment.shift_id === shift.id && assignment.user_id === worker.user_id)
-          );
-          const assignedEntryStatus = (shift: Shift) =>
-            submission && shift.shift_template_id
-              ? (entries.find(
-                  (entry) =>
-                    entry.shift_date === shift.shift_date && entry.shift_template_id === shift.shift_template_id
-                )?.status ?? null)
-              : null;
-
-          return {
-            userId: worker.user_id,
-            name: workerName(worker.user_id),
-            assignedHours: Math.round(assignedShifts.reduce((sum, shift) => sum + shiftHours(shift), 0) * 10) / 10,
-            eligibleOpportunities: eligibleEntries.length,
-            preferredOpportunities: preferredEntries.length,
-            preferredAssigned: assignedShifts.filter((shift) => assignedEntryStatus(shift) === "preferred").length,
-            onlyIfNeededAssigned: assignedShifts.filter((shift) => assignedEntryStatus(shift) === "only_if_needed")
-              .length
-          };
-        })
-        .filter((metric) => metric.eligibleOpportunities > 0 || metric.assignedHours > 0);
-
-      const nextFindings: Finding[] = [];
-      const comparableHours = nextMetrics.filter((metric) => metric.eligibleOpportunities > 0);
-      if (comparableHours.length >= 2) {
-        const sorted = [...comparableHours].sort((a, b) => a.assignedHours - b.assignedHours);
-        const low = sorted[0];
-        const high = sorted[sorted.length - 1];
-        const gap = Math.round((high.assignedHours - low.assignedHours) * 10) / 10;
-        if (gap >= 8)
-          nextFindings.push({
-            key: "hours-gap",
-            severity: "warning",
-            title: "פער שעות משמעותי",
-            detail: `${high.name} עם ${high.assignedHours} ש׳ לעומת ${low.name} עם ${low.assignedHours} ש׳ — פער של ${gap} שעות בין עובדים עם זמינות בתקופה.`
-          });
-      }
-
-      const preferredComparable = nextMetrics
-        .filter((metric) => metric.preferredOpportunities > 0)
-        .map((metric) => ({ ...metric, preferredRate: metric.preferredAssigned / metric.preferredOpportunities }));
-      if (preferredComparable.length >= 2) {
-        const sorted = [...preferredComparable].sort((a, b) => a.preferredRate - b.preferredRate);
-        const low = sorted[0];
-        const high = sorted[sorted.length - 1];
-        const gap = high.preferredRate - low.preferredRate;
-        if (gap >= 0.35)
-          nextFindings.push({
-            key: "preferred-gap",
-            severity: "info",
-            title: "פער במימוש העדפות",
-            detail: `${high.name} קיבל/ה ${Math.round(high.preferredRate * 100)}% מההעדפות שסומנו, לעומת ${Math.round(low.preferredRate * 100)}% אצל ${low.name}.`
-          });
-      }
-
-      const totalOnlyIfNeeded = nextMetrics.reduce((sum, metric) => sum + metric.onlyIfNeededAssigned, 0);
-      if (nextMetrics.length >= 2 && totalOnlyIfNeeded >= 2) {
-        const average = totalOnlyIfNeeded / nextMetrics.length;
-        const burdened = [...nextMetrics].sort((a, b) => b.onlyIfNeededAssigned - a.onlyIfNeededAssigned)[0];
-        if (burdened.onlyIfNeededAssigned >= 2 && burdened.onlyIfNeededAssigned >= average + 1)
-          nextFindings.push({
-            key: "only-if-needed",
-            severity: "warning",
-            title: "עומס משמרות ‘רק אם צריך’",
-            detail: `${burdened.name} קיבל/ה ${burdened.onlyIfNeededAssigned} שיבוצים שסומנו ‘רק אם צריך’, יותר משמעותית משאר הצוות.`
-          });
-      }
-
-      setMetrics(nextMetrics.sort((a, b) => b.assignedHours - a.assignedHours));
-      setFindings(nextFindings);
-      setChecking(false);
-    },
-    [availability, periods, submissions, supabase, workerName, workers]
-  );
-
-  useEffect(() => {
-    const sync = () => {
-      const select = document.querySelector<HTMLSelectElement>(".schedule-period-select");
-      const id = select?.value ?? periods[0]?.id ?? "";
-      setSelectedPeriodId(id);
-      void scan(id);
     };
-    sync();
-    const root = document.querySelector(".schedule-workbench");
-    if (!root) return;
-    let timer: number | undefined;
-    const observer = new MutationObserver(() => {
-      window.clearTimeout(timer);
-      timer = window.setTimeout(sync, 250);
-    });
-    observer.observe(root, {
-      subtree: true,
-      attributes: true,
-      childList: true,
-      attributeFilter: ["aria-pressed", "value", "class"]
-    });
-    root.addEventListener("change", sync);
-    return () => {
-      observer.disconnect();
-      root.removeEventListener("change", sync);
-      window.clearTimeout(timer);
-    };
-  }, [periods, scan]);
+    const shifts = windowShifts.filter(
+      (shift) => shift.schedule_period_id === selectedPeriodId && shift.status !== "cancelled"
+    );
+    const periodWorkers = workers.filter((worker) => worker.department_ids.includes(period.department_id));
+
+    const nextMetrics = periodWorkers
+      .map((worker): WorkerMetric => {
+        const submission = submissions.find(
+          (item) => item.schedule_period_id === selectedPeriodId && item.user_id === worker.user_id && item.submitted_at
+        );
+        const entries = submission ? availability.filter((item) => item.submission_id === submission.id) : [];
+        const eligibleEntries = entries.filter((entry) => entry.status !== "unavailable");
+        const preferredEntries = entries.filter((entry) => entry.status === "preferred");
+        const assignedShifts = shifts.filter((shift) =>
+          assignments.some((assignment) => assignment.shift_id === shift.id && assignment.user_id === worker.user_id)
+        );
+        const assignedEntryStatus = (shift: ScheduleShift) =>
+          submission && shift.shift_template_id
+            ? (entries.find(
+                (entry) => entry.shift_date === shift.shift_date && entry.shift_template_id === shift.shift_template_id
+              )?.status ?? null)
+            : null;
+
+        return {
+          userId: worker.user_id,
+          name: workerName(worker.user_id),
+          assignedHours: Math.round(assignedShifts.reduce((sum, shift) => sum + shiftHours(shift), 0) * 10) / 10,
+          eligibleOpportunities: eligibleEntries.length,
+          preferredOpportunities: preferredEntries.length,
+          preferredAssigned: assignedShifts.filter((shift) => assignedEntryStatus(shift) === "preferred").length,
+          onlyIfNeededAssigned: assignedShifts.filter((shift) => assignedEntryStatus(shift) === "only_if_needed").length
+        };
+      })
+      .filter((metric) => metric.eligibleOpportunities > 0 || metric.assignedHours > 0);
+
+    const nextFindings: Finding[] = [];
+    const comparableHours = nextMetrics.filter((metric) => metric.eligibleOpportunities > 0);
+    if (comparableHours.length >= 2) {
+      const sorted = [...comparableHours].sort((a, b) => a.assignedHours - b.assignedHours);
+      const low = sorted[0];
+      const high = sorted[sorted.length - 1];
+      const gap = Math.round((high.assignedHours - low.assignedHours) * 10) / 10;
+      if (gap >= 8)
+        nextFindings.push({
+          key: "hours-gap",
+          severity: "warning",
+          title: "פער שעות משמעותי",
+          detail: `${high.name} עם ${high.assignedHours} ש׳ לעומת ${low.name} עם ${low.assignedHours} ש׳ — פער של ${gap} שעות בין עובדים עם זמינות בתקופה.`
+        });
+    }
+
+    const preferredComparable = nextMetrics
+      .filter((metric) => metric.preferredOpportunities > 0)
+      .map((metric) => ({ ...metric, preferredRate: metric.preferredAssigned / metric.preferredOpportunities }));
+    if (preferredComparable.length >= 2) {
+      const sorted = [...preferredComparable].sort((a, b) => a.preferredRate - b.preferredRate);
+      const low = sorted[0];
+      const high = sorted[sorted.length - 1];
+      const gap = high.preferredRate - low.preferredRate;
+      if (gap >= 0.35)
+        nextFindings.push({
+          key: "preferred-gap",
+          severity: "info",
+          title: "פער במימוש העדפות",
+          detail: `${high.name} קיבל/ה ${Math.round(high.preferredRate * 100)}% מההעדפות שסומנו, לעומת ${Math.round(low.preferredRate * 100)}% אצל ${low.name}.`
+        });
+    }
+
+    const totalOnlyIfNeeded = nextMetrics.reduce((sum, metric) => sum + metric.onlyIfNeededAssigned, 0);
+    if (nextMetrics.length >= 2 && totalOnlyIfNeeded >= 2) {
+      const average = totalOnlyIfNeeded / nextMetrics.length;
+      const burdened = [...nextMetrics].sort((a, b) => b.onlyIfNeededAssigned - a.onlyIfNeededAssigned)[0];
+      if (burdened.onlyIfNeededAssigned >= 2 && burdened.onlyIfNeededAssigned >= average + 1)
+        nextFindings.push({
+          key: "only-if-needed",
+          severity: "warning",
+          title: "עומס משמרות ‘רק אם צריך’",
+          detail: `${burdened.name} קיבל/ה ${burdened.onlyIfNeededAssigned} שיבוצים שסומנו ‘רק אם צריך’, יותר משמעותית משאר הצוות.`
+        });
+    }
+
+    return { metrics: nextMetrics.sort((a, b) => b.assignedHours - a.assignedHours), findings: nextFindings };
+  }, [assignments, availability, periods, selectedPeriodId, submissions, windowShifts, workers]);
 
   return (
     <section className="template-list-card no-print" aria-live="polite">
@@ -209,14 +147,14 @@ export function FairnessEnhancer({
         <button
           type="button"
           className="button"
-          disabled={checking || !selectedPeriodId}
-          onClick={() => void scan(selectedPeriodId)}
+          disabled={refreshing || !selectedPeriodId}
+          onClick={() => startRefresh(() => router.refresh())}
         >
-          <RefreshCw size={15} /> {checking ? "בודק..." : "בדיקה מחדש"}
+          <RefreshCw size={15} /> {refreshing ? "בודק..." : "בדיקה מחדש"}
         </button>
       </div>
 
-      {!checking && !findings.length ? (
+      {!findings.length ? (
         <div className="submission-banner open">
           <CheckCircle2 size={18} />
           <div>

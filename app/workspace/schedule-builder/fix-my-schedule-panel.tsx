@@ -1,11 +1,16 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { CheckCircle2, Loader2, RefreshCw, ShieldCheck, Wrench } from "lucide-react";
 
+import {
+  useScheduleData,
+  type ScheduleAssignment,
+  type ScheduleShift
+} from "@/app/workspace/schedule-builder/schedule-data";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import { isPresent } from "@/lib/utils";
-import { periodShiftRange, SHIFT_RANGE_LIMIT } from "@/lib/period-window";
 import { shiftBounds, shiftHours, shiftsOverlap, weekStartKey } from "@/lib/shift-time";
 
 type Period = { id: string; department_id: string; year: number; month: number; status: string };
@@ -20,18 +25,8 @@ type Submission = { id: string; schedule_period_id: string; user_id: string; sub
 type Availability = { submission_id: string; shift_template_id: string; shift_date: string; status: string };
 type Leave = { user_id: string; start_date: string; end_date: string };
 type Template = { id: string; requires_senior_employee: boolean };
-type Shift = {
-  id: string;
-  schedule_period_id: string;
-  shift_template_id: string | null;
-  shift_date: string;
-  name: string;
-  start_time: string;
-  end_time: string;
-  required_employees: number;
-  status: string;
-};
-type Assignment = { id: string; shift_id: string; user_id: string };
+type Shift = ScheduleShift;
+type Assignment = ScheduleAssignment;
 type RepairAction = {
   kind: "remove" | "add";
   shiftId: string;
@@ -63,10 +58,11 @@ export function FixMySchedulePanel({
   minRestHours: number | null;
 }) {
   const supabase = useMemo(() => createSupabaseBrowserClient(), []);
-  const [selectedPeriodId, setSelectedPeriodId] = useState(periods[0]?.id ?? "");
+  const router = useRouter();
+  const { selectedPeriodId, shifts: windowShifts, assignments: windowAssignments } = useScheduleData();
   const [actions, setActions] = useState<RepairAction[]>([]);
   const [unresolved, setUnresolved] = useState(0);
-  const [busy, setBusy] = useState<"plan" | "apply" | "">("");
+  const [busy, setBusy] = useState<"apply" | "">("");
   const [message, setMessage] = useState("");
 
   const workerName = useCallback(
@@ -77,202 +73,191 @@ export function FixMySchedulePanel({
     [workers]
   );
 
-  const generate = useCallback(
-    async (periodId: string) => {
-      if (!periodId) return;
-      setBusy("plan");
-      setMessage("");
-      setActions([]);
-      setUnresolved(0);
-      const period = periods.find((p) => p.id === periodId);
-      if (!period) {
-        setBusy("");
-        return;
-      }
-      if (period.status === "published") {
-        setBusy("");
-        setMessage("Fix My Schedule עובד על טיוטה בלבד. יש לבטל פרסום לפני שינוי שיבוצים.");
-        return;
-      }
+  // Plans from the shared schedule data -- the selected month plus a week
+  // either side, the same rows the board shows (B3). No fetch here; apply()
+  // re-reads the database before writing.
+  const generate = useCallback(() => {
+    if (!selectedPeriodId) return;
+    setMessage("");
+    setActions([]);
+    setUnresolved(0);
+    const period = periods.find((p) => p.id === selectedPeriodId);
+    if (!period) return;
+    if (period.status === "published") {
+      setMessage("Fix My Schedule עובד על טיוטה בלבד. יש לבטל פרסום לפני שינוי שיבוצים.");
+      return;
+    }
 
-      const db = supabase;
-      const range = periodShiftRange(period.year, period.month);
-      const { data: allShiftRows } = await db
-        .from("shifts")
-        .select(
-          "id, schedule_period_id, shift_template_id, shift_date, name, start_time, end_time, required_employees, status"
+    const allShifts = windowShifts.filter((s) => s.status !== "cancelled");
+    const existing = windowAssignments;
+    const periodShifts = allShifts.filter((s) => s.schedule_period_id === selectedPeriodId);
+    const periodWorkers = workers.filter((w) => w.department_ids.includes(period.department_id));
+    const planned = existing.map((a) => ({ ...a }));
+    const next: RepairAction[] = [];
+
+    const availabilityStatus = (userId: string, shift: Shift) => {
+      const sub = submissions.find(
+        (s) => s.schedule_period_id === selectedPeriodId && s.user_id === userId && s.submitted_at
+      );
+      if (!sub || !shift.shift_template_id) return null;
+      return (
+        availability.find(
+          (a) =>
+            a.submission_id === sub.id &&
+            a.shift_date === shift.shift_date &&
+            a.shift_template_id === shift.shift_template_id
+        )?.status ?? null
+      );
+    };
+
+    const weeklyHours = (userId: string, week: string) =>
+      allShifts
+        .filter(
+          (s) => weekStartKey(s.shift_date) === week && planned.some((a) => a.shift_id === s.id && a.user_id === userId)
         )
-        .gte("shift_date", range.from)
-        .lte("shift_date", range.to)
-        .neq("status", "cancelled")
-        .limit(SHIFT_RANGE_LIMIT);
-      const allShifts = (allShiftRows ?? []) as Shift[];
-      const shiftIds = allShifts.map((s) => s.id);
-      const { data: assignmentRows } = shiftIds.length
-        ? await db.from("shift_assignments").select("id, shift_id, user_id").in("shift_id", shiftIds)
-        : { data: [] };
-      const existing = (assignmentRows ?? []) as Assignment[];
-      const periodShifts = allShifts.filter((s) => s.schedule_period_id === periodId);
-      const periodWorkers = workers.filter((w) => w.department_ids.includes(period.department_id));
-      const planned = existing.map((a) => ({ ...a }));
-      const next: RepairAction[] = [];
+        .reduce((sum, s) => sum + shiftHours(s), 0);
 
-      const availabilityStatus = (userId: string, shift: Shift) => {
-        const sub = submissions.find(
-          (s) => s.schedule_period_id === periodId && s.user_id === userId && s.submitted_at
+    const assignedHours = (userId: string) =>
+      allShifts
+        .filter((s) => planned.some((a) => a.shift_id === s.id && a.user_id === userId))
+        .reduce((sum, s) => sum + shiftHours(s), 0);
+
+    const minGap = (userId: string, candidate: Shift) => {
+      const c = shiftBounds(candidate);
+      let gap = Infinity;
+      for (const other of allShifts) {
+        if (other.id === candidate.id || !planned.some((a) => a.shift_id === other.id && a.user_id === userId))
+          continue;
+        const b = shiftBounds(other);
+        if (b.end <= c.start) gap = Math.min(gap, (c.start.getTime() - b.end.getTime()) / 3600000);
+        else if (b.start >= c.end) gap = Math.min(gap, (b.start.getTime() - c.end.getTime()) / 3600000);
+      }
+      return gap;
+    };
+
+    for (const assignment of existing.filter((a) => periodShifts.some((s) => s.id === a.shift_id))) {
+      const shift = periodShifts.find((s) => s.id === assignment.shift_id)!;
+      const status = availabilityStatus(assignment.user_id, shift);
+      const onLeave = approvedLeave.some(
+        (l) => l.user_id === assignment.user_id && shift.shift_date >= l.start_date && shift.shift_date <= l.end_date
+      );
+      const conflict = periodShifts.some(
+        (other) =>
+          other.id !== shift.id &&
+          planned.some((a) => a.shift_id === other.id && a.user_id === assignment.user_id) &&
+          shiftsOverlap(other, shift)
+      );
+      let reason = "";
+      if (onLeave) reason = "חופשה מאושרת בתאריך המשמרת";
+      else if (status === "unavailable") reason = "העובד/ת סימן/ה לא זמין/ה למשמרת";
+      else if (conflict) reason = "חפיפה עם משמרת אחרת";
+      if (!reason) continue;
+      const index = planned.findIndex((a) => a.id === assignment.id);
+      if (index >= 0) planned.splice(index, 1);
+      next.push({
+        kind: "remove",
+        shiftId: shift.id,
+        shiftLabel: `${shift.shift_date} · ${shift.name} · ${shift.start_time.slice(0, 5)}-${shift.end_time.slice(0, 5)}`,
+        userId: assignment.user_id,
+        workerName: workerName(assignment.user_id),
+        reason
+      });
+    }
+
+    let missing = 0;
+    for (const shift of [...periodShifts].sort((a, b) =>
+      `${a.shift_date} ${a.start_time}`.localeCompare(`${b.shift_date} ${b.start_time}`)
+    )) {
+      let slots = Math.max(0, shift.required_employees - planned.filter((a) => a.shift_id === shift.id).length);
+      while (slots > 0) {
+        const template = templates.find((t) => t.id === shift.shift_template_id);
+        const alreadySenior = planned.some(
+          (a) =>
+            a.shift_id === shift.id && periodWorkers.find((w) => w.user_id === a.user_id)?.seniority_level === "senior"
         );
-        if (!sub || !shift.shift_template_id) return null;
-        return (
-          availability.find(
-            (a) =>
-              a.submission_id === sub.id &&
-              a.shift_date === shift.shift_date &&
-              a.shift_template_id === shift.shift_template_id
-          )?.status ?? null
-        );
-      };
-
-      const weeklyHours = (userId: string, week: string) =>
-        allShifts
-          .filter(
-            (s) =>
-              weekStartKey(s.shift_date) === week && planned.some((a) => a.shift_id === s.id && a.user_id === userId)
-          )
-          .reduce((sum, s) => sum + shiftHours(s), 0);
-
-      const assignedHours = (userId: string) =>
-        allShifts
-          .filter((s) => planned.some((a) => a.shift_id === s.id && a.user_id === userId))
-          .reduce((sum, s) => sum + shiftHours(s), 0);
-
-      const minGap = (userId: string, candidate: Shift) => {
-        const c = shiftBounds(candidate);
-        let gap = Infinity;
-        for (const other of allShifts) {
-          if (other.id === candidate.id || !planned.some((a) => a.shift_id === other.id && a.user_id === userId))
-            continue;
-          const b = shiftBounds(other);
-          if (b.end <= c.start) gap = Math.min(gap, (c.start.getTime() - b.end.getTime()) / 3600000);
-          else if (b.start >= c.end) gap = Math.min(gap, (b.start.getTime() - c.end.getTime()) / 3600000);
+        const needSenior = !!template?.requires_senior_employee && !alreadySenior;
+        const candidates = periodWorkers
+          .map((worker) => {
+            if (planned.some((a) => a.shift_id === shift.id && a.user_id === worker.user_id)) return null;
+            if (needSenior && worker.seniority_level !== "senior") return null;
+            const status = availabilityStatus(worker.user_id, shift);
+            if (!status || status === "unavailable") return null;
+            if (
+              approvedLeave.some(
+                (l) =>
+                  l.user_id === worker.user_id && shift.shift_date >= l.start_date && shift.shift_date <= l.end_date
+              )
+            )
+              return null;
+            if (
+              allShifts.some(
+                (other) =>
+                  other.id !== shift.id &&
+                  planned.some((a) => a.shift_id === other.id && a.user_id === worker.user_id) &&
+                  shiftsOverlap(other, shift)
+              )
+            )
+              return null;
+            if (
+              worker.weekly_hours_limit &&
+              weeklyHours(worker.user_id, weekStartKey(shift.shift_date)) + shiftHours(shift) >
+                worker.weekly_hours_limit
+            )
+              return null;
+            if (minRestHours && minGap(worker.user_id, shift) < minRestHours) return null;
+            let score = status === "preferred" ? 100 : status === "available" ? 80 : 55;
+            score -= Math.min(30, assignedHours(worker.user_id) / 3);
+            return { worker, status, score };
+          })
+          .filter(isPresent)
+          .sort((a, b) => b.score - a.score || a.worker.user_id.localeCompare(b.worker.user_id));
+        const chosen = candidates[0];
+        if (!chosen) {
+          missing += slots;
+          break;
         }
-        return gap;
-      };
-
-      for (const assignment of existing.filter((a) => periodShifts.some((s) => s.id === a.shift_id))) {
-        const shift = periodShifts.find((s) => s.id === assignment.shift_id)!;
-        const status = availabilityStatus(assignment.user_id, shift);
-        const onLeave = approvedLeave.some(
-          (l) => l.user_id === assignment.user_id && shift.shift_date >= l.start_date && shift.shift_date <= l.end_date
-        );
-        const conflict = periodShifts.some(
-          (other) =>
-            other.id !== shift.id &&
-            planned.some((a) => a.shift_id === other.id && a.user_id === assignment.user_id) &&
-            shiftsOverlap(other, shift)
-        );
-        let reason = "";
-        if (onLeave) reason = "חופשה מאושרת בתאריך המשמרת";
-        else if (status === "unavailable") reason = "העובד/ת סימן/ה לא זמין/ה למשמרת";
-        else if (conflict) reason = "חפיפה עם משמרת אחרת";
-        if (!reason) continue;
-        const index = planned.findIndex((a) => a.id === assignment.id);
-        if (index >= 0) planned.splice(index, 1);
+        planned.push({
+          id: `planned-${shift.id}-${chosen.worker.user_id}`,
+          shift_id: shift.id,
+          user_id: chosen.worker.user_id
+        });
         next.push({
-          kind: "remove",
+          kind: "add",
           shiftId: shift.id,
           shiftLabel: `${shift.shift_date} · ${shift.name} · ${shift.start_time.slice(0, 5)}-${shift.end_time.slice(0, 5)}`,
-          userId: assignment.user_id,
-          workerName: workerName(assignment.user_id),
-          reason
+          userId: chosen.worker.user_id,
+          workerName: workerName(chosen.worker.user_id),
+          reason:
+            chosen.status === "preferred"
+              ? "מועדף/ת, עומד/ת בכל המגבלות ומאזן/ת את חלוקת השעות"
+              : chosen.status === "available"
+                ? "זמין/ה, עומד/ת בכל המגבלות ומאזן/ת את חלוקת השעות"
+                : "זמין/ה רק אם צריך; נבחר/ה לאחר שלא נמצא מועמד עדיף"
         });
+        slots -= 1;
       }
+    }
 
-      let missing = 0;
-      for (const shift of [...periodShifts].sort((a, b) =>
-        `${a.shift_date} ${a.start_time}`.localeCompare(`${b.shift_date} ${b.start_time}`)
-      )) {
-        let slots = Math.max(0, shift.required_employees - planned.filter((a) => a.shift_id === shift.id).length);
-        while (slots > 0) {
-          const template = templates.find((t) => t.id === shift.shift_template_id);
-          const alreadySenior = planned.some(
-            (a) =>
-              a.shift_id === shift.id &&
-              periodWorkers.find((w) => w.user_id === a.user_id)?.seniority_level === "senior"
-          );
-          const needSenior = !!template?.requires_senior_employee && !alreadySenior;
-          const candidates = periodWorkers
-            .map((worker) => {
-              if (planned.some((a) => a.shift_id === shift.id && a.user_id === worker.user_id)) return null;
-              if (needSenior && worker.seniority_level !== "senior") return null;
-              const status = availabilityStatus(worker.user_id, shift);
-              if (!status || status === "unavailable") return null;
-              if (
-                approvedLeave.some(
-                  (l) =>
-                    l.user_id === worker.user_id && shift.shift_date >= l.start_date && shift.shift_date <= l.end_date
-                )
-              )
-                return null;
-              if (
-                allShifts.some(
-                  (other) =>
-                    other.id !== shift.id &&
-                    planned.some((a) => a.shift_id === other.id && a.user_id === worker.user_id) &&
-                    shiftsOverlap(other, shift)
-                )
-              )
-                return null;
-              if (
-                worker.weekly_hours_limit &&
-                weeklyHours(worker.user_id, weekStartKey(shift.shift_date)) + shiftHours(shift) >
-                  worker.weekly_hours_limit
-              )
-                return null;
-              if (minRestHours && minGap(worker.user_id, shift) < minRestHours) return null;
-              let score = status === "preferred" ? 100 : status === "available" ? 80 : 55;
-              score -= Math.min(30, assignedHours(worker.user_id) / 3);
-              return { worker, status, score };
-            })
-            .filter(isPresent)
-            .sort((a, b) => b.score - a.score || a.worker.user_id.localeCompare(b.worker.user_id));
-          const chosen = candidates[0];
-          if (!chosen) {
-            missing += slots;
-            break;
-          }
-          planned.push({
-            id: `planned-${shift.id}-${chosen.worker.user_id}`,
-            shift_id: shift.id,
-            user_id: chosen.worker.user_id
-          });
-          next.push({
-            kind: "add",
-            shiftId: shift.id,
-            shiftLabel: `${shift.shift_date} · ${shift.name} · ${shift.start_time.slice(0, 5)}-${shift.end_time.slice(0, 5)}`,
-            userId: chosen.worker.user_id,
-            workerName: workerName(chosen.worker.user_id),
-            reason:
-              chosen.status === "preferred"
-                ? "מועדף/ת, עומד/ת בכל המגבלות ומאזן/ת את חלוקת השעות"
-                : chosen.status === "available"
-                  ? "זמין/ה, עומד/ת בכל המגבלות ומאזן/ת את חלוקת השעות"
-                  : "זמין/ה רק אם צריך; נבחר/ה לאחר שלא נמצא מועמד עדיף"
-          });
-          slots -= 1;
-        }
-      }
-
-      setActions(next);
-      setUnresolved(missing);
-      setBusy("");
-      setMessage(
-        next.length
-          ? `נבנתה תוכנית תיקון עם ${next.length} פעולות מוצעות.`
-          : "לא נמצאו שינויים בטוחים ונחוצים לסידור הנוכחי."
-      );
-    },
-    [approvedLeave, availability, minRestHours, periods, submissions, supabase, templates, workerName, workers]
-  );
+    setActions(next);
+    setUnresolved(missing);
+    setMessage(
+      next.length
+        ? `נבנתה תוכנית תיקון עם ${next.length} פעולות מוצעות.`
+        : "לא נמצאו שינויים בטוחים ונחוצים לסידור הנוכחי."
+    );
+  }, [
+    approvedLeave,
+    availability,
+    minRestHours,
+    periods,
+    selectedPeriodId,
+    submissions,
+    templates,
+    windowAssignments,
+    windowShifts,
+    workerName,
+    workers
+  ]);
 
   const apply = useCallback(async () => {
     if (!actions.length) return;
@@ -287,6 +272,8 @@ export function FixMySchedulePanel({
     setMessage("");
     const db = supabase;
 
+    // Re-read the database before writing: the plan was built from the data on
+    // screen, and another manager may have changed the month since.
     const [{ data: currentPeriod }, { data: currentShiftRows }] = await Promise.all([
       db.from("schedule_periods").select("id, status").eq("id", selectedPeriodId).single(),
       db
@@ -373,22 +360,14 @@ export function FixMySchedulePanel({
         return;
       }
     }
-    setMessage("תוכנית התיקון הוחלה על הטיוטה. מרענן את הסידור...");
-    window.location.reload();
-  }, [actions, currentUserId, organizationId, periods, selectedPeriodId, supabase]);
-
-  useEffect(() => {
-    const sync = () => {
-      const select = document.querySelector<HTMLSelectElement>(".schedule-period-select");
-      setSelectedPeriodId(select?.value ?? periods[0]?.id ?? "");
-      setActions([]);
-      setUnresolved(0);
-    };
-    sync();
-    const root = document.querySelector(".schedule-workbench");
-    root?.addEventListener("change", sync);
-    return () => root?.removeEventListener("change", sync);
-  }, [periods]);
+    setBusy("");
+    setActions([]);
+    setUnresolved(0);
+    setMessage("תוכנית התיקון הוחלה על הטיוטה.");
+    // Re-render the page with fresh rows; the shared schedule data (and so the
+    // board and every panel) picks them up.
+    router.refresh();
+  }, [actions, currentUserId, organizationId, periods, router, selectedPeriodId, supabase]);
 
   const removals = actions.filter((a) => a.kind === "remove").length;
   const additions = actions.filter((a) => a.kind === "add").length;
@@ -413,9 +392,9 @@ export function FixMySchedulePanel({
             type="button"
             className="button"
             disabled={busy !== "" || !selectedPeriodId || published}
-            onClick={() => void generate(selectedPeriodId)}
+            onClick={() => generate()}
           >
-            {busy === "plan" ? <Loader2 size={15} /> : <RefreshCw size={15} />} בנה תוכנית תיקון
+            <RefreshCw size={15} /> בנה תוכנית תיקון
           </button>
           <button
             type="button"
