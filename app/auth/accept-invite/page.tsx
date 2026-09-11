@@ -6,6 +6,7 @@ import { CheckCircle2, Loader2, ShieldCheck, UserPlus } from "lucide-react";
 
 import { PasswordField } from "@/components/auth/password-field";
 import { BrandLogo } from "@/components/brand/brand-logo";
+import { planLimitResource } from "@/lib/plan-limit-errors";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 
 type Stage = "checking" | "form" | "invalid" | "done";
@@ -60,7 +61,14 @@ export default function AcceptInvitePage() {
     const { error } = await supabase.rpc("accept_organization_invitation", { invitation_token: token });
     if (error) {
       setBusy(false);
-      setMessage(error.message.includes("email does not match") ? "ההזמנה שייכת לכתובת מייל אחרת." : "ההזמנה אינה תקפה, בוטלה או פגה.");
+      setMessage(
+        error.message.includes("email does not match")
+          ? "ההזמנה שייכת לכתובת מייל אחרת."
+          : planLimitResource(error)
+            ? // The invitee can't upgrade the plan -- tell them who can (J3).
+              "לא ניתן להצטרף כרגע: העסק הגיע למכסה של המסלול שלו. פנו למנהל/ת העסק."
+            : "ההזמנה אינה תקפה, בוטלה או פגה."
+      );
       return;
     }
     const { error: passwordError } = await supabase.auth.updateUser({ password });

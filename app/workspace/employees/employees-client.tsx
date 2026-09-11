@@ -5,6 +5,7 @@ import { Crown, Loader2, MailPlus, Power, RotateCw, ShieldCheck, UserRound, User
 
 import { StatusMessage } from "@/components/workspace/status-message";
 import { useStatusMessage } from "@/lib/hooks/use-status-message";
+import { planLimitMessage } from "@/lib/plan-limit-errors";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import type { Database } from "@/types/database";
 
@@ -88,7 +89,8 @@ export function EmployeesClient({
       .eq("organization_id", organizationId);
     setBusyId(null);
     if (error) {
-      setMessage("לא הצלחנו לעדכן את העובד. בדוק את ההרשאות ונסה שוב.", "error");
+      // Promoting or re-activating a member can hit the plan's seat limit (J3).
+      setMessage(planLimitMessage(error) ?? "לא הצלחנו לעדכן את העובד. בדוק את ההרשאות ונסה שוב.", "error");
       return;
     }
     setEmployees((current) => current.map((employee) => (employee.id === id ? { ...employee, ...changes } : employee)));
@@ -146,7 +148,7 @@ export function EmployeesClient({
       setMessage(
         invitationError?.message.includes("already a member")
           ? "כתובת המייל כבר שייכת לחבר צוות בעסק."
-          : "לא הצלחנו ליצור את ההזמנה.",
+          : (planLimitMessage(invitationError) ?? "לא הצלחנו ליצור את ההזמנה."),
         "error"
       );
       return;
@@ -197,7 +199,7 @@ export function EmployeesClient({
     });
     if (renewalError || !token) {
       setBusyId(null);
-      setMessage("לא הצלחנו לחדש את תוקף ההזמנה.", "error");
+      setMessage(planLimitMessage(renewalError) ?? "לא הצלחנו לחדש את תוקף ההזמנה.", "error");
       return;
     }
     const expiresAt = new Date(Date.now() + 7 * 86400000).toISOString();

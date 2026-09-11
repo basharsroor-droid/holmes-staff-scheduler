@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { Building2, Check, Loader2, Network, Plus, Power, ShieldCheck, UserRound } from "lucide-react";
 import { StatusMessage } from "@/components/workspace/status-message";
 import { useStatusMessage } from "@/lib/hooks/use-status-message";
+import { planLimitMessage } from "@/lib/plan-limit-errors";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import type { Database } from "@/types/database";
 
@@ -72,7 +73,7 @@ export function DepartmentsClient({
       setMessage(
         error?.message.toLowerCase().includes("duplicate")
           ? "כבר קיימת מחלקה בשם הזה בסניף."
-          : "לא הצלחנו ליצור את המחלקה.",
+          : (planLimitMessage(error) ?? "לא הצלחנו ליצור את המחלקה."),
         "error"
       );
       return;
@@ -92,7 +93,8 @@ export function DepartmentsClient({
       .eq("organization_id", organizationId);
     setBusyId(null);
     if (error) {
-      setMessage("לא הצלחנו לעדכן את המחלקה.", "error");
+      // Re-activating a department can hit the plan's department limit (J3).
+      setMessage(planLimitMessage(error) ?? "לא הצלחנו לעדכן את המחלקה.", "error");
       return;
     }
     setDepartments((current) =>
