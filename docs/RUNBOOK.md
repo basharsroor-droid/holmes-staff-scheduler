@@ -70,32 +70,36 @@ Supabase Dashboard → SQL Editor, או `execute_sql` דרך ה-MCP tools אם �
 
 ## גיבוי ושחזור
 
-הפרויקט ב-Supabase Free — אין גיבויים יומיים מנוהלים אוטומטית (זה פיצ'ר של תוכנית Pro, כ-$25/ח׳). עד שנשדרג, יש גיבוי DIY:
+**איך זה עובד:** `.github/workflows/database-backup.yml` רץ כל לילה (02:17 UTC) ומריץ את `scripts/backup-database.mjs`. הסקריפט מייצא דרך ה-API את כל השורות מכל הטבלאות ב-`public`, בדפים של 1000 שורות. רשימת הטבלאות והמפתח הראשי של כל טבלה נמצאים ב-`lib/backup-tables.mjs`. בנוסף הוא מייצא את `auth.users`, רק בשדות שצריך כדי ליצור מחדש כל משתמש עם אותו UUID — **בלי password hashes**. הכל מוצפן עם [age](https://age-encryption.org) ומועלה כ-workflow artifact שנשמר 90 יום. כל גיבוי כולל גרסת פורמט (כרגע 2), מספר שורות לכל טבלה ו-SHA-256 checksum.
 
-**איך זה עובד:** `.github/workflows/database-backup.yml` רץ כל לילה (02:17 UTC), מריץ את `scripts/backup-database.mjs` שמייצא את כל השורות מכל 23 הטבלאות דרך ה-API, כולל `operational_events` (לא `pg_dump` — הסכימה עצמה כבר מתועדת במלואה ב-`supabase/migrations/`, רק הנתונים חסרים משם), מצפין את הכל עם [age](https://age-encryption.org) ומעלה כ-workflow artifact (שמירה של 90 יום, מקסימום שGitHub מאפשר). כל גיבוי חדש כולל גרסת פורמט, מספר שורות לכל טבלה ו־SHA-256 checksum; השחזור מסרב לכתוב אם טבלה חסרה, נוספה טבלה לא צפויה, מספר השורות אינו תואם או התוכן השתנה.
+**כיסוי:** בבדיקת `Schema invariants` ב-CI רץ `scripts/check-backup-coverage.mjs` מול מסד שנבנה מהמיגרציות. הוא נכשל אם טבלה חדשה לא נכנסה לגיבוי, אם לעמודת טקסט/JSON חדשה אין כלל שחזור ("keep" או אנונימיזציה), או אם המפתח הראשי השתנה. עד 11.9.2026 שמונה טבלאות לא גובו, ביניהן `subscriptions` ו-`billing_events`, כי הרשימה נכתבה ידנית ב-16.8. בנוסף, ייצוא בלי דפים היה נחתך בשקט אחרי 1000 שורות.
 
-**ההצפנה חד-כיוונית מכוונת:** ל-CI יש רק את המפתח הציבורי (מוטבע ב-YAML, לא סוד — הצפנה איתו לא מאפשרת פענוח). המפתח הפרטי לא נשמר בשום מקום בריפו או ב-secrets — הוא אצל בשאר בלבד. גם אם ה-workflow או ה-repo ייחשפו, אי אפשר לפענח גיבוי ישן או עתידי בלעדיו.
+**ההצפנה חד-כיוונית בכוונה:** ל-CI יש רק את המפתח הציבורי, שמוטבע ב-YAML. המפתח הפרטי לא נשמר בריפו ולא ב-secrets. הוא נמצא רק אצל בשאר, במחשב שלו תחת `~/.shiftpilot-secrets/`. גם אם ה-workflow או הריפו ייחשפו, אי אפשר לפענח גיבוי בלעדיו.
 
-**מה עוד חסר להפעלה:** ה-secret `SUPABASE_SECRET_KEY` (ה-service_role key) חייב להיות מוגדר ב-GitHub Actions secrets (Settings → Secrets and variables → Actions) — זה היחיד שדורש הזנה ידנית, כי אי אפשר למשוך אותו דרך שום API. `gh secret set SUPABASE_SECRET_KEY` מהטרמינל, ולהדביק את הערך מ-Supabase Dashboard → Settings → API → `service_role`.
-
-**שחזור (Restore):**
-```bash
-RESTORE_SUPABASE_URL=<פרויקט יעד — לעולם לא production>
-RESTORE_SUPABASE_SECRET_KEY=<של פרויקט היעד>
-BACKUP_AGE_PRIVATE_KEY=<המפתח הפרטי, אצל בשאר>
-node scripts/restore-database.mjs backups/shiftpilot-backup.json.age
-```
-
-בדיקת תקינות ללא כתיבה למסד כלשהו:
+**בדיקת תקינות (לא נוגעת באף מסד):**
 ```bash
 BACKUP_AGE_PRIVATE_KEY=<המפתח הפרטי> \
-node scripts/restore-database.mjs backups/shiftpilot-backup.json.age --verify-only
+node scripts/restore-database.mjs backup.json.age --verify-only
 ```
-הסקריפט מסרב לרוץ אם `RESTORE_SUPABASE_URL` מצביע על פרויקט הפרודקשן (`forstsmvakpsreffdiwb`) — בדיקת בטיחות אחרונה, לא תחליף לכוון בזהירות מלכתחילה. יעד הגיוני: [Supabase branch](https://supabase.com/docs/guides/deployment/branching) חדש (`create_branch`), שם מריצים קודם את כל המיגרציות ואז את השחזור.
 
-**הרצה ראשונה:** בוצעה בהצלחה ב-16.8.2026 (`workflow_dispatch`, run `31944745577`) — ייצוא 22 טבלאות, הצפנה, וארטיפקט אמיתי (127KB) אומת ידנית (כותרת `AGE ENCRYPTED FILE` תקינה). בדרך נתפס ותוקן secret שגוי (`NEXT_PUBLIC_SUPABASE_URL` ב-GitHub Actions גרם ל-`fetch failed`).
+**תרגיל שחזור ל-Staging, עם אנונימיזציה:**
+```bash
+RESTORE_DATABASE_URL=<Postgres connection string של Staging> \
+BACKUP_AGE_PRIVATE_KEY=<המפתח הפרטי> \
+node scripts/restore-database.mjs backup.json.age --staging-restore
+```
+- מסרב לכל יעד שאינו פרויקט ה-Staging (`sqmstwwrdoenfumligmf`), ובמיוחד ל-Production (`forstsmvakpsreffdiwb`).
+- מסרב אם Staging לא ריק, או אם יש בו טבלה או עמודה שהפורמט לא מכיר.
+- שמות, מיילים, טלפונים, הערות ו-JSON מוחלפים בערכים סינתטיים. המזהים והקשרים בין הרשומות נשמרים. מיילים הופכים ל-`…@restore.invalid` וטוקני push ל-`restore-…`. שום הודעה שחוזרת מהגיבוי לא נשארת ממתינה לשליחה.
+- המשתמשים משוחזרים עם אותו UUID ובלי סיסמה, כך שאי אפשר להתחבר בשמם.
+- הכל רץ בטרנזקציה אחת. בזמן ההכנסה בלבד הטריגרים עוקפים עם `SET LOCAL session_replication_role = replica`. אחר כך נבדקים כל ה-FKs, מספר השורות בכל טבלה מול הגיבוי, ושאף מייל, טלפון או טוקן אמיתי לא עבר. commit מתבצע רק אם כל הבדיקות עברו. `--rollback` מריץ את כל השלבים ומבטל בסוף.
+- ניקוי אחרי התרגיל: `RESTORE_DATABASE_URL=… node scripts/restore-database.mjs --staging-cleanup`. הסקריפט מסרב אם יש ב-Staging משתמשים שהשחזור לא יצר.
 
-**Restore test:** שכבת התקינות וה־`--verify-only` קיימת ונבדקת אוטומטית, כולל זיהוי tampering וטבלאות חסרות. שחזור כתיבה מלא עדיין דורש יעד מבודד. `create_branch` של Supabase זמין כ־Staging בתשלום; העלות שנבדקה ב־21.8.2026 היא $0.01344 לשעה. אין לבצע restore לפרודקשן, והפרויקט הלא־קשור `mshro3` אינו יעד בדיקה ללא החלטה מפורשת של הבעלים.
+**שליחה החוצה חסומה מחוץ ל-Production:** לפי `lib/outbound.ts`, מייל ו-push יוצאים רק מ-runtime שמחובר למסד ה-Production, ואף פעם לא לכתובת או לטוקן סינתטיים של שחזור.
+
+**שחזור אמיתי (DR) לפרויקט חדש, עם נתונים לא-אנונימיים,** אינו מצב של הסקריפט. זו החלטה של בעל הפרויקט.
+
+**היסטוריה:** הגיבוי הראשון רץ ב-16.8.2026 (run `31944745577`). ב-11.9.2026 בוצע תרגיל השחזור הראשון. `--verify-only` עבר, אבל שחזור מלא ל-Staging ריק לא היה אפשרי: `auth.users` לא גובו, טריגרי הזמינות דחו את ההכנסה, ושמונה טבלאות חסרו בגיבוי. התיקון הוא ה-PR שמכניס את `lib/backup-tables.mjs`.
 
 ## אנשי קשר / בעלות
 

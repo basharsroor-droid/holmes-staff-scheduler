@@ -62,6 +62,20 @@ jobs:
             || { echo "::error::Check failed, but not for the planted table:"; cat probe.err; exit 1; }
           echo "Self-test passed: planted table without RLS was reported."
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Backup coverage -- every table backed up, every text/JSON column classified
+        # Against the same replayed database: a new table or text column fails
+        # here until lib/backup-tables.mjs says how it is backed up and how it
+        # is anonymized before a restore may put it in staging.
+        run: node scripts/check-backup-coverage.mjs
+
       - name: Stop database
         if: always()
         run: supabase stop --no-backup || true
