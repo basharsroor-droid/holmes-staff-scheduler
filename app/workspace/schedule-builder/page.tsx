@@ -9,15 +9,16 @@ import { FairnessEnhancer } from "@/app/workspace/schedule-builder/fairness-enha
 import { FixMySchedulePanel } from "@/app/workspace/schedule-builder/fix-my-schedule-panel";
 import { OpenShiftsManagerPanel } from "@/app/workspace/schedule-builder/open-shifts-manager-panel";
 import { ScheduleBuilderClient } from "@/app/workspace/schedule-builder/schedule-builder-client";
+import { ScheduleCalendarOverview } from "@/app/workspace/schedule-builder/schedule-calendar-overview";
 import { ScheduleDataProvider } from "@/app/workspace/schedule-builder/schedule-data";
 import { ScheduleTemplatesPanel } from "@/app/workspace/schedule-builder/schedule-templates-panel";
 import { ShiftPilotScore } from "@/app/workspace/schedule-builder/shiftpilot-score";
 import { SmartDraftPanel } from "@/app/workspace/schedule-builder/smart-draft-panel";
 import { SmartReplacementPanel } from "@/app/workspace/schedule-builder/smart-replacement-panel";
 import { TimeOffApprovalPanel } from "@/app/workspace/schedule-builder/time-off-approval-panel";
+import { EmptyState } from "@/components/workspace/empty-state";
 import { periodShiftRange, SHIFT_RANGE_LIMIT } from "@/lib/period-window";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { EmptyState } from "@/components/workspace/empty-state";
 
 export const dynamic = "force-dynamic";
 
@@ -306,6 +307,18 @@ export default async function ScheduleBuilderPage({
           status: shift.status
         }))}
       >
+        <ScheduleCalendarOverview
+          period={
+            selectedPeriod
+              ? {
+                  id: selectedPeriod.id,
+                  year: selectedPeriod.year,
+                  month: selectedPeriod.month
+                }
+              : null
+          }
+        />
+
         <ScheduleBuilderClient
           availability={availability ?? []}
           branches={branchesResult.data ?? []}

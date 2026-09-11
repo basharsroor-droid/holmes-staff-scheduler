@@ -1,0 +1,271 @@
+.calendarCard {
+  display: grid;
+  gap: 14px;
+  margin-bottom: 16px;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.calendarHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.calendarHeader h2 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 2px 0 0;
+  font-size: 22px;
+}
+
+.eyebrow {
+  margin: 0;
+  color: var(--primary);
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.holidayLegend {
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.weekdays,
+.monthGrid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.weekdays span {
+  padding: 0 2px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 900;
+  text-align: center;
+}
+
+.blankCell {
+  min-height: 88px;
+}
+
+.dayCell {
+  position: relative;
+  display: grid;
+  align-content: start;
+  gap: 5px;
+  min-width: 0;
+  min-height: 88px;
+  padding: 9px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: #fff;
+  color: var(--text);
+  text-align: right;
+  cursor: pointer;
+  transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+}
+
+.dayCell:hover {
+  border-color: color-mix(in srgb, var(--primary) 35%, var(--line));
+  box-shadow: 0 6px 18px rgba(18, 48, 104, 0.08);
+}
+
+.dayCell:active {
+  transform: scale(0.985);
+}
+
+.selected {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 12%, transparent);
+}
+
+.today .dayNumber {
+  display: inline-grid;
+  width: 26px;
+  height: 26px;
+  place-items: center;
+  border-radius: 999px;
+  background: var(--primary);
+  color: #fff;
+}
+
+.dayNumber {
+  width: fit-content;
+  font-size: 16px;
+  font-weight: 900;
+}
+
+.holiday {
+  overflow: hidden;
+  color: #9a5b00;
+  font-size: 10px;
+  font-weight: 900;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dayMeta {
+  display: grid;
+  gap: 3px;
+  margin-top: auto;
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.complete,
+.needsStaffing {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.complete {
+  color: var(--green);
+}
+
+.needsStaffing {
+  color: var(--amber);
+}
+
+.emptyDay {
+  margin-top: auto;
+  color: color-mix(in srgb, var(--muted) 60%, transparent);
+  font-size: 12px;
+}
+
+.dayDetail {
+  display: grid;
+  gap: 10px;
+  padding-top: 4px;
+  border-top: 1px solid var(--line);
+}
+
+.dayDetailHeading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.dayDetailHeading > span {
+  color: #9a5b00;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.shiftStrip {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 2px;
+  scrollbar-width: thin;
+}
+
+.shiftPill {
+  display: grid;
+  flex: 0 0 auto;
+  gap: 2px;
+  min-width: 145px;
+  padding: 9px 11px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--surface-muted, #f7f9fc);
+}
+
+.shiftPill small,
+.noShifts {
+  color: var(--muted);
+}
+
+.noShifts {
+  margin: 0;
+  font-size: 13px;
+}
+
+@media (max-width: 720px) {
+  .calendarCard {
+    gap: 10px;
+    margin: 0 0 12px;
+    padding: 12px;
+    border-radius: 20px;
+  }
+
+  .calendarHeader {
+    align-items: center;
+  }
+
+  .calendarHeader h2 {
+    font-size: 18px;
+  }
+
+  .holidayLegend {
+    display: none;
+  }
+
+  .weekdays,
+  .monthGrid {
+    gap: 4px;
+  }
+
+  .blankCell,
+  .dayCell {
+    min-height: 66px;
+  }
+
+  .dayCell {
+    gap: 3px;
+    padding: 6px 5px;
+    border-radius: 10px;
+  }
+
+  .dayNumber {
+    font-size: 14px;
+  }
+
+  .today .dayNumber {
+    width: 22px;
+    height: 22px;
+  }
+
+  .holiday {
+    font-size: 8px;
+  }
+
+  .dayMeta {
+    font-size: 8px;
+  }
+
+  .dayMeta > span:first-child {
+    display: none;
+  }
+
+  .dayDetail {
+    gap: 8px;
+  }
+
+  .dayDetailHeading {
+    align-items: flex-start;
+    font-size: 13px;
+  }
+
+  .shiftPill {
+    min-width: 132px;
+    padding: 8px 10px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dayCell {
+    transition: none;
+  }
+}
