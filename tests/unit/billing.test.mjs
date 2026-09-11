@@ -86,3 +86,24 @@ test("quote rejects invalid invoice numbers", () => {
     /positive integer/
   );
 });
+
+test("checkout selection only offers self-serve plans and defaults to monthly", async () => {
+  const { parseCheckoutSelection, SELF_SERVE_PLAN_IDS } = await import("../../lib/billing.ts");
+  assert.ok(!SELF_SERVE_PLAN_IDS.includes("enterprise"));
+  assert.deepEqual(parseCheckoutSelection("solo", "annual", "business"), { planId: "solo", period: "annual" });
+  // Unknown or custom-quote plan -> the workspace's current plan, if it can be bought online.
+  assert.deepEqual(parseCheckoutSelection("enterprise", undefined, "network"), {
+    planId: "network",
+    period: "monthly"
+  });
+  assert.deepEqual(parseCheckoutSelection("nope", "weekly", "business_pro"), {
+    planId: "business_pro",
+    period: "monthly"
+  });
+  // Neither is self-serve -> the default trial plan.
+  assert.deepEqual(parseCheckoutSelection(undefined, undefined, "enterprise"), {
+    planId: "business",
+    period: "monthly"
+  });
+  assert.deepEqual(parseCheckoutSelection(undefined, undefined, null), { planId: "business", period: "monthly" });
+});

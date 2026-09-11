@@ -1,4 +1,4 @@
-import { LAUNCH_OFFER, getPlan, type PlanId } from "./plans.ts";
+import { LAUNCH_OFFER, PLANS, getPlan, type PlanId } from "./plans.ts";
 
 export type BillingPeriod = "monthly" | "annual";
 export type BillingProviderKey = "grow" | "cardcom" | "tranzila" | "payplus" | "hyp";
@@ -91,8 +91,7 @@ export function quoteInvoice(input: InvoiceQuoteInput): InvoiceQuote {
   }
 
   const launchOfferApplied =
-    isLaunchOfferEligible(input.workspaceCreatedAt, input.period) &&
-    input.paidInvoiceNumber <= LAUNCH_OFFER.months;
+    isLaunchOfferEligible(input.workspaceCreatedAt, input.period) && input.paidInvoiceNumber <= LAUNCH_OFFER.months;
 
   if (!launchOfferApplied) {
     return {
@@ -125,4 +124,23 @@ export function resolveBillingProvider(value: string | undefined): BillingProvid
   }
 
   return { provider: value as BillingProviderKey, enabled: true };
+}
+
+/** Plans a customer can buy online: every plan with a list price (Enterprise is a custom quote). */
+export const SELF_SERVE_PLAN_IDS: PlanId[] = PLANS.filter((plan) => plan.monthlyIls !== null).map((plan) => plan.id);
+
+/**
+ * Reads the checkout page's `?plan=&period=` safely: an unknown or custom-quote
+ * plan falls back to the workspace's current plan (if self-serve) or to the
+ * default trial plan, and anything but "annual" is monthly.
+ */
+export function parseCheckoutSelection(
+  plan: string | undefined,
+  period: string | undefined,
+  fallbackPlan: string | null | undefined
+): { planId: PlanId; period: BillingPeriod } {
+  const isSelfServe = (value: string | null | undefined): value is PlanId =>
+    !!value && SELF_SERVE_PLAN_IDS.includes(value as PlanId);
+  const planId = isSelfServe(plan) ? plan : isSelfServe(fallbackPlan) ? fallbackPlan : "business";
+  return { planId, period: period === "annual" ? "annual" : "monthly" };
 }

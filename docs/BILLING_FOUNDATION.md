@@ -47,6 +47,10 @@ Every future adapter implements `BillingGateway` from `lib/billing.ts`:
 
 The product pricing rules stay in ShiftPilot. A provider receives the final amount or plan instruction; it does not become the source of truth for ShiftPilot prices.
 
+## Checkout page (template, not live)
+
+`/workspace/subscription/checkout` (owner/admin) is built and linked from "המנוי שלי": plan and period are chosen by link (`?plan=&period=`, parsed by `parseCheckoutSelection`, self-serve plans only), the order summary comes from `quoteInvoice` (first charge, launch offer, charges after the offer), and it warns when current usage exceeds the chosen plan's quotas. The pay button is **disabled**. To go live: add a server action that builds the `BillingGateway` adapter, calls `createCheckout({ organizationId, planId, period, customerEmail })` and redirects to the provider's hosted page; enable the button only when `resolveBillingProvider(process.env.BILLING_PROVIDER).enabled` **and** an adapter exists. `BILLING_PROVIDER` is server-only and defaults to disabled.
+
 ## When we connect Grow (or another provider)
 
 Do this only when ShiftPilot is ready to collect money:
