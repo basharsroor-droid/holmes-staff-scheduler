@@ -11,10 +11,11 @@ const STATUS_WARNING: Partial<Record<string, string>> = {
   read_only: "החשבון במצב צפייה בלבד. תשלום יפעיל אותו מחדש."
 };
 
-function daysLeft(trialEndsAt: string | null): number | null {
+// Milliseconds until the trial ends; negative once it has ended. (It used to
+// be clamped to 0 days, so an expired trial showed "the last trial day" forever.)
+function msLeft(trialEndsAt: string | null): number | null {
   if (!trialEndsAt) return null;
-  const ms = new Date(trialEndsAt).getTime() - Date.now();
-  return Math.max(0, Math.ceil(ms / 86_400_000));
+  return new Date(trialEndsAt).getTime() - Date.now();
 }
 
 export async function TrialBanner({ organizationId }: { organizationId: string }) {
@@ -28,9 +29,18 @@ export async function TrialBanner({ organizationId }: { organizationId: string }
   if (!data) return null;
 
   if (data.status === "trialing") {
-    const days = daysLeft(data.trial_ends_at);
+    const left = msLeft(data.trial_ends_at);
+    if (left !== null && left <= 0) {
+      return (
+        <div className="trial-pill warn" role="status">
+          <b>תקופת הניסיון הסתיימה. כדי להמשיך לעבוד בלי הפרעה, בחרו מסלול.</b>
+          <Link href="/pricing">מסלולים ומחירים</Link>
+        </div>
+      );
+    }
+    const days = left === null ? null : Math.ceil(left / 86_400_000);
     const label =
-      days === null ? "תקופת ניסיון פעילה" : days === 0 ? "יום הניסיון האחרון" : days === 1 ? "נותר יום ניסיון אחרון" : `נותרו ${days} ימי ניסיון`;
+      days === null ? "תקופת ניסיון פעילה" : days === 1 ? "נותר יום ניסיון אחרון" : `נותרו ${days} ימי ניסיון`;
     return (
       <div className="trial-pill" role="status">
         <b>{label}</b>
