@@ -8,6 +8,7 @@ import { useStatusMessage } from "@/lib/hooks/use-status-message";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import type { Database } from "@/types/database";
 import { SUPPORT_TICKET_COLUMNS } from "@/lib/support-ticket-columns";
+import { EmptyState } from "@/components/workspace/empty-state";
 
 type Category = Database["public"]["Enums"]["support_ticket_category"];
 type Priority = Database["public"]["Enums"]["support_ticket_priority"];
@@ -365,8 +366,7 @@ export function SupportClient({
             ))}
         </div>
         {!tickets.filter((ticket) => matchesFilter(ticket, filter)).length ? (
-          <div className="empty-template-state">
-            <LifeBuoy size={40} />
+          <EmptyState icon={LifeBuoy} iconSize={40}>
             {!tickets.length ? (
               <>
                 <h2>עדיין אין פניות</h2>
@@ -378,7 +378,7 @@ export function SupportClient({
                 <p>אפשר לעבור ל&quot;{filterLabels.all}&quot; כדי לראות את כל הפניות.</p>
               </>
             )}
-          </div>
+          </EmptyState>
         ) : null}
       </section>
     </div>

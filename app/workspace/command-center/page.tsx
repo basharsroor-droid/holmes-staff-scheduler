@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { EmptyState } from "@/components/workspace/empty-state";
 
 export const dynamic = "force-dynamic";
 
@@ -203,14 +204,13 @@ export default async function ManagerCommandCenterPage() {
 
       {!activePeriod ? (
         <section className="template-list-card">
-          <div className="empty-template-state">
-            <CalendarRange size={44} />
+          <EmptyState icon={CalendarRange} iconSize={44}>
             <h2>עדיין לא נפתחה תקופת עבודה</h2>
-            <p>כדי לקבל תמונת מצב אמיתית על כיסוי, בקשות והמלצות פעולה, פתחו קודם תקופת עבודה שבועית או חודשית.</p>
+            <p>כדי לקבל תמונת מצב אמיתית על כיסוי, בקשות והמלצות פעולה, פתחו קודם חודש עבודה.</p>
             <Link className="button primary" href="/workspace/work-months">
               <PlusCircle size={16} /> פתיחת תקופת עבודה
             </Link>
-          </div>
+          </EmptyState>
         </section>
       ) : (
         <>

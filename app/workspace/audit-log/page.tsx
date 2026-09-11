@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { ArrowRight, History, ShieldCheck } from "lucide-react";
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { EmptyState } from "@/components/workspace/empty-state";
 
 export const dynamic = "force-dynamic";
 
@@ -134,11 +135,12 @@ export default async function AuditLogPage() {
             </table>
           </div>
         ) : (
-          <div className="empty-template-state">
-            <History size={40} />
-            <h2>עדיין אין פעולות מתועדות</h2>
-            <p>שינויים חדשים בעסק, בצוות, במשמרות ובחודשי העבודה יופיעו כאן אוטומטית.</p>
-          </div>
+          <EmptyState
+            icon={History}
+            iconSize={40}
+            title="עדיין אין פעולות מתועדות"
+            description="שינויים חדשים בעסק, בצוות, במשמרות ובחודשי העבודה יופיעו כאן אוטומטית."
+          />
         )}
       </section>
     </main>

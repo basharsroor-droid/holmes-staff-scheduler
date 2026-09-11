@@ -18,6 +18,7 @@ import { StatusMessage } from "@/components/workspace/status-message";
 import { useStatusMessage } from "@/lib/hooks/use-status-message";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import type { Database } from "@/types/database";
+import { EmptyState } from "@/components/workspace/empty-state";
 
 type AvailabilityStatus = Database["public"]["Enums"]["availability_status"];
 type Period = {
@@ -142,11 +143,12 @@ export function SubmissionsClient({
   if (!periods.length)
     return (
       <section className="template-list-card">
-        <div className="empty-template-state">
-          <ClipboardCheck size={42} />
-          <h2>אין עדיין חודשי עבודה</h2>
-          <p>פתח חודש עבודה כדי להתחיל לקבל הגשות.</p>
-        </div>
+        <EmptyState
+          icon={ClipboardCheck}
+          iconSize={42}
+          title="אין עדיין חודשי עבודה"
+          description="פתח חודש עבודה כדי להתחיל לקבל הגשות."
+        />
       </section>
     );
 
@@ -320,10 +322,7 @@ export function SubmissionsClient({
           );
         })}
         {!visibleWorkers.length ? (
-          <div className="empty-template-state">
-            <ClipboardCheck size={38} />
-            <p>אין עובדים בקטגוריה שנבחרה.</p>
-          </div>
+          <EmptyState icon={ClipboardCheck} iconSize={38} description="אין עובדים בקטגוריה שנבחרה." />
         ) : null}
       </div>
       <StatusMessage message={message} kind={kind} />
