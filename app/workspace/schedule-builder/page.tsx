@@ -14,12 +14,28 @@ import { ShiftPilotScore } from "@/app/workspace/schedule-builder/shiftpilot-sco
 import { SmartDraftPanel } from "@/app/workspace/schedule-builder/smart-draft-panel";
 import { SmartReplacementPanel } from "@/app/workspace/schedule-builder/smart-replacement-panel";
 import { TimeOffApprovalPanel } from "@/app/workspace/schedule-builder/time-off-approval-panel";
+import { periodShiftRange, SHIFT_RANGE_LIMIT } from "@/lib/period-window";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { EmptyState } from "@/components/workspace/empty-state";
 
 export const dynamic = "force-dynamic";
 
-export default async function ScheduleBuilderPage() {
+const SHIFT_COLUMNS =
+  "id, schedule_period_id, shift_template_id, shift_date, name, start_time, end_time, required_employees, status, open_for_requests";
+
+// B3 (docs/REMEDIATION_PLAN.md): this page used to load every work month, every
+// shift and every assignment the business ever had on each visit. It now loads
+// the selected month (?period=, default: the latest) and every organization
+// shift within a week of it -- the builder's overlap, weekly-hours and rest
+// checks look across months and departments -- plus published future shifts
+// for the Open Shifts panel. Shift counts per month come from one small SQL
+// function. Five sequential stages: user, membership, and three parallel
+// batches.
+export default async function ScheduleBuilderPage({
+  searchParams
+}: {
+  searchParams: Promise<{ period?: string | string[] }>;
+}) {
   const supabase = await createSupabaseServerClient();
   const {
     data: { user }
@@ -43,7 +59,11 @@ export default async function ScheduleBuilderPage() {
     periodsResult,
     templatesResult,
     membershipsResult,
-    departmentMembershipsResult
+    departmentMembershipsResult,
+    { data: leaveRequests },
+    { data: savedTemplates },
+    { data: shiftCounts },
+    { period: requestedPeriod }
   ] = await Promise.all([
     supabase.from("organizations").select("name, min_rest_hours, pilot_mode").eq("id", organizationId).single(),
     supabase.from("branches").select("id, name").eq("organization_id", organizationId).eq("active", true).order("name"),
@@ -71,49 +91,68 @@ export default async function ScheduleBuilderPage() {
       .eq("organization_id", organizationId)
       .eq("status", "active")
       .in("role", ["employee", "manager"]),
-    supabase.from("department_memberships").select("membership_id, department_id").eq("organization_id", organizationId)
-  ]);
-  if (!organizationResult.data) redirect("/workspace");
-  const pilotMode = !!organizationResult.data.pilot_mode;
-
-  const db = supabase;
-  const [{ data: leaveRequests }, { data: savedTemplates }] = await Promise.all([
-    db
+    supabase
+      .from("department_memberships")
+      .select("membership_id, department_id")
+      .eq("organization_id", organizationId),
+    supabase
       .from("leave_requests")
       .select("id, user_id, leave_type, start_date, end_date, note, status")
       .eq("organization_id", organizationId)
       .order("start_date", { ascending: true }),
-    db
+    supabase
       .from("schedule_templates")
       .select("id, branch_id, department_id, name, created_at")
       .eq("organization_id", organizationId)
-      .order("created_at", { ascending: false })
+      .order("created_at", { ascending: false }),
+    supabase.rpc("period_shift_counts"),
+    searchParams
   ]);
+  if (!organizationResult.data) redirect("/workspace");
+  const pilotMode = !!organizationResult.data.pilot_mode;
+
+  const periods = periodsResult.data ?? [];
+  const selectedPeriod =
+    periods.find((item) => typeof requestedPeriod === "string" && item.id === requestedPeriod) ?? periods[0];
+  const range = selectedPeriod ? periodShiftRange(selectedPeriod.year, selectedPeriod.month) : null;
+  const today = new Date().toISOString().slice(0, 10);
 
   const userIds = (membershipsResult.data ?? []).map((item) => item.user_id);
-  const periodIds = (periodsResult.data ?? []).map((item) => item.id);
-  const [{ data: profiles }, { data: shifts }, { data: submissions }] = await Promise.all([
+  const [{ data: profiles }, { data: shifts }, { data: submissions }, { data: openShifts }] = await Promise.all([
     userIds.length
       ? supabase.from("profiles").select("id, first_name, last_name, color").in("id", userIds)
       : Promise.resolve({ data: [] }),
-    periodIds.length
-      ? db
+    range
+      ? supabase
           .from("shifts")
-          .select(
-            "id, schedule_period_id, shift_template_id, shift_date, name, start_time, end_time, required_employees, status, open_for_requests"
-          )
-          .in("schedule_period_id", periodIds)
+          .select(SHIFT_COLUMNS)
+          .eq("organization_id", organizationId)
+          .gte("shift_date", range.from)
+          .lte("shift_date", range.to)
           .order("shift_date")
           .order("start_time")
+          .limit(SHIFT_RANGE_LIMIT)
       : Promise.resolve({ data: [] }),
-    periodIds.length
+    selectedPeriod
       ? supabase
           .from("availability_submissions")
           .select("id, schedule_period_id, user_id, submitted_at")
-          .in("schedule_period_id", periodIds)
-      : Promise.resolve({ data: [] })
+          .eq("schedule_period_id", selectedPeriod.id)
+      : Promise.resolve({ data: [] }),
+    pilotMode
+      ? Promise.resolve({ data: [] })
+      : supabase
+          .from("shifts")
+          .select(SHIFT_COLUMNS)
+          .eq("organization_id", organizationId)
+          .eq("status", "published")
+          .gte("shift_date", today)
+          .order("shift_date")
+          .order("start_time")
+          .limit(SHIFT_RANGE_LIMIT)
   ]);
-  const shiftIds = (shifts ?? []).map((item) => item.id);
+  const shiftIds = [...new Set([...(shifts ?? []), ...(openShifts ?? [])].map((item) => item.id))];
+  const openShiftIds = (openShifts ?? []).map((item) => item.id);
   const submissionIds = (submissions ?? []).map((item) => item.id);
   const savedTemplateIds = (savedTemplates ?? []).map((item) => item.id);
   const [{ data: assignments }, { data: availability }, { data: openShiftRequests }, { data: savedTemplateItems }] =
@@ -127,16 +166,19 @@ export default async function ScheduleBuilderPage() {
             .select("submission_id, shift_template_id, shift_date, status")
             .in("submission_id", submissionIds)
         : Promise.resolve({ data: [] }),
-      shiftIds.length
-        ? db
+      openShiftIds.length
+        ? supabase
             .from("open_shift_requests")
             .select("id, shift_id, user_id, status, created_at")
-            .in("shift_id", shiftIds)
+            .in("shift_id", openShiftIds)
             .eq("status", "pending")
             .order("created_at")
         : Promise.resolve({ data: [] }),
       savedTemplateIds.length
-        ? db.from("schedule_template_items").select("schedule_template_id").in("schedule_template_id", savedTemplateIds)
+        ? supabase
+            .from("schedule_template_items")
+            .select("schedule_template_id")
+            .in("schedule_template_id", savedTemplateIds)
         : Promise.resolve({ data: [] })
     ]);
 
@@ -174,14 +216,12 @@ export default async function ScheduleBuilderPage() {
       end_date: request.end_date
     }));
 
-  const periodMap = new Map((periodsResult.data ?? []).map((item) => [item.id, item]));
+  const periodMap = new Map(periods.map((item) => [item.id, item]));
   const assignmentCountMap = new Map<string, number>();
   for (const assignment of assignments ?? [])
     assignmentCountMap.set(assignment.shift_id, (assignmentCountMap.get(assignment.shift_id) ?? 0) + 1);
-  const managerOpenShifts = (shifts ?? [])
-    .filter(
-      (shift) => shift.status === "published" && (assignmentCountMap.get(shift.id) ?? 0) < shift.required_employees
-    )
+  const managerOpenShifts = (openShifts ?? [])
+    .filter((shift) => (assignmentCountMap.get(shift.id) ?? 0) < shift.required_employees)
     .map((shift) => {
       const p = periodMap.get(shift.schedule_period_id);
       return {
@@ -216,17 +256,15 @@ export default async function ScheduleBuilderPage() {
     requires_senior_employee: template.requires_senior_employee
   }));
 
-  const shiftCountByPeriod = new Map<string, number>();
-  for (const shift of shifts ?? []) {
-    if (shift.status === "cancelled") continue;
-    shiftCountByPeriod.set(shift.schedule_period_id, (shiftCountByPeriod.get(shift.schedule_period_id) ?? 0) + 1);
-  }
+  const periodShiftCounts: Record<string, number> = Object.fromEntries(
+    (shiftCounts ?? []).map((row) => [row.schedule_period_id, Number(row.shift_count)])
+  );
   const templateItemCount = new Map<string, number>();
   for (const item of savedTemplateItems ?? [])
     templateItemCount.set(item.schedule_template_id, (templateItemCount.get(item.schedule_template_id) ?? 0) + 1);
-  const templatePeriods = (periodsResult.data ?? []).map((period) => ({
+  const templatePeriods = periods.map((period) => ({
     ...period,
-    shift_count: shiftCountByPeriod.get(period.id) ?? 0
+    shift_count: periodShiftCounts[period.id] ?? 0
   }));
   const reusableTemplates = (savedTemplates ?? []).map((template) => ({
     ...template,
@@ -248,7 +286,11 @@ export default async function ScheduleBuilderPage() {
         </div>
       </header>
 
+      {/* Keyed by month: choosing another month navigates (?period=), and the
+          builder remounts with that month's server data instead of keeping
+          the previous month's local state. */}
       <ScheduleBuilderClient
+        key={selectedPeriod?.id ?? "none"}
         assignments={assignments ?? []}
         availability={availability ?? []}
         branches={branchesResult.data ?? []}
@@ -258,7 +300,9 @@ export default async function ScheduleBuilderPage() {
         initialMinRestHours={organizationResult.data.min_rest_hours}
         leaveRequests={approvedTimeOff}
         organizationId={organizationId}
-        periods={periodsResult.data ?? []}
+        periods={periods}
+        selectedPeriodId={selectedPeriod?.id ?? ""}
+        periodShiftCounts={periodShiftCounts}
         shifts={(shifts ?? []).map((shift) => ({
           id: shift.id,
           schedule_period_id: shift.schedule_period_id,
@@ -295,7 +339,7 @@ export default async function ScheduleBuilderPage() {
           <ScheduleTemplatesPanel periods={templatePeriods} initialTemplates={reusableTemplates} />
           <EmployeePreferenceEnhancer />
           <ConflictDetectorEnhancer
-            periods={periodsResult.data ?? []}
+            periods={periods}
             workers={workers}
             submissions={submissions ?? []}
             availability={availability ?? []}
@@ -314,7 +358,7 @@ export default async function ScheduleBuilderPage() {
           )}
           {!pilotMode && (
             <ShiftPilotScore
-              periods={periodsResult.data ?? []}
+              periods={periods}
               workers={workers}
               submissions={submissions ?? []}
               availability={availability ?? []}
@@ -324,7 +368,7 @@ export default async function ScheduleBuilderPage() {
           )}
           {!pilotMode && (
             <FairnessEnhancer
-              periods={periodsResult.data ?? []}
+              periods={periods}
               workers={workers}
               submissions={submissions ?? []}
               availability={availability ?? []}
@@ -334,7 +378,7 @@ export default async function ScheduleBuilderPage() {
             <FixMySchedulePanel
               organizationId={organizationId}
               currentUserId={user.id}
-              periods={periodsResult.data ?? []}
+              periods={periods}
               workers={workers}
               submissions={submissions ?? []}
               availability={availability ?? []}
@@ -347,7 +391,7 @@ export default async function ScheduleBuilderPage() {
             <SmartReplacementPanel
               organizationId={organizationId}
               currentUserId={user.id}
-              periods={periodsResult.data ?? []}
+              periods={periods}
               workers={workers}
               submissions={submissions ?? []}
               availability={availability ?? []}
@@ -360,7 +404,7 @@ export default async function ScheduleBuilderPage() {
             <SmartDraftPanel
               organizationId={organizationId}
               currentUserId={user.id}
-              periods={periodsResult.data ?? []}
+              periods={periods}
               workers={workers}
               submissions={submissions ?? []}
               availability={availability ?? []}
