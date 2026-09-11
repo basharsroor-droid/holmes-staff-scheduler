@@ -1,10 +1,12 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { CalendarDays, CheckCircle2, UsersRound } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
+import { CalendarDays, CheckCircle2, ChevronLeft, ChevronRight, UsersRound } from "lucide-react";
 
 import { useScheduleData } from "@/app/workspace/schedule-builder/schedule-data";
 import { getIsraeliHolidaysForMonth } from "@/lib/israeli-holidays";
+import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 
 import styles from "./schedule-calendar-overview.module.css";
 
@@ -12,6 +14,11 @@ type Period = {
   id: string;
   year: number;
   month: number;
+};
+
+type NavigationPeriod = Period & {
+  branch_id: string;
+  department_id: string;
 };
 
 const monthNames = [
@@ -42,8 +49,39 @@ function localTodayKey() {
 
 export function ScheduleCalendarOverview({ period }: { period: Period | null }) {
   const { shifts, assignments } = useScheduleData();
+  const router = useRouter();
+  const supabase = useMemo(() => createSupabaseBrowserClient(), []);
   const today = localTodayKey();
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
+  const [navigationPeriods, setNavigationPeriods] = useState<NavigationPeriod[]>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    async function loadNavigationPeriods() {
+      if (!period) return;
+      const { data } = await supabase
+        .from("schedule_periods")
+        .select("id, branch_id, department_id, year, month")
+        .order("year", { ascending: true })
+        .order("month", { ascending: true });
+      if (cancelled || !data) return;
+
+      const current = data.find((item) => item.id === period.id);
+      if (!current) return;
+
+      setNavigationPeriods(
+        data.filter(
+          (item) => item.branch_id === current.branch_id && item.department_id === current.department_id
+        ) as NavigationPeriod[]
+      );
+    }
+
+    void loadNavigationPeriods();
+    return () => {
+      cancelled = true;
+    };
+  }, [period, supabase]);
 
   const calendar = useMemo(() => {
     if (!period) return null;
@@ -65,6 +103,18 @@ export function ScheduleCalendarOverview({ period }: { period: Period | null }) 
 
   if (!period || !calendar) return null;
 
+  const currentNavigationIndex = navigationPeriods.findIndex((item) => item.id === period.id);
+  const previousPeriod = currentNavigationIndex > 0 ? navigationPeriods[currentNavigationIndex - 1] : null;
+  const nextPeriod =
+    currentNavigationIndex >= 0 && currentNavigationIndex < navigationPeriods.length - 1
+      ? navigationPeriods[currentNavigationIndex + 1]
+      : null;
+
+  const goToPeriod = (periodId: string) => {
+    setSelectedDate(null);
+    router.push(`/workspace/schedule-builder?period=${periodId}`);
+  };
+
   const effectiveSelectedDate =
     selectedDate ??
     (today.startsWith(`${period.year}-${String(period.month).padStart(2, "0")}-`)
@@ -84,6 +134,50 @@ export function ScheduleCalendarOverview({ period }: { period: Period | null }) 
           </h2>
         </div>
         <span className={styles.holidayLegend}>חגים ומועדים בישראל מסומנים בלוח</span>
+      </div>
+
+      <div className={styles.monthNavigation} aria-label="ניווט בין חודשי הסידור">
+        <button
+          type="button"
+          className={styles.monthNavButton}
+          disabled={!previousPeriod}
+          onClick={() => previousPeriod && goToPeriod(previousPeriod.id)}
+          aria-label="לחודש הקודם"
+        >
+          <ChevronRight size={18} />
+          <span>הקודם</span>
+        </button>
+
+        <select
+          className={styles.monthSelect}
+          aria-label="בחירת חודש"
+          value={period.id}
+          onChange={(event) => goToPeriod(event.target.value)}
+          disabled={!navigationPeriods.length}
+        >
+          {navigationPeriods.length ? (
+            navigationPeriods.map((item) => (
+              <option value={item.id} key={item.id}>
+                {monthNames[item.month - 1]} {item.year}
+              </option>
+            ))
+          ) : (
+            <option value={period.id}>
+              {monthNames[period.month - 1]} {period.year}
+            </option>
+          )}
+        </select>
+
+        <button
+          type="button"
+          className={styles.monthNavButton}
+          disabled={!nextPeriod}
+          onClick={() => nextPeriod && goToPeriod(nextPeriod.id)}
+          aria-label="לחודש הבא"
+        >
+          <span>הבא</span>
+          <ChevronLeft size={18} />
+        </button>
       </div>
 
       <div className={styles.weekdays} aria-hidden="true">
