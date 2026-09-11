@@ -51,7 +51,9 @@ export function ScheduleCalendarOverview({ period }: { period: Period | null }) 
     const daysInMonth = new Date(period.year, period.month, 0).getDate();
     const firstWeekday = new Date(period.year, period.month - 1, 1).getDay();
     const holidays = getIsraeliHolidaysForMonth(period.year, period.month);
-    const monthShifts = shifts.filter((shift) => shift.schedule_period_id === period.id && shift.status !== "cancelled");
+    const monthShifts = shifts.filter(
+      (shift) => shift.schedule_period_id === period.id && shift.status !== "cancelled"
+    );
 
     return {
       daysInMonth,
