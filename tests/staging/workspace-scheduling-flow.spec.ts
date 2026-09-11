@@ -39,7 +39,8 @@ async function submitAvailability(page: Page) {
   await choices.nth(0).selectOption("available");
   await choices.nth(1).selectOption("available");
   await page.getByRole("button", { name: /שליחה למנהל/ }).click();
-  await expect(page.getByText("הזמינות נשלחה")).toBeVisible();
+  // The deadline banner also reads "הזמינות נשלחה"; assert the success message.
+  await expect(page.getByText("הזמינות נשלחה למנהל בהצלחה.")).toBeVisible();
 }
 
 test("availability -> schedule -> publish -> swap -> approval", async ({ browser }) => {
