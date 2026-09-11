@@ -17,6 +17,16 @@ import {
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
+// All four values organizations.schedule_cadence can hold. Anything that
+// wasn't "weekly" used to show as monthly, so biweekly and custom
+// workspaces saw the wrong frequency.
+const cadenceLabels: Record<string, string> = {
+  weekly: "שבועית",
+  biweekly: "דו-שבועית",
+  monthly: "חודשית",
+  custom: "מותאמת אישית"
+};
+
 export const dynamic = "force-dynamic";
 
 type Period = {
@@ -261,7 +271,7 @@ export default async function PilotLaunchPage() {
           <div>
             <p className="eyebrow">מחזור ראשון</p>
             <h2>{periodLabel(activePeriod)}</h2>
-            <p>תדירות: {organization.schedule_cadence === "weekly" ? "שבועית" : "חודשית"}</p>
+            <p>תדירות: {cadenceLabels[organization.schedule_cadence] ?? organization.schedule_cadence}</p>
           </div>
           <span className={`status-chip ${published ? "active" : "warning"}`}>{published ? "פורסם" : "בתהליך"}</span>
         </div>
