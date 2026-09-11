@@ -196,8 +196,9 @@ export default async function CheckoutPage({
               <span>
                 <strong>לתשלום בחיוב הראשון: {ils(first.amountIls)}</strong>
                 <small>
-                  {period === "annual" ? "פעם בשנה" : "פעם בחודש"}, בסיום תקופת הניסיון · לפני מע״מ · חשבונית תישלח ל-
-                  {user.email}
+                  {period === "annual" ? "פעם בשנה" : "פעם בחודש"},{" "}
+                  {usage?.subscription_status === "trialing" ? "החל מסיום תקופת הניסיון" : "החל מתקופת החיוב הבאה"} ·
+                  לפני מע״מ · פרטי החיוב יישלחו ל-{user.email}
                 </small>
               </span>
             </div>
