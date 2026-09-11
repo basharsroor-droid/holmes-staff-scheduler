@@ -196,7 +196,10 @@ export default async function SubscriptionPage() {
               </div>
             </div>
             <div className="actions">
-              <Link className="button primary" href="/pricing">
+              <Link className="button primary" href="/workspace/subscription/checkout">
+                בחירת מסלול ותשלום
+              </Link>
+              <Link className="button" href="/pricing">
                 השוואת מסלולים
               </Link>
               <Link className="button" href="/workspace/support">
