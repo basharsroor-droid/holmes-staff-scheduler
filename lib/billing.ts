@@ -1,4 +1,4 @@
-import { LAUNCH_OFFER, getPlan, type PlanId } from "./plans";
+import { LAUNCH_OFFER, getPlan, type PlanId } from "./plans.ts";
 
 export type BillingPeriod = "monthly" | "annual";
 export type BillingProviderKey = "grow" | "cardcom" | "tranzila" | "payplus" | "hyp";
