@@ -2111,6 +2111,13 @@ export type Database = {
         Returns: number
       }
       mark_my_notifications_read: { Args: never; Returns: number }
+      period_shift_counts: {
+        Args: never
+        Returns: {
+          schedule_period_id: string
+          shift_count: number
+        }[]
+      }
       publish_schedule_period: {
         Args: { target_period_id: string }
         Returns: number

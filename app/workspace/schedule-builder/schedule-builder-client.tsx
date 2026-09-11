@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   AlertTriangle,
   CalendarRange,
@@ -120,6 +121,8 @@ export function ScheduleBuilderClient({
   currentUserId,
   callerRole,
   periods,
+  selectedPeriodId,
+  periodShiftCounts,
   branches,
   departments,
   templates,
@@ -135,6 +138,8 @@ export function ScheduleBuilderClient({
   currentUserId: string;
   callerRole: string;
   periods: Period[];
+  selectedPeriodId: string;
+  periodShiftCounts: Record<string, number>;
   branches: Branch[];
   departments: Department[];
   templates: Template[];
@@ -147,7 +152,7 @@ export function ScheduleBuilderClient({
   initialMinRestHours: number | null;
 }) {
   const supabase = useMemo(() => createSupabaseBrowserClient(), []);
-  const [selectedPeriodId, setSelectedPeriodId] = useState(periods[0]?.id ?? "");
+  const router = useRouter();
   const [shifts, setShifts] = useState(initialShifts);
   const [assignments, setAssignments] = useState(initialAssignments);
   const [busy, setBusy] = useState("");
@@ -169,9 +174,9 @@ export function ScheduleBuilderClient({
   // Cancelled shifts drop out of the active board entirely -- they're no
   // longer part of what needs staffing, matching the same soft-delete
   // treatment already used elsewhere in this schema (e.g. swap_status).
-  // Keep every active shift loaded for the organization available to
-  // cross-period checks. The board still renders only the selected month,
-  // while weekly-hours, overlap and rest checks must see adjacent months.
+  // The server loads every organization shift within a week of the selected
+  // month (B3). The board renders only the selected month; weekly-hours,
+  // overlap and rest checks use the whole window, which spans adjacent months.
   const activeShifts = shifts.filter((item) => item.status !== "cancelled");
   const periodShifts = activeShifts.filter((item) => item.schedule_period_id === selectedPeriodId);
   // Only periods in the same branch that actually have shifts already are
@@ -180,9 +185,7 @@ export function ScheduleBuilderClient({
   const duplicateCandidates = period
     ? periods.filter(
         (item) =>
-          item.department_id === period.department_id &&
-          item.id !== period.id &&
-          shifts.some((shift) => shift.schedule_period_id === item.id)
+          item.department_id === period.department_id && item.id !== period.id && (periodShiftCounts[item.id] ?? 0) > 0
       )
     : [];
   const periodSubmissions = submissions.filter(
@@ -238,9 +241,9 @@ export function ScheduleBuilderClient({
     );
   }
 
-  // Sunday-Saturday, matching the Israeli work week. `activeShifts` contains
-  // every loaded schedule period in the organization, so a week spanning two
-  // calendar months is counted as one complete week.
+  // Sunday-Saturday, matching the Israeli work week. `activeShifts` covers the
+  // whole organization for the selected month plus a week either side, so a
+  // week spanning two calendar months is counted as one complete week.
   function weeklyHours(userId: string, weekKey: string) {
     return activeShifts
       .filter(
@@ -575,7 +578,7 @@ export function ScheduleBuilderClient({
             className="input schedule-period-select"
             aria-label="בחירת חודש, סניף ומחלקה"
             value={selectedPeriodId}
-            onChange={(event) => setSelectedPeriodId(event.target.value)}
+            onChange={(event) => router.push(`/workspace/schedule-builder?period=${event.target.value}`)}
           >
             {periods.map((item) => (
               <option value={item.id} key={item.id}>
