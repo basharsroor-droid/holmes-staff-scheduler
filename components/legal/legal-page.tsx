@@ -27,10 +27,6 @@ export async function LegalPage({
         <p className="eyebrow">SHIFT PILOT</p>
         <h1>{title}</h1>
         <p className="legal-updated">עודכן לאחרונה: {updatedAt}</p>
-        <div className="legal-notice">
-          מסמך זה נועד להסביר בצורה ברורה את כללי השימוש במערכת. לפני השקה מסחרית רחבה מומלץ להעבירו לבדיקת יועץ משפטי
-          בישראל.
-        </div>
         {children}
       </article>
       <footer className="legal-footer">
