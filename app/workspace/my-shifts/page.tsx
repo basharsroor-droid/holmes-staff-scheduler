@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { ArrowRight, CalendarDays, CalendarPlus } from "lucide-react";
 
+import { EmployeeHolidayCalendar } from "@/app/workspace/my-shifts/employee-holiday-calendar";
 import { MyShiftsClient } from "@/app/workspace/my-shifts/my-shifts-client";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -44,12 +45,15 @@ export default async function MyShiftsPage() {
         .order("shift_date")
         .order("start_time")
     : { data: [] };
-  const periodIds = [...new Set((shifts ?? []).map((item) => item.schedule_period_id))];
-  const { data: periods } = periodIds.length
+
+  const accessibleBranchIds = membership.branch_id
+    ? [membership.branch_id]
+    : (branches ?? []).map((branch) => branch.id);
+  const { data: periods } = accessibleBranchIds.length
     ? await supabase
         .from("schedule_periods")
         .select("id, branch_id, year, month, status, published_at")
-        .in("id", periodIds)
+        .in("branch_id", accessibleBranchIds)
         .eq("status", "published")
         .order("year")
         .order("month")
@@ -74,6 +78,7 @@ export default async function MyShiftsPage() {
           </div>
         </div>
       </header>
+      <EmployeeHolidayCalendar branches={branches ?? []} periods={periods ?? []} shifts={shifts ?? []} />
       <MyShiftsClient branches={branches ?? []} periods={periods ?? []} shifts={shifts ?? []} />
     </main>
   );

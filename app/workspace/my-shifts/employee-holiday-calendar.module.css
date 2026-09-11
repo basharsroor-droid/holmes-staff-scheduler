@@ -1,7 +1,6 @@
 .calendarCard {
   display: grid;
-  gap: 14px;
-  margin-bottom: 16px;
+  gap: 12px;
   padding: 18px;
   border: 1px solid var(--line);
   border-radius: 24px;
@@ -9,19 +8,19 @@
   box-shadow: var(--shadow-sm);
 }
 
-.calendarHeader {
+.header {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 16px;
+  gap: 14px;
 }
 
-.calendarHeader h2 {
+.header h2 {
   display: flex;
   align-items: center;
   gap: 8px;
   margin: 2px 0 0;
-  font-size: 22px;
+  font-size: 21px;
 }
 
 .eyebrow {
@@ -31,7 +30,21 @@
   font-weight: 900;
 }
 
-.holidayLegend {
+.periodSelect {
+  min-width: 180px;
+  max-width: 280px;
+  padding: 9px 11px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #fff;
+  color: var(--text);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.legend {
+  margin: 0;
   color: var(--muted);
   font-size: 12px;
   font-weight: 700;
@@ -45,7 +58,6 @@
 }
 
 .weekdays span {
-  padding: 0 2px;
   color: var(--muted);
   font-size: 12px;
   font-weight: 900;
@@ -53,54 +65,48 @@
 }
 
 .blankCell {
-  min-height: 88px;
+  min-height: 78px;
 }
 
 .dayCell {
-  position: relative;
   display: grid;
   align-content: start;
   gap: 5px;
   min-width: 0;
-  min-height: 88px;
-  padding: 9px;
+  min-height: 78px;
+  padding: 8px;
   border: 1px solid var(--line);
-  border-radius: 14px;
+  border-radius: 13px;
   background: #fff;
   color: var(--text);
   text-align: right;
   cursor: pointer;
-  transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
 }
 
-.dayCell:hover {
-  border-color: color-mix(in srgb, var(--primary) 35%, var(--line));
-  box-shadow: 0 6px 18px rgba(18, 48, 104, 0.08);
-}
-
-.dayCell:active {
-  transform: scale(0.985);
+.holidayDay {
+  border-color: rgba(154, 91, 0, 0.28);
+  background: linear-gradient(180deg, rgba(245, 158, 11, 0.08), #fff 65%);
 }
 
 .selected {
   border-color: var(--primary);
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 12%, transparent);
-}
-
-.today .dayNumber {
-  display: inline-grid;
-  width: 26px;
-  height: 26px;
-  place-items: center;
-  border-radius: 999px;
-  background: var(--primary);
-  color: #fff;
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--primary) 11%, transparent);
 }
 
 .dayNumber {
   width: fit-content;
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 900;
+}
+
+.today .dayNumber {
+  display: inline-grid;
+  width: 24px;
+  height: 24px;
+  place-items: center;
+  border-radius: 999px;
+  background: var(--primary);
+  color: #fff;
 }
 
 .holiday {
@@ -109,112 +115,95 @@
   padding: 3px 5px;
   border: 1px solid rgba(154, 91, 0, 0.18);
   border-radius: 7px;
-  background: rgba(245, 158, 11, 0.12);
+  background: rgba(245, 158, 11, 0.13);
   color: #8a5200;
   font-size: 10px;
   font-weight: 900;
-  line-height: 1.25;
+  line-height: 1.2;
   overflow-wrap: anywhere;
-  white-space: normal;
 }
 
-.dayMeta {
-  display: grid;
-  gap: 3px;
+.shiftCount {
   margin-top: auto;
-  color: var(--muted);
+  color: var(--primary);
   font-size: 10px;
-  font-weight: 800;
+  font-weight: 900;
 }
 
-.complete,
-.needsStaffing {
-  display: inline-flex;
-  align-items: center;
-  gap: 3px;
-}
-
-.complete {
-  color: var(--green);
-}
-
-.needsStaffing {
-  color: var(--amber);
-}
-
-.emptyDay {
-  margin-top: auto;
-  color: color-mix(in srgb, var(--muted) 60%, transparent);
-  font-size: 12px;
-}
-
-.dayDetail {
+.detail {
   display: grid;
-  gap: 10px;
-  padding-top: 4px;
+  gap: 9px;
+  padding-top: 10px;
   border-top: 1px solid var(--line);
 }
 
-.dayDetailHeading {
+.detailHeading {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 10px;
 }
 
-.dayDetailHeading > span {
-  color: #9a5b00;
+.detailHoliday {
+  color: #8a5200;
   font-size: 12px;
   font-weight: 900;
 }
 
-.shiftStrip {
+.shiftList {
   display: flex;
   gap: 8px;
   overflow-x: auto;
   padding-bottom: 2px;
-  scrollbar-width: thin;
 }
 
-.shiftPill {
+.shiftItem {
   display: grid;
   flex: 0 0 auto;
-  gap: 2px;
-  min-width: 145px;
-  padding: 9px 11px;
+  gap: 4px;
+  min-width: 160px;
+  padding: 10px 12px;
   border: 1px solid var(--line);
   border-radius: 12px;
   background: var(--surface-muted, #f7f9fc);
 }
 
-.shiftPill small,
-.noShifts {
+.shiftItem span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
   color: var(--muted);
+  font-size: 12px;
 }
 
-.noShifts {
+.noShift {
   margin: 0;
+  color: var(--muted);
   font-size: 13px;
 }
 
 @media (max-width: 720px) {
   .calendarCard {
     gap: 10px;
-    margin: 0 0 12px;
     padding: 12px;
     border-radius: 20px;
   }
 
-  .calendarHeader {
-    align-items: center;
+  .header {
+    display: grid;
   }
 
-  .calendarHeader h2 {
+  .header h2 {
     font-size: 18px;
   }
 
-  .holidayLegend {
-    display: none;
+  .periodSelect {
+    width: 100%;
+    max-width: none;
+  }
+
+  .legend {
+    font-size: 11px;
   }
 
   .weekdays,
@@ -224,7 +213,7 @@
 
   .blankCell,
   .dayCell {
-    min-height: 70px;
+    min-height: 68px;
   }
 
   .dayCell {
@@ -237,11 +226,6 @@
     font-size: 14px;
   }
 
-  .today .dayNumber {
-    width: 22px;
-    height: 22px;
-  }
-
   .holiday {
     padding: 2px 3px;
     border-radius: 6px;
@@ -249,31 +233,12 @@
     line-height: 1.15;
   }
 
-  .dayMeta {
+  .shiftCount {
     font-size: 8px;
   }
 
-  .dayMeta > span:first-child {
-    display: none;
-  }
-
-  .dayDetail {
-    gap: 8px;
-  }
-
-  .dayDetailHeading {
+  .detailHeading {
     align-items: flex-start;
     font-size: 13px;
-  }
-
-  .shiftPill {
-    min-width: 132px;
-    padding: 8px 10px;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .dayCell {
-    transition: none;
   }
 }
