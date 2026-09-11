@@ -4,10 +4,11 @@ import { createClient } from "@supabase/supabase-js";
 const expectedHost = "sqmstwwrdoenfumligmf.supabase.co";
 const url = process.env.STAGING_SUPABASE_URL;
 const secret = process.env.STAGING_SUPABASE_SECRET_KEY;
+const publishableKey = process.env.STAGING_SUPABASE_PUBLISHABLE_KEY;
 const action = process.argv[2] ?? "seed";
 const fixturePath = process.env.STAGING_E2E_FIXTURE_PATH ?? ".staging-e2e-fixture.json";
 
-if (!url || !secret) throw new Error("STAGING_SUPABASE_URL and STAGING_SUPABASE_SECRET_KEY are required");
+if (!url || !secret || !publishableKey) throw new Error("STAGING_SUPABASE_URL, STAGING_SUPABASE_SECRET_KEY and STAGING_SUPABASE_PUBLISHABLE_KEY are required");
 const parsed = new URL(url);
 if (parsed.hostname !== expectedHost) throw new Error(`Refusing staging fixture operation for unexpected Supabase host: ${parsed.hostname}`);
 if (url.includes("forstsmvakpsreffdiwb")) throw new Error("Refusing to operate on Production");
@@ -60,7 +61,7 @@ try {
   const managerId = await createUser(managerEmail, "Pilot", "Manager");
   const employeeId = await createUser(employeeEmail, "Pilot", "Employee");
 
-  const organization = await must(admin.from("organizations").insert({ name: `ShiftPilot E2E ${runId}`, slug: `shiftpilot-e2e-${runId}`, schedule_cadence: "weekly", min_rest_hours: 8 }).select("id").single(), "create organization");
+  const organization = await must(admin.from("organizations").insert({ name: `ShiftPilot E2E ${runId}`, slug: `shiftpilot-e2e-${runId}`, schedule_cadence: "monthly", min_rest_hours: 8 }).select("id").single(), "create organization");
   organizationId = organization.id;
   const branch = await must(admin.from("branches").insert({ organization_id: organizationId, name: "E2E Branch" }).select("id").single(), "create branch");
   const department = await must(admin.from("departments").insert({ organization_id: organizationId, branch_id: branch.id, name: "E2E Operations" }).select("id").single(), "create department");
@@ -74,31 +75,44 @@ try {
   await must(admin.from("department_memberships").insert(memberships.map((membership) => ({ department_id: department.id, membership_id: membership.id, organization_id: organizationId, branch_id: branch.id, is_primary: true }))), "create department memberships");
 
   const year = new Date().getUTCFullYear() + 1;
-  const period = await must(admin.from("schedule_periods").insert({ organization_id: organizationId, branch_id: branch.id, department_id: department.id, year, month: 1, status: "published", submission_opens_at: `${year}-01-01T00:00:00Z`, submission_closes_at: `${year}-01-07T00:00:00Z`, published_at: new Date().toISOString(), created_by: ownerId }).select("id").single(), "create schedule period");
+  // The availability guards (enforce_availability_submission_write /
+  // enforce_availability_entry_write) only accept writes while the period is
+  // 'collecting' and its submission window is open, so open it around now.
+  // The marketplace check only needs the SHIFT to be published, not the period.
+  const period = await must(admin.from("schedule_periods").insert({ organization_id: organizationId, branch_id: branch.id, department_id: department.id, year, month: 1, status: "collecting", submission_opens_at: new Date(Date.now() - 86_400_000).toISOString(), submission_closes_at: new Date(Date.now() + 7 * 86_400_000).toISOString(), created_by: ownerId }).select("id").single(), "create schedule period");
   const template = await must(admin.from("shift_templates").insert({ organization_id: organizationId, branch_id: branch.id, department_id: department.id, name: "E2E Morning", shift_type: "opening", start_time: "08:00", end_time: "16:00", required_employees: 1 }).select("id").single(), "create shift template");
 
+  // Every row in a bulk insert must list the same columns: PostgREST sends a
+  // column missing from one row as NULL (not the column default), and
+  // shifts.open_for_requests is NOT NULL.
   const shifts = await must(admin.from("shifts").insert([
     { organization_id: organizationId, schedule_period_id: period.id, shift_template_id: template.id, shift_date: `${year}-01-10`, name: "E2E Marketplace", start_time: "08:00", end_time: "16:00", required_employees: 1, status: "published", open_for_requests: true, opened_at: new Date().toISOString(), opened_by: managerId },
-    { organization_id: organizationId, schedule_period_id: period.id, shift_template_id: template.id, shift_date: `${year}-01-20`, name: "E2E Time Off Block", start_time: "08:00", end_time: "16:00", required_employees: 1, status: "published" }
+    { organization_id: organizationId, schedule_period_id: period.id, shift_template_id: template.id, shift_date: `${year}-01-20`, name: "E2E Time Off Block", start_time: "08:00", end_time: "16:00", required_employees: 1, status: "published", open_for_requests: false }
   ]).select("id,shift_date"), "create shifts");
   const marketplaceShift = shifts.find((shift) => shift.shift_date === `${year}-01-10`);
   const leaveShift = shifts.find((shift) => shift.shift_date === `${year}-01-20`);
   if (!marketplaceShift || !leaveShift) throw new Error("Expected staging shifts were not created");
 
-  const availabilitySubmission = await must(admin.from("availability_submissions").insert({
+  // Availability is written AS THE EMPLOYEE, the way the app does it: the
+  // guards reject any availability write without an authenticated user who
+  // owns the submission (the service key has no user).
+  const employeeClient = createClient(url, publishableKey, { auth: { autoRefreshToken: false, persistSession: false } });
+  await must(employeeClient.auth.signInWithPassword({ email: employeeEmail, password }), "sign in as employee");
+  const availabilitySubmission = await must(employeeClient.from("availability_submissions").insert({
     organization_id: organizationId,
     schedule_period_id: period.id,
-    user_id: employeeId,
-    submitted_at: new Date().toISOString()
-  }).select("id").single(), "create submitted availability");
-  await must(admin.from("availability_entries").insert({
+    user_id: employeeId
+  }).select("id").single(), "create availability draft (as employee)");
+  await must(employeeClient.from("availability_entries").insert({
     organization_id: organizationId,
     submission_id: availabilitySubmission.id,
     shift_template_id: template.id,
     shift_date: `${year}-01-10`,
     status: "available",
     note: "E2E Marketplace availability"
-  }), "create Marketplace availability entry");
+  }), "create Marketplace availability entry (as employee)");
+  await must(employeeClient.from("availability_submissions").update({ submitted_at: new Date().toISOString() }).eq("id", availabilitySubmission.id), "submit availability (as employee)");
+  await employeeClient.auth.signOut();
 
   const leave = await must(admin.from("leave_requests").insert({ organization_id: organizationId, user_id: employeeId, leave_type: "vacation", start_date: `${year}-01-20`, end_date: `${year}-01-20`, note: "E2E Time Off", status: "pending" }).select("id").single(), "create pending leave");
 
