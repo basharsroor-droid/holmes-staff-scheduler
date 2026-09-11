@@ -59,7 +59,10 @@ export function ScheduleCalendarOverview({ period }: { period: Period | null }) 
   const today = localTodayKey();
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [navigationPeriods, setNavigationPeriods] = useState<NavigationPeriod[]>([]);
-  const [currentContext, setCurrentContext] = useState<{ branchId: string; departmentId: string } | null>(null);
+  const [currentContext, setCurrentContext] = useState<{
+    branchId: string;
+    departmentId: string;
+  } | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -114,8 +117,7 @@ export function ScheduleCalendarOverview({ period }: { period: Period | null }) 
     const month = index + 1;
     return {
       month,
-      period:
-        navigationPeriods.find((item) => item.year === period.year && item.month === month) ?? null
+      period: navigationPeriods.find((item) => item.year === period.year && item.month === month) ?? null
     };
   });
 
