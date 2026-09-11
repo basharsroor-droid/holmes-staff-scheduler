@@ -1,22 +1,11 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, type Page, test } from "@playwright/test";
 
-// Track P1/P2-12 (accessibility plan): automated WCAG coverage below this
-// point had only ever run against public/unauthenticated pages. Every
-// authenticated route (the demo dashboards, and by extension the same
-// component patterns used in the real /workspace -- real SaaS pages need
-// a live Supabase session, which CI doesn't have credentials for, but the
-// demo routes are reachable with the local mock auth and are the site's
-// actual promoted "try it" experience, not internal-only scaffolding) had
-// zero automatic scanning on every push, only the one-off manual audit
-// from PR #81.
-async function loginToDemo(page: Page, role: "manager" | "employee") {
-  await page.goto("/demo");
-  await page.getByRole("button", { name: role === "manager" ? "כניסה לדמו כמנהל/ת" : "כניסה לדמו כעובד/ת" }).click();
-  const destination = role === "manager" ? "/pilot" : "/employee";
-  await expect(page).toHaveURL(new RegExp(`${destination}$`));
-}
-
+// Track P1/P2-12 (accessibility plan): automated WCAG A/AA scanning of every
+// page reachable without a session. The authenticated /workspace needs a live
+// Supabase session; it is exercised end to end against staging by
+// tests/staging/workspace-scheduling-flow.spec.ts. The old mock-data demo
+// dashboards that used to be scanned here were removed in F1.
 async function scanForViolations(page: Page) {
   await page.addStyleTag({
     content: `
@@ -43,7 +32,7 @@ const publicPages = [
   { path: "/auth/forgot-password", name: "password recovery" },
   { path: "/auth/reset-password", name: "invalid password reset" },
   { path: "/auth/accept-invite?token=invalid", name: "invalid invitation" },
-  { path: "/demo", name: "demo login" },
+  { path: "/demo", name: "product tour" },
   { path: "/terms", name: "terms" },
   { path: "/privacy", name: "privacy" }
 ];
@@ -67,26 +56,3 @@ for (const publicPage of publicPages) {
     expect(await scanForViolations(page)).toEqual([]);
   });
 }
-
-const managerDemoRoutes = ["/pilot", "/manager", "/manager/schedule", "/schedule", "/admin/employees", "/admin/shift-templates", "/demo/help"];
-const employeeDemoRoutes = ["/employee", "/availability", "/my-shifts", "/schedule", "/swap-requests", "/manager-requests", "/demo/help"];
-
-test("manager demo routes have no automatic WCAG A/AA violations", async ({ page }) => {
-  await loginToDemo(page, "manager");
-  for (const route of managerDemoRoutes) {
-    await page.goto(route);
-    await expect(page.locator(".app-shell")).toBeVisible();
-    const violations = await scanForViolations(page);
-    expect(violations, `${route}: ${JSON.stringify(violations.map((v) => v.id))}`).toEqual([]);
-  }
-});
-
-test("employee demo routes have no automatic WCAG A/AA violations", async ({ page }) => {
-  await loginToDemo(page, "employee");
-  for (const route of employeeDemoRoutes) {
-    await page.goto(route);
-    await expect(page.locator(".app-shell")).toBeVisible();
-    const violations = await scanForViolations(page);
-    expect(violations, `${route}: ${JSON.stringify(violations.map((v) => v.id))}`).toEqual([]);
-  }
-});
