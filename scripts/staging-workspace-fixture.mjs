@@ -58,15 +58,21 @@ async function mustRetry(run, label, attempts = 3) {
   }
 }
 
+// Returns every failure instead of only warning: a cleanup that leaves data
+// behind must fail the job, or staging silently fills up with test tenants
+// (it did, 2026-09-11, until the availability guards allowed cascade deletes).
 async function cleanup(fixture) {
+  const failures = [];
   if (fixture?.organizationId) {
     const { error } = await admin.from("organizations").delete().eq("id", fixture.organizationId);
-    if (error) console.warn(`organization cleanup: ${error.message}`);
+    if (error) failures.push(`organization cleanup: ${error.message}`);
   }
   for (const userId of fixture?.userIds ?? []) {
     const { error } = await admin.auth.admin.deleteUser(userId);
-    if (error) console.warn(`user cleanup ${userId}: ${error.message}`);
+    if (error) failures.push(`user cleanup ${userId}: ${error.message}`);
   }
+  for (const failure of failures) console.error(failure);
+  return failures;
 }
 
 if (action === "cleanup") {
@@ -77,7 +83,11 @@ if (action === "cleanup") {
     console.log("No workspace fixture to clean up");
     process.exit(0);
   }
-  await cleanup(fixture);
+  const failures = await cleanup(fixture);
+  if (failures.length) {
+    console.error("Staging cleanup failed: test data was left behind (see above).");
+    process.exit(1);
+  }
   await fs.rm(fixturePath, { force: true });
   console.log("Staging workspace fixture cleaned");
   process.exit(0);
