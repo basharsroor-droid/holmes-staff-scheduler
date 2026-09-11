@@ -44,7 +44,7 @@ test("business signup requires legal consent", async ({ page }) => {
   await page.goto("/onboarding");
   await page.getByRole("button", { name: "יש לי עסק עם צוות אחד" }).click();
   await page.getByRole("button", { name: "יצירת חשבון מאובטח" }).click();
-  await expect(page.getByText("יש לאשר את תנאי השימוש ומדיניות הפרטיות.")).toBeVisible();
+  await expect(page.getByText("יש לאשר את תנאי השימוש ומדיניות הפרטיות")).toBeVisible();
   await expect(page.getByRole("checkbox")).not.toBeChecked();
 });
 
@@ -52,8 +52,8 @@ test("login validates empty credentials without contacting auth", async ({ page 
   await page.goto("/login");
   await page.getByRole("button", { name: /כניסה מאובטחת/ }).click();
 
-  await expect(page.getByRole("alert").filter({ hasText: "יש להזין כתובת מייל וסיסמה." })).toHaveText(
-    "יש להזין כתובת מייל וסיסמה."
+  await expect(page.getByRole("alert").filter({ hasText: "יש להזין כתובת מייל וסיסמה" })).toHaveText(
+    "יש להזין כתובת מייל וסיסמה"
   );
   await expect(page.getByRole("link", { name: "שכחתי סיסמה" })).toHaveAttribute(
     "href",
@@ -121,5 +121,5 @@ test("the offline fallback page is reachable without a session", async ({ page }
   await page.goto("/offline");
 
   await expect(page).toHaveURL(/\/offline$/);
-  await expect(page.getByRole("heading", { name: "אי אפשר להתחבר כרגע." })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "אי אפשר להתחבר כרגע" })).toBeVisible();
 });

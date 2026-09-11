@@ -50,8 +50,8 @@ export default function AcceptInvitePage() {
 
   async function acceptInvitation() {
     setMessage("");
-    if (password.length < 8) { setMessage("הסיסמה חייבת להכיל לפחות 8 תווים."); return; }
-    if (password !== confirmation) { setMessage("הסיסמאות אינן זהות."); return; }
+    if (password.length < 8) { setMessage("הסיסמה חייבת להכיל לפחות 8 תווים"); return; }
+    if (password !== confirmation) { setMessage("הסיסמאות אינן זהות"); return; }
     setBusy(true);
     // Validate the invitation (including the email-match check) BEFORE
     // touching the password. The account behind this browser session isn't
@@ -63,30 +63,30 @@ export default function AcceptInvitePage() {
       setBusy(false);
       setMessage(
         error.message.includes("email does not match")
-          ? "ההזמנה שייכת לכתובת מייל אחרת."
+          ? "ההזמנה שייכת לכתובת מייל אחרת"
           : planLimitResource(error)
             ? // The invitee can't upgrade the plan -- tell them who can (J3).
-              "לא ניתן להצטרף כרגע: העסק הגיע למכסה של המסלול שלו. פנו למנהל/ת העסק."
-            : "ההזמנה אינה תקפה, בוטלה או פגה."
+              "לא ניתן להצטרף כרגע: העסק הגיע למכסת המסלול שלו — פנו למנהל העסק"
+            : "ההזמנה אינה תקפה — ייתכן שבוטלה או שפג תוקפה"
       );
       return;
     }
     const { error: passwordError } = await supabase.auth.updateUser({ password });
     setBusy(false);
     if (passwordError) {
-      setMessage("ההצטרפות הצליחה, אך לא הצלחנו לשמור את הסיסמה. אפשר להגדיר סיסמה דרך \"שכחתי סיסמה\" במסך הכניסה.");
+      setMessage("ההצטרפות הצליחה, אך לא הצלחנו לשמור את הסיסמה — אפשר להגדיר סיסמה דרך \"שכחתי סיסמה\" במסך הכניסה");
       return;
     }
     setStage("done");
   }
 
   return <main className="onboarding-page auth-flow auth-invite" dir="rtl">
-    <section className="onboarding-intro auth-flow-intro"><BrandLogo href="/" light /><p className="eyebrow">הצטרפות לצוות</p><h1>ברוכים הבאים ל־ShiftPilot.</h1><p className="lead">נשלים את פתיחת החשבון ונחבר אותך רק לעסק ולסניף שאליהם הוזמנת.</p></section>
+    <section className="onboarding-intro auth-flow-intro"><BrandLogo href="/" light /><p className="eyebrow">הצטרפות לצוות</p><h1>ברוכים הבאים ל־ShiftPilot</h1><p className="lead">נשלים את פתיחת החשבון ונחבר אותך רק לעסק ולסניף שאליהם הוזמנת</p></section>
     <section className="auth-card onboarding-card auth-flow-card">
       {stage === "checking" ? <div className="onboarding-state"><Loader2 className="spin" size={38} /><p>בודקים את ההזמנה...</p></div> : null}
-      {stage === "invalid" ? <div className="onboarding-state"><UserPlus size={48} /><h2>ההזמנה אינה זמינה</h2><p>הקישור פג תוקף, בוטל או כבר נוצל. פנה למנהל כדי לקבל הזמנה חדשה.</p><Link className="button" href="/login">למסך הכניסה</Link></div> : null}
+      {stage === "invalid" ? <div className="onboarding-state"><UserPlus size={48} /><h2>ההזמנה אינה זמינה</h2><p>תוקף הקישור פג, או שהוא בוטל או כבר נוצל — פנו למנהל העסק כדי לקבל הזמנה חדשה</p><Link className="button" href="/login">למסך הכניסה</Link></div> : null}
       {stage === "form" ? <div className="grid"><div><p className="eyebrow"><ShieldCheck size={15} /> המייל אומת</p><h2>יצירת סיסמה והצטרפות</h2></div><PasswordField label="סיסמה חדשה" autoComplete="new-password" value={password} onChange={setPassword} /><PasswordField label="אימות הסיסמה" autoComplete="new-password" value={confirmation} onChange={setConfirmation} /><button className="button primary" disabled={busy} onClick={() => void acceptInvitation()}>{busy ? <Loader2 className="spin" size={17} /> : <UserPlus size={17} />} הצטרפות לצוות</button>{message ? <p className="auth-message" role="alert">{message}</p> : null}</div> : null}
-      {stage === "done" ? <div className="onboarding-state"><CheckCircle2 size={50} /><h2>הצטרפת בהצלחה</h2><p>החשבון מחובר לעסק ולסניף שלך.</p><Link className="button primary" href="/workspace">כניסה לסביבת העבודה</Link></div> : null}
+      {stage === "done" ? <div className="onboarding-state"><CheckCircle2 size={50} /><h2>הצטרפת בהצלחה</h2><p>החשבון מחובר לעסק ולסניף שלך</p><Link className="button primary" href="/workspace">כניסה לסביבת העבודה</Link></div> : null}
     </section>
   </main>;
 }

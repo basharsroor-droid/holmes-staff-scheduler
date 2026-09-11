@@ -11,7 +11,7 @@ import { ADDONS, getPlan } from "@/lib/plans";
 
 export const metadata: Metadata = {
   title: "תמחור | ShiftPilot",
-  description: "מסלולים, מחירי השקה ותקופת ניסיון של 30 יום ללא כרטיס אשראי."
+  description: "מסלולים, מחירי השקה ותקופת ניסיון של 30 יום ללא כרטיס אשראי"
 };
 
 const trialSteps = [
@@ -44,7 +44,7 @@ const faq = [
   },
   {
     q: "יש הנחה לתשלום שנתי?",
-    a: "כן. תשלום שנתי שקול לקבלת חודשיים ללא תשלום לעומת התשלום החודשי."
+    a: "כן. תשלום שנתי שווה לחודשיים חינם בהשוואה לתשלום חודשי."
   },
   {
     q: "מה זה מבצע ההשקה?",
@@ -110,7 +110,7 @@ export default function PricingPage() {
         <article>
           <span className="pricing-value-tag">מערכות נוכחות ותיקות בישראל</span>
           <p className="pricing-value-figure">הצעת מחיר<small> פרטנית</small></p>
-          <p>לרוב חיוב לפי עובד, בתוספת דמי הקמה חד-פעמיים של מאות עד אלפי שקלים</p>
+          <p>לרוב חיוב לפי עובד, בתוספת דמי הקמה חד־פעמיים של מאות עד אלפי שקלים</p>
         </article>
         <article className="featured">
           <span className="pricing-value-tag">ShiftPilot</span>
@@ -184,12 +184,12 @@ export default function PricingPage() {
 
     <footer className="pro-footer">
       <div className="pro-footer-top">
-        <div className="pro-footer-brand"><BrandLogo href="/" /><p>זמינות, סידורי עבודה והחלפות משמרת — במקום אחד.</p></div>
-        <nav className="pro-footer-col" aria-label="גישה למערכת"><h4>גישה למערכת</h4><Link href="/pricing">תמחור</Link><Link href="/login">כניסה למערכת</Link><Link href="/onboarding">פתיחת סביבת עבודה</Link><Link href="/demo">סביבת הדמו</Link></nav>
-        <nav className="pro-footer-col" aria-label="מידע ותמיכה"><h4>מידע ותמיכה</h4><Link href="/about">מי אנחנו</Link><Link href="/contact">צור קשר</Link><a href="mailto:support@shiftpilothq.com">support@shiftpilothq.com</a><Link href="/terms">תנאי שימוש</Link><Link href="/privacy">מדיניות פרטיות</Link></nav>
+        <div className="pro-footer-brand"><BrandLogo href="/" /><p>זמינות, סידורי עבודה והחלפות משמרת — במקום אחד</p></div>
+        <nav className="pro-footer-col" aria-label="גישה למערכת"><h4>גישה למערכת</h4><Link href="/pricing">תמחור</Link><Link href="/login">כניסה למערכת</Link><Link href="/onboarding">פתיחת סביבת עבודה</Link><Link href="/demo">סיור במוצר</Link></nav>
+        <nav className="pro-footer-col" aria-label="מידע ותמיכה"><h4>מידע ותמיכה</h4><Link href="/about">מי אנחנו</Link><Link href="/contact">צרו קשר</Link><a href="mailto:support@shiftpilothq.com">support@shiftpilothq.com</a><Link href="/terms">תנאי שימוש</Link><Link href="/privacy">מדיניות פרטיות</Link></nav>
       </div>
       <div className="pro-footer-wordmark" aria-hidden="true">ShiftPilot</div>
-      <small>© 2026 ShiftPilot. כל הזכויות שמורות.</small>
+      <small>© 2026 ShiftPilot · כל הזכויות שמורות</small>
     </footer>
   </main>;
 }

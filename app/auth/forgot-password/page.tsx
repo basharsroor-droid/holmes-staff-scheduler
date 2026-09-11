@@ -18,7 +18,7 @@ export default function ForgotPasswordPage() {
     setMessage("");
     const normalizedEmail = email.trim().toLowerCase();
     if (!normalizedEmail || !normalizedEmail.includes("@")) {
-      setMessage("יש להזין כתובת מייל תקינה.");
+      setMessage("יש להזין כתובת מייל תקינה");
       return;
     }
 
@@ -29,9 +29,9 @@ export default function ForgotPasswordPage() {
 
     if (error) {
       if (error.message.toLowerCase().includes("rate limit")) {
-        setMessage("נשלחו יותר מדי בקשות. המתן מעט ונסה שוב פעם אחת.");
+        setMessage("נשלחו יותר מדי בקשות — המתינו מעט ונסו שוב");
       } else {
-        setMessage("לא הצלחנו לשלוח את הקישור כרגע. נסה שוב מאוחר יותר.");
+        setMessage("לא הצלחנו לשלוח את הקישור כרגע — נסו שוב מאוחר יותר");
       }
       return;
     }
@@ -43,15 +43,15 @@ export default function ForgotPasswordPage() {
       <section className="onboarding-intro auth-flow-intro">
         <BrandLogo href="/" light />
         <p className="eyebrow">שחזור גישה מאובטח</p>
-        <h1>חוזרים לחשבון בכמה צעדים.</h1>
-        <p className="lead">נשלח קישור חד־פעמי לכתובת המייל של החשבון. הקישור מיועד רק להגדרת סיסמה חדשה.</p>
+        <h1>חוזרים לחשבון בכמה צעדים</h1>
+        <p className="lead">נשלח קישור חד־פעמי לכתובת המייל של החשבון, שמיועד רק להגדרת סיסמה חדשה</p>
       </section>
       <section className="auth-card onboarding-card auth-flow-card">
         {sent ? (
           <div className="onboarding-state">
             <CheckCircle2 size={48} />
-            <h2>בדוק את תיבת המייל</h2>
-            <p>אם קיים חשבון עם הכתובת שהזנת, נשלח אליו קישור. פתח רק את ההודעה החדשה ביותר.</p>
+            <h2>בדקו את תיבת המייל</h2>
+            <p>אם קיים חשבון עם הכתובת שהזנת, נשלח אליו קישור — פתחו רק את ההודעה החדשה ביותר</p>
             <Link className="button" href="/login">חזרה למסך הכניסה</Link>
           </div>
         ) : (

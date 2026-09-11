@@ -55,7 +55,7 @@ export function RolesShowcase() {
         transition={{ duration: 0.5 }}
       >
         <p className="pro-kicker dark">לכל אחד, בדיוק מה שהוא צריך</p>
-        <h2>למנהל יש שליטה. לעובדים יש ודאות.</h2>
+        <h2>למנהל יש שליטה, לעובדים יש ודאות</h2>
       </motion.div>
 
       <div className="grid gap-6 md:grid-cols-2">

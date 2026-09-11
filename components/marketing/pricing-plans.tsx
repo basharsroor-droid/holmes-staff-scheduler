@@ -52,7 +52,9 @@ function priceBlock(plan: Plan, cycle: Cycle) {
 function quotaLine(plan: Plan) {
   if (plan.maxActiveEmployees === null) return "עובדים, מחלקות ומנהלים לפי התאמה";
   const branches = (plan.maxBranches ?? 1) > 1 ? `${plan.maxBranches} סניפים · ` : "";
-  return `${branches}עד ${plan.maxActiveEmployees} עובדים · ${plan.maxDepartments} מחלקות · ${plan.maxManagers} מנהלים`;
+  // "מחלקה אחת", not "1 מחלקות".
+  const count = (n: number | null, one: string, many: string) => (n === 1 ? one : `${n} ${many}`);
+  return `${branches}עד ${plan.maxActiveEmployees} עובדים · ${count(plan.maxDepartments, "מחלקה אחת", "מחלקות")} · ${count(plan.maxManagers, "מנהל אחד", "מנהלים")}`;
 }
 
 export function PricingPlans() {
@@ -130,7 +132,7 @@ export function PricingPlans() {
             {enterprisePlan.features.slice(0, 3).map((feature) => <li key={feature}><Check size={15} /> {feature}</li>)}
           </ul>
           <div className="pricing-enterprise-action">
-            <strong>{enterprisePlan.customFromIls ? `החל מ־${enterprisePlan.customFromIls} ₪` : "הצעה מותאמת"}</strong>
+            <strong>{enterprisePlan.customFromIls ? `החל מ-${enterprisePlan.customFromIls} ₪` : "הצעה מותאמת"}</strong>
             <small>לחודש · הצעה מותאמת</small>
             <Link className="button" href="/contact">דברו איתנו <ArrowLeft size={16} /></Link>
           </div>

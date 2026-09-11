@@ -99,7 +99,7 @@ export default function OnboardingPage() {
   function openInvite() {
     const token = inviteInput.match(UUID_RE)?.[0];
     if (!token) {
-      setMessage("לא זוהה קוד הזמנה תקין. אפשר להדביק את קישור ההזמנה מהמייל.");
+      setMessage("לא זוהה קוד הזמנה תקין — אפשר להדביק את קישור ההזמנה מהמייל");
       return;
     }
     router.push(`/auth/accept-invite?token=${token}`);
@@ -108,7 +108,7 @@ export default function OnboardingPage() {
   async function createAccount() {
     setMessage("");
     if (!email || password.length < 8 || !firstName.trim() || !acceptedLegal) {
-      setMessage(acceptedLegal ? "יש למלא שם, כתובת מייל וסיסמה באורך 8 תווים לפחות." : "יש לאשר את תנאי השימוש ומדיניות הפרטיות.");
+      setMessage(acceptedLegal ? "יש למלא שם, כתובת מייל וסיסמה באורך 8 תווים לפחות" : "יש לאשר את תנאי השימוש ומדיניות הפרטיות");
       return;
     }
 
@@ -148,7 +148,7 @@ export default function OnboardingPage() {
   async function createWorkspace() {
     setMessage("");
     if (businessName.trim().length < 2 || branchName.trim().length < 2) {
-      setMessage("יש להזין שם עסק ושם סניף.");
+      setMessage("יש להזין שם עסק ושם סניף");
       return;
     }
 
@@ -170,10 +170,10 @@ export default function OnboardingPage() {
 
     if (error) {
       if (error.message.includes("already_member")) {
-        setMessage("כבר קיים עסק המשויך לחשבון הזה.");
+        setMessage("כבר קיים עסק המשויך לחשבון הזה");
         return;
       }
-      setMessage(error.message.includes("duplicate") ? "כבר קיימת סביבת עבודה עם הפרטים האלה." : error.message);
+      setMessage(error.message.includes("duplicate") ? "כבר קיימת סביבת עבודה עם הפרטים האלה" : error.message);
       return;
     }
     setStage("done");
@@ -189,8 +189,8 @@ export default function OnboardingPage() {
 
       <section className="onboarding-intro business-onboarding-intro">
         <BrandLogo href={nativeApp ? undefined : "/"} light />
-        <h1>סביבת העבודה של העסק שלך, מוכנה תוך כמה דקות.</h1>
-        <p className="lead">פותחים חשבון עסקי מאובטח, בוחרים מסלול ומתחילים {TRIAL_DAYS} ימי ניסיון — בלי כרטיס אשראי.</p>
+        <h1>סביבת העבודה של העסק שלך — מוכנה תוך כמה דקות</h1>
+        <p className="lead">פותחים חשבון עסקי מאובטח, בוחרים מסלול ומתחילים {TRIAL_DAYS} ימי ניסיון — בלי כרטיס אשראי</p>
         <p className="auth-secondary">כבר פתחת חשבון? <Link href="/login">כניסה למערכת</Link></p>
         <div className="onboarding-benefits">
           <div><ShieldCheck /><span><strong>מידע פרטי לכל עסק</strong><small>הפרדה מלאה בין לקוחות והרשאות לפי תפקיד</small></span></div>
@@ -214,7 +214,7 @@ export default function OnboardingPage() {
 
         {stage === "use" ? (
           <div className="grid">
-            <div><p className="eyebrow">שלב 1 מתוך 3</p><h2>איך תרצה להשתמש ב-ShiftPilot?</h2></div>
+            <div><p className="eyebrow">שלב 1 מתוך 3</p><h2>איך תרצו להשתמש ב־ShiftPilot?</h2></div>
             <div className="onboarding-choices">
               {USE_OPTIONS.map((option) => (
                 <button
@@ -230,11 +230,11 @@ export default function OnboardingPage() {
               ))}
             </div>
             <label className="field">
-              <span>הוזמנת? הדבק כאן קוד או קישור הזמנה</span>
+              <span>הוזמנתם? הדביקו כאן קוד או קישור הזמנה</span>
               <input className="input" value={inviteInput} onChange={(event) => setInviteInput(event.target.value)} placeholder="https://…/auth/accept-invite?token=…" />
             </label>
             <button className="button" onClick={openInvite}>המשך עם הזמנה</button>
-            <p className="auth-secondary">אפשר גם לפתוח את קישור ההזמנה ישירות מהמייל ששלחו לך.</p>
+            <p className="auth-secondary">אפשר גם לפתוח את קישור ההזמנה ישירות מהמייל ששלחו לך</p>
           </div>
         ) : null}
 
@@ -247,18 +247,18 @@ export default function OnboardingPage() {
             </div>
             <label className="field"><span>מייל עסקי</span><input className="input" type="email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} /></label>
             <PasswordField label="סיסמה" autoComplete="new-password" value={password} onChange={setPassword} />
-            <label className="legal-consent"><input type="checkbox" checked={acceptedLegal} onChange={(event) => setAcceptedLegal(event.target.checked)} /><span>קראתי ואני מסכים/ה ל<Link href="/terms" target="_blank">תנאי השימוש</Link> ול<Link href="/privacy" target="_blank">מדיניות הפרטיות</Link>.</span></label>
+            <label className="legal-consent"><input type="checkbox" checked={acceptedLegal} onChange={(event) => setAcceptedLegal(event.target.checked)} /><span>קראתי ואני מסכים/ה ל<Link href="/terms" target="_blank">תנאי השימוש</Link> ול<Link href="/privacy" target="_blank">מדיניות הפרטיות</Link></span></label>
             <button className="button primary" disabled={busy} onClick={createAccount}>{busy ? <Loader2 className="spin" size={17} /> : null} יצירת חשבון מאובטח</button>
           </div>
         ) : null}
 
         {stage === "verify" ? (
-          <div className="onboarding-state"><CheckCircle2 size={46} /><h2>שלחנו לך מייל אימות</h2><p>יש לאשר את כתובת המייל. לאחר האישור תחזור לכאן כדי לבחור מסלול ולהקים את העסק.</p><Link className="button" href="/login">כבר אישרתי — כניסה</Link></div>
+          <div className="onboarding-state"><CheckCircle2 size={46} /><h2>שלחנו לך מייל אימות</h2><p>יש לאשר את כתובת המייל, ולאחר מכן לחזור לכאן כדי לבחור מסלול ולהקים את העסק</p><Link className="button" href="/login">כבר אישרתי — כניסה</Link></div>
         ) : null}
 
         {stage === "recommend" ? (
           <div className="grid">
-            <div><p className="eyebrow">שלב 2 מתוך 3</p><h2>נמליץ לך על מסלול</h2><p className="lead">כמה פרטים קצרים. אפשר לשנות את המסלול בהמשך בכל עת.</p></div>
+            <div><p className="eyebrow">שלב 2 מתוך 3</p><h2>נמליץ לך על מסלול</h2><p className="lead">כמה פרטים קצרים — ואפשר לשנות את המסלול בכל עת</p></div>
             <div className="form-pair">
               <label className="field"><span>כמה עובדים מעסיקים היום?</span><input className="input" type="number" min={0} inputMode="numeric" value={employeeCount} onChange={(e) => setEmployeeCount(e.target.value)} /></label>
               <label className="field"><span>כמה סניפים?</span><input className="input" type="number" min={1} inputMode="numeric" value={branchCount} onChange={(e) => setBranchCount(e.target.value)} /></label>
@@ -276,7 +276,7 @@ export default function OnboardingPage() {
                     (₪{launchOfferMonthlyIls(getPlan(recommendedPlanId))} לחודש) לנרשמים עד {launchOfferEndLabel()}
                   </small>
                 ) : null}
-                <small>מתחילים ב-{TRIAL_DAYS} ימי ניסיון ללא כרטיס אשראי.</small>
+                <small>מתחילים ב-{TRIAL_DAYS} ימי ניסיון ללא כרטיס אשראי</small>
               </div>
             ) : null}
 
@@ -294,7 +294,7 @@ export default function OnboardingPage() {
 
         {stage === "workspace" ? (
           <div className="grid">
-            <div><p className="eyebrow">שלב 3 מתוך 3</p><h2>הקמת סביבת העסק</h2><p className="lead">מתחילים במסלול <strong>{getPlan(selectedPlanId).name}</strong> · {TRIAL_DAYS} ימי ניסיון.</p></div>
+            <div><p className="eyebrow">שלב 3 מתוך 3</p><h2>הקמת סביבת העסק</h2><p className="lead">מתחילים במסלול <strong>{getPlan(selectedPlanId).name}</strong> · {TRIAL_DAYS} ימי ניסיון</p></div>
             <label className="field"><span>שם העסק</span><input className="input" placeholder="לדוגמה: קפה נובה" value={businessName} onChange={(e) => setBusinessName(e.target.value)} /></label>
             <label className="field"><span>שם הסניף הראשון</span><input className="input" value={branchName} onChange={(e) => setBranchName(e.target.value)} /></label>
             <button className="button primary" disabled={busy} onClick={createWorkspace}>{busy ? <Loader2 className="spin" size={17} /> : null} יצירת סביבת העבודה</button>
@@ -302,7 +302,7 @@ export default function OnboardingPage() {
         ) : null}
 
         {stage === "done" ? (
-          <div className="onboarding-state"><CheckCircle2 size={50} /><h2>סביבת העבודה מוכנה</h2><p>נותרו {TRIAL_DAYS} ימי ניסיון להתרשם. השלב הבא הוא להגדיר סוגי משמרות ולהזמין את הצוות.</p><Link className="button primary" href="/workspace">כניסה לסביבת העסק</Link></div>
+          <div className="onboarding-state"><CheckCircle2 size={50} /><h2>סביבת העבודה מוכנה</h2><p>לפניכם {TRIAL_DAYS} ימי ניסיון — השלב הבא הוא להגדיר סוגי משמרות ולהזמין את הצוות</p><Link className="button primary" href="/workspace">כניסה לסביבת העסק</Link></div>
         ) : null}
 
         {message ? <p className="auth-message">{message}</p> : null}

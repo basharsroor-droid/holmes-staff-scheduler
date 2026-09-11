@@ -15,8 +15,8 @@ export default function GlobalError({ error, reset }: { error: Error & { digest?
         <main className="recovery-page">
           <section className="recovery-card" role="alert">
             <p className="eyebrow">SHIFT PILOT</p>
-            <h1>אירעה תקלה זמנית.</h1>
-            <p>אפשר לנסות לטעון מחדש. הפעולה האחרונה לא תישלח שוב ללא אישורך.</p>
+            <h1>אירעה תקלה זמנית</h1>
+            <p>אפשר לנסות לטעון מחדש — הפעולה האחרונה לא תישלח שוב בלי אישורך</p>
             <button className="button primary" type="button" onClick={reset}>טעינה מחדש</button>
           </section>
         </main>

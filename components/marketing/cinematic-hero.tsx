@@ -310,13 +310,13 @@ export function CinematicHero() {
         <div className="ch-mobile-kicker">ניהול משמרות חכם לעסקים</div>
         <h1 className="text-4xl font-bold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
           <span className="ch-text-track ch-reveal ch-text-3d mb-2 block">
-            כל המשמרות. מקום אחד.
+            כל המשמרות במקום אחד
           </span>
           <span className="ch-text-line2 ch-reveal ch-text-brand block font-extrabold">
-            בלי לרדוף אחרי הודעות.
+            בלי לרדוף אחרי הודעות
           </span>
         </h1>
-        <p className="ch-mobile-lead">הגשת זמינות, בניית סידור והחלפות — בתהליך ברור ונוח לכל הצוות.</p>
+        <p className="ch-mobile-lead">הגשת זמינות, בניית סידור והחלפות — בתהליך ברור ונוח לכל הצוות</p>
 
         {/* Reachable immediately, not gated behind the full pinned-scroll
             story -- a visitor shouldn't have to scroll through the whole
@@ -338,10 +338,10 @@ export function CinematicHero() {
       {/* closing CTA layer */}
       <div className="ch-cta-wrapper ch-reveal pointer-events-auto absolute z-10 flex w-screen flex-col items-center justify-center px-4 text-center will-change-transform">
         <h2 className="ch-text-brand mb-6 text-3xl font-bold tracking-tight sm:text-5xl md:text-6xl">
-          פחות הודעות. פחות בלבול. יותר שליטה בסידור.
+          פחות הודעות, פחות בלבול, יותר שליטה בסידור
         </h2>
         <p className="mx-auto mb-12 max-w-xl text-base font-light leading-relaxed text-muted-foreground sm:text-lg md:text-xl">
-          פתחו סביבת עבודה, הגדירו את הסניף הראשון והכינו את הסידור הבא בצורה מסודרת.
+          פתחו סביבת עבודה, הגדירו את הסניף הראשון והכינו את הסידור הבא בצורה מסודרת
         </p>
         <div className="flex flex-col gap-4 sm:flex-row">
           <Link href="/onboarding" className="ch-btn-light group flex items-center justify-center gap-2 rounded-2xl px-8 py-4 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--primary)]">
@@ -472,10 +472,10 @@ export function CinematicHero() {
             {/* description */}
             <div className="ch-card-left-text ch-reveal z-20 order-3 flex w-full flex-col justify-center px-4 text-center lg:order-1 lg:max-w-none lg:px-0 lg:text-right">
               <h3 className="mb-0 text-2xl font-bold tracking-tight text-white md:text-3xl lg:mb-5 lg:text-4xl">
-                ניהול משמרות, בלי בלגן.
+                ניהול משמרות, בלי בלגן
               </h3>
               <p className="mx-auto hidden max-w-sm text-sm font-normal leading-relaxed text-blue-100/70 md:block md:text-base lg:mx-0 lg:max-w-none lg:text-lg">
-                <span className="font-semibold text-white">ShiftPilot</span> מחברת בין העובדים למנהלים בתהליך אחד — הגשת זמינות, בניית סידור, פרסום משמרות והחלפות מאושרות, בלי הודעות פרטיות ובלי טבלאות שאף אחד לא בטוח שהן מעודכנות.
+                <span className="font-semibold text-white">ShiftPilot</span> מחברת בין העובדים למנהלים בתהליך אחד — הגשת זמינות, בניית סידור, פרסום משמרות והחלפות מאושרות, בלי הודעות פרטיות ובלי טבלאות שאף אחד לא בטוח שהן מעודכנות
               </p>
             </div>
           </div>

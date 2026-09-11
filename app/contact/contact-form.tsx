@@ -47,12 +47,12 @@ export function ContactForm() {
       }
       setMessage(
         response.status === 429
-          ? "נשלחו כמה פניות ברצף. נסו שוב עוד דקה, או כתבו לנו ישירות למייל שלמטה"
-          : `לא הצלחנו לשלוח את הפנייה. אפשר לכתוב לנו ישירות ל-${SUPPORT_MAILBOX}`,
+          ? "נשלחו כמה פניות ברצף — נסו שוב בעוד דקה, או כתבו לנו ישירות למייל שלמטה"
+          : `לא הצלחנו לשלוח את הפנייה — אפשר לכתוב לנו ישירות ל־${SUPPORT_MAILBOX}`,
         "error"
       );
     } catch {
-      setMessage(`לא הצלחנו לשלוח את הפנייה. אפשר לכתוב לנו ישירות ל-${SUPPORT_MAILBOX}`, "error");
+      setMessage(`לא הצלחנו לשלוח את הפנייה — אפשר לכתוב לנו ישירות ל־${SUPPORT_MAILBOX}`, "error");
     } finally {
       setBusy(false);
     }
@@ -63,7 +63,7 @@ export function ContactForm() {
       <div className="contact-sent" role="status">
         <CheckCircle2 size={44} aria-hidden="true" />
         <h2>הפנייה נשלחה</h2>
-        <p>נחזור אליך למייל שהשארת, בדרך כלל תוך יום עסקים אחד</p>
+        <p>נחזור אליכם למייל שהשארתם, בדרך כלל תוך יום עסקים אחד</p>
         <a className="button" href={`mailto:${SUPPORT_MAILBOX}`}>{SUPPORT_MAILBOX}</a>
       </div>
     );

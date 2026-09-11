@@ -40,11 +40,11 @@ export default function ResetPasswordPage() {
   async function savePassword() {
     setMessage("");
     if (password.length < 8) {
-      setMessage("הסיסמה חייבת להכיל לפחות 8 תווים.");
+      setMessage("הסיסמה חייבת להכיל לפחות 8 תווים");
       return;
     }
     if (password !== confirmation) {
-      setMessage("הסיסמאות אינן זהות.");
+      setMessage("הסיסמאות אינן זהות");
       return;
     }
 
@@ -53,7 +53,7 @@ export default function ResetPasswordPage() {
     setBusy(false);
 
     if (error) {
-      setMessage("לא הצלחנו לעדכן את הסיסמה. ייתכן שהקישור פג תוקף.");
+      setMessage("לא הצלחנו לעדכן את הסיסמה — ייתכן שתוקף הקישור פג");
       return;
     }
     setPassword("");
@@ -66,15 +66,15 @@ export default function ResetPasswordPage() {
       <section className="onboarding-intro auth-flow-intro">
         <BrandLogo href="/" light />
         <p className="eyebrow">SHIFT PILOT</p>
-        <h1>בחירת סיסמה חדשה.</h1>
-        <p className="lead">הסיסמה נשמרת באופן מאובטח ב־Supabase ואינה נחשפת למנהלים או לעובדי ShiftPilot.</p>
+        <h1>בחירת סיסמה חדשה</h1>
+        <p className="lead">הסיסמה נשמרת באופן מאובטח ואינה נחשפת למנהלים או לעובדי ShiftPilot</p>
       </section>
       <section className="auth-card onboarding-card auth-flow-card">
         {stage === "checking" ? <div className="onboarding-state"><Loader2 className="spin" size={38} /><p>בודקים את קישור האיפוס...</p></div> : null}
         {stage === "expired" ? (
           <div className="onboarding-state">
             <KeyRound size={48} /><h2>הקישור אינו תקף</h2>
-            <p>הקישור פג תוקף או שכבר נעשה בו שימוש. בקש קישור חדש ופתח רק את ההודעה האחרונה.</p>
+            <p>תוקף הקישור פג או שכבר נעשה בו שימוש — בקשו קישור חדש ופתחו רק את ההודעה האחרונה</p>
             <Link className="button primary" href="/auth/forgot-password">שליחת קישור חדש</Link>
           </div>
         ) : null}
@@ -89,7 +89,7 @@ export default function ResetPasswordPage() {
         ) : null}
         {stage === "done" ? (
           <div className="onboarding-state">
-            <CheckCircle2 size={50} /><h2>הסיסמה עודכנה</h2><p>אפשר להיכנס עכשיו לחשבון באמצעות הסיסמה החדשה.</p>
+            <CheckCircle2 size={50} /><h2>הסיסמה עודכנה</h2><p>אפשר להיכנס עכשיו לחשבון באמצעות הסיסמה החדשה</p>
             <Link className="button primary" href="/login">כניסה ל־ShiftPilot</Link>
           </div>
         ) : null}

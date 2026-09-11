@@ -39,9 +39,9 @@ export default function OfflinePage() {
         }}
       >
         <p style={{ margin: "0 0 8px", color: "#2158c9", fontWeight: 700, fontSize: 13 }}>אין חיבור לאינטרנט</p>
-        <h1 style={{ margin: "0 0 12px", fontSize: 22, color: "#172033" }}>אי אפשר להתחבר כרגע.</h1>
+        <h1 style={{ margin: "0 0 12px", fontSize: 22, color: "#172033" }}>אי אפשר להתחבר כרגע</h1>
         <p style={{ margin: 0, color: "#667085", fontSize: 15, lineHeight: 1.7 }}>
-          בדקו את החיבור לרשת ונסו שוב. נתוני הסידור צריכים חיבור פעיל כדי להישאר מעודכנים.
+          בדקו את החיבור לרשת ונסו שוב — נתוני הסידור מתעדכנים רק כשיש חיבור פעיל
         </p>
       </section>
     </main>

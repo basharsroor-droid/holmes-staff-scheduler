@@ -22,7 +22,7 @@ export default async function SupportSecurityPage() {
         <Link href="/support" className="back-link"><ArrowRight size={17} /> חזרה למסוף התמיכה</Link>
         <p className="eyebrow">חשבון אישי</p>
         <h1><ShieldCheck /> אבטחת חשבון</h1>
-        <p>ניהול אימות דו-שלבי לחשבון שלך. מומלץ במיוחד לנציגי תמיכה — יש לכם גישה לפניות מכל הלקוחות.</p>
+        <p>ניהול אימות דו־שלבי לחשבון שלך — מומלץ במיוחד לנציגי תמיכה, שיש להם גישה לפניות מכל הלקוחות</p>
       </div>
     </header>
     <SecuritySettings />
