@@ -16,34 +16,34 @@ import { SiteNavbar } from "@/components/marketing/site-navbar";
 export const metadata: Metadata = {
   title: "סיור במוצר | ShiftPilot",
   description:
-    "ככה עובד ShiftPilot: הגשת זמינות, בניית סידור, פרסום לצוות והחלפות משמרת — ואז 30 ימי ניסיון בסביבה שלכם"
+    "ככה עובדת ShiftPilot: הגשת זמינות, בניית סידור, פרסום לצוות והחלפות משמרת — ואז 30 ימי ניסיון בסביבה שלכם"
 };
 
 const productLoop = [
   {
     n: "01",
     title: "מגדירים את העסק",
-    text: "סניפים, מחלקות וסוגי משמרות עם שעות ומספר עובדים. מזמינים את הצוות בקישור אישי."
+    text: "סניפים, מחלקות וסוגי משמרות עם שעות ומספר עובדים — ומזמינים את הצוות בקישור אישי"
   },
   {
     n: "02",
     title: "פותחים חודש עבודה",
-    text: "העובדים מסמנים מהטלפון באילו משמרות הם זמינים ושולחים למנהל עד מועד ההגשה."
+    text: "העובדים מסמנים מהטלפון באילו משמרות הם זמינים ושולחים למנהל עד מועד ההגשה"
   },
   {
     n: "03",
     title: "בונים את הסידור ומפרסמים",
-    text: "המנהל רואה מי הגיש ומי חסר, משבץ לפי הזמינות ומפרסם לצוות בלחיצה."
+    text: "המנהל רואה מי הגיש ומי חסר, משבץ לפי הזמינות ומפרסם לצוות בלחיצה"
   },
   {
     n: "04",
     title: "כל עובד רואה את המשמרות שלו",
-    text: "הסידור המעודכן והמשמרת הקרובה — בלי קבוצות וואטסאפ ובלי צילומי מסך של אקסל."
+    text: "הסידור המעודכן והמשמרת הקרובה — בלי קבוצות וואטסאפ ובלי צילומי מסך של אקסל"
   },
   {
     n: "05",
     title: "החלפות עם אישור מתועד",
-    text: "עובד מבקש החלפה, העמית מאשר, המנהל מאשר סופית — והסידור מתעדכן לבד."
+    text: "עובד מבקש החלפה, העמית מאשר, המנהל מאשר סופית — והסידור מתעדכן לבד"
   }
 ];
 
@@ -57,10 +57,10 @@ export default function DemoPage() {
       <section className="pro-section process-section">
         <ScrollReveal className="section-heading centered">
           <p className="pro-kicker dark">סיור במוצר</p>
-          <h1>ככה נראה חודש עבודה ב-ShiftPilot</h1>
+          <h1>ככה נראה חודש עבודה ב־ShiftPilot</h1>
           <p>
-            מהגשת הזמינות ועד החלפת משמרת מאושרת — חמישה שלבים, במקום אחד. הדרך הטובה ביותר לראות את זה היא בסביבה שלכם:
-            30 ימי ניסיון, בלי כרטיס אשראי.
+            מהגשת הזמינות ועד החלפת משמרת מאושרת, בחמישה שלבים ובמקום אחד — והדרך הטובה ביותר לראות את זה היא בסביבה שלכם:
+            30 ימי ניסיון, בלי כרטיס אשראי
           </p>
         </ScrollReveal>
         <div className="process-timeline">
@@ -82,7 +82,7 @@ export default function DemoPage() {
         <ScrollReveal>
           <BrandLogo light />
           <h2>רוצים לראות את זה על העסק שלכם?</h2>
-          <p>פותחים סביבת עבודה בכמה דקות, מזמינים את הצוות ומתחילים מהחודש הבא.</p>
+          <p>פותחים סביבת עבודה בכמה דקות, מזמינים את הצוות ומתחילים מהחודש הבא</p>
           <div>
             <Link className="button brand-button large" href="/onboarding">
               פתיחת סביבת עבודה <ArrowLeft size={18} />
@@ -98,7 +98,7 @@ export default function DemoPage() {
         <div className="pro-footer-top">
           <div className="pro-footer-brand">
             <BrandLogo href="/" />
-            <p>זמינות, סידורי עבודה והחלפות משמרת — במקום אחד.</p>
+            <p>זמינות, סידורי עבודה והחלפות משמרת — במקום אחד</p>
           </div>
           <nav className="pro-footer-col" aria-label="גישה למערכת">
             <h4>גישה למערכת</h4>
@@ -109,7 +109,7 @@ export default function DemoPage() {
           <nav className="pro-footer-col" aria-label="מידע ותמיכה">
             <h4>מידע ותמיכה</h4>
             <Link href="/about">מי אנחנו</Link>
-            <Link href="/contact">צור קשר</Link>
+            <Link href="/contact">צרו קשר</Link>
             <a href="mailto:support@shiftpilothq.com">support@shiftpilothq.com</a>
             <Link href="/terms">תנאי שימוש</Link>
             <Link href="/privacy">מדיניות פרטיות</Link>
@@ -118,7 +118,7 @@ export default function DemoPage() {
         <div className="pro-footer-wordmark" aria-hidden="true">
           ShiftPilot
         </div>
-        <small>© 2026 ShiftPilot. כל הזכויות שמורות.</small>
+        <small>© 2026 ShiftPilot · כל הזכויות שמורות</small>
       </footer>
     </main>
   );

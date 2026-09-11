@@ -19,8 +19,8 @@ export default function ErrorPage({ error, reset }: { error: Error & { digest?: 
       <section className="recovery-card" role="alert">
         <AlertTriangle size={42} />
         <p className="eyebrow">תקלה זמנית</p>
-        <h1>לא הצלחנו לטעון את העמוד.</h1>
-        <p>המידע שלך לא נמחק. אפשר לנסות שוב, ואם התקלה נמשכת לחזור למסך הכניסה.</p>
+        <h1>לא הצלחנו לטעון את העמוד</h1>
+        <p>המידע שלך לא נמחק — אפשר לנסות שוב, ואם התקלה נמשכת, לחזור למסך הכניסה</p>
         <div>
           <button className="button primary" type="button" onClick={reset}><RefreshCw size={17} /> ניסיון נוסף</button>
           <Link className="button" href="/login">חזרה לכניסה</Link>

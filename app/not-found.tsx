@@ -8,8 +8,8 @@ export default function NotFound() {
       <BrandLogo href="/" />
       <section className="recovery-card">
         <p className="eyebrow">404</p>
-        <h1>העמוד שחיפשת לא נמצא.</h1>
-        <p>ייתכן שהקישור השתנה או שאין לך צורך במסלול הזה יותר.</p>
+        <h1>העמוד שחיפשת לא נמצא</h1>
+        <p>ייתכן שהקישור שגוי או שהעמוד הועבר</p>
         <div><Link className="button primary" href="/">חזרה לאתר</Link><Link className="button" href="/login">כניסה למערכת</Link></div>
       </section>
     </main>

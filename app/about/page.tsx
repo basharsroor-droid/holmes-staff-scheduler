@@ -5,7 +5,7 @@ import { BrandLogo } from "@/components/brand/brand-logo";
 
 export const metadata: Metadata = {
   title: "אודות | ShiftPilot",
-  description: "מי אנחנו, למי המערכת מיועדת, ואיך ShiftPilot נבנתה."
+  description: "מי אנחנו, למי המערכת מיועדת, ואיך ShiftPilot נבנתה"
 };
 
 // Track P0/P1-03 ("trust and identity") asked for a standalone About page
@@ -42,7 +42,7 @@ export default function AboutPage() {
         <section>
           <h2>איך זה נבנה</h2>
           <p>
-            ShiftPilot נבנה כדי לפתור בעיה אמיתית: ניהול סידור שמתבסס על
+            ShiftPilot נבנתה כדי לפתור בעיה אמיתית: ניהול סידור שמתבסס על
             קבוצת וואטסאפ וגיליון משותף — עם כל הבלבולים, ההחלפות שאף אחד לא
             עוקב אחריהן, והמנהל שצריך לזכור הכול בראש. הפיתוח מלווה בפיילוט
             אמיתי מול עסק אמיתי (הולמס פלייס), לא רק תרחישי בדיקה תיאורטיים.

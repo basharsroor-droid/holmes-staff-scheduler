@@ -28,7 +28,7 @@ export default function LoginPage() {
   async function completeLogin() {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-      setMessage("משהו השתבש בכניסה. נסו שוב.");
+      setMessage("משהו השתבש בכניסה — נסו שוב");
       return;
     }
     const { data: supportAgent } = await supabase.from("platform_support_agents")
@@ -41,7 +41,7 @@ export default function LoginPage() {
     setMessage("");
     const actualPassword = passwordInputRef.current?.value ?? password;
     if (!email || !actualPassword) {
-      setMessage("יש להזין כתובת מייל וסיסמה.");
+      setMessage("יש להזין כתובת מייל וסיסמה");
       return;
     }
 
@@ -50,7 +50,7 @@ export default function LoginPage() {
 
     if (error) {
       setBusy(false);
-      setMessage("פרטי הכניסה אינם נכונים או שהמייל עדיין לא אומת.");
+      setMessage("פרטי הכניסה אינם נכונים או שהמייל עדיין לא אומת");
       return;
     }
 
@@ -60,7 +60,7 @@ export default function LoginPage() {
       const factor = factorsData?.totp.find((item) => item.status === "verified");
       setBusy(false);
       if (!factor) {
-        setMessage("החשבון דורש אימות דו-שלבי, אבל לא הצלחנו לטעון את פרטיו. נסו שוב.");
+        setMessage("החשבון דורש אימות דו־שלבי, אבל לא הצלחנו לטעון את פרטיו — נסו שוב");
         return;
       }
       setMfaFactorId(factor.id);
@@ -73,7 +73,7 @@ export default function LoginPage() {
 
   async function verifyMfa() {
     if (!mfaFactorId || mfaCode.trim().length < 6) {
-      setMessage("יש להזין את הקוד בן 6 הספרות מהאפליקציה.");
+      setMessage("יש להזין את הקוד בן 6 הספרות מהאפליקציה");
       return;
     }
     setMessage("");
@@ -81,7 +81,7 @@ export default function LoginPage() {
     const { error } = await supabase.auth.mfa.challengeAndVerify({ factorId: mfaFactorId, code: mfaCode.trim() });
     setBusy(false);
     if (error) {
-      setMessage("הקוד שגוי או שפג תוקפו. נסו שוב.");
+      setMessage("הקוד שגוי או שפג תוקפו — נסו שוב");
       return;
     }
     void completeLogin();
@@ -117,7 +117,7 @@ export default function LoginPage() {
             <BrandLogo href={nativeApp ? undefined : "/"} />
           </motion.div>
           <h1 className="text-3xl font-black tracking-tight sm:text-4xl">ברוכים הבאים ל־ShiftPilot</h1>
-          <p className="mt-2 max-w-xs text-sm font-medium leading-6 text-blue-100/75">כניסה מאובטחת לסביבת העבודה, המשמרות והצוות שלך.</p>
+          <p className="mt-2 max-w-xs text-sm font-medium leading-6 text-blue-100/75">כניסה מאובטחת לסביבת העבודה, המשמרות והצוות שלך</p>
         </motion.div>
 
         <motion.section
@@ -137,7 +137,7 @@ export default function LoginPage() {
             {mfaFactorId ? (
               <motion.div key="mfa" initial={{ opacity: 0, x: 12 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -12 }} className="grid gap-4">
                 <div className="text-center"><p className="text-xs font-extrabold text-cyan-200">שלב אחרון</p><h2 className="mt-1 text-2xl font-black">אימות דו־שלבי</h2></div>
-                <p className="text-center text-sm leading-6 text-blue-100/70">הזינו את הקוד בן 6 הספרות מאפליקציית האימות שלכם.</p>
+                <p className="text-center text-sm leading-6 text-blue-100/70">הזינו את הקוד בן 6 הספרות מאפליקציית האימות שלכם</p>
                 <label className="grid gap-2 text-sm font-bold">
                   <span>קוד אימות</span>
                   <input

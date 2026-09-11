@@ -130,7 +130,7 @@ export function PricingPlans() {
             {enterprisePlan.features.slice(0, 3).map((feature) => <li key={feature}><Check size={15} /> {feature}</li>)}
           </ul>
           <div className="pricing-enterprise-action">
-            <strong>{enterprisePlan.customFromIls ? `החל מ־${enterprisePlan.customFromIls} ₪` : "הצעה מותאמת"}</strong>
+            <strong>{enterprisePlan.customFromIls ? `החל מ-${enterprisePlan.customFromIls} ₪` : "הצעה מותאמת"}</strong>
             <small>לחודש · הצעה מותאמת</small>
             <Link className="button" href="/contact">דברו איתנו <ArrowLeft size={16} /></Link>
           </div>

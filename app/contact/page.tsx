@@ -8,7 +8,7 @@ import { ScrollReveal } from "@/components/marketing/scroll-reveal";
 import { SiteNavbar } from "@/components/marketing/site-navbar";
 
 export const metadata: Metadata = {
-  title: "צור קשר | ShiftPilot",
+  title: "צרו קשר | ShiftPilot",
   description: "שאלה על מסלול, בקשה להצעה מותאמת לרשת, או ליווי בהקמה — נחזור אליכם תוך יום עסקים אחד"
 };
 
@@ -26,9 +26,9 @@ export default function ContactPage() {
 
     <section className="pro-section contact-section">
       <ScrollReveal className="section-heading">
-        <p className="pro-kicker dark">צור קשר</p>
+        <p className="pro-kicker dark">צרו קשר</p>
         <h2>נשמח לשמוע מכם</h2>
-        <p>שאלה על מסלול, הצעה מותאמת לרשת עם כמה סניפים, או ליווי בהקמה — כתבו לנו ונחזור אליכם. אין צורך בחשבון.</p>
+        <p>שאלה על מסלול, הצעה מותאמת לרשת עם כמה סניפים, או ליווי בהקמה — כתבו לנו ונחזור אליכם, גם בלי חשבון</p>
       </ScrollReveal>
 
       <div className="contact-grid">
@@ -56,12 +56,12 @@ export default function ContactPage() {
 
     <footer className="pro-footer">
       <div className="pro-footer-top">
-        <div className="pro-footer-brand"><BrandLogo href="/" /><p>זמינות, סידורי עבודה והחלפות משמרת — במקום אחד.</p></div>
-        <nav className="pro-footer-col" aria-label="גישה למערכת"><h4>גישה למערכת</h4><Link href="/pricing">תמחור</Link><Link href="/login">כניסה למערכת</Link><Link href="/onboarding">פתיחת סביבת עבודה</Link><Link href="/demo">סביבת הדמו</Link></nav>
-        <nav className="pro-footer-col" aria-label="מידע ותמיכה"><h4>מידע ותמיכה</h4><Link href="/about">מי אנחנו</Link><Link href="/contact">צור קשר</Link><a href="mailto:support@shiftpilothq.com">support@shiftpilothq.com</a><Link href="/terms">תנאי שימוש</Link><Link href="/privacy">מדיניות פרטיות</Link></nav>
+        <div className="pro-footer-brand"><BrandLogo href="/" /><p>זמינות, סידורי עבודה והחלפות משמרת — במקום אחד</p></div>
+        <nav className="pro-footer-col" aria-label="גישה למערכת"><h4>גישה למערכת</h4><Link href="/pricing">תמחור</Link><Link href="/login">כניסה למערכת</Link><Link href="/onboarding">פתיחת סביבת עבודה</Link><Link href="/demo">סיור במוצר</Link></nav>
+        <nav className="pro-footer-col" aria-label="מידע ותמיכה"><h4>מידע ותמיכה</h4><Link href="/about">מי אנחנו</Link><Link href="/contact">צרו קשר</Link><a href="mailto:support@shiftpilothq.com">support@shiftpilothq.com</a><Link href="/terms">תנאי שימוש</Link><Link href="/privacy">מדיניות פרטיות</Link></nav>
       </div>
       <div className="pro-footer-wordmark" aria-hidden="true">ShiftPilot</div>
-      <small>© 2026 ShiftPilot. כל הזכויות שמורות.</small>
+      <small>© 2026 ShiftPilot · כל הזכויות שמורות</small>
     </footer>
   </main>;
 }

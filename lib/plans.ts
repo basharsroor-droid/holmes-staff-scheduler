@@ -110,7 +110,7 @@ export const PLANS: Plan[] = [
   {
     id: "business_pro",
     name: "Business Pro",
-    tagline: "לעסק גדול, מועדון, מסעדה, מלון או ארגון רב-צוותי",
+    tagline: "לעסק גדול, מועדון, מסעדה, מלון או ארגון רב־צוותי",
     monthlyIls: 339,
     annualIls: 3390,
     maxActiveEmployees: 80,
@@ -178,8 +178,8 @@ export const ADDONS: Addon[] = [
   { label: "חבילת 10 עובדים נוספים", price: "25 ₪ לחודש" },
   { label: "מנהל נוסף מעבר למכסה", price: "10 ₪ לחודש" },
   { label: "סניף נוסף", price: "החל מ-99 ₪ לחודש" },
-  { label: "הקמה והדרכה אישית", price: "299 ₪ חד-פעמי" },
-  { label: "ייבוא עובדים והגדרות", price: "החל מ-199 ₪ חד-פעמי" },
+  { label: "הקמה והדרכה אישית", price: "299 ₪ חד־פעמי" },
+  { label: "ייבוא עובדים והגדרות", price: "החל מ-199 ₪ חד־פעמי" },
   { label: "התאמה או אינטגרציה מיוחדת", price: "הצעת מחיר" }
 ];
 
