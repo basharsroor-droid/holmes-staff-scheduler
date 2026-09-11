@@ -1,6 +1,8 @@
 import { createSign } from "node:crypto";
 import { connect } from "node:http2";
 
+import { assertOutboundAllowed } from "../outbound.ts";
+
 type PushMessage = {
   token: string;
   environment: "sandbox" | "production";
@@ -37,6 +39,7 @@ function providerToken() {
 }
 
 export async function sendApnsPush(message: PushMessage) {
+  assertOutboundAllowed(message.token);
   const bundleId = process.env.APNS_BUNDLE_ID || "com.shiftpilothq.app";
   const origin = message.environment === "sandbox"
     ? "https://api.sandbox.push.apple.com"

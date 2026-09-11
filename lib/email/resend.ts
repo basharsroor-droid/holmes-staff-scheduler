@@ -1,4 +1,7 @@
+import { assertOutboundAllowed } from "../outbound.ts";
+
 export async function sendEmail(input: { to: string; subject: string; html: string; idempotencyKey: string }) {
+  assertOutboundAllowed(input.to);
   const apiKey = process.env.RESEND_API_KEY;
   const from = process.env.EMAIL_FROM;
   if (!apiKey || !from) throw new Error("RESEND_API_KEY or EMAIL_FROM is not configured");

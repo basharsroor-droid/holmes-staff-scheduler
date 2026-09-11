@@ -5,9 +5,10 @@
 // Supabase project can be brought to the right *shape* by replaying those
 // migrations. What migrations can't reconstruct is the *data* that existed
 // at a point in time, which is what this script captures: every row of
-// every table, as JSON, encrypted with age so the ciphertext is safe to
-// store outside Supabase (including in this repo's own git history) even
-// though the repository is public.
+// every public table (lib/backup-tables.mjs), plus the auth.users fields
+// needed to recreate each user with the same UUID -- never a password hash --
+// as JSON, encrypted with age so the ciphertext is safe to store outside
+// Supabase even though the repository is public.
 //
 // Requires:
 //   NEXT_PUBLIC_SUPABASE_URL   -- already public, not a secret
@@ -31,37 +32,11 @@ import { mkdirSync, writeFileSync } from "node:fs";
 import { dirname } from "node:path";
 
 import { createBackupPayload } from "../lib/backup-format.mjs";
+import { AUTH_USERS_KEY, BACKUP_TABLE_NAMES, BACKUP_TABLES, toBackupAuthUser } from "../lib/backup-tables.mjs";
 
-// Every table in the public schema as of 2026-08-16 (confirmed against the
-// live project via list_tables). Add new tables here when a migration adds
-// one -- this list is not derived automatically on purpose, so a forgotten
-// table shows up as a visible diff in this file's PR, not a silent gap in
-// backup coverage.
-const TABLES = [
-  "organizations",
-  "branches",
-  "profiles",
-  "organization_memberships",
-  "organization_invitations",
-  "departments",
-  "department_memberships",
-  "shift_templates",
-  "schedule_periods",
-  "availability_submissions",
-  "availability_entries",
-  "leave_requests",
-  "shifts",
-  "shift_assignments",
-  "swap_requests",
-  "swap_request_events",
-  "notifications",
-  "notification_preferences",
-  "email_delivery_queue",
-  "audit_logs",
-  "operational_events",
-  "platform_support_agents",
-  "support_tickets"
-];
+// PostgREST returns at most 1000 rows per request, so a single select("*")
+// would silently cut any larger table short. Page through in key order.
+const PAGE_SIZE = 1000;
 
 function requireEnv(name) {
   const value = process.env[name];
@@ -72,16 +47,26 @@ function requireEnv(name) {
   return value;
 }
 
-async function exportAllTables(supabase) {
-  const tables = {};
-  for (const table of TABLES) {
-    const { data, error } = await supabase.from(table).select("*");
-    if (error) {
-      throw new Error(`Failed to export "${table}": ${error.message}`);
-    }
-    tables[table] = data;
+async function exportTable(supabase, table) {
+  const rows = [];
+  for (let from = 0; ; from += PAGE_SIZE) {
+    let query = supabase.from(table).select("*");
+    for (const column of BACKUP_TABLES[table].key) query = query.order(column, { ascending: true });
+    const { data, error } = await query.range(from, from + PAGE_SIZE - 1);
+    if (error) throw new Error(`Failed to export "${table}": ${error.message}`);
+    rows.push(...data);
+    if (data.length < PAGE_SIZE) return rows;
   }
-  return tables;
+}
+
+async function exportAuthUsers(supabase) {
+  const users = [];
+  for (let page = 1; ; page += 1) {
+    const { data, error } = await supabase.auth.admin.listUsers({ page, perPage: PAGE_SIZE });
+    if (error) throw new Error(`Failed to export auth.users: ${error.message}`);
+    users.push(...data.users.map(toBackupAuthUser));
+    if (data.users.length < PAGE_SIZE) return users;
+  }
 }
 
 async function main() {
@@ -93,8 +78,10 @@ async function main() {
     auth: { persistSession: false }
   });
 
-  console.log(`Exporting ${TABLES.length} tables...`);
-  const tables = await exportAllTables(supabase);
+  console.log(`Exporting ${BACKUP_TABLE_NAMES.length} tables and auth.users...`);
+  const tables = {};
+  for (const table of BACKUP_TABLE_NAMES) tables[table] = await exportTable(supabase, table);
+  tables[AUTH_USERS_KEY] = await exportAuthUsers(supabase);
   const rowCounts = Object.fromEntries(Object.entries(tables).map(([name, rows]) => [name, rows.length]));
   console.log("Row counts:", rowCounts);
 
