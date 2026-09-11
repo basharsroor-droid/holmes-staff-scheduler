@@ -27,11 +27,13 @@ export function MarkNotificationsReadButton({ unreadCount }: { unreadCount: numb
     router.refresh();
   }
 
-  return <div>
-    <button className="button" disabled={busy || unreadCount === 0} onClick={() => void markRead()}>
-      {busy ? <Loader2 className="spin" size={16} /> : <CheckCheck size={16} />}
-      סימון הכול כנקרא
-    </button>
-    <StatusMessage message={message} kind={kind} />
-  </div>;
+  return (
+    <div>
+      <button className="button" disabled={busy || unreadCount === 0} onClick={() => void markRead()}>
+        {busy ? <Loader2 className="spin" size={16} /> : <CheckCheck size={16} />}
+        סימון הכול כנקרא
+      </button>
+      <StatusMessage message={message} kind={kind} />
+    </div>
+  );
 }

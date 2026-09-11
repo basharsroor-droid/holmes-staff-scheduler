@@ -21,7 +21,9 @@
     "backup:database": "node scripts/backup-database.mjs",
     "restore:database": "node scripts/restore-database.mjs",
     "seed:demo": "node scripts/seed-demo-environment.mjs",
-    "reset:demo": "node scripts/seed-demo-environment.mjs --reset"
+    "reset:demo": "node scripts/seed-demo-environment.mjs --reset",
+    "format": "npx --yes prettier@3.9.6 --write \"app/workspace/**/*.{ts,tsx}\"",
+    "format:check": "npx --yes prettier@3.9.6 --check \"app/workspace/**/*.{ts,tsx}\""
   },
   "dependencies": {
     "@capacitor/core": "^8.5.0",

@@ -50,6 +50,11 @@ jobs:
       - name: Lint application
         run: npm run lint
 
+      - name: Check formatting (app/workspace)
+        # F2: Prettier (pinned via npx, see package.json) keeps app/workspace
+        # readable -- before this, single JSX lines ran past 2,800 characters.
+        run: npm run format:check
+
       - name: Type-check application
         run: npm run typecheck
 

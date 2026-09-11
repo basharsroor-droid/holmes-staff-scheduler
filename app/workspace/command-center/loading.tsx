@@ -10,7 +10,10 @@ export default function CommandCenterLoading() {
       </header>
       <section className="template-list-card">
         <div className="submission-banner open">
-          <div><strong>טוען נתונים</strong><span>המסך יתעדכן אוטומטית כשהנתונים יהיו מוכנים.</span></div>
+          <div>
+            <strong>טוען נתונים</strong>
+            <span>המסך יתעדכן אוטומטית כשהנתונים יהיו מוכנים.</span>
+          </div>
         </div>
       </section>
     </main>

@@ -40,28 +40,39 @@ export function OpenShiftsClient({ initialShifts }: { initialShifts: OpenShift[]
   const supabase = useMemo(() => createSupabaseBrowserClient(), []);
   const [shifts, setShifts] = useState(initialShifts);
   const [busy, setBusy] = useState("");
-  const [eligibility, setEligibility] = useState<Record<string, Eligibility>>(() => Object.fromEntries(initialShifts.map((shift) => [shift.id, { eligible: false, reason: null, loading: true }])));
+  const [eligibility, setEligibility] = useState<Record<string, Eligibility>>(() =>
+    Object.fromEntries(initialShifts.map((shift) => [shift.id, { eligible: false, reason: null, loading: true }]))
+  );
   const [notes, setNotes] = useState<Record<string, string>>({});
   const { message, kind, setMessage } = useStatusMessage();
 
   useEffect(() => {
     let active = true;
     async function loadEligibility() {
-      const entries = await Promise.all(shifts.map(async (shift) => {
-        if (shift.requested) return [shift.id, { eligible: true, reason: null, loading: false } as Eligibility] as const;
-        const { data, error } = await supabase.rpc("check_open_shift_eligibility", { target_shift_id: shift.id });
-        // check_open_shift_eligibility returns jsonb {eligible, reason}; the generated
-        // type for a jsonb return is plain Json, so narrow it rather than cast it.
-        const payload: Record<string, unknown> = data && typeof data === "object" && !Array.isArray(data) ? data : {};
-        const result: Eligibility = error
-          ? { eligible: false, reason: error.message, loading: false }
-          : { eligible: payload.eligible === true, reason: typeof payload.reason === "string" ? payload.reason : null, loading: false };
-        return [shift.id, result] as const;
-      }));
+      const entries = await Promise.all(
+        shifts.map(async (shift) => {
+          if (shift.requested)
+            return [shift.id, { eligible: true, reason: null, loading: false } as Eligibility] as const;
+          const { data, error } = await supabase.rpc("check_open_shift_eligibility", { target_shift_id: shift.id });
+          // check_open_shift_eligibility returns jsonb {eligible, reason}; the generated
+          // type for a jsonb return is plain Json, so narrow it rather than cast it.
+          const payload: Record<string, unknown> = data && typeof data === "object" && !Array.isArray(data) ? data : {};
+          const result: Eligibility = error
+            ? { eligible: false, reason: error.message, loading: false }
+            : {
+                eligible: payload.eligible === true,
+                reason: typeof payload.reason === "string" ? payload.reason : null,
+                loading: false
+              };
+          return [shift.id, result] as const;
+        })
+      );
       if (active) setEligibility(Object.fromEntries(entries));
     }
     void loadEligibility();
-    return () => { active = false; };
+    return () => {
+      active = false;
+    };
   }, [shifts.length, supabase]);
 
   async function requestShift(shiftId: string) {
@@ -73,15 +84,26 @@ export function OpenShiftsClient({ initialShifts }: { initialShifts: OpenShift[]
     });
     setBusy("");
     if (error || !data) {
-      setMessage(error?.message ? eligibilityReason(error.message) : "שליחת הבקשה נכשלה. ייתכן שהמשמרת כבר אוישה או נסגרה לבקשות.", "error");
+      setMessage(
+        error?.message
+          ? eligibilityReason(error.message)
+          : "שליחת הבקשה נכשלה. ייתכן שהמשמרת כבר אוישה או נסגרה לבקשות.",
+        "error"
+      );
       return;
     }
-    setShifts((current) => current.map((item) => item.id === shiftId ? {
-      ...item,
-      requested: true,
-      request_id: data.id,
-      request_status: data.status
-    } : item));
+    setShifts((current) =>
+      current.map((item) =>
+        item.id === shiftId
+          ? {
+              ...item,
+              requested: true,
+              request_id: data.id,
+              request_status: data.status
+            }
+          : item
+      )
+    );
     setMessage("הבקשה נשלחה למנהל לאישור. הסידור עדיין לא השתנה.");
   }
 
@@ -96,53 +118,124 @@ export function OpenShiftsClient({ initialShifts }: { initialShifts: OpenShift[]
       setMessage("ביטול הבקשה נכשל.", "error");
       return;
     }
-    setShifts((current) => current.map((item) => item.id === shiftId ? {
-      ...item,
-      requested: false,
-      request_id: null,
-      request_status: "cancelled"
-    } : item));
+    setShifts((current) =>
+      current.map((item) =>
+        item.id === shiftId
+          ? {
+              ...item,
+              requested: false,
+              request_id: null,
+              request_status: "cancelled"
+            }
+          : item
+      )
+    );
     setMessage("הבקשה בוטלה.");
   }
 
   if (!shifts.length) {
-    return <section className="template-list-card"><div className="empty-template-state"><Store size={42} /><h2>אין כרגע הזדמנויות פתוחות</h2><p>כשמנהל יפתח משמרת לאיוש, היא תופיע כאן ב־Shift Marketplace.</p></div></section>;
+    return (
+      <section className="template-list-card">
+        <div className="empty-template-state">
+          <Store size={42} />
+          <h2>אין כרגע הזדמנויות פתוחות</h2>
+          <p>כשמנהל יפתח משמרת לאיוש, היא תופיע כאן ב־Shift Marketplace.</p>
+        </div>
+      </section>
+    );
   }
 
-  return <section className="template-list-card">
-    <div className="template-list-heading"><div><p className="eyebrow">Phase 3 · WOW Features</p><h2><Store size={20} /> Shift Marketplace</h2><p>המערכת בודקת את הזכאות שלך לפני שליחת בקשה. בקשה מאושרת רק אחרי בדיקה נוספת ואישור מנהל.</p></div></div>
-    <div className="grid">
-      {shifts.map((shift) => {
-        const check = eligibility[shift.id] ?? { eligible: false, reason: null, loading: true };
-        return <article className="card-muted" key={shift.id}>
-          <div className="shift-title"><span>{shift.name}</span><small>{new Date(`${shift.shift_date}T12:00:00`).toLocaleDateString("he-IL", { weekday: "long", day: "numeric", month: "numeric" })}</small></div>
-          <p>{shift.start_time.slice(0,5)}–{shift.end_time.slice(0,5)} · {shift.branch_name} · {shift.department_name}</p>
+  return (
+    <section className="template-list-card">
+      <div className="template-list-heading">
+        <div>
+          <p className="eyebrow">Phase 3 · WOW Features</p>
+          <h2>
+            <Store size={20} /> Shift Marketplace
+          </h2>
+          <p>המערכת בודקת את הזכאות שלך לפני שליחת בקשה. בקשה מאושרת רק אחרי בדיקה נוספת ואישור מנהל.</p>
+        </div>
+      </div>
+      <div className="grid">
+        {shifts.map((shift) => {
+          const check = eligibility[shift.id] ?? { eligible: false, reason: null, loading: true };
+          return (
+            <article className="card-muted" key={shift.id}>
+              <div className="shift-title">
+                <span>{shift.name}</span>
+                <small>
+                  {new Date(`${shift.shift_date}T12:00:00`).toLocaleDateString("he-IL", {
+                    weekday: "long",
+                    day: "numeric",
+                    month: "numeric"
+                  })}
+                </small>
+              </div>
+              <p>
+                {shift.start_time.slice(0, 5)}–{shift.end_time.slice(0, 5)} · {shift.branch_name} ·{" "}
+                {shift.department_name}
+              </p>
 
-          {shift.requested
-            ? <div className="status-chip warning"><CheckCircle2 size={14} /> בקשה ממתינה לאישור מנהל</div>
-            : check.loading
-              ? <div className="status-chip"><Loader2 className="spin" size={14} /> בודק זכאות...</div>
-              : check.eligible
-                ? <div className="status-chip success"><ShieldCheck size={14} /> מתאים לכללי הזכאות שלך</div>
-                : <div className="status-chip warning"><AlertTriangle size={14} /> {eligibilityReason(check.reason)}</div>}
+              {shift.requested ? (
+                <div className="status-chip warning">
+                  <CheckCircle2 size={14} /> בקשה ממתינה לאישור מנהל
+                </div>
+              ) : check.loading ? (
+                <div className="status-chip">
+                  <Loader2 className="spin" size={14} /> בודק זכאות...
+                </div>
+              ) : check.eligible ? (
+                <div className="status-chip success">
+                  <ShieldCheck size={14} /> מתאים לכללי הזכאות שלך
+                </div>
+              ) : (
+                <div className="status-chip warning">
+                  <AlertTriangle size={14} /> {eligibilityReason(check.reason)}
+                </div>
+              )}
 
-          {!shift.requested && check.eligible ? <label className="field-label">הערה למנהל (אופציונלי)
-            <input
-              value={notes[shift.id] ?? ""}
-              maxLength={240}
-              placeholder="למשל: אשמח לקחת את המשמרת"
-              onChange={(event) => setNotes((current) => ({ ...current, [shift.id]: event.target.value }))}
-            />
-          </label> : null}
+              {!shift.requested && check.eligible ? (
+                <label className="field-label">
+                  הערה למנהל (אופציונלי)
+                  <input
+                    value={notes[shift.id] ?? ""}
+                    maxLength={240}
+                    placeholder="למשל: אשמח לקחת את המשמרת"
+                    onChange={(event) => setNotes((current) => ({ ...current, [shift.id]: event.target.value }))}
+                  />
+                </label>
+              ) : null}
 
-          <div className="actions">
-            {shift.requested && shift.request_id
-              ? <button className="button danger" disabled={!!busy} onClick={() => void cancelRequest(shift.id, shift.request_id!)}>{busy === `cancel-${shift.id}` ? <Loader2 className="spin" size={16} /> : <XCircle size={16} />} ביטול בקשה</button>
-              : <button className="button primary" disabled={!!busy || check.loading || !check.eligible} onClick={() => void requestShift(shift.id)}>{busy === `request-${shift.id}` ? <Loader2 className="spin" size={16} /> : <CheckCircle2 size={16} />} בקש/י את המשמרת</button>}
-          </div>
-        </article>;
-      })}
-    </div>
-    <StatusMessage message={message} kind={kind} />
-  </section>;
+              <div className="actions">
+                {shift.requested && shift.request_id ? (
+                  <button
+                    className="button danger"
+                    disabled={!!busy}
+                    onClick={() => void cancelRequest(shift.id, shift.request_id!)}
+                  >
+                    {busy === `cancel-${shift.id}` ? <Loader2 className="spin" size={16} /> : <XCircle size={16} />}{" "}
+                    ביטול בקשה
+                  </button>
+                ) : (
+                  <button
+                    className="button primary"
+                    disabled={!!busy || check.loading || !check.eligible}
+                    onClick={() => void requestShift(shift.id)}
+                  >
+                    {busy === `request-${shift.id}` ? (
+                      <Loader2 className="spin" size={16} />
+                    ) : (
+                      <CheckCircle2 size={16} />
+                    )}{" "}
+                    בקש/י את המשמרת
+                  </button>
+                )}
+              </div>
+            </article>
+          );
+        })}
+      </div>
+      <StatusMessage message={message} kind={kind} />
+    </section>
+  );
 }

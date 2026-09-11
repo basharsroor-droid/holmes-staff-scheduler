@@ -18,5 +18,9 @@ export function LogoutButton() {
     router.refresh();
   }
 
-  return <button className="button" disabled={busy} onClick={logout}>{busy ? <Loader2 className="spin" size={16} /> : <LogOut size={16} />} יציאה</button>;
+  return (
+    <button className="button" disabled={busy} onClick={logout}>
+      {busy ? <Loader2 className="spin" size={16} /> : <LogOut size={16} />} יציאה
+    </button>
+  );
 }
