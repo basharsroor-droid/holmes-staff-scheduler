@@ -11,6 +11,7 @@ import {
   Circle,
   ClipboardCheck,
   Clock3,
+  CreditCard,
   History,
   LifeBuoy,
   MessageSquareText,
@@ -431,14 +432,24 @@ export default async function WorkspacePage() {
                 <span className="status-chip active">פתיחה</span>
               </Link>
               {["owner", "admin"].includes(membership.role) ? (
-                <Link href="/workspace/audit-log">
-                  <History />
-                  <span>
-                    <strong>יומן פעילות</strong>
-                    <small>מעקב מאובטח אחר פעולות ניהול.</small>
-                  </span>
-                  <span className="status-chip active">פתיחה</span>
-                </Link>
+                <>
+                  <Link href="/workspace/subscription">
+                    <CreditCard />
+                    <span>
+                      <strong>המנוי שלי</strong>
+                      <small>מסלול, תקופת ניסיון ושימוש מול המכסות.</small>
+                    </span>
+                    <span className="status-chip active">פתיחה</span>
+                  </Link>
+                  <Link href="/workspace/audit-log">
+                    <History />
+                    <span>
+                      <strong>יומן פעילות</strong>
+                      <small>מעקב מאובטח אחר פעולות ניהול.</small>
+                    </span>
+                    <span className="status-chip active">פתיחה</span>
+                  </Link>
+                </>
               ) : null}
             </div>
           </section>
