@@ -7,6 +7,7 @@ import { StatusMessage } from "@/components/workspace/status-message";
 import { useStatusMessage } from "@/lib/hooks/use-status-message";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import type { Database } from "@/types/database";
+import { EmptyState } from "@/components/workspace/empty-state";
 
 type AvailabilityStatus = Database["public"]["Enums"]["availability_status"];
 type LeaveType = Database["public"]["Enums"]["leave_type"];
@@ -344,11 +345,12 @@ export function AvailabilityClient({
       <div className="template-workbench availability-workbench">
         {leaveCard}
         <section className="template-list-card">
-          <div className="empty-template-state">
-            <CalendarCheck size={42} />
-            <h2>אין כרגע חודש פתוח להגשה</h2>
-            <p>המנהל עדיין לא פתח תקופת זמינות חדשה.</p>
-          </div>
+          <EmptyState
+            icon={CalendarCheck}
+            iconSize={42}
+            title="אין כרגע חודש פתוח להגשה"
+            description="המנהל עדיין לא פתח תקופת זמינות חדשה."
+          />
         </section>
       </div>
     );

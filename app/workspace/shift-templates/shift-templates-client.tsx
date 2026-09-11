@@ -6,6 +6,7 @@ import { Check, Clock3, Loader2, Plus, Power, ShieldCheck, Users } from "lucide-
 import { StatusMessage } from "@/components/workspace/status-message";
 import { useStatusMessage } from "@/lib/hooks/use-status-message";
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
+import { EmptyState } from "@/components/workspace/empty-state";
 
 type Branch = { id: string; name: string };
 type Department = { id: string; branch_id: string; name: string };
@@ -277,10 +278,7 @@ export function ShiftTemplatesClient({
             </article>
           ))}
           {!departmentTemplates.length ? (
-            <div className="empty-template-state">
-              <Clock3 size={36} />
-              <p>הוסף את המשמרת הראשונה כדי להתחיל לבנות חודש עבודה.</p>
-            </div>
+            <EmptyState icon={Clock3} iconSize={36} description="הוסף את המשמרת הראשונה כדי להתחיל לבנות חודש עבודה." />
           ) : null}
         </div>
       </div>

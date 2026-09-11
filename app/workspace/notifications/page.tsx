@@ -6,6 +6,7 @@ import { MarkNotificationsReadButton } from "@/app/workspace/notifications/mark-
 import { NotificationPreferences, type PreferenceValues } from "@/app/workspace/notifications/notification-preferences";
 import { PushNotificationPermission } from "@/app/workspace/notifications/push-notification-permission";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { EmptyState } from "@/components/workspace/empty-state";
 
 export const dynamic = "force-dynamic";
 
@@ -173,11 +174,12 @@ export default async function NotificationsPage() {
         </div>
 
         {!(notifications ?? []).length ? (
-          <div className="empty-template-state">
-            <Bell size={42} />
-            <h2>אין עדיין התראות</h2>
-            <p>כאשר מנהל יפרסם סידור עבודה, העדכון יופיע כאן.</p>
-          </div>
+          <EmptyState
+            icon={Bell}
+            iconSize={42}
+            title="אין עדיין התראות"
+            description="כאשר מנהל יפרסם סידור עבודה, העדכון יופיע כאן."
+          />
         ) : null}
       </section>
       <PushNotificationPermission />

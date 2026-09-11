@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { CalendarDays, CalendarPlus, CheckCircle2, Clock3, MapPin } from "lucide-react";
 
 import { ShiftReminderButton } from "@/components/native/shift-reminder-button";
+import { EmptyState } from "@/components/workspace/empty-state";
 
 type Period = {
   id: string;
@@ -143,11 +144,12 @@ export function MyShiftsClient({
   if (!periods.length)
     return (
       <section className="template-list-card">
-        <div className="empty-template-state">
-          <CalendarDays size={42} />
-          <h2>עדיין אין סידור שפורסם</h2>
-          <p>כשהמנהל יפרסם את הסידור הראשון, המשמרות שלך יופיעו כאן.</p>
-        </div>
+        <EmptyState
+          icon={CalendarDays}
+          iconSize={42}
+          title="עדיין אין סידור שפורסם"
+          description="כשהמנהל יפרסם את הסידור הראשון, המשמרות שלך יופיעו כאן."
+        />
       </section>
     );
 
@@ -316,10 +318,7 @@ export function MyShiftsClient({
           })}
         </div>
         {!visibleShifts.length ? (
-          <div className="empty-template-state">
-            <CalendarDays size={38} />
-            <p>לא שובצת למשמרות בחודש הזה.</p>
-          </div>
+          <EmptyState icon={CalendarDays} iconSize={38} description="לא שובצת למשמרות בחודש הזה." />
         ) : null}
       </section>
     </div>

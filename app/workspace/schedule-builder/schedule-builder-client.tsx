@@ -22,6 +22,7 @@ import { getIsraeliHolidaysForMonth, type IsraeliHoliday, type IsraeliHolidayKin
 import { createSupabaseBrowserClient } from "@/lib/supabase/browser";
 import type { Database } from "@/types/database";
 import { shiftBounds, shiftHours, weekStartKey } from "@/lib/shift-time";
+import { EmptyState } from "@/components/workspace/empty-state";
 
 type AvailabilityStatus = Database["public"]["Enums"]["availability_status"];
 type LeaveType = Database["public"]["Enums"]["leave_type"];
@@ -550,11 +551,12 @@ export function ScheduleBuilderClient({
   if (!periods.length)
     return (
       <section className="template-list-card">
-        <div className="empty-template-state">
-          <CalendarRange size={42} />
-          <h2>אין עדיין חודש עבודה</h2>
-          <p>פתח חודש עבודה לפני בניית הסידור.</p>
-        </div>
+        <EmptyState
+          icon={CalendarRange}
+          iconSize={42}
+          title="אין עדיין חודש עבודה"
+          description="פתח חודש עבודה לפני בניית הסידור."
+        />
       </section>
     );
 
@@ -765,10 +767,7 @@ export function ScheduleBuilderClient({
           })}
         </div>
         {!periodShifts.length && periodTemplates.length ? (
-          <div className="empty-template-state">
-            <CalendarRange size={38} />
-            <p>לחץ על יצירת משמרות החודש כדי להתחיל לשבץ.</p>
-          </div>
+          <EmptyState icon={CalendarRange} iconSize={38} description="לחץ על יצירת משמרות החודש כדי להתחיל לשבץ." />
         ) : null}
         <StatusMessage message={message} kind={kind} />
       </div>
