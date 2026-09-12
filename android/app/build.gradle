@@ -1,5 +1,14 @@
 apply plugin: 'com.android.application'
 
+// Upload-key signing. The credentials never live in this repo: they come from
+// ~/.gradle/gradle.properties (outside any checkout) or the environment, so a
+// clone of this repository carries no secret and CI keeps building unsigned.
+def uploadStoreFile = findProperty('SHIFTPILOT_UPLOAD_STORE_FILE') ?: System.getenv('SHIFTPILOT_UPLOAD_STORE_FILE')
+def uploadStorePassword = findProperty('SHIFTPILOT_UPLOAD_STORE_PASSWORD') ?: System.getenv('SHIFTPILOT_UPLOAD_STORE_PASSWORD')
+def uploadKeyAlias = findProperty('SHIFTPILOT_UPLOAD_KEY_ALIAS') ?: System.getenv('SHIFTPILOT_UPLOAD_KEY_ALIAS') ?: 'shiftpilot-upload'
+def uploadKeyPassword = findProperty('SHIFTPILOT_UPLOAD_KEY_PASSWORD') ?: System.getenv('SHIFTPILOT_UPLOAD_KEY_PASSWORD') ?: uploadStorePassword
+def canSignRelease = uploadStoreFile != null && uploadStorePassword != null && file(uploadStoreFile).exists()
+
 android {
     namespace = "com.shiftpilothq.app"
     compileSdk = rootProject.ext.compileSdkVersion
@@ -16,10 +25,25 @@ android {
             ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
         }
     }
+    if (canSignRelease) {
+        signingConfigs {
+            release {
+                storeFile file(uploadStoreFile)
+                storePassword uploadStorePassword
+                keyAlias uploadKeyAlias
+                keyPassword uploadKeyPassword
+            }
+        }
+    }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            // Without credentials the release build stays unsigned instead of
+            // failing, which is what lets CI and fresh clones still build.
+            if (canSignRelease) {
+                signingConfig signingConfigs.release
+            }
         }
     }
 }
