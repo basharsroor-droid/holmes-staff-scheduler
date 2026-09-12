@@ -17,8 +17,10 @@ FCM is **disabled until its credentials exist**. `isPlatformConfigured("android"
 
 ## What the owner must provide
 
-1. **Google Play developer account** — $25 one-time, plus identity verification (days, not minutes). A personal account publishes the developer's name and address.
-2. **Firebase project** → `google-services.json` into `android/app/`, and three server-only variables in Vercel: `FCM_PROJECT_ID`, `FCM_CLIENT_EMAIL`, `FCM_PRIVATE_KEY`. Never `NEXT_PUBLIC_*`.
+1. ~~**Google Play developer account**~~ — created 2026-09-12. Personal account `ShiftPilot HQ`, ID `6562441105073191971`, under `bashar.sroor@gmail.com`. The $25 fee is one-off, not a renewal (unlike Apple's yearly $99). Identity documents were submitted the same day and are **awaiting Google's review**; two checks stay blocked behind it — contact phone verification, and proving access to a physical Android device by signing into the Play Console mobile app. Nothing publishes until all three pass.
+   Two things to carry forward: the developer name is `ShiftPilot HQ`, because Play rejected the bare `ShiftPilot` and an unrelated shift-scheduling app already ships under that name; and the account declared **no earning money on Google Play**, which is what keeps the owner's home address off the public listing. That declaration holds only while billing stays on the website — adding Play in-app purchases would both expose the address and pull the app into Play's billing rules.
+2. **Firebase project** — created 2026-09-12: `shiftpilot-47bdc`, Spark (free) plan, Analytics linked but inert because the app ships no Analytics SDK. `android/app/google-services.json` is **in place and committed**; it holds only client identifiers (project number, app id, a client API key), which is why it belongs in the repo, and `android/app/build.gradle` applies the `google-services` plugin only when that file is present.
+   Still missing: the three server-only variables in Vercel — `FCM_PROJECT_ID` (`shiftpilot-47bdc`), `FCM_CLIENT_EMAIL`, `FCM_PRIVATE_KEY` — taken from a Firebase **service account** key. That JSON is the real secret: it can send a notification to every user of the app. It must never be committed, pasted into chat, or prefixed `NEXT_PUBLIC_`. Until all three exist, `isPlatformConfigured("android")` stays false and Android notifications queue without being sent.
 3. **Upload keystore** — created once. If it is lost, the app can never be updated again; keep it backed up outside the repo.
 
 ## Build toolchain (not installed on this Mac)
