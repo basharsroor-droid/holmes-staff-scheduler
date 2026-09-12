@@ -105,7 +105,7 @@ test("availability -> schedule -> publish -> swap -> approval", async ({ browser
     const target = alice.getByLabel("המשמרת המבוקשת");
     const bobOption = target.locator("option", { hasText: fixture.bob.name }).first();
     await target.selectOption(await bobOption.getAttribute("value") ?? "");
-    await alice.getByLabel("סיבת ההחלפה").fill("E2E swap");
+    await alice.getByLabel("סיבת ההחלפה").fill("אירוע משפחתי באותו היום");
     await captureProductTourScreen(alice, "employee/03-swap-request.png");
     await alice.getByRole("button", { name: /שליחת בקשה/ }).click();
     await expect(alice.getByText("הבקשה נשלחה לעובד/ת השני/ה")).toBeVisible();
@@ -149,7 +149,7 @@ test("availability -> schedule -> publish -> swap -> approval", async ({ browser
 
   await test.step("a manager starts an empty department from a ready template", async () => {
     await owner.goto("/workspace/shift-templates");
-    await owner.getByLabel("מחלקה").selectOption({ label: "E2E Empty" });
+    await owner.getByLabel("מחלקה").selectOption({ label: "צוות מסעדה" });
     await owner
       .getByRole("group", { name: "התחלה מהירה מתבנית" })
       .getByRole("button", { name: /מסעדה/ })
