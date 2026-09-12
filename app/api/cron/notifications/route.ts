@@ -2,7 +2,8 @@ import { NextResponse } from "next/server";
 
 import { notificationEmail, renderEmail } from "@/lib/email/templates";
 import { sendEmail } from "@/lib/email/resend";
-import { pushCopy, sendApnsPush } from "@/lib/push/apns";
+import { pushCopy } from "@/lib/push/apns";
+import { deadDeviceToken, isPlatformConfigured, sendPush } from "@/lib/push/dispatch";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { bearerMatches } from "@/lib/timing-safe";
 import type { Json } from "@/types/database";
@@ -15,6 +16,7 @@ type PushJob = {
   device_id: string;
   device_token: string;
   environment: "sandbox" | "production";
+  platform: string;
   template_key: string;
   payload: Json;
   attempts: number;
@@ -60,7 +62,20 @@ export async function GET(request: Request) {
     try {
       const payload = job.payload && typeof job.payload === "object" && !Array.isArray(job.payload) ? job.payload as Record<string, unknown> : {};
       const copy = pushCopy(job.template_key, payload);
-      const apnsId = await sendApnsPush({
+      // A platform with no credentials yet (Android before Firebase is set
+      // up) must not burn retry attempts. claim_push_delivery_jobs already
+      // marked this row 'processing' and counted an attempt, so hand it back
+      // as 'pending' with the attempt undone -- otherwise it would sit locked
+      // for 10 minutes, lose an attempt per tick and eventually be dropped.
+      if (!isPlatformConfigured(job.platform)) {
+        await admin
+          .from("push_delivery_queue")
+          .update({ status: "pending", attempts: Math.max(job.attempts - 1, 0), locked_at: null })
+          .eq("id", job.id);
+        return job.id;
+      }
+      const apnsId = await sendPush({
+        platform: job.platform,
         token: job.device_token,
         environment: job.environment,
         ...copy
@@ -74,7 +89,7 @@ export async function GET(request: Request) {
       return job.id;
     } catch (sendError) {
       const errorMessage = sendError instanceof Error ? sendError.message.slice(0, 500) : "Unknown delivery error";
-      const invalidToken = /BadDeviceToken|DeviceTokenNotForTopic|Unregistered/.test(errorMessage);
+      const invalidToken = deadDeviceToken(errorMessage);
       const finalFailure = invalidToken || job.attempts >= 5;
       const delayMinutes = Math.min(2 ** Math.max(job.attempts, 1), 60);
       await admin.from("push_delivery_queue").update({
