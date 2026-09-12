@@ -51,6 +51,9 @@ jobs:
       NEXT_PUBLIC_SUPABASE_URL: https://sqmstwwrdoenfumligmf.supabase.co
       NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.STAGING_SUPABASE_PUBLISHABLE_KEY }}
       SUPABASE_SECRET_KEY: ${{ secrets.STAGING_SUPABASE_SECRET_KEY }}
+      # The same real workspace flow also produces fresh sales-tour captures.
+      # They are uploaded as a CI artifact; no shared production login is used.
+      PRODUCT_TOUR_OUTPUT_DIR: test-results/product-tour
 
     steps:
       - name: Check staging credentials
@@ -96,8 +99,8 @@ jobs:
         if: always() && steps.creds.outputs.ready == 'true'
         run: node scripts/staging-workspace-fixture.mjs cleanup
 
-      - name: Upload failure evidence
-        if: failure() && steps.creds.outputs.ready == 'true'
+      - name: Upload browser evidence and product-tour captures
+        if: always() && steps.creds.outputs.ready == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: staging-workspace-e2e-${{ github.run_id }}

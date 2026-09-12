@@ -1,11 +1,15 @@
 import Link from "next/link";
+import Image, { type StaticImageData } from "next/image";
 import type { Metadata } from "next";
-import { ArrowLeft } from "lucide-react";
+import { ArrowDown, ArrowLeft, CheckCircle2, ShieldCheck } from "lucide-react";
 
 import { BrandLogo } from "@/components/brand/brand-logo";
 import { RolesShowcase } from "@/components/marketing/roles-showcase";
 import { ScrollReveal } from "@/components/marketing/scroll-reveal";
 import { SiteNavbar } from "@/components/marketing/site-navbar";
+import secureLoginImage from "@/docs/app-store-assets/screenshots/iphone-6.9-login.png";
+import onboardingImage from "@/docs/app-store-assets/screenshots/iphone-6.9-onboarding.png";
+import swapApprovalImage from "@/docs/app-store-assets/screenshots/iphone-6.9-shift-swaps.png";
 
 // /demo is a static product tour that leads to the free trial (F1, owner
 // decision 2026-09-11). There is deliberately no live demo account here: the
@@ -47,6 +51,38 @@ const productLoop = [
   }
 ];
 
+type ProductScreen = {
+  image: StaticImageData;
+  label: string;
+  title: string;
+  text: string;
+  alt: string;
+};
+
+const productScreens: ProductScreen[] = [
+  {
+    image: onboardingImage,
+    label: "01 · הקמת סביבת העבודה",
+    title: "מתחילים מהעסק האמיתי שלכם",
+    text: "פותחים חשבון לבעל העסק, מגדירים את העסק ומקימים סביבת עבודה פרטית לצוות.",
+    alt: "מסך פתיחת סביבת עבודה לעסק ב־ShiftPilot"
+  },
+  {
+    image: secureLoginImage,
+    label: "02 · כניסה מאובטחת",
+    title: "כל אחד נכנס לתפקיד שלו",
+    text: "מנהל ועובד משתמשים באותה מערכת, אבל רואים רק את המידע והפעולות שמתאימים להרשאה שלהם.",
+    alt: "מסך הכניסה המאובטחת ל־ShiftPilot"
+  },
+  {
+    image: swapApprovalImage,
+    label: "03 · פעולה אמיתית במערכת",
+    title: "החלפה עוברת לאישור ומתעדכנת בסידור",
+    text: "העובד מבקש, הצד השני מאשר והמנהל מקבל החלטה מתועדת — בלי לרדוף אחרי הודעות.",
+    alt: "מסך אישור בקשת החלפת משמרת ב־ShiftPilot"
+  }
+];
+
 export default function DemoPage() {
   return (
     <main className="marketing-site" dir="rtl">
@@ -54,10 +90,68 @@ export default function DemoPage() {
         <SiteNavbar />
       </div>
 
+      <section className="demo-tour-hero">
+        <div className="demo-tour-hero-glow" aria-hidden="true" />
+        <div className="demo-tour-hero-copy">
+          <p className="pro-kicker">המוצר האמיתי, בלי חשבון דמו משותף</p>
+          <h1>
+            תראו את ShiftPilot <span>לפני שנרשמים</span>
+          </h1>
+          <p>
+            מסכים אמיתיים מתוך המערכת: מהקמת סביבת העבודה ועד פעולה שמחברת בין העובד למנהל.
+            בלי נתוני mock ובלי אפליקציה נפרדת שלא מייצגת את המוצר.
+          </p>
+          <div className="demo-tour-actions">
+            <Link className="button brand-button large" href="#product-screens">
+              לצפייה במסכים <ArrowDown size={18} />
+            </Link>
+            <Link className="button glass-button large" href="/onboarding">
+              התחילו 30 יום חינם <ArrowLeft size={18} />
+            </Link>
+          </div>
+          <div className="demo-tour-assurances">
+            <span><CheckCircle2 size={17} /> ללא כרטיס אשראי</span>
+            <span><ShieldCheck size={17} /> סביבה פרטית לכל עסק</span>
+          </div>
+        </div>
+      </section>
+
+      <section className="pro-section demo-product-screens" id="product-screens" aria-labelledby="product-screens-title">
+        <ScrollReveal className="section-heading centered">
+          <p className="pro-kicker dark">מבט ראשון על המערכת</p>
+          <h2 id="product-screens-title">לא הדמיה — מסכים מתוך ShiftPilot</h2>
+          <p>
+            הסיור בנוי מצילומי המוצר עצמו, ותשתית הצילום מאפשרת לרענן אותם מהלופ האמיתי של סביבת הבדיקות.
+          </p>
+        </ScrollReveal>
+
+        <div className="demo-screen-grid">
+          {productScreens.map((screen, index) => (
+            <ScrollReveal className="demo-screen-card" delay={index * 80} key={screen.title}>
+              <div className="demo-screen-image-wrap">
+                <Image
+                  alt={screen.alt}
+                  className="demo-screen-image"
+                  placeholder="blur"
+                  priority={index === 0}
+                  sizes="(max-width: 760px) 86vw, (max-width: 1100px) 42vw, 340px"
+                  src={screen.image}
+                />
+              </div>
+              <div className="demo-screen-copy">
+                <small>{screen.label}</small>
+                <h3>{screen.title}</h3>
+                <p>{screen.text}</p>
+              </div>
+            </ScrollReveal>
+          ))}
+        </div>
+      </section>
+
       <section className="pro-section process-section">
         <ScrollReveal className="section-heading centered">
-          <p className="pro-kicker dark">סיור במוצר</p>
-          <h1>ככה נראה חודש עבודה ב־ShiftPilot</h1>
+          <p className="pro-kicker dark">הלופ המלא</p>
+          <h2>ככה נראה חודש עבודה ב־ShiftPilot</h2>
           <p>
             מהגשת הזמינות ועד החלפת משמרת מאושרת, בחמישה שלבים ובמקום אחד — והדרך הטובה ביותר לראות את זה היא בסביבה שלכם:
             30 ימי ניסיון, בלי כרטיס אשראי

@@ -95,6 +95,8 @@ test("the demo page is a public product tour that leads to the free trial", asyn
 
   await expect(page).toHaveURL(/\/demo$/);
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+  await expect(page.getByRole("img", { name: /ShiftPilot/ })).toHaveCount(3);
+  await expect(page.getByText("לא הדמיה — מסכים מתוך ShiftPilot")).toBeVisible();
   await expect(page.locator("main a[href='/onboarding']").first()).toBeVisible();
   // No shared demo account and no mock login (F1): the tour never asks for credentials.
   await expect(page.locator("input[type='password']")).toHaveCount(0);

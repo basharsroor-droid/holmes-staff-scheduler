@@ -14,6 +14,7 @@
     "pilot:ready": "node scripts/check-pilot-readiness.mjs",
     "test:e2e": "playwright test",
     "test:e2e:staging": "playwright test -c playwright.staging.config.ts",
+    "capture:product-tour": "PRODUCT_TOUR_OUTPUT_DIR=public/demo/product-tour playwright test -c playwright.staging.config.ts --grep 'availability -> schedule'",
     "test:unit": "node --experimental-strip-types --test tests/unit/**/*.test.mjs",
     "validate:schema": "node scripts/validate-supabase-schema.mjs",
     "test:e2e:production": "playwright test -c playwright.production.config.ts",
