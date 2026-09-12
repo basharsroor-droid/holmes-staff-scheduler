@@ -110,7 +110,11 @@ const runId = process.env.GITHUB_RUN_ID
   ? `${process.env.GITHUB_RUN_ID}-${process.env.GITHUB_RUN_ATTEMPT ?? "1"}`
   : `${Date.now()}`;
 const password = `ShiftPilot-E2E-${runId}-A9!`;
-const templateName = "E2E Morning";
+// These values are deliberately presentation-ready: the same isolated
+// staging flow produces the public product-tour screenshots. Keep the data
+// fictional and natural-looking so the captures explain the product instead
+// of exposing test jargon such as "E2E".
+const templateName = "משמרת בוקר";
 
 // Next calendar month, so every generated shift lies in the future: the swap
 // form only offers upcoming shifts.
@@ -134,25 +138,25 @@ try {
     return { email, password, userId: data.user.id, name: `${firstName} ${lastName}` };
   };
 
-  const owner = await createUser("owner", "Workspace", "Owner");
-  const alice = await createUser("alice", "Alice", "E2E");
-  const bob = await createUser("bob", "Bob", "E2E");
+  const owner = await createUser("owner", "מיכל", "כהן");
+  const alice = await createUser("alice", "נועה", "לוי");
+  const bob = await createUser("bob", "עומר", "ישראלי");
 
   // min_rest_hours left unset on purpose: this test is about the flow, and a
   // rest warning would add an extra confirm() that is not what's under test.
   const organization = await must(admin.from("organizations")
-    .insert({ name: `ShiftPilot Workspace E2E ${runId}`, slug: `sp-ws-e2e-${runId}`.toLowerCase(), schedule_cadence: "weekly" })
+    .insert({ name: "סטודיו פיט", slug: `sp-ws-e2e-${runId}`.toLowerCase(), schedule_cadence: "weekly" })
     .select("id").single(), "create organization");
   organizationId = organization.id;
 
   const branch = await must(admin.from("branches")
-    .insert({ organization_id: organizationId, name: "E2E Branch" }).select("id").single(), "create branch");
+    .insert({ organization_id: organizationId, name: "סניף הכרמל" }).select("id").single(), "create branch");
   const department = await must(admin.from("departments")
-    .insert({ organization_id: organizationId, branch_id: branch.id, name: "E2E Floor" }).select("id").single(), "create department");
+    .insert({ organization_id: organizationId, branch_id: branch.id, name: "צוות קבלה" }).select("id").single(), "create department");
   // A second department with no shift types: the flow starts it from a ready
   // template (I1). The owner has organization scope, so no memberships needed.
   await must(admin.from("departments")
-    .insert({ organization_id: organizationId, branch_id: branch.id, name: "E2E Empty" }), "create empty department");
+    .insert({ organization_id: organizationId, branch_id: branch.id, name: "צוות מסעדה" }), "create empty department");
 
   const joinedAt = new Date().toISOString();
   const memberships = await must(admin.from("organization_memberships").insert([

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import Image, { type StaticImageData } from "next/image";
+import Image from "next/image";
 import type { Metadata } from "next";
 import { ArrowDown, ArrowLeft, CheckCircle2, ShieldCheck } from "lucide-react";
 
@@ -7,9 +7,6 @@ import { BrandLogo } from "@/components/brand/brand-logo";
 import { RolesShowcase } from "@/components/marketing/roles-showcase";
 import { ScrollReveal } from "@/components/marketing/scroll-reveal";
 import { SiteNavbar } from "@/components/marketing/site-navbar";
-import secureLoginImage from "@/docs/app-store-assets/screenshots/iphone-6.9-login.png";
-import onboardingImage from "@/docs/app-store-assets/screenshots/iphone-6.9-onboarding.png";
-import swapApprovalImage from "@/docs/app-store-assets/screenshots/iphone-6.9-shift-swaps.png";
 
 // /demo is a static product tour that leads to the free trial (F1, owner
 // decision 2026-09-11). There is deliberately no live demo account here: the
@@ -51,38 +48,6 @@ const productLoop = [
   }
 ];
 
-type ProductScreen = {
-  image: StaticImageData;
-  label: string;
-  title: string;
-  text: string;
-  alt: string;
-};
-
-const productScreens: ProductScreen[] = [
-  {
-    image: onboardingImage,
-    label: "01 · הקמת סביבת העבודה",
-    title: "מתחילים מהעסק האמיתי שלכם",
-    text: "פותחים חשבון לבעל העסק, מגדירים את העסק ומקימים סביבת עבודה פרטית לצוות.",
-    alt: "מסך פתיחת סביבת עבודה לעסק ב־ShiftPilot"
-  },
-  {
-    image: secureLoginImage,
-    label: "02 · כניסה מאובטחת",
-    title: "כל אחד נכנס לתפקיד שלו",
-    text: "מנהל ועובד משתמשים באותה מערכת, אבל רואים רק את המידע והפעולות שמתאימים להרשאה שלהם.",
-    alt: "מסך הכניסה המאובטחת ל־ShiftPilot"
-  },
-  {
-    image: swapApprovalImage,
-    label: "03 · פעולה אמיתית במערכת",
-    title: "החלפה עוברת לאישור ומתעדכנת בסידור",
-    text: "העובד מבקש, הצד השני מאשר והמנהל מקבל החלטה מתועדת — בלי לרדוף אחרי הודעות.",
-    alt: "מסך אישור בקשת החלפת משמרת ב־ShiftPilot"
-  }
-];
-
 export default function DemoPage() {
   return (
     <main className="marketing-site" dir="rtl">
@@ -95,11 +60,11 @@ export default function DemoPage() {
         <div className="demo-tour-hero-copy">
           <p className="pro-kicker">המוצר האמיתי, בלי חשבון דמו משותף</p>
           <h1>
-            תראו את ShiftPilot <span>לפני שנרשמים</span>
+            חודש של תיאומים <span>בסידור אחד ברור</span>
           </h1>
           <p>
-            מסכים אמיתיים מתוך המערכת: מהקמת סביבת העבודה ועד פעולה שמחברת בין העובד למנהל.
-            בלי נתוני mock ובלי אפליקציה נפרדת שלא מייצגת את המוצר.
+            המנהל בונה ומפרסם סידור, כל עובד רואה את המשמרות שלו בטלפון,
+            והחלפות עוברות לאישור ומתעדכנות במקום אחד.
           </p>
           <div className="demo-tour-actions">
             <Link className="button brand-button large" href="#product-screens">
@@ -118,33 +83,131 @@ export default function DemoPage() {
 
       <section className="pro-section demo-product-screens" id="product-screens" aria-labelledby="product-screens-title">
         <ScrollReveal className="section-heading centered">
-          <p className="pro-kicker dark">מבט ראשון על המערכת</p>
-          <h2 id="product-screens-title">לא הדמיה — מסכים מתוך ShiftPilot</h2>
+          <p className="pro-kicker dark">הדברים החשובים באמת</p>
+          <h2 id="product-screens-title">כך העבודה עוברת מהמנהל לצוות — וחזרה</h2>
           <p>
-            הסיור בנוי מצילומי המוצר עצמו, ותשתית הצילום מאפשרת לרענן אותם מהלופ האמיתי של סביבת הבדיקות.
+            זהו הממשק האמיתי של ShiftPilot עם נתוני הדגמה פיקטיביים — לא מסכי שיווק ולא אפליקציית mock.
           </p>
         </ScrollReveal>
 
-        <div className="demo-screen-grid">
-          {productScreens.map((screen, index) => (
-            <ScrollReveal className="demo-screen-card" delay={index * 80} key={screen.title}>
-              <div className="demo-screen-image-wrap">
+        <div className="demo-value-strip" aria-label="יתרונות מרכזיים">
+          <span><CheckCircle2 size={18} /> לוח חודשי וחגי ישראל</span>
+          <span><CheckCircle2 size={18} /> זמינות ושיבוץ במקום אחד</span>
+          <span><CheckCircle2 size={18} /> החלפות עם אישור מתועד</span>
+        </div>
+
+        <div className="demo-tour-chapters">
+          <ScrollReveal className="demo-tour-chapter demo-manager-chapter">
+            <div className="demo-chapter-copy">
+              <small>01 · למנהל</small>
+              <h3>רואים את כל החודש ובונים את הסידור במקום אחד</h3>
+              <p>
+                לוח חודשי, זמינות העובדים, כיסוי המשמרות וחגי ישראל נמצאים מול העיניים.
+                כשהסידור מוכן, מפרסמים אותו לכל הצוות בלחיצה.
+              </p>
+              <ul>
+                <li><CheckCircle2 size={18} /> יודעים מי הגיש ומי עדיין חסר</li>
+                <li><CheckCircle2 size={18} /> משבצים לפי זמינות וצורכי העסק</li>
+                <li><CheckCircle2 size={18} /> מפרסמים גרסה אחת ועדכנית</li>
+              </ul>
+            </div>
+            <div className="demo-manager-gallery">
+              <figure className="demo-browser-frame demo-browser-primary">
                 <Image
-                  alt={screen.alt}
-                  className="demo-screen-image"
-                  placeholder="blur"
-                  priority={index === 0}
-                  sizes="(max-width: 760px) 86vw, (max-width: 1100px) 42vw, 340px"
-                  src={screen.image}
+                  alt="מסך בניית הסידור החודשי למנהל ב־ShiftPilot"
+                  className="demo-manager-shot"
+                  height={1000}
+                  priority
+                  sizes="(max-width: 900px) 94vw, 720px"
+                  src="/demo/product-tour/manager/01-schedule-builder.png"
+                  width={1440}
                 />
-              </div>
-              <div className="demo-screen-copy">
-                <small>{screen.label}</small>
-                <h3>{screen.title}</h3>
-                <p>{screen.text}</p>
-              </div>
-            </ScrollReveal>
-          ))}
+                <figcaption>בניית הסידור</figcaption>
+              </figure>
+              <figure className="demo-browser-frame demo-browser-secondary">
+                <Image
+                  alt="מסך סידור עבודה שפורסם לצוות ב־ShiftPilot"
+                  className="demo-manager-shot"
+                  height={1000}
+                  sizes="(max-width: 900px) 88vw, 430px"
+                  src="/demo/product-tour/manager/02-published-schedule.png"
+                  width={1440}
+                />
+                <figcaption>הסידור פורסם לצוות</figcaption>
+              </figure>
+            </div>
+          </ScrollReveal>
+
+          <ScrollReveal className="demo-tour-chapter demo-employee-chapter">
+            <div className="demo-phone-gallery">
+              <figure className="demo-phone-frame">
+                <Image
+                  alt="מסך הגשת זמינות של עובד בטלפון ב־ShiftPilot"
+                  className="demo-phone-shot"
+                  height={932}
+                  sizes="(max-width: 600px) 42vw, 270px"
+                  src="/demo/product-tour/employee/01-availability-submitted.png"
+                  width={430}
+                />
+                <figcaption>הזמינות נשלחה</figcaption>
+              </figure>
+              <figure className="demo-phone-frame demo-phone-featured">
+                <Image
+                  alt="מסך המשמרות האישיות של עובד בטלפון ב־ShiftPilot"
+                  className="demo-phone-shot"
+                  height={932}
+                  sizes="(max-width: 600px) 46vw, 290px"
+                  src="/demo/product-tour/employee/02-my-shifts.png"
+                  width={430}
+                />
+                <figcaption>המשמרות שלי</figcaption>
+              </figure>
+            </div>
+            <div className="demo-chapter-copy">
+              <small>02 · לעובדים</small>
+              <h3>כל עובד יודע מתי הוא עובד</h3>
+              <p>
+                העובדים שולחים זמינות מהטלפון ורואים רק את המשמרות הרלוונטיות להם,
+                כולל השעה, הסניף והמשמרת הקרובה.
+              </p>
+              <strong>פחות שאלות בקבוצה. פחות גרסאות. יותר ודאות לצוות.</strong>
+            </div>
+          </ScrollReveal>
+
+          <ScrollReveal className="demo-tour-chapter demo-swap-chapter">
+            <div className="demo-chapter-copy">
+              <small>03 · שינויים בלי כאוס</small>
+              <h3>מהבקשה בטלפון לאישור המנהל</h3>
+              <p>
+                עובד מבקש החלפה ומסביר למה. המנהל רואה את הבקשה, מאשר או דוחה,
+                והסידור נשאר מעודכן ומתועד — בלי לחפש הודעות בוואטסאפ.
+              </p>
+            </div>
+            <div className="demo-swap-gallery">
+              <figure className="demo-browser-frame">
+                <Image
+                  alt="מסך אישור בקשת החלפת משמרת למנהל ב־ShiftPilot"
+                  className="demo-manager-shot"
+                  height={1000}
+                  sizes="(max-width: 900px) 94vw, 690px"
+                  src="/demo/product-tour/manager/03-swap-approval.png"
+                  width={1440}
+                />
+                <figcaption>המנהל בודק ומאשר</figcaption>
+              </figure>
+              <figure className="demo-phone-frame demo-swap-phone">
+                <Image
+                  alt="מסך בקשת החלפת משמרת של עובד בטלפון ב־ShiftPilot"
+                  className="demo-phone-shot"
+                  height={932}
+                  sizes="(max-width: 600px) 48vw, 250px"
+                  src="/demo/product-tour/employee/03-swap-request.png"
+                  width={430}
+                />
+                <figcaption>העובד שולח בקשה</figcaption>
+              </figure>
+            </div>
+          </ScrollReveal>
         </div>
       </section>
 
