@@ -1,4 +1,5 @@
-import { readFileSync } from "node:fs";
+import { mkdirSync, readFileSync } from "node:fs";
+import { dirname, resolve } from "node:path";
 import { createClient } from "@supabase/supabase-js";
 import { expect, test, type Browser, type Page } from "@playwright/test";
 
@@ -18,8 +19,25 @@ const fixture: Fixture = JSON.parse(
   readFileSync(process.env.STAGING_WORKSPACE_FIXTURE_PATH ?? ".staging-workspace-fixture.json", "utf8")
 );
 
-async function signIn(browser: Browser, person: Person): Promise<Page> {
-  const context = await browser.newContext();
+const productTourOutputDir = process.env.PRODUCT_TOUR_OUTPUT_DIR;
+
+async function captureProductTourScreen(page: Page, filename: string) {
+  if (!productTourOutputDir) return;
+  const outputPath = resolve(productTourOutputDir, filename);
+  mkdirSync(dirname(outputPath), { recursive: true });
+  await page.screenshot({
+    path: outputPath,
+    fullPage: false,
+    animations: "disabled"
+  });
+}
+
+async function signIn(
+  browser: Browser,
+  person: Person,
+  viewport: { width: number; height: number }
+): Promise<Page> {
+  const context = await browser.newContext({ viewport });
   const page = await context.newPage();
   // Schedule-builder asks window.confirm() before publishing a month with
   // unstaffed shifts -- which this test deliberately does (it staffs two).
@@ -44,12 +62,13 @@ async function submitAvailability(page: Page) {
 }
 
 test("availability -> schedule -> publish -> swap -> approval", async ({ browser }) => {
-  const alice = await signIn(browser, fixture.alice);
-  const bob = await signIn(browser, fixture.bob);
-  const owner = await signIn(browser, fixture.owner);
+  const alice = await signIn(browser, fixture.alice, { width: 430, height: 932 });
+  const bob = await signIn(browser, fixture.bob, { width: 430, height: 932 });
+  const owner = await signIn(browser, fixture.owner, { width: 1440, height: 1000 });
 
   await test.step("both employees submit availability", async () => {
     await submitAvailability(alice);
+    await captureProductTourScreen(alice, "employee/01-availability-submitted.png");
     await submitAvailability(bob);
   });
 
@@ -65,9 +84,11 @@ test("availability -> schedule -> publish -> swap -> approval", async ({ browser
     await expect(aliceOnDay1).toHaveAttribute("aria-pressed", "true");
     await bobOnDay2.click();
     await expect(bobOnDay2).toHaveAttribute("aria-pressed", "true");
+    await captureProductTourScreen(owner, "manager/01-schedule-builder.png");
 
     await owner.getByRole("button", { name: /פרסום הסידור/ }).click();
     await expect(owner.getByText("פורסם לצוות")).toBeVisible();
+    await captureProductTourScreen(owner, "manager/02-published-schedule.png");
   });
 
   await test.step("the employee sees the published shift", async () => {
@@ -75,6 +96,7 @@ test("availability -> schedule -> publish -> swap -> approval", async ({ browser
     await expect(alice.getByText("עדיין אין סידור שפורסם")).toHaveCount(0);
     await expect(alice.getByText("לא שובצת למשמרות בחודש הזה")).toHaveCount(0);
     await expect(alice.getByText(fixture.templateName).first()).toBeVisible();
+    await captureProductTourScreen(alice, "employee/02-my-shifts.png");
   });
 
   await test.step("Alice asks Bob to swap", async () => {
@@ -84,6 +106,7 @@ test("availability -> schedule -> publish -> swap -> approval", async ({ browser
     const bobOption = target.locator("option", { hasText: fixture.bob.name }).first();
     await target.selectOption(await bobOption.getAttribute("value") ?? "");
     await alice.getByLabel("סיבת ההחלפה").fill("E2E swap");
+    await captureProductTourScreen(alice, "employee/03-swap-request.png");
     await alice.getByRole("button", { name: /שליחת בקשה/ }).click();
     await expect(alice.getByText("הבקשה נשלחה לעובד/ת השני/ה")).toBeVisible();
   });
@@ -97,6 +120,7 @@ test("availability -> schedule -> publish -> swap -> approval", async ({ browser
 
   await test.step("the manager approves", async () => {
     await owner.goto("/workspace/shift-swaps");
+    await captureProductTourScreen(owner, "manager/03-swap-approval.png");
     await owner.getByRole("button", { name: /אישור והחלפה/ }).click();
     await expect(owner.getByText("ההחלפה אושרה והסידור עודכן")).toBeVisible();
   });
