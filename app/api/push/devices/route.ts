@@ -3,15 +3,26 @@ import { NextResponse } from "next/server";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
-const tokenPattern = /^[a-fA-F0-9]{32,256}$/;
+// APNs tokens are hex; FCM tokens are longer and contain : - _ and letters.
+const APNS_TOKEN = /^[a-fA-F0-9]{32,256}$/;
+const FCM_TOKEN = /^[A-Za-z0-9_:.-]{64,4096}$/;
+
+function normalizeToken(token: string, platform: "ios" | "android") {
+  return platform === "android" ? token : token.toLowerCase();
+}
+
+function tokenValid(token: string, platform: "ios" | "android") {
+  return platform === "android" ? FCM_TOKEN.test(token) : APNS_TOKEN.test(token);
+}
 
 export async function POST(request: Request) {
   const supabase = await createSupabaseServerClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-  const body = await request.json().catch(() => null) as { token?: unknown } | null;
-  if (!body || typeof body.token !== "string" || !tokenPattern.test(body.token)) {
+  const body = await request.json().catch(() => null) as { token?: unknown; platform?: unknown } | null;
+  const platform = body?.platform === "android" ? "android" : "ios";
+  if (!body || typeof body.token !== "string" || !tokenValid(body.token, platform)) {
     return NextResponse.json({ error: "Invalid device token" }, { status: 400 });
   }
 
@@ -25,13 +36,15 @@ export async function POST(request: Request) {
   if (!membership) return NextResponse.json({ error: "No active membership" }, { status: 403 });
 
   const admin = createSupabaseAdminClient();
-  const token = body.token.toLowerCase();
-  const configuredEnvironment = process.env.APNS_ENVIRONMENT === "sandbox" ? "sandbox" : "production";
+  const token = normalizeToken(body.token, platform);
+  // environment is an APNs concept; FCM has no sandbox split.
+  const configuredEnvironment =
+    platform === "android" ? "production" : process.env.APNS_ENVIRONMENT === "sandbox" ? "sandbox" : "production";
   const { error } = await admin.from("push_devices").upsert({
     organization_id: membership.organization_id,
     user_id: user.id,
     token,
-    platform: "ios",
+    platform,
     environment: configuredEnvironment,
     active: true,
     updated_at: new Date().toISOString(),
@@ -45,12 +58,13 @@ export async function DELETE(request: Request) {
   const supabase = await createSupabaseServerClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  const body = await request.json().catch(() => null) as { token?: unknown } | null;
-  if (!body || typeof body.token !== "string" || !tokenPattern.test(body.token)) {
+  const body = await request.json().catch(() => null) as { token?: unknown; platform?: unknown } | null;
+  const platform = body?.platform === "android" ? "android" : "ios";
+  if (!body || typeof body.token !== "string" || !tokenValid(body.token, platform)) {
     return NextResponse.json({ error: "Invalid device token" }, { status: 400 });
   }
   const admin = createSupabaseAdminClient();
   await admin.from("push_devices").update({ active: false, updated_at: new Date().toISOString() })
-    .eq("user_id", user.id).eq("token", body.token.toLowerCase());
+    .eq("user_id", user.id).eq("token", normalizeToken(body.token, platform));
   return NextResponse.json({ registered: false });
 }

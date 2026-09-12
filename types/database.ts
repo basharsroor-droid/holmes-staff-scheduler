@@ -1020,6 +1020,7 @@ export type Database = {
           notification_id: string
           organization_id: string
           payload: Json
+          platform: string
           scheduled_for: string
           sent_at: string | null
           status: string
@@ -1040,6 +1041,7 @@ export type Database = {
           notification_id: string
           organization_id: string
           payload?: Json
+          platform?: string
           scheduled_for?: string
           sent_at?: string | null
           status?: string
@@ -1060,6 +1062,7 @@ export type Database = {
           notification_id?: string
           organization_id?: string
           payload?: Json
+          platform?: string
           scheduled_for?: string
           sent_at?: string | null
           status?: string
@@ -2119,6 +2122,7 @@ export type Database = {
           notification_id: string
           organization_id: string
           payload: Json
+          platform: string
           scheduled_for: string
           sent_at: string | null
           status: string

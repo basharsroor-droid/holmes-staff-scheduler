@@ -26,6 +26,7 @@
     "format:check": "npx --yes prettier@3.9.6 --check \"app/workspace/**/*.{ts,tsx}\""
   },
   "dependencies": {
+    "@capacitor/android": "^8.5.2",
     "@capacitor/core": "^8.5.0",
     "@capacitor/ios": "^8.5.0",
     "@capacitor/local-notifications": "^8.3.1",

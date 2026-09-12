@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "667150878516",
+    "project_id": "shiftpilot-47bdc",
+    "storage_bucket": "shiftpilot-47bdc.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:667150878516:android:27aed98cbe68aa43628761",
+        "android_client_info": {
+          "package_name": "com.shiftpilothq.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAk0n6pTWk0ND8qV0uPRqnGWn7NUlrsCyY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
