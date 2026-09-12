@@ -6,6 +6,8 @@ import { isLaunchOfferEligible } from "@/lib/billing";
 import { LAUNCH_OFFER, PLANS } from "@/lib/plans";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
+import { PlanActions } from "./plan-actions";
+
 export const dynamic = "force-dynamic";
 
 // J2 (docs/REMEDIATION_PLAN.md), the part that doesn't need a payment
@@ -47,9 +49,16 @@ export default async function SubscriptionPage() {
 
   if (!membership || !["owner", "admin"].includes(membership.role)) redirect("/workspace");
 
-  const [{ data: organization }, { data: usage }] = await Promise.all([
+  // cancel_at_period_end and billing_period live on the subscription itself,
+  // not in the usage view.
+  const [{ data: organization }, { data: usage }, { data: subscription }] = await Promise.all([
     supabase.from("organizations").select("name, created_at").eq("id", membership.organization_id).single(),
-    supabase.from("organization_usage").select("*").eq("organization_id", membership.organization_id).maybeSingle()
+    supabase.from("organization_usage").select("*").eq("organization_id", membership.organization_id).maybeSingle(),
+    supabase
+      .from("subscriptions")
+      .select("billing_period, cancel_at_period_end")
+      .eq("organization_id", membership.organization_id)
+      .maybeSingle()
   ]);
   if (!organization) redirect("/workspace");
 
@@ -190,20 +199,28 @@ export default async function SubscriptionPage() {
               <div>
                 <p className="eyebrow">שינוי מסלול</p>
                 <h2>צריכים מסלול אחר?</h2>
-                <p className="card-muted">
-                  תשלום ושינוי מסלול מתוך המערכת יופעלו בקרוב, ועד אז שינוי מסלול נעשה מול הצוות שלנו — בלי לאבד נתונים
-                </p>
               </div>
             </div>
-            <div className="actions">
-              <Link className="button primary" href="/workspace/subscription/checkout">
-                בחירת מסלול ותשלום
+            <PlanActions
+              currentPlanId={usage.plan_id}
+              currentPeriod={subscription?.billing_period ?? "monthly"}
+              status={status}
+              trialEndsAt={usage.trial_ends_at ?? null}
+              cancelAtPeriodEnd={!!subscription?.cancel_at_period_end}
+              isOwner={membership.role === "owner"}
+              usage={{
+                activeEmployees: Number(usage.active_employees ?? 0),
+                activeManagers: Number(usage.active_managers ?? 0),
+                activeBranches: Number(usage.active_branches ?? 0),
+                activeDepartments: Number(usage.active_departments ?? 0)
+              }}
+            />
+            <div className="actions" style={{ marginTop: 14 }}>
+              <Link className="button" href="/workspace/subscription/checkout">
+                פירוט המחיר והחיוב הראשון
               </Link>
               <Link className="button" href="/pricing">
                 השוואת מסלולים
-              </Link>
-              <Link className="button" href="/workspace/support">
-                פנייה לשינוי מסלול
               </Link>
             </div>
           </section>
