@@ -1576,33 +1576,72 @@ export type Database = {
       }
       subscriptions: {
         Row: {
+          billing_anchor_at: string | null
           billing_period: string
+          billing_provider: string | null
+          cancel_at_period_end: boolean
+          canceled_at: string | null
           created_at: string
+          currency: string
           current_period_end: string | null
+          last_payment_at: string | null
+          last_payment_failure_at: string | null
+          launch_offer_eligible: boolean
+          launch_offer_months_remaining: number
+          next_charge_at: string | null
           organization_id: string
           plan_id: string
+          provider_customer_id: string | null
+          provider_payment_method_id: string | null
+          provider_subscription_id: string | null
           status: Database["public"]["Enums"]["subscription_status"]
           trial_ends_at: string | null
           trial_started_at: string | null
           updated_at: string
         }
         Insert: {
+          billing_anchor_at?: string | null
           billing_period?: string
+          billing_provider?: string | null
+          cancel_at_period_end?: boolean
+          canceled_at?: string | null
           created_at?: string
+          currency?: string
           current_period_end?: string | null
+          last_payment_at?: string | null
+          last_payment_failure_at?: string | null
+          launch_offer_eligible?: boolean
+          launch_offer_months_remaining?: number
+          next_charge_at?: string | null
           organization_id: string
           plan_id: string
+          provider_customer_id?: string | null
+          provider_payment_method_id?: string | null
+          provider_subscription_id?: string | null
           status?: Database["public"]["Enums"]["subscription_status"]
           trial_ends_at?: string | null
           trial_started_at?: string | null
           updated_at?: string
         }
         Update: {
+          billing_anchor_at?: string | null
           billing_period?: string
+          billing_provider?: string | null
+          cancel_at_period_end?: boolean
+          canceled_at?: string | null
           created_at?: string
+          currency?: string
           current_period_end?: string | null
+          last_payment_at?: string | null
+          last_payment_failure_at?: string | null
+          launch_offer_eligible?: boolean
+          launch_offer_months_remaining?: number
+          next_charge_at?: string | null
           organization_id?: string
           plan_id?: string
+          provider_customer_id?: string | null
+          provider_payment_method_id?: string | null
+          provider_subscription_id?: string | null
           status?: Database["public"]["Enums"]["subscription_status"]
           trial_ends_at?: string | null
           trial_started_at?: string | null
@@ -1935,9 +1974,108 @@ export type Database = {
           shifts_cancelled: number
         }[]
       }
+      cancel_subscription: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          billing_anchor_at: string | null
+          billing_period: string
+          billing_provider: string | null
+          cancel_at_period_end: boolean
+          canceled_at: string | null
+          created_at: string
+          currency: string
+          current_period_end: string | null
+          last_payment_at: string | null
+          last_payment_failure_at: string | null
+          launch_offer_eligible: boolean
+          launch_offer_months_remaining: number
+          next_charge_at: string | null
+          organization_id: string
+          plan_id: string
+          provider_customer_id: string | null
+          provider_payment_method_id: string | null
+          provider_subscription_id: string | null
+          status: Database["public"]["Enums"]["subscription_status"]
+          trial_ends_at: string | null
+          trial_started_at: string | null
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "subscriptions"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
+      change_subscription_plan: {
+        Args: { target_period?: string; target_plan_id: string }
+        Returns: {
+          billing_anchor_at: string | null
+          billing_period: string
+          billing_provider: string | null
+          cancel_at_period_end: boolean
+          canceled_at: string | null
+          created_at: string
+          currency: string
+          current_period_end: string | null
+          last_payment_at: string | null
+          last_payment_failure_at: string | null
+          launch_offer_eligible: boolean
+          launch_offer_months_remaining: number
+          next_charge_at: string | null
+          organization_id: string
+          plan_id: string
+          provider_customer_id: string | null
+          provider_payment_method_id: string | null
+          provider_subscription_id: string | null
+          status: Database["public"]["Enums"]["subscription_status"]
+          trial_ends_at: string | null
+          trial_started_at: string | null
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "subscriptions"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       check_open_shift_eligibility: {
         Args: { target_shift_id: string }
         Returns: Json
+      }
+      resume_subscription: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          billing_anchor_at: string | null
+          billing_period: string
+          billing_provider: string | null
+          cancel_at_period_end: boolean
+          canceled_at: string | null
+          created_at: string
+          currency: string
+          current_period_end: string | null
+          last_payment_at: string | null
+          last_payment_failure_at: string | null
+          launch_offer_eligible: boolean
+          launch_offer_months_remaining: number
+          next_charge_at: string | null
+          organization_id: string
+          plan_id: string
+          provider_customer_id: string | null
+          provider_payment_method_id: string | null
+          provider_subscription_id: string | null
+          status: Database["public"]["Enums"]["subscription_status"]
+          trial_ends_at: string | null
+          trial_started_at: string | null
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "subscriptions"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
       claim_email_delivery_jobs: {
         Args: { batch_size?: number }

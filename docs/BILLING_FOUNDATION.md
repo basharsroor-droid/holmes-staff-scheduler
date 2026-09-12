@@ -51,6 +51,18 @@ The product pricing rules stay in ShiftPilot. A provider receives the final amou
 
 `/workspace/subscription/checkout` (owner/admin) is built and linked from "המנוי שלי": plan and period are chosen by link (`?plan=&period=`, parsed by `parseCheckoutSelection`, self-serve plans only), the order summary comes from `quoteInvoice` (first charge, launch offer, charges after the offer), and it warns when current usage exceeds the chosen plan's quotas. The pay button is **disabled**. To go live: add a server action that builds the `BillingGateway` adapter, calls `createCheckout({ organizationId, planId, period, customerEmail })` and redirects to the provider's hosted page; enable the button only when `resolveBillingProvider(process.env.BILLING_PROVIDER).enabled` **and** an adapter exists. `BILLING_PROVIDER` is server-only and defaults to disabled.
 
+## Plan change and cancellation (live, trial only)
+
+Migration `20260912090000_subscription_plan_change.sql` adds the only write path to `public.subscriptions`, since the client has SELECT and nothing else:
+
+- `change_subscription_plan(target_plan_id, target_period)` — owner only, **only while `status = 'trialing'`**, never to `enterprise` (custom quote), and refused when the workspace already exceeds the target plan's quotas (`subscription_change:over_quota:<resource>`, counted exactly like `private.assert_plan_capacity`).
+- `cancel_subscription()` — owner only. Records intent (`cancel_at_period_end`, `canceled_at`); the workspace keeps working until the trial ends. **Nothing in the product locks a workspace when a trial expires yet** — that transition arrives with the provider's webhook or a scheduled job.
+- `resume_subscription()` — owner only, undoes a pending cancellation.
+
+Every call writes an `audit_logs` row (`subscriptions.plan_change` / `.cancel` / `.resume`). `lib/subscription-changes.ts` holds the pure half (plan order, the same quota comparison the screen shows before the click, Hebrew messages) and is unit-tested.
+
+Once billing starts, a plan change moves money (proration, refunds, invoices) and belongs to the provider: the RPC refuses with `subscription_change:requires_billing_provider` and "המנוי שלי" sends the owner to support.
+
 ## When we connect Grow (or another provider)
 
 Do this only when ShiftPilot is ready to collect money:
