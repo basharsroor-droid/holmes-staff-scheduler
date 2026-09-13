@@ -16,7 +16,7 @@ const capabilities = [
   { icon: Repeat2, title: "החלפות בתהליך ברור", text: "כל בקשת החלפה עוברת אישור מסודר — ותמיד יודעים בדיוק מי אישר ומתי" },
   { icon: UserPlus, title: "מוכן לעסק שגדל", text: "מזמינים כל עובד במייל, ומגדירים בדיוק לאיזה סניף, מחלקה ותפקיד הוא שייך" },
   { icon: BarChart3, title: "יודעים בדיוק מה חסר לפני שמפרסמים", text: "מי כבר הגיש, מי עדיין חסר, איפה נשארו משמרות פתוחות ומה דורש טיפול" },
-  { icon: ShieldCheck, title: "המידע שלכם נשאר פרטי", text: "כל עסק פועל בסביבה נפרדת משלו, וכל עובד רואה רק את מה שרלוונטי לתפקיד שלו" }
+  { icon: ShieldCheck, title: "מידע מופרד, הרשאות בשליטה", text: "כל עסק פועל בסביבה נפרדת משלו, וכל עובד רואה רק את מה שרלוונטי לתפקיד שלו" }
 ];
 
 const setupSteps = [
@@ -82,19 +82,19 @@ export default function HomePage() {
     </section>
 
     <section className="pro-section pricing-teaser-section" id="pricing">
-      <ScrollReveal className="section-heading centered"><p className="pro-kicker dark">תמחור</p><h2>מחיר פשוט, לפי הגודל של העסק</h2><p>30 ימי ניסיון ללא כרטיס אשראי, ואז מסלול חודשי לפי מספר העובדים, המחלקות והמנהלים — הכול במחירי השקה, לפני מע״מ</p></ScrollReveal>
-      <div className="pricing-teaser-grid">{PLANS.filter((plan) => plan.monthlyIls !== null).map((plan, index) => <ScrollReveal className={`pricing-teaser-card${plan.badge ? " featured" : ""}`} delay={index * 70} key={plan.id}>{plan.badge ? <span className="pricing-teaser-badge">{plan.badge}</span> : null}<h3>{plan.name}</h3><strong>₪{plan.monthlyIls}<span>/ לחודש</span></strong><p>{plan.tagline}</p></ScrollReveal>)}</div>
+      <ScrollReveal className="section-heading centered"><p className="pro-kicker dark">תמחור</p><h2>מחיר פשוט שמתאים לגודל העסק</h2><p>30 ימי ניסיון ללא כרטיס אשראי, ואז מסלול חודשי לפי מספר העובדים, המחלקות והמנהלים — הכול במחירי השקה, לפני מע״מ</p></ScrollReveal>
+      <div className="pricing-teaser-grid">{PLANS.filter((plan) => plan.monthlyIls !== null).map((plan, index) => <ScrollReveal className={`pricing-teaser-card${plan.badge ? " featured" : ""}`} delay={index * 70} key={plan.id}>{plan.badge ? <span className="pricing-teaser-badge">{plan.badge}</span> : null}<h3>{plan.name}</h3><strong>₪{plan.monthlyIls}<span>/ לחודש</span></strong><p>{plan.tagline}</p><div className="pricing-teaser-meta"><span>עד {plan.maxActiveEmployees} עובדים</span><span>{plan.maxDepartments === 1 ? "מחלקה אחת" : `עד ${plan.maxDepartments} מחלקות`}</span></div></ScrollReveal>)}</div>
       <ScrollReveal className="pricing-teaser-cta"><Link className="button brand-button large" href="/pricing">לתמחור המלא ולהשוואת מסלולים <ArrowLeft size={18} /></Link></ScrollReveal>
     </section>
 
     <section className="pro-section security-section" id="security">
-      <ScrollReveal className="security-copy"><p className="pro-kicker">הרשאות והפרדת מידע</p><h2>המידע של העסק שלכם נשאר פרטי, תמיד</h2><p>כל משתמש רואה בדיוק את מה שנוגע אליו, לא פחות ולא יותר: העובדים רואים את המשמרות שלהם, המנהלים פועלים בתוך תחומי האחריות שלהם ובעל העסק שולט בהכול</p><div><span><LockKeyhole /> כניסה מאובטחת ואימות מייל</span><span><ShieldCheck /> הרשאות לפי תפקיד וסניף</span><span><Building2 /> הפרדה בין סביבות עבודה</span></div></ScrollReveal>
+      <ScrollReveal className="security-copy"><p className="pro-kicker">הרשאות והפרדת מידע</p><h2>המידע של כל עסק מופרד ומוגן — ואתם קובעים מי רואה מה</h2><p>כל משתמש מקבל גישה רק למה שנדרש לתפקיד שלו: העובדים רואים את המשמרות שלהם, המנהלים פועלים בתחומי האחריות שלהם ובעל העסק שולט בהכול</p><div><span><LockKeyhole /> כניסה מאובטחת ואימות מייל</span><span><ShieldCheck /> הרשאות לפי תפקיד וסניף</span><span><Building2 /> הפרדה בין סביבות עבודה</span></div></ScrollReveal>
       <ScrollReveal className="security-visual" delay={120}><ShieldCheck /><span><b>בידוד מלא</b><small>המידע שלכם לא נגיש לאף עסק אחר</small></span><i /><span><b>הרשאות לפי תפקיד</b><small>כל אחד רואה רק את מה שנוגע אליו</small></span><i /><span><b>תיעוד מלא</b><small>כל פעולה ניהולית נשמרת ומתועדת</small></span></ScrollReveal>
     </section>
 
     <section className="pro-section faq-section"><ScrollReveal className="section-heading"><p className="pro-kicker dark">שאלות נפוצות</p><h2>לפני שמתחילים</h2></ScrollReveal><div className="faq-grid"><details open><summary>האם צריך להוריד אפליקציה?</summary><p>לא. ShiftPilot פועלת ישירות בדפדפן בטלפון ובמחשב, וכל משתמש נכנס לסביבה שלו באמצעות חשבון מאובטח.</p></details><details><summary>אפשר להתאים את המשמרות לכל עסק?</summary><p>כן. אפשר להגדיר שמות, שעות, מספר עובדים ודרישות מיוחדות בהתאם לסניף, לעונה ולאופן העבודה של העסק.</p></details><details><summary>איך מתבצעת החלפת משמרת?</summary><p>העובד שולח בקשה, העובד המחליף מאשר והמנהל נותן אישור סופי. הסידור מתעדכן רק לאחר השלמת התהליך.</p></details><details><summary>אפשר לנהל כמה סניפים ומחלקות?</summary><p>כן. אפשר לשייך עובדים, מנהלים ומשמרות לסניפים ולמחלקות, ולהגדיר לכל משתמש את תחומי הגישה המתאימים לו.</p></details></div></section>
 
-    <section className="final-cta"><ScrollReveal><BrandLogo light /><h2>את הסידור הבא אפשר להתחיל אחרת</h2><p>פתחו סביבת עבודה לעסק, הזמינו את הצוות ורכזו את הזמינות, השיבוצים וההחלפות במקום אחד</p><div><Link className="button brand-button large" href="/onboarding">פתיחת סביבת עבודה <ArrowLeft size={18} /></Link><Link className="button glass-button large" href="/demo">צפייה בדמו</Link></div></ScrollReveal></section>
+    <section className="final-cta"><ScrollReveal><BrandLogo light /><h2>הסידור הבא מתחיל כאן</h2><p>פתחו סביבת עבודה לעסק, הזמינו את הצוות ורכזו את הזמינות, השיבוצים וההחלפות במקום אחד</p><div><Link className="button brand-button large" href="/onboarding">פתיחת סביבת עבודה <ArrowLeft size={18} /></Link><Link className="button glass-button large" href="/demo">צפייה בדמו</Link></div></ScrollReveal></section>
 
     <MobileStickyActions />
 
