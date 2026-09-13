@@ -12,6 +12,9 @@ test("marketing page exposes the primary product journeys", async ({ page }) => 
   // still proves the primary journey is present and visible.
   await expect(page.getByRole("link", { name: /פתיחת סביבת עבודה/ }).first()).toBeVisible();
   await expect(page.getByRole("link", { name: /לצפייה בדמו/ }).first()).toBeVisible();
+  await expect(page.locator(".pricing-teaser-card")).toHaveCount(4);
+  await expect(page.getByRole("heading", { name: "המידע של כל עסק מופרד ומוגן — ואתם קובעים מי רואה מה" })).toBeAttached();
+  await expect(page.getByRole("heading", { name: "הסידור הבא מתחיל כאן" })).toBeAttached();
 });
 
 test("production responses include browser security headers", async ({ request }) => {
